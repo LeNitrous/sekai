@@ -158,20 +158,20 @@ public class GameThreadManager : FrameworkComponent, IReadOnlyList<GameThread>
             switch (ExecutionMode)
             {
                 case ExecutionMode.MultiThread:
-                {
-                    mainThread?.RunSingleFrame();
-                    break;
-                }
+                    {
+                        mainThread?.RunSingleFrame();
+                        break;
+                    }
 
                 case ExecutionMode.SingleThread:
-                {
-                    lock (threads)
                     {
-                        foreach (var t in threads)
-                            t.RunSingleFrame();
+                        lock (threads)
+                        {
+                            foreach (var t in threads)
+                                t.RunSingleFrame();
+                        }
+                        break;
                     }
-                    break;
-                }
 
                 default:
                     throw new InvalidOperationException(@"Invalid execution mode.");
