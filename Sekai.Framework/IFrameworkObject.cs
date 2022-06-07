@@ -4,7 +4,8 @@
 using System;
 
 namespace Sekai.Framework;
-public interface IFrameworkComponent : IDisposable
+
+public interface IFrameworkObject : IDisposable
 {
-    protected virtual void Destroy() { }
+    bool IsDisposed { get; }
 }

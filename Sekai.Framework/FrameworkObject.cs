@@ -5,7 +5,7 @@ using System;
 
 namespace Sekai.Framework;
 
-public abstract class FrameworkComponent : IFrameworkComponent
+public abstract class FrameworkObject : IFrameworkObject
 {
     public bool IsDisposed { get; private set; }
 
