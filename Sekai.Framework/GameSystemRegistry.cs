@@ -42,7 +42,7 @@ public class GameSystemRegistry : IDisposable
         if (!systems.ContainsKey(typeof(T)))
             throw new InvalidOperationException($"System {system} of type {typeof(T).Name} is not registered.");
 
-
+        system.Dispose();
         systems.Remove(typeof(T));
     }
 
