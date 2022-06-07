@@ -4,17 +4,10 @@
 namespace Sekai.Framework;
 public abstract class GameSystem : FrameworkComponent, IGameSystem
 {
-    private readonly GameSystemRegistry gsr;
-
-    protected GameSystem(GameSystemRegistry gsr)
-    {
-        this.gsr = gsr;
-
-        gsr.Register(this);
-    }
+    private readonly GameSystemRegistry? gsr;
 
     protected override void Destroy()
     {
-        gsr.Unregister(this);
+        gsr?.Unregister(this);
     }
 }
