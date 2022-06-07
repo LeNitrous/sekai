@@ -57,10 +57,9 @@ public class InMemoryStorage : IStorage
     {
         path = localizePath(path);
 
-        if (Exists(path) && mode == FileMode.CreateNew)
-            throw new InvalidOperationException();
-
-        return !Exists(path) && mode == FileMode.Open
+        return Exists(path) && mode == FileMode.CreateNew
+            ? throw new InvalidOperationException()
+            : !Exists(path) && mode == FileMode.Open
             ? throw new FileNotFoundException(null, Path.GetFileName(path))
             : (Stream)new InMemoryStorageStream(this, path);
     }

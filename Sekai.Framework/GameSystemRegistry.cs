@@ -63,7 +63,7 @@ public class GameSystemRegistry : IDisposable
         // so we'll have to dispose them immediately on dispose.
         foreach (var item in systems.Values)
             item.Dispose();
-        
+
         systems.Clear();
         GC.SuppressFinalize(this);
     }
