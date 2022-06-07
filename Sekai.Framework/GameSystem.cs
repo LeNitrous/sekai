@@ -1,11 +1,6 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
-
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Sekai.Framework;
 public abstract class GameSystem : IGameSystem
@@ -20,18 +15,13 @@ public abstract class GameSystem : IGameSystem
         gsr.Register(this);
     }
 
-    private void destroy()
+    public virtual void Dispose()
     {
-        gsr.Unregister(this);
-        GC.SuppressFinalize(this);
-    }
-
-    public virtual void Dispose(bool isDisposing)
-    {
-        if (isDisposing) return;
-        destroy();
+        if (IsDisposed)
+            return;
 
         IsDisposed = true;
+        gsr.Unregister(this);
         GC.SuppressFinalize(this);
     }
 }
