@@ -2,10 +2,8 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using Sekai.Framework.Logging;
-using Silk.NET.Maths;
 using Silk.NET.Windowing;
 using Silk.NET.Windowing.Extensions.Veldrid;
 using Veldrid;
@@ -15,54 +13,36 @@ namespace Sekai.Framework.Graphics;
 
 public class GraphicsContext : FrameworkComponent, IGraphicsContext
 {
-    public IView View { get; }
-    public CommandList? Commands { get; private set; }
-    public GraphicsDevice? Device { get; private set; }
+    public GraphicsDevice Device { get; private set; }
 
-    [MemberNotNullWhen(true, nameof(Device), nameof(Commands))]
-    public bool IsLoaded { get; private set; }
-
-    private readonly GraphicsBackend graphicsAPI = GraphicsBackend.Vulkan;
-
-    public GraphicsContext()
+    public GraphicsContext(IView view, GraphicsBackend backend)
     {
-        var viewOptions = new ViewOptions
-        {
-            API = graphicsAPI.ToGraphicsAPI(),
-            VSync = false,
-            FramesPerSecond = 120,
-            UpdatesPerSecond = 240,
-            ShouldSwapAutomatically = false,
-        };
-
-        var windowOptions = new WindowOptions(viewOptions)
-        {
-            Size = new Vector2D<int>(1366, 768),
-            Title = @"Sekai Framework",
-            WindowBorder = WindowBorder.Fixed,
-        };
-
-        View = Window.IsViewOnly
-            ? Window.GetView(viewOptions)
-            : Window.Create(windowOptions);
-
-        View.Load += initialize;
-        View.Resize += size => Device?.ResizeMainWindow((uint)size.X, (uint)size.Y);
-    }
-
-    private unsafe void initialize()
-    {
-        Device = View.CreateGraphicsDevice
+        Device = view.CreateGraphicsDevice
         (
             new()
             {
                 PreferStandardClipSpaceYDirection = true,
                 PreferDepthRangeZeroToOne = true
-            }, graphicsAPI
+            }, backend
         );
 
-        Commands = Device.ResourceFactory.CreateCommandList();
+        switch (backend)
+        {
+            case GraphicsBackend.Vulkan:
+                initializeVulkan();
+                break;
 
+            case GraphicsBackend.Direct3D11:
+            case GraphicsBackend.OpenGL:
+            case GraphicsBackend.Metal:
+            case GraphicsBackend.OpenGLES:
+            default:
+                throw new NotSupportedException();
+        }
+    }
+
+    private unsafe void initializeVulkan()
+    {
         if (!Device.GetVulkanInfo(out var info))
             return;
 
