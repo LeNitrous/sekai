@@ -21,6 +21,8 @@ public abstract class Game : FrameworkComponent
     protected IGraphicsContext? Graphics { get; private set; }
     protected GameThreadManager? Threads { get; private set; }
 
+    protected GameSystemRegistry? Systems { get; private set; }
+
     public void Run(GameOptions? options = null)
     {
         Logger.OnMessageLogged += new LogListenerConsole();
@@ -68,6 +70,7 @@ public abstract class Game : FrameworkComponent
     {
         Input = View?.CreateInput();
         Storage = new VirtualStorage();
+        Systems = new GameSystemRegistry();
         Load();
     }
 
@@ -94,5 +97,6 @@ public abstract class Game : FrameworkComponent
         Storage?.Dispose();
         Input?.Dispose();
         Graphics?.Dispose();
+        Systems?.Dispose();
     }
 }
