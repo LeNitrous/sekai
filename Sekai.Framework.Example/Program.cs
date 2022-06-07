@@ -8,11 +8,4 @@ game.Run();
 
 internal class ExampleGame : Game
 {
-    protected override void Load()
-    {
-    }
-
-    protected override void Draw()
-    {
-    }
 }

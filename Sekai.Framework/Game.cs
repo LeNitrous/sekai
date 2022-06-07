@@ -1,93 +1,98 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-using System;
-using System.Diagnostics;
 using Sekai.Framework.Graphics;
 using Sekai.Framework.IO.Storage;
 using Sekai.Framework.Logging;
+using Sekai.Framework.Threading;
 using Silk.NET.Input;
+using Silk.NET.Maths;
 using Silk.NET.Windowing;
+using Silk.NET.Windowing.Extensions.Veldrid;
+using Veldrid;
 
 namespace Sekai.Framework;
 
 public abstract class Game : FrameworkComponent
 {
+    protected IView? View { get; private set; }
     protected IInputContext? Input { get; private set; }
     protected VirtualStorage? Storage { get; private set; }
     protected IGraphicsContext? Graphics { get; private set; }
-    private readonly Stopwatch clock = new();
+    protected GameThreadManager? Threads { get; private set; }
 
-    public void Run()
+    public void Run(GameOptions? options = null)
     {
+        Logger.OnMessageLogged += new LogListenerConsole();
+        options ??= GameOptions.Default;
+
+        var viewOptions = new ViewOptions
+        {
+            API = options.Backend.ToGraphicsAPI(),
+            VSync = options.VSync,
+            ShouldSwapAutomatically = false,
+        };
+
+        var windowOptions = new WindowOptions(viewOptions)
+        {
+            Size = new Vector2D<int>(options.Size.Width, options.Size.Height),
+            Title = options.Title,
+            WindowBorder = WindowBorder.Fixed,
+        };
+
+        View = Window.IsViewOnly
+            ? Window.GetView(viewOptions)
+            : Window.Create(windowOptions);
+
+        View.Load += initialize;
+        View.Resize += resize;
+        View.Closing += Dispose;
+        View.Initialize();
+
+        Graphics = new GraphicsContext(View, options.Backend);
+
+        Threads = new GameThreadManager
+        {
+            ExecutionMode = options.ExecutionMode,
+            FramesPerSecond = options.FramesPerSecond,
+            UpdatePerSecond = options.UpdatePerSecond,
+        };
+
+        Threads.Add(new WindowThread(View));
+        Threads.Add(new RenderThread(Graphics, "Main", Render, true));
+        Threads.Add(new GameThread("Update", Update));
+        Threads.Run();
+    }
+
+    private void initialize()
+    {
+        Input = View?.CreateInput();
         Storage = new VirtualStorage();
-        Graphics = new GraphicsContext();
-        Graphics.View.Load += initialize;
-        Graphics.View.Render += _ => render();
-        Graphics.View.Update += _ => update();
-        Graphics.View.Closing += Dispose;
-        Graphics.View.Run();
+        Load();
+    }
+
+    private void resize(Vector2D<int> size)
+    {
+        Graphics?.Device.ResizeMainWindow((uint)size.X, (uint)size.Y);
     }
 
     protected virtual void Load()
     {
     }
 
-    protected virtual void Draw()
+    protected virtual void Render(CommandList commands)
     {
     }
 
-    protected virtual void Update(TimeSpan elapsed)
+    protected virtual void Update()
     {
-    }
-
-    private void initialize()
-    {
-        Logger.OnMessageLogged += new LogListenerConsole();
-        Input = Graphics?.View.CreateInput();
-        Load();
-    }
-
-    private void render()
-    {
-        if (Graphics is GraphicsContext context && context.IsLoaded)
-        {
-            context.Commands.Begin();
-
-            try
-            {
-                Draw();
-            }
-            catch (Exception e)
-            {
-                Logger.Error(@"An exception has occured while rendering.", e);
-            }
-
-            context.Commands.End();
-            context.Device.SubmitCommands(context.Commands);
-            context.Device.WaitForIdle();
-            context.Device.SwapBuffers();
-        }
-    }
-
-    private void update()
-    {
-        clock.Restart();
-
-        try
-        {
-            Update(clock.Elapsed);
-        }
-        catch (Exception e)
-        {
-            Logger.Error(@"An exception has occured while updating.", e);
-        }
     }
 
     protected override void Destroy()
     {
-        Input?.Dispose();
+        Threads?.Dispose();
         Storage?.Dispose();
+        Input?.Dispose();
         Graphics?.Dispose();
     }
 }
