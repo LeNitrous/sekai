@@ -11,7 +11,7 @@ using Sekai.Framework.Logging;
 
 namespace Sekai.Framework.Threading;
 
-public class GameThreadManager : FrameworkComponent, IReadOnlyList<GameThread>
+public class GameThreadManager : FrameworkObject, IReadOnlyList<GameThread>
 {
     private readonly List<GameThread> threads = new();
     private IEnumerable<GameThread> updateThreads => threads.Except(renderThreads);

@@ -16,7 +16,7 @@ using Vulkan;
 
 namespace Sekai.Framework.Graphics;
 
-public class GraphicsContext : FrameworkComponent, IGraphicsContext
+public class GraphicsContext : FrameworkObject, IGraphicsContext
 {
     public GraphicsDevice Device { get; private set; }
 

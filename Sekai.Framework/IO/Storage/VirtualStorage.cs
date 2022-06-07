@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Sekai.Framework.IO.Storage;
 
-public class VirtualStorage : FrameworkComponent, IStorage
+public class VirtualStorage : FrameworkObject, IStorage
 {
     private readonly Dictionary<string, IStorage> storages = new();
 
