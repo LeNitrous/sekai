@@ -1,6 +1,8 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
+
 using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Sekai.Framework;
@@ -9,7 +11,7 @@ namespace Sekai.Framework;
 /// This class keeps track of the actively registered game classes.
 //  Every game system must be registered here, otherwise, it cannot be used.
 /// </summary>
-public class GameSystemRegistry : IDisposable
+public class GameSystemRegistry : FrameworkObject, IEnumerable<IGameSystem>
 {
     private readonly Dictionary<Type, IGameSystem> systems = new();
 
@@ -26,38 +28,27 @@ public class GameSystemRegistry : IDisposable
     /// <summary>
     /// Registers a game system.
     /// </summary>
-    public void Register<T>(T system) where T : IGameSystem
+    public void Register<T>() where T : IGameSystem
     {
         if (systems.ContainsKey(typeof(T)))
             throw new InvalidOperationException($"System of type {typeof(T).Name} is already registered.");
 
-        systems.Add(typeof(T), system);
+        systems.Add(typeof(T), Activator.CreateInstance<T>());
     }
 
     /// <summary>
-    /// Unregisters a game system. This also disposes it, so be wary if you really wanna do this.
+    /// Unregisters a game system.
     /// </summary>
-    public void Unregister<T>(T system) where T : IGameSystem
+    public void Unregister<T>() where T : IGameSystem
     {
         if (!systems.ContainsKey(typeof(T)))
-            throw new InvalidOperationException($"System {system} of type {typeof(T).Name} is not registered.");
+            throw new InvalidOperationException($"System of type {typeof(T).Name} is not registered.");
 
-        system.Dispose();
+        systems[typeof(T)].Dispose();
         systems.Remove(typeof(T));
     }
 
-    /// <summary>
-    /// Returns an enumerator for the registry.
-    /// </summary>
-    public Dictionary<Type, IGameSystem>.Enumerator GetEnumerator()
-    {
-        return systems.GetEnumerator();
-    }
-
-    /// <summary>
-    /// Disposes the Registry and it's registered components.
-    /// </summary>
-    public void Dispose()
+    protected override void Destroy()
     {
         // we can't leave any game systems dangling
         // so we'll have to dispose them immediately on dispose.
@@ -65,6 +56,15 @@ public class GameSystemRegistry : IDisposable
             item.Dispose();
 
         systems.Clear();
-        GC.SuppressFinalize(this);
+    }
+
+    public IEnumerator<IGameSystem> GetEnumerator()
+    {
+        return systems.Values.GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
     }
 }
