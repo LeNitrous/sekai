@@ -6,9 +6,9 @@ using System.Collections;
 using System.Collections.Generic;
 
 namespace Sekai.Framework.Structures;
-public class WeakList<T> : IList, IList<T>, IReadOnlyList<T>,
-              ICollection, ICollection<T>, IReadOnlyCollection<T>,
-              IEnumerable, IEnumerable<T>, IEnumerator<T> where T : class
+
+public class WeakList<T> : IList, IList<T>, IReadOnlyList<T>, ICollection, ICollection<T>, IReadOnlyCollection<T>, IEnumerable, IEnumerable<T>, IEnumerator<T>, IDisposable
+    where T : class
 {
     /// <summary>
     ///     The backing object is just a list of weak references
@@ -54,7 +54,7 @@ public class WeakList<T> : IList, IList<T>, IReadOnlyList<T>,
     /// </summary>
     /// <param name="index">A non-negative integer index</param>
     /// <returns>A value, null otherwise</returns>
-    object IList.this[int index]
+    object? IList.this[int index]
     {
         get => (index < 0 || index >= list.Count) ? null : list[index].GetValue();
         set
@@ -153,10 +153,14 @@ public class WeakList<T> : IList, IList<T>, IReadOnlyList<T>,
     /// <returns>A value, null otherwise</returns>
     public T this[int index]
     {
-        get => (index < 0 || index >= list.Count) ? null : list[index].GetValue();
+#pragma warning disable CS8603
+        get => (index < 0 || index >= list.Count) ? default : list[index].GetValue();
+#pragma warning restore CS8603
         set
         {
-            if (index < 0 || index >= list.Count) { return; }
+            if (index < 0 || index >= list.Count)
+                return;
+
             list[index].SetTarget(value);
         }
     }
@@ -388,7 +392,9 @@ public class WeakList<T> : IList, IList<T>, IReadOnlyList<T>,
     /// </summary>
     T? IEnumerator<T>.Current
     {
+#pragma warning disable CS8768
         get
+#pragma warning restore CS8768
         {
             try
             {
@@ -465,6 +471,7 @@ public class WeakList<T> : IList, IList<T>, IReadOnlyList<T>,
     public void Dispose()
     {
         position = -1;
+        GC.SuppressFinalize(this);
     }
     #endregion
 }
