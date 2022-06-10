@@ -361,6 +361,7 @@ public class WeakList<T> : IList, IList<T>, IReadOnlyList<T>, ICollection, IColl
                 i++;
             }
         }
+
         return false;
     }
     #endregion
