@@ -2,7 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 using System;
 
-namespace Sekai.Framework;
+namespace Sekai.Framework.System;
 
 public interface IFrameworkObject : IDisposable
 {

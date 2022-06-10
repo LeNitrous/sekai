@@ -6,7 +6,7 @@ using System.Reflection;
 using Sekai.Framework.Threading;
 using Veldrid;
 
-namespace Sekai.Framework.Systems;
+namespace Sekai.Framework.System;
 
 public class GameOptions
 {
