@@ -5,7 +5,7 @@ using System;
 
 namespace Sekai.Framework.Logging;
 
-public abstract class LogListener : FrameworkComponent
+public abstract class LogListener : FrameworkObject
 {
     public int MessagesLogged { get; private set; }
     public LogLevel Level { get; set; } = RuntimeInfo.IsDebug ? LogLevel.Debug : LogLevel.Information;

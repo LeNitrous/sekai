@@ -4,6 +4,7 @@
 using Sekai.Framework.Graphics;
 using Sekai.Framework.IO.Storage;
 using Sekai.Framework.Logging;
+using Sekai.Framework.System;
 using Sekai.Framework.Threading;
 using Silk.NET.Input;
 using Silk.NET.Maths;
@@ -13,13 +14,14 @@ using Veldrid;
 
 namespace Sekai.Framework;
 
-public abstract class Game : FrameworkComponent
+public abstract class Game : FrameworkObject
 {
     protected IView? View { get; private set; }
     protected IInputContext? Input { get; private set; }
     protected VirtualStorage? Storage { get; private set; }
     protected IGraphicsContext? Graphics { get; private set; }
     protected GameThreadManager? Threads { get; private set; }
+    protected GameSystemRegistry? Systems { get; private set; }
 
     public void Run(GameOptions? options = null)
     {
@@ -68,6 +70,7 @@ public abstract class Game : FrameworkComponent
     {
         Input = View?.CreateInput();
         Storage = new VirtualStorage();
+        Systems = new GameSystemRegistry();
         Load();
     }
 
@@ -94,5 +97,6 @@ public abstract class Game : FrameworkComponent
         Storage?.Dispose();
         Input?.Dispose();
         Graphics?.Dispose();
+        Systems?.Dispose();
     }
 }

@@ -10,7 +10,7 @@ using DotNet.Globbing;
 
 namespace Sekai.Framework.IO.Storage;
 
-public class ArchiveBackedStorage : FrameworkComponent, IStorage
+public class ArchiveBackedStorage : FrameworkObject, IStorage
 {
     private readonly ZipArchive archive;
     private readonly IEnumerable<string> entries;
