@@ -3,19 +3,6 @@ root = true
 [*]
 indent_style = space
 trim_trailing_whitespace = true
-dotnet_style_operator_placement_when_wrapping = beginning_of_line
-tab_width = 4
-indent_size = 4
-end_of_line = crlf
-dotnet_style_coalesce_expression = true:warning
-dotnet_style_null_propagation = true:warning
-dotnet_style_prefer_is_null_check_over_reference_equality_method = true:error
-dotnet_style_prefer_auto_properties = true:warning
-dotnet_style_object_initializer = true:suggestion
-dotnet_style_collection_initializer = true:suggestion
-dotnet_style_prefer_simplified_boolean_expressions = true:warning
-dotnet_style_prefer_conditional_expression_over_assignment = false:silent
-dotnet_style_prefer_conditional_expression_over_return = false:silent
 
 [*.cs]
 charset = utf-8
@@ -150,7 +137,7 @@ csharp_new_line_between_query_expression_clauses = true:warning
 # Indentation options
 csharp_indent_case_contents = true:warning
 csharp_indent_switch_labels = true:warning
-csharp_indent_labels = no_change
+csharp_indent_labels = flush_left:warning
 csharp_indent_block_contents = true:warning
 csharp_indent_braces = false:warning
 csharp_indent_case_contents_when_block = false:warning
@@ -194,7 +181,7 @@ dotnet_naming_symbols.public_members_symbols.applicable_accessibilities = public
 
 # Public Static Members
 dotnet_naming_rule.public_static_members.severity = warning
-dotnet_naming_rule.public_static_members.style = public_members_style
+dotnet_naming_rule.public_static_members.style = public_static_members_style
 dotnet_naming_rule.public_static_members.symbols = public_static_members_symbols
 dotnet_naming_style.public_static_members_style.capitalization = pascal_case
 dotnet_naming_symbols.public_static_members_symbols.applicable_kinds = property,field,event,method
@@ -213,7 +200,7 @@ dotnet_naming_symbols.public_const_members_symbols.required_modifiers = const
 
 # Private/Local Members
 dotnet_naming_rule.private_local_members.severity = warning
-dotnet_naming_rule.private_local_members.style = parameters_style
+dotnet_naming_rule.private_local_members.style = private_local_members_style
 dotnet_naming_rule.private_local_members.symbols = private_local_members_symbols
 dotnet_naming_style.private_local_members_style.capitalization = camel_case
 dotnet_naming_symbols.private_local_members_symbols.applicable_kinds = property,field,event,method,local,local_function
@@ -231,7 +218,7 @@ dotnet_naming_symbols.private_static_const_members_symbols.required_modifiers = 
 
 # Local Const Members
 dotnet_naming_rule.local_const_members.severity = warning
-dotnet_naming_rule.local_const_members.style = private_static_const_members_style
+dotnet_naming_rule.local_const_members.style = local_const_members_style
 dotnet_naming_rule.local_const_members.symbols = local_const_members_symbols
 dotnet_naming_style.local_const_members_style.capitalization = all_lower
 dotnet_naming_style.local_const_members_style.word_separator = _
@@ -271,5 +258,3 @@ dotnet_naming_style.types_interface_style.capitaization = pascal_case
 dotnet_naming_style.types_interface_style.required_prefix = I
 dotnet_naming_symbols.types_interface_symbols.applicable_kinds = interface
 dotnet_naming_symbols.types_interface_symbols.applicable_accessibilities = *
-csharp_style_prefer_method_group_conversion = true:silent
-csharp_style_expression_bodied_lambdas = true:silent
