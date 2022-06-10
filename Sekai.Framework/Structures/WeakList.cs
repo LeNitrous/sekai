@@ -433,11 +433,11 @@ public class WeakList<T> : IList, IList<T>, IReadOnlyList<T>, ICollection, IColl
                     list.RemoveAt(i);
                     i--;
                 }
-                i++;
+            i++;
             }
             position = -1;
         }
-       (list.GetEnumerator() as IEnumerator)?.Reset();
+    (list.GetEnumerator() as IEnumerator)?.Reset();
     }
 
     #endregion
