@@ -7,7 +7,6 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using DotNet.Globbing;
-using Sekai.Framework.System;
 
 namespace Sekai.Framework.IO.Storage;
 

@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Sekai.Framework.System;
+namespace Sekai.Framework;
 
 public abstract class FrameworkObject : IFrameworkObject
 {

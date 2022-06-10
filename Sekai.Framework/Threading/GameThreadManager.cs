@@ -8,7 +8,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Sekai.Framework.Logging;
-using Sekai.Framework.System;
 
 namespace Sekai.Framework.Threading;
 
