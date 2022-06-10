@@ -6,7 +6,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using Sekai.Framework.Logging;
-using Sekai.Framework.System;
 using SharpDX;
 using SharpDX.DXGI;
 using Silk.NET.Windowing;
