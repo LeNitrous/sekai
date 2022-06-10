@@ -30,7 +30,7 @@ public class ServiceContainer : IReadOnlyServiceContainer
 
         lock (syncLock)
         {
-            if (singletonCache.TryGetValue(typeof(T), out var value))
+            if (singletonCache.TryGetValue(typeof(T), out object? value))
             {
                 var type = value.GetType();
 
@@ -42,7 +42,7 @@ public class ServiceContainer : IReadOnlyServiceContainer
 
             if (transientCache.TryGetValue(typeof(T), out var func))
             {
-                var result = func();
+                object? result = func();
                 var type = result.GetType();
 
                 if (!type.IsAssignableTo(typeof(T)))
