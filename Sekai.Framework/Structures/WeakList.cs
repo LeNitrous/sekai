@@ -7,8 +7,8 @@ using System.Collections.Generic;
 
 namespace Sekai.Framework.Structures;
 public class WeakList<T> : IList, IList<T>, IReadOnlyList<T>,
-              ICollection, ICollection<T>, IReadOnlyCollection<T>,
-              IEnumerable, IEnumerable<T>, IEnumerator<T> where T : class
+    ICollection, ICollection<T>, IReadOnlyCollection<T>,
+    IEnumerable, IEnumerable<T>, IEnumerator<T> where T : class
 {
     /// <summary>
     ///     The backing object is just a list of weak references
@@ -431,7 +431,7 @@ public class WeakList<T> : IList, IList<T>, IReadOnlyList<T>,
             }
             position = -1;
         }
-       (list.GetEnumerator() as IEnumerator)?.Reset();
+      (list.GetEnumerator() as IEnumerator)?.Reset();
     }
 
     #endregion
