@@ -200,7 +200,7 @@ public class WeakList<T> : IList, IList<T>, IReadOnlyList<T>,
     public void Insert(int index, T item)
     {
         if (item is not T v)
-               return;
+            return;
 
         lock (SyncRoot)
         {
@@ -264,7 +264,7 @@ public class WeakList<T> : IList, IList<T>, IReadOnlyList<T>,
     public void Add(T item)
     {
         if (item is not T v)
-               return;
+            return;
 
         lock (SyncRoot)
         {
