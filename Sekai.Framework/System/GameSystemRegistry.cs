@@ -1,12 +1,11 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-using Sekai.Framework.System;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Sekai.Framework;
+namespace Sekai.Framework.System;
 
 /// <summary>
 /// This class keeps track of the actively registered game classes.

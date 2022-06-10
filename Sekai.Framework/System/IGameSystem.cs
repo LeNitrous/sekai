@@ -1,9 +1,7 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-using Sekai.Framework.System;
-
-namespace Sekai.Framework;
+namespace Sekai.Framework.System;
 
 /// <summary>
 /// The base class for all game systems.
