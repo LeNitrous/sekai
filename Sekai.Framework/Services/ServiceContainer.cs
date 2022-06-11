@@ -7,13 +7,11 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Sekai.Framework.Services;
 
-public class ServiceContainer : IReadOnlyServiceContainer
+public class ServiceContainer : FrameworkObject, IReadOnlyServiceContainer
 {
-    private readonly IReadOnlyServiceContainer? parent;
-    private readonly Dictionary<Type, Func<object>> transientCache = new();
-    private readonly Dictionary<Type, object> singletonCache = new();
-    private readonly List<Type> registeredTypes = new();
+    private IReadOnlyServiceContainer? parent;
     private readonly object syncLock = new();
+    private readonly Dictionary<Type, Func<object>> cache = new();
 
     public ServiceContainer(IReadOnlyServiceContainer? parent = null)
     {
@@ -22,64 +20,77 @@ public class ServiceContainer : IReadOnlyServiceContainer
 
     public T? Resolve<T>([DoesNotReturnIf(true)] bool required = false)
     {
-        if (!registeredTypes.Contains(typeof(T)))
+        object? result = Resolve(typeof(T), required);
+        return result is null ? default : (T)result;
+    }
+
+    public object? Resolve(Type target, bool required = false)
+    {
+        if (!cache.ContainsKey(target))
         {
             if (parent != null)
-                return parent.Resolve<T>(required);
+                return parent.Resolve(target, required);
         }
 
         lock (syncLock)
         {
-            if (singletonCache.TryGetValue(typeof(T), out object? value))
+            if (cache.TryGetValue(target, out var func))
             {
-                var type = value.GetType();
-
-                if (!type.IsAssignableTo(typeof(T)))
-                    throw new InvalidCastException($"Cannot cast {type} to {typeof(T)}");
-
-                return (T)value;
-            }
-
-            if (transientCache.TryGetValue(typeof(T), out var func))
-            {
-                object? result = func();
+                object result = func();
                 var type = result.GetType();
 
-                if (!type.IsAssignableTo(typeof(T)))
-                    throw new InvalidCastException($"Cannot cast {type} to {typeof(T)}");
+                if (!type.IsAssignableTo(target))
+                    throw new InvalidCastException($"Cannot cast {type} to {target}");
 
-                return (T)func();
+                return result;
             }
         }
 
         if (required)
-            throw new ServiceNotFoundException($"{typeof(T)} is not currently registered.");
+            throw new ServiceNotFoundException($"{target} is not currently registered.");
 
-        return default;
+        return null;
+    }
+
+    public void Cache(Type type, object instance)
+    {
+        if (!instance.GetType().IsAssignableTo(type))
+            throw new InvalidCastException($"Cannot cast {type} to {instance.GetType()}");
+
+        if (cache.ContainsKey(type))
+            throw new ServiceExistsException($"{type} is already registered for this container.");
+
+        lock (syncLock)
+        {
+            cache.Add(type, () => instance!);
+        }
+    }
+
+    public void Cache(Type type, Func<object> creationFunc)
+    {
+        if (cache.ContainsKey(type))
+            throw new ServiceExistsException($"{type} is already registered for this container.");
+
+        lock (syncLock)
+        {
+            cache.Add(type, creationFunc);
+        }
     }
 
     public void Cache<T>(T instance)
     {
-        if (registeredTypes.Contains(typeof(T)))
-            throw new ServiceExistsException($"{typeof(T)} is already registered for this container.");
-
-        lock (syncLock)
-        {
-            registeredTypes.Add(typeof(T));
-            singletonCache.Add(typeof(T), instance!);
-        }
+        Cache(typeof(T), instance!);
     }
 
     public void Cache<T>(Func<T> creationFunc)
     {
-        if (registeredTypes.Contains(typeof(T)))
-            throw new ServiceExistsException($"{typeof(T)} is already registered for this container.");
+        Cache(typeof(T), () => creationFunc()!);
+    }
 
-        lock (syncLock)
-        {
-            registeredTypes.Add(typeof(T));
-            transientCache.Add(typeof(T), () => creationFunc()!);
-        }
+    protected override void Destroy()
+    {
+        parent = null;
+        cache.Clear();
     }
 }
 
