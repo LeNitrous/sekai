@@ -5,7 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Sekai.Framework;
+namespace Sekai.Framework.System;
 
 /// <summary>
 /// This class keeps track of the actively registered game classes.
