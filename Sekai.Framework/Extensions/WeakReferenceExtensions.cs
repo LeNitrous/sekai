@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Sekai.Framework.Structures;
+namespace Sekai.Framework.Extensions;
 
 /// <summary>
 ///     A collection of extension methods for working with weak references
