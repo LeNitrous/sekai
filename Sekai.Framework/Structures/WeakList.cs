@@ -15,6 +15,28 @@ public class WeakList<T> : IList, IList<T>, IReadOnlyList<T>, ICollection, IColl
     /// </summary>
     private readonly List<WeakReference<T>> list = new();
 
+    /// <summary>
+    /// A marker for sweeping the list for dead references
+    /// </summary>
+    private readonly WeakReference<T> gcm = new(new object());
+
+    #region GC-related operations
+
+    private void cleanIfNeeded()
+    {
+        if (gcm.IsAlive)
+            return;
+
+        gcm.Target = new object();
+        Purge();
+    }
+
+    public bool Purge()
+    {
+        return list.RemoveAll(l => l.IsAlive) > 0;
+    }
+    #endregion
+
     #region IList
     /// <summary>
     ///     True if the list is fixed in size (it is not)
@@ -33,6 +55,8 @@ public class WeakList<T> : IList, IList<T>, IReadOnlyList<T>, ICollection, IColl
     /// <returns>The number of objects added</returns>
     public int Add(object? value)
     {
+        cleanIfNeeded();
+
         if (value is not T v)
             return 0;
 
@@ -56,7 +80,11 @@ public class WeakList<T> : IList, IList<T>, IReadOnlyList<T>, ICollection, IColl
     /// <returns>A value, null otherwise</returns>
     object? IList.this[int index]
     {
-        get => (index < 0 || index >= list.Count) ? null : list[index].GetValue();
+        get
+        {
+            cleanIfNeeded();
+            return (index < 0 || index >= list.Count) ? null : list[index].GetValue();
+        }
         set
         {
             if (index < 0 || index >= list.Count)
@@ -154,7 +182,11 @@ public class WeakList<T> : IList, IList<T>, IReadOnlyList<T>, ICollection, IColl
     public T this[int index]
     {
 #pragma warning disable CS8603
-        get => (index < 0 || index >= list.Count) ? default : list[index].GetValue();
+        get
+        {
+            cleanIfNeeded();
+            return (index < 0 || index >= list.Count) ? default : list[index].GetValue();
+        }
 #pragma warning restore CS8603
         set
         {
@@ -203,6 +235,8 @@ public class WeakList<T> : IList, IList<T>, IReadOnlyList<T>, ICollection, IColl
     /// <param name="item">The item to insert</param>
     public void Insert(int index, T item)
     {
+        cleanIfNeeded();
+
         if (item is not T v)
             return;
 
@@ -236,6 +270,8 @@ public class WeakList<T> : IList, IList<T>, IReadOnlyList<T>, ICollection, IColl
     /// <param name="index">The index in the array to start copying at</param>
     public void CopyTo(Array array, int index)
     {
+        cleanIfNeeded();
+
         lock (SyncRoot)
         {
             lock (array.SyncRoot)
@@ -267,6 +303,8 @@ public class WeakList<T> : IList, IList<T>, IReadOnlyList<T>, ICollection, IColl
     /// <param name="value">The object to add to the list</param>
     public void Add(T item)
     {
+        cleanIfNeeded();
+
         if (item is not T v)
             return;
 
@@ -318,6 +356,8 @@ public class WeakList<T> : IList, IList<T>, IReadOnlyList<T>, ICollection, IColl
     /// <param name="index">The index in the array at which to start copying</param>
     public void CopyTo(T[] array, int arrayIndex)
     {
+        cleanIfNeeded();
+
         lock (SyncRoot)
         {
             int i = 0;
@@ -345,6 +385,8 @@ public class WeakList<T> : IList, IList<T>, IReadOnlyList<T>, ICollection, IColl
     /// <returns>True if tiem removed</returns>
     public bool Remove(T item)
     {
+        cleanIfNeeded();
+
         bool ret = false;
         lock (SyncRoot)
         {
@@ -377,6 +419,8 @@ public class WeakList<T> : IList, IList<T>, IReadOnlyList<T>, ICollection, IColl
     {
         get
         {
+            cleanIfNeeded();
+
             try
             {
                 return list[position].GetValue();
@@ -397,6 +441,8 @@ public class WeakList<T> : IList, IList<T>, IReadOnlyList<T>, ICollection, IColl
         get
 #pragma warning restore CS8768
         {
+            cleanIfNeeded();
+
             try
             {
                 return list[position].GetValue();
