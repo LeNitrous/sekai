@@ -1,7 +1,6 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-using System.Diagnostics.CodeAnalysis;
 using NUnit.Framework;
 using Sekai.Framework.Services;
 
@@ -35,13 +34,17 @@ public class LoadableObjectTests
     {
         public new ServiceContainer Services => base.Services;
 
+#pragma warning disable IDE0051
+#pragma warning disable IDE0044
+
         [Cached]
-        [SuppressMessage("CodeQuality", "IDE0051")]
         private readonly string message = "Hello World";
 
         [Resolved]
-        [SuppressMessage("CodeQuality", "IDE0051")]
-        [SuppressMessage("Style", "IDE0044")]
         public string? Message;
+
+#pragma warning restore IDE0051
+#pragma warning restore IDE0044
+
     }
 }
