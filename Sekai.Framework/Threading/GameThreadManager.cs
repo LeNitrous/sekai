@@ -141,7 +141,7 @@ public class GameThreadManager : FrameworkObject, IReadOnlyList<GameThread>
         if (isRunning)
             return;
 
-        this.mainThread = mainThread;
+        Add(this.mainThread = mainThread);
 
         isRunning = true;
         cancellationTokenSource = new();
