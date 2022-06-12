@@ -3,8 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Sekai.Framework.Collections;
 using Sekai.Framework.Extensions;
 using Sekai.Framework.Services;
 
@@ -15,7 +17,7 @@ public abstract class LoadableObject : FrameworkObject, ILoadableObjectContainer
     public bool IsLoaded { get; private set; }
     public readonly ServiceContainer Services = new();
     private LoadableObject? parent;
-    private readonly List<LoadableObject> loadables = new();
+    private WeakCollection<LoadableObject>? loadables;
 
     internal void Initialize()
     {
@@ -35,8 +37,11 @@ public abstract class LoadableObject : FrameworkObject, ILoadableObjectContainer
 
         metadata.Load(this);
 
-        foreach (var loadable in loadables)
-            loadable.Initialize();
+        if (loadables != null)
+        {
+            foreach (var loadable in loadables)
+                loadable.Initialize();
+        }
 
         IsLoaded = true;
         OnLoad();
@@ -57,11 +62,13 @@ public abstract class LoadableObject : FrameworkObject, ILoadableObjectContainer
         OnUnload();
     }
 
-    IReadOnlyList<LoadableObject> ILoadableObjectContainer.Children => loadables;
+    IReadOnlyList<LoadableObject> ILoadableObjectContainer.Children => loadables?.ToArray() ?? Array.Empty<LoadableObject>();
     LoadableObject? ILoadableObjectContainer.Parent => parent;
 
     void ILoadableObjectContainer.Add(LoadableObject loadable)
     {
+        loadables ??= new();
+
         lock (loadables)
         {
             if (loadables.Contains(loadable))
@@ -77,6 +84,9 @@ public abstract class LoadableObject : FrameworkObject, ILoadableObjectContainer
 
     void ILoadableObjectContainer.Remove(LoadableObject loadable)
     {
+        if (loadables == null)
+            return;
+
         lock (loadables)
         {
             loadable.parent = null;
