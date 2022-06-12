@@ -78,11 +78,8 @@ public abstract class LoadableObject : FrameworkObject, ILoadable
 
             loadable.parent = this;
             loadables.Add(loadable);
+            loadable.Services = new ServiceContainer(Services, loadable.Services.Cached);
         }
-
-        var prevServices = loadable.Services;
-        loadable.Services = new ServiceContainer(Services, prevServices.Cached);
-        prevServices.Dispose();
 
         if (IsLoaded)
             loadable.Initialize();
@@ -103,6 +100,7 @@ public abstract class LoadableObject : FrameworkObject, ILoadable
         {
             loadable.parent = null;
             loadables.Remove(loadable);
+            loadable.Services = new ServiceContainer();
         }
     }
 
