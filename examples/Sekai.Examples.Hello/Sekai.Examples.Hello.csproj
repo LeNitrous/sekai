@@ -7,4 +7,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="../../Sekai.Framework/Sekai.Framework.csproj" />
+  </ItemGroup>
+
 </Project>
