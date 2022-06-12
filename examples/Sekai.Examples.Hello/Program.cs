@@ -1,4 +1,4 @@
-﻿// Copyright (c) The Vignette Authors
+// Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
 using Sekai.Examples.Hello;
