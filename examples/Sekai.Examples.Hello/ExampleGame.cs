@@ -12,9 +12,4 @@ public class ExampleGame : Game
     {
         Logger.Log(@"Hello World");
     }
-
-    public override void Update(double elapsed)
-    {
-        base.Update(elapsed);
-    }
 }
