@@ -12,10 +12,10 @@ using Sekai.Framework.Services;
 
 namespace Sekai.Framework;
 
-public abstract class LoadableObject : FrameworkObject, ILoadableObjectContainer
+public abstract class LoadableObject : FrameworkObject, ILoadable
 {
     public bool IsLoaded { get; private set; }
-    public readonly ServiceContainer Services = new();
+    public ServiceContainer Services { get; private set; } = new();
     private LoadableObject? parent;
     private WeakCollection<LoadableObject>? loadables;
 
@@ -57,15 +57,17 @@ public abstract class LoadableObject : FrameworkObject, ILoadableObjectContainer
 
     protected override void Destroy()
     {
+        parent = null;
         IsLoaded = false;
         Services.Dispose();
+        loadables?.Clear();
         OnUnload();
     }
 
-    IReadOnlyList<LoadableObject> ILoadableObjectContainer.Children => loadables?.ToArray() ?? Array.Empty<LoadableObject>();
-    LoadableObject? ILoadableObjectContainer.Parent => parent;
+    IReadOnlyList<LoadableObject> ILoadable.Children => loadables?.ToArray() ?? Array.Empty<LoadableObject>();
+    LoadableObject? ILoadable.Parent => parent;
 
-    void ILoadableObjectContainer.Add(LoadableObject loadable)
+    void ILoadable.Add(LoadableObject loadable)
     {
         loadables ??= new();
 
@@ -78,11 +80,21 @@ public abstract class LoadableObject : FrameworkObject, ILoadableObjectContainer
             loadables.Add(loadable);
         }
 
+        var prevServices = loadable.Services;
+        loadable.Services = new ServiceContainer(Services, prevServices.Cached);
+        prevServices.Dispose();
+
         if (IsLoaded)
             loadable.Initialize();
     }
 
-    void ILoadableObjectContainer.Remove(LoadableObject loadable)
+    void ILoadable.AddRange(IEnumerable<LoadableObject> loadables)
+    {
+        foreach (var loadable in loadables)
+            ((ILoadable)this).Add(loadable);
+    }
+
+    void ILoadable.Remove(LoadableObject loadable)
     {
         if (loadables == null)
             return;
@@ -92,6 +104,17 @@ public abstract class LoadableObject : FrameworkObject, ILoadableObjectContainer
             loadable.parent = null;
             loadables.Remove(loadable);
         }
+    }
+
+    void ILoadable.RemoveRange(IEnumerable<LoadableObject> loadables)
+    {
+        foreach (var loadable in loadables)
+            ((ILoadable)this).Remove(loadable);
+    }
+
+    void ILoadable.Clear()
+    {
+        ((ILoadable)this).RemoveRange(((ILoadable)this).Children);
     }
 
     private static readonly Dictionary<Type, LoadableData> metadatas = new();

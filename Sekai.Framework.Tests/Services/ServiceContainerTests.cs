@@ -3,6 +3,7 @@
 
 using System;
 using NUnit.Framework;
+using Sekai.Framework.Extensions;
 using Sekai.Framework.Services;
 
 namespace Sekai.Framework.Tests.Services;

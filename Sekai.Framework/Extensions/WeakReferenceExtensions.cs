@@ -18,7 +18,8 @@ public static partial class WeakReferenceExtensions
     /// <typeparam name="T">The type of object the weak reference holds</typeparam>
     /// <param name="wr">The weak reference</param>
     /// <returns>The value or null</returns>
-    public static T? GetValue<T>(this WeakReference<T> wr) where T : class
+    public static T? GetValue<T>(this WeakReference<T> wr)
+        where T : class
     {
         if (wr.TryGetTarget(out var val))
             return val;
@@ -33,7 +34,8 @@ public static partial class WeakReferenceExtensions
     /// <typeparam name="T">The type of object ot add</typeparam>
     /// <param name="ls">The weak reference list</param>
     /// <param name="val">The object o add</param>
-    public static void Add<T>(this ICollection<WeakReference<T>> ls, object val) where T : class
+    public static void Add<T>(this ICollection<WeakReference<T>> ls, object val)
+        where T : class
     {
         if (val is T v)
             ls.Add(new WeakReference<T>(v));
