@@ -14,10 +14,10 @@ namespace Sekai.Framework.Threading;
 public class GameThreadManager : FrameworkObject, IReadOnlyList<GameThread>
 {
     private readonly List<GameThread> threads = new();
+    private readonly GameThread mainThread;
     private IEnumerable<GameThread> updateThreads => threads.Except(renderThreads);
     private IEnumerable<GameThread> renderThreads => threads.OfType<RenderThread>();
     private CancellationTokenSource? cancellationTokenSource;
-    private GameThread? mainThread;
     private double updatePerSecond;
     private double framesPerSecond;
     private bool running;
@@ -70,8 +70,9 @@ public class GameThreadManager : FrameworkObject, IReadOnlyList<GameThread>
     public int Count => threads.Count;
     public GameThread this[int index] => threads[index];
 
-    internal GameThreadManager()
+    internal GameThreadManager(GameThread mainThread)
     {
+        Add(this.mainThread = mainThread);
         AppDomain.CurrentDomain.UnhandledException += handleUnhandledException;
         TaskScheduler.UnobservedTaskException += handleUnobservedException;
     }
@@ -80,20 +81,19 @@ public class GameThreadManager : FrameworkObject, IReadOnlyList<GameThread>
     {
         lock (threads)
         {
-            if (!threads.Contains(thread))
+            if (threads.Contains(thread))
+                return;
+
+            thread.OnUnhandledException += handleUnhandledException;
+            thread.UpdatePerSecond = thread is RenderThread
+                ? FramesPerSecond
+                : UpdatePerSecond;
+
+            threads.Add(thread);
+
+            if (running)
             {
-                threads.Add(thread);
-                mainThread ??= thread;
-
-                thread.OnUnhandledException += handleUnhandledException;
-                thread.UpdatePerSecond = thread is RenderThread
-                    ? FramesPerSecond
-                    : UpdatePerSecond;
-
-                if (running)
-                {
-                    startThread(thread);
-                }
+                startThread(thread);
             }
         }
     }
@@ -159,7 +159,7 @@ public class GameThreadManager : FrameworkObject, IReadOnlyList<GameThread>
             {
                 case ExecutionMode.MultiThread:
                     {
-                        mainThread?.RunSingleFrame();
+                        mainThread.RunSingleFrame();
                         break;
                     }
 
@@ -184,6 +184,8 @@ public class GameThreadManager : FrameworkObject, IReadOnlyList<GameThread>
         if (!executionModeChanged)
             return;
 
+        Logger.Log($"Switching execution mode to: {ExecutionMode}");
+
         pauseAllThreads();
 
         foreach (var t in threads)
@@ -194,7 +196,7 @@ public class GameThreadManager : FrameworkObject, IReadOnlyList<GameThread>
             startThread(t);
         }
 
-        mainThread?.Initialize(true);
+        mainThread.Initialize(true);
 
         executionModeChanged = false;
     }

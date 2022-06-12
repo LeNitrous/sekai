@@ -15,11 +15,6 @@ public sealed class RenderThread : GameThread
     private readonly bool isMainRenderThread;
 
     public RenderThread(IGraphicsContext graphics, string name = "unknown", Action<CommandList>? onRenderFrame = null)
-        : this(graphics, name, onRenderFrame, false)
-    {
-    }
-
-    internal RenderThread(IGraphicsContext graphics, string name = "unknown", Action<CommandList>? onRenderFrame = null, bool isMainRenderThread = false)
         : base($"Render ({name})")
     {
         commands = graphics.Device.ResourceFactory.CreateCommandList();
@@ -27,7 +22,12 @@ public sealed class RenderThread : GameThread
         OnNewFrame += onNewFrame;
         this.graphics = graphics;
         this.onRenderFrame = onRenderFrame;
-        this.isMainRenderThread = isMainRenderThread;
+    }
+
+    internal RenderThread(IGraphicsContext graphics, Action<CommandList>? onRenderFrame = null)
+        : this(graphics, "Main", onRenderFrame)
+    {
+        isMainRenderThread = true;
     }
 
     private void onNewFrame()

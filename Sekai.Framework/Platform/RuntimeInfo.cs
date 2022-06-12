@@ -4,7 +4,7 @@
 using System;
 using System.Reflection;
 
-namespace Sekai.Framework;
+namespace Sekai.Framework.Platform;
 
 public static class RuntimeInfo
 {

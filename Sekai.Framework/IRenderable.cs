@@ -1,10 +1,11 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
-using System;
+
+using Veldrid;
 
 namespace Sekai.Framework;
 
-public interface IFrameworkObject : IDisposable
+public interface IRenderable
 {
-    bool IsDisposed { get; }
+    void Render(CommandList commands);
 }

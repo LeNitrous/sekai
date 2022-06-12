@@ -18,13 +18,13 @@ public class ServiceContainer : FrameworkObject, IReadOnlyServiceContainer
         this.parent = parent;
     }
 
-    public T? Resolve<T>([DoesNotReturnIf(true)] bool required = false)
+    public T Resolve<T>([DoesNotReturnIf(true)] bool required = false)
     {
         object? result = Resolve(typeof(T), required);
-        return result is null ? default : (T)result;
+        return result is null ? default! : (T)result;
     }
 
-    public object? Resolve(Type target, bool required = false)
+    public object Resolve(Type target, [DoesNotReturnIf(true)] bool required = false)
     {
         if (!cache.ContainsKey(target))
         {
@@ -49,7 +49,7 @@ public class ServiceContainer : FrameworkObject, IReadOnlyServiceContainer
         if (required)
             throw new ServiceNotFoundException($"{target} is not currently registered.");
 
-        return null;
+        return null!;
     }
 
     public void Cache(Type type, object instance)

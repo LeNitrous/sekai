@@ -14,7 +14,7 @@ public class LoadableObjectTests
         var obj = new TestLoadableObject();
         Assert.Multiple(() =>
         {
-            Assert.That(() => obj.Load(), Throws.Nothing);
+            Assert.That(() => obj.Initialize(), Throws.Nothing);
             Assert.That(obj.Services.Resolve<string>(true), Is.EqualTo("Hello World"));
         });
     }
@@ -25,7 +25,7 @@ public class LoadableObjectTests
         var obj = new TestLoadableObject();
         Assert.Multiple(() =>
         {
-            Assert.That(() => obj.Load(), Throws.Nothing);
+            Assert.That(() => obj.Initialize(), Throws.Nothing);
             Assert.That(obj.Message, Is.Null);
         });
     }

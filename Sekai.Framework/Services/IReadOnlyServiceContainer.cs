@@ -8,6 +8,6 @@ namespace Sekai.Framework.Services;
 
 public interface IReadOnlyServiceContainer
 {
-    T? Resolve<T>([DoesNotReturnIf(true)] bool required = false);
-    object? Resolve(Type type, [DoesNotReturnIf(true)] bool required = false);
+    T Resolve<T>([DoesNotReturnIf(true)] bool required = false);
+    object Resolve(Type type, [DoesNotReturnIf(true)] bool required = false);
 }

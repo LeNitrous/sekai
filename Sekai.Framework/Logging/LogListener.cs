@@ -2,6 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
+using Sekai.Framework.Platform;
 
 namespace Sekai.Framework.Logging;
 
