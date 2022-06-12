@@ -30,7 +30,7 @@ public class LogListenerConsole : LogListenerTextWriter
 
     private string formatLogLevel(LogLevel level)
     {
-        return base.FormatLogLevel(level).Pastel(getColorForLevel(level));
+        return "⬤".Pastel(getColorForLevel(level));
     }
 
     private string formatMessage(string message)

@@ -13,11 +13,10 @@ namespace Sekai.Framework;
 public abstract class LoadableObject : FrameworkObject
 {
     public bool IsLoaded { get; private set; }
-    public bool IsActive { get; private set; }
-    protected readonly ServiceContainer Services = new();
+    public readonly ServiceContainer Services = new();
     private static readonly Dictionary<Type, LoadableData> metadatas = new();
 
-    internal void Load()
+    internal void Initialize()
     {
         if (IsLoaded)
             throw new InvalidOperationException(@"This loadable is already loaded.");
@@ -39,45 +38,7 @@ public abstract class LoadableObject : FrameworkObject
         OnLoad();
     }
 
-    internal void Activate()
-    {
-        if (IsDisposed)
-            throw new InvalidOperationException(@"Cannot activate destroyed loadables.");
-
-        if (!IsLoaded)
-            throw new InvalidOperationException(@"This loadable is not yet loaded.");
-
-        if (IsActive)
-            throw new InvalidOperationException(@"This loadable is already activated.");
-
-        IsActive = true;
-        OnActivate();
-    }
-
-    internal void Deactivate()
-    {
-        if (IsDisposed)
-            throw new InvalidOperationException(@"Cannot deactivate destroyed loadables.");
-
-        if (!IsLoaded)
-            throw new InvalidOperationException(@"This loadable is not yet loaded.");
-
-        if (!IsActive)
-            throw new InvalidOperationException(@"This loadable is not activated.");
-
-        IsActive = false;
-        OnDeactivate();
-    }
-
     protected virtual void OnLoad()
-    {
-    }
-
-    protected virtual void OnActivate()
-    {
-    }
-
-    protected virtual void OnDeactivate()
     {
     }
 
@@ -85,14 +46,10 @@ public abstract class LoadableObject : FrameworkObject
     {
     }
 
-    protected sealed override void Destroy()
+    protected override void Destroy()
     {
-        if (IsActive)
-            Deactivate();
-
         IsLoaded = false;
         Services.Dispose();
-
         OnUnload();
     }
 

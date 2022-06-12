@@ -5,20 +5,20 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Sekai.Framework.System;
+namespace Sekai.Framework.Systems;
 
 /// <summary>
 /// This class keeps track of the actively registered game classes.
 //  Every game system must be registered here, otherwise, it cannot be used.
 /// </summary>
-public class GameSystemRegistry : FrameworkObject, IEnumerable<IGameSystem>
+public class GameSystemRegistry : FrameworkObject, IEnumerable<GameSystem>
 {
-    private readonly Dictionary<Type, IGameSystem> systems = new();
+    private readonly Dictionary<Type, GameSystem> systems = new();
 
     /// <summary>
     /// Gets a registered game system.
     /// </summary>
-    public T GetSystem<T>() where T : IGameSystem
+    public T GetSystem<T>() where T : GameSystem
     {
         return !systems.TryGetValue(typeof(T), out var gs)
             ? throw new InvalidCastException($"No such system of type {typeof(T).Name} is found.")
@@ -28,7 +28,7 @@ public class GameSystemRegistry : FrameworkObject, IEnumerable<IGameSystem>
     /// <summary>
     /// Registers a game system.
     /// </summary>
-    public void Register<T>() where T : IGameSystem
+    public void Register<T>() where T : GameSystem, new()
     {
         if (systems.ContainsKey(typeof(T)))
             throw new InvalidOperationException($"System of type {typeof(T).Name} is already registered.");
@@ -39,7 +39,7 @@ public class GameSystemRegistry : FrameworkObject, IEnumerable<IGameSystem>
     /// <summary>
     /// Unregisters a game system.
     /// </summary>
-    public void Unregister<T>() where T : IGameSystem
+    public void Unregister<T>() where T : GameSystem
     {
         if (!systems.ContainsKey(typeof(T)))
             throw new InvalidOperationException($"System of type {typeof(T).Name} is not registered.");
@@ -58,7 +58,7 @@ public class GameSystemRegistry : FrameworkObject, IEnumerable<IGameSystem>
         systems.Clear();
     }
 
-    public IEnumerator<IGameSystem> GetEnumerator()
+    public IEnumerator<GameSystem> GetEnumerator()
     {
         return systems.Values.GetEnumerator();
     }

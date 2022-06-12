@@ -18,13 +18,13 @@ public class GameThread
     public GameThreadState State { get; private set; }
     internal Thread? Thread { get; private set; }
     internal bool IsCurrent => Thread == null || Thread.CurrentThread == Thread;
+    protected readonly Stopwatch Clock = new();
     private bool throttled;
     private bool pauseRequested;
     private bool exitRequested;
     private double updatePeriod;
     private readonly GameThreadSynchronizationContext syncContext;
     private readonly object syncLock = new();
-    private readonly Stopwatch stopwatch = new();
 
     internal double UpdatePerSecond
     {
@@ -37,6 +37,11 @@ public class GameThread
         Name = name;
         OnNewFrame = onNewFrame;
         syncContext = new(this);
+    }
+
+    public void Dispatch(Action action)
+    {
+        syncContext.Post(_ => action(), null);
     }
 
     internal void Start()
@@ -102,7 +107,7 @@ public class GameThread
         {
             this.throttled = throttled;
             OnInitialize?.Invoke();
-            stopwatch.Start();
+            Clock.Start();
             State = GameThreadState.Running;
         }
     }
@@ -181,12 +186,12 @@ public class GameThread
 
         try
         {
-            double start = stopwatch.Elapsed.TotalMilliseconds;
+            double start = Clock.Elapsed.TotalMilliseconds;
 
             OnNewFrame?.Invoke();
             syncContext.DoWork();
 
-            double end = stopwatch.Elapsed.TotalMilliseconds;
+            double end = Clock.Elapsed.TotalMilliseconds;
 
             if (throttled)
                 Thread.Sleep((int)Math.Max(0, start + (1000d / UpdatePerSecond) - end));
