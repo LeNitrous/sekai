@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using Sekai.Framework.IO.Storage;
 using Sekai.Framework.Logging;
 using Sekai.Framework.Systems;
 using Sekai.Framework.Threading;
@@ -12,36 +13,39 @@ namespace Sekai.Framework.Platform;
 public abstract class Host : FrameworkObject
 {
     private GameThreadManager? threads;
-    private readonly GameSystemRegistry systems = new();
+    private GameSystemRegistry? systems;
+    private GameThread? mainThread;
 
     public void Run(Game game)
     {
         Logger.OnMessageLogged += new LogListenerConsole();
 
-        var mainThread = CreateMainThread();
-
-        threads = new(mainThread)
-        {
-            ExecutionMode = ExecutionMode.MultiThread,
-            FramesPerSecond = 120,
-            UpdatePerSecond = 240,
-        };
-
+        threads = CreateThreadManager();
+        threads.ExecutionMode = ExecutionMode.MultiThread;
+        threads.FramesPerSecond = 120;
+        threads.UpdatePerSecond = 240;
         threads.Add(new UpdateThread(update));
+
+        systems = new(game);
 
         game.Services.Cache(this);
         game.Services.Cache(threads);
         game.Services.Cache(systems);
+        game.Services.Cache(CreateStorage());
+
+        mainThread = CreateMainThread();
         mainThread.Dispatch(game.Initialize);
 
         Initialize(game);
-
-        threads.Run();
+        Run();
 
         void update(double delta)
         {
-            foreach (var system in systems.OfType<IUpdateable>())
-                system.Update(delta);
+            if (systems != null)
+            {
+                foreach (var system in systems.OfType<IUpdateable>())
+                    system.Update(delta);
+            }
 
             game.Update(delta);
         }
@@ -49,13 +53,29 @@ public abstract class Host : FrameworkObject
 
     protected abstract GameThread CreateMainThread();
 
+    protected virtual GameThreadManager CreateThreadManager()
+    {
+        return new GameThreadManager();
+    }
+
+    protected virtual IStorage CreateStorage()
+    {
+        return new VirtualStorage();
+    }
+
     protected virtual void Initialize(Game game)
     {
     }
 
+    protected virtual void Run()
+    {
+        if (mainThread != null)
+            threads?.Run(mainThread);
+    }
+
     protected override void Destroy()
     {
-        systems.Dispose();
+        systems?.Dispose();
         threads?.Dispose();
     }
 
