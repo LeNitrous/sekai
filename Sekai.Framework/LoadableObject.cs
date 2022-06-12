@@ -10,11 +10,12 @@ using Sekai.Framework.Services;
 
 namespace Sekai.Framework;
 
-public abstract class LoadableObject : FrameworkObject
+public abstract class LoadableObject : FrameworkObject, ILoadableObjectContainer
 {
     public bool IsLoaded { get; private set; }
     public readonly ServiceContainer Services = new();
-    private static readonly Dictionary<Type, LoadableData> metadatas = new();
+    private LoadableObject? parent;
+    private readonly List<LoadableObject> loadables = new();
 
     internal void Initialize()
     {
@@ -34,6 +35,9 @@ public abstract class LoadableObject : FrameworkObject
 
         metadata.Load(this);
 
+        foreach (var loadable in loadables)
+            loadable.Initialize();
+
         IsLoaded = true;
         OnLoad();
     }
@@ -52,6 +56,35 @@ public abstract class LoadableObject : FrameworkObject
         Services.Dispose();
         OnUnload();
     }
+
+    IReadOnlyList<LoadableObject> ILoadableObjectContainer.Children => loadables;
+    LoadableObject? ILoadableObjectContainer.Parent => parent;
+
+    void ILoadableObjectContainer.Add(LoadableObject loadable)
+    {
+        lock (loadables)
+        {
+            if (loadables.Contains(loadable))
+                return;
+
+            loadable.parent = this;
+            loadables.Add(loadable);
+        }
+
+        if (IsLoaded)
+            loadable.Initialize();
+    }
+
+    void ILoadableObjectContainer.Remove(LoadableObject loadable)
+    {
+        lock (loadables)
+        {
+            loadable.parent = null;
+            loadables.Remove(loadable);
+        }
+    }
+
+    private static readonly Dictionary<Type, LoadableData> metadatas = new();
 
     private class LoadableData
     {
