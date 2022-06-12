@@ -15,7 +15,7 @@ public class LoadableObjectTests
         Assert.Multiple(() =>
         {
             Assert.That(() => obj.Initialize(), Throws.Nothing);
-            Assert.That(obj.Services.Resolve<string>(true), Is.EqualTo("Hello World"));
+            Assert.That(obj.Services.Resolve<string>(), Is.EqualTo("Hello World"));
         });
     }
 

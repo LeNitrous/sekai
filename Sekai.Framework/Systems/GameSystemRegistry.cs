@@ -14,6 +14,12 @@ namespace Sekai.Framework.Systems;
 public class GameSystemRegistry : FrameworkObject, IEnumerable<GameSystem>
 {
     private readonly Dictionary<Type, GameSystem> systems = new();
+    private readonly Game game;
+
+    public GameSystemRegistry(Game game)
+    {
+        this.game = game;
+    }
 
     /// <summary>
     /// Gets a registered game system.
@@ -33,7 +39,10 @@ public class GameSystemRegistry : FrameworkObject, IEnumerable<GameSystem>
         if (systems.ContainsKey(typeof(T)))
             throw new InvalidOperationException($"System of type {typeof(T).Name} is already registered.");
 
-        systems.Add(typeof(T), Activator.CreateInstance<T>());
+        var system = Activator.CreateInstance<T>();
+        system.Services.Parent = game.Services;
+        systems.Add(typeof(T), system);
+        system.Initialize();
     }
 
     /// <summary>
@@ -44,8 +53,8 @@ public class GameSystemRegistry : FrameworkObject, IEnumerable<GameSystem>
         if (!systems.ContainsKey(typeof(T)))
             throw new InvalidOperationException($"System of type {typeof(T).Name} is not registered.");
 
-        systems[typeof(T)].Dispose();
         systems.Remove(typeof(T));
+        systems[typeof(T)].Dispose();
     }
 
     protected override void Destroy()

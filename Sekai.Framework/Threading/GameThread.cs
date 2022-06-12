@@ -188,8 +188,8 @@ public class GameThread
         {
             double start = Clock.Elapsed.TotalMilliseconds;
 
-            OnNewFrame?.Invoke();
             syncContext.DoWork();
+            OnNewFrame?.Invoke();
 
             double end = Clock.Elapsed.TotalMilliseconds;
 

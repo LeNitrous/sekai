@@ -15,8 +15,8 @@ public class ServiceContainerTests
         var services = new ServiceContainer();
         services.Cache(new TestService());
 
-        var a = services.Resolve<TestService>(true);
-        var b = services.Resolve<TestService>(true);
+        var a = services.Resolve<TestService>();
+        var b = services.Resolve<TestService>();
 
         Assert.That(a.ID, Is.EqualTo(b.ID));
     }
@@ -27,8 +27,8 @@ public class ServiceContainerTests
         var services = new ServiceContainer();
         services.Cache(() => new TestService());
 
-        var a = services.Resolve<TestService>(true);
-        var b = services.Resolve<TestService>(true);
+        var a = services.Resolve<TestService>();
+        var b = services.Resolve<TestService>();
 
         Assert.That(a.ID, Is.Not.EqualTo(b.ID));
     }
@@ -39,9 +39,9 @@ public class ServiceContainerTests
         var services = new ServiceContainer();
         Assert.Multiple(() =>
         {
-            Assert.That(() => services.Resolve<TestService>(true), Throws.InstanceOf<ServiceNotFoundException>());
-            Assert.That(() => services.Resolve<TestService>(), Throws.Nothing);
-            Assert.That(() => services.Resolve<TestService>(), Is.Null);
+            Assert.That(() => services.Resolve<TestService>(), Throws.InstanceOf<ServiceNotFoundException>());
+            Assert.That(() => services.Resolve<TestService>(false), Throws.Nothing);
+            Assert.That(() => services.Resolve<TestService>(false), Is.Null);
         });
     }
 
@@ -53,11 +53,11 @@ public class ServiceContainerTests
         parent.Cache(parentService);
 
         var child = new ServiceContainer(parent);
-        Assert.That(child.Resolve<TestService>(true).ID, Is.EqualTo(parentService.ID));
+        Assert.That(child.Resolve<TestService>().ID, Is.EqualTo(parentService.ID));
 
         var childService = new TestService();
         child.Cache(childService);
-        Assert.That(child.Resolve<TestService>(true).ID, Is.EqualTo(childService.ID));
+        Assert.That(child.Resolve<TestService>().ID, Is.EqualTo(childService.ID));
     }
 
     private class TestService

@@ -9,27 +9,27 @@ namespace Sekai.Framework.Services;
 
 public class ServiceContainer : FrameworkObject, IReadOnlyServiceContainer
 {
-    private IReadOnlyServiceContainer? parent;
+    internal IReadOnlyServiceContainer? Parent;
     private readonly object syncLock = new();
     private readonly Dictionary<Type, Func<object>> cache = new();
 
     public ServiceContainer(IReadOnlyServiceContainer? parent = null)
     {
-        this.parent = parent;
+        Parent = parent;
     }
 
-    public T Resolve<T>([DoesNotReturnIf(true)] bool required = false)
+    public T Resolve<T>([DoesNotReturnIf(true)] bool required = true)
     {
         object? result = Resolve(typeof(T), required);
         return result is null ? default! : (T)result;
     }
 
-    public object Resolve(Type target, [DoesNotReturnIf(true)] bool required = false)
+    public object Resolve(Type target, [DoesNotReturnIf(true)] bool required = true)
     {
         if (!cache.ContainsKey(target))
         {
-            if (parent != null)
-                return parent.Resolve(target, required);
+            if (Parent != null)
+                return Parent.Resolve(target, required);
         }
 
         lock (syncLock)
@@ -89,7 +89,7 @@ public class ServiceContainer : FrameworkObject, IReadOnlyServiceContainer
 
     protected override void Destroy()
     {
-        parent = null;
+        Parent = null;
         cache.Clear();
     }
 }

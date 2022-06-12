@@ -14,13 +14,13 @@ namespace Sekai.Framework.Threading;
 public class GameThreadManager : FrameworkObject, IReadOnlyList<GameThread>
 {
     private readonly List<GameThread> threads = new();
-    private readonly GameThread mainThread;
     private IEnumerable<GameThread> updateThreads => threads.Except(renderThreads);
     private IEnumerable<GameThread> renderThreads => threads.OfType<RenderThread>();
     private CancellationTokenSource? cancellationTokenSource;
+    private GameThread? mainThread;
     private double updatePerSecond;
     private double framesPerSecond;
-    private bool running;
+    private bool isRunning;
     private bool executionModeChanged = true;
     private ExecutionMode executionMode;
 
@@ -70,14 +70,13 @@ public class GameThreadManager : FrameworkObject, IReadOnlyList<GameThread>
     public int Count => threads.Count;
     public GameThread this[int index] => threads[index];
 
-    internal GameThreadManager(GameThread mainThread)
+    internal GameThreadManager()
     {
-        Add(this.mainThread = mainThread);
         AppDomain.CurrentDomain.UnhandledException += handleUnhandledException;
         TaskScheduler.UnobservedTaskException += handleUnobservedException;
     }
 
-    public void Add(GameThread thread)
+    public virtual void Add(GameThread thread)
     {
         lock (threads)
         {
@@ -91,14 +90,14 @@ public class GameThreadManager : FrameworkObject, IReadOnlyList<GameThread>
 
             threads.Add(thread);
 
-            if (running)
+            if (isRunning)
             {
                 startThread(thread);
             }
         }
     }
 
-    public void Remove(GameThread thread)
+    public virtual void Remove(GameThread thread)
     {
         lock (threads)
         {
@@ -109,7 +108,7 @@ public class GameThreadManager : FrameworkObject, IReadOnlyList<GameThread>
             {
                 threads.Remove(thread);
 
-                if (running)
+                if (isRunning)
                 {
                     stopThread(thread);
                 }
@@ -121,10 +120,10 @@ public class GameThreadManager : FrameworkObject, IReadOnlyList<GameThread>
 
     internal void Stop()
     {
-        if (!running)
+        if (!isRunning)
             return;
 
-        running = false;
+        isRunning = false;
 
         foreach (var t in threads)
             stopThread(t);
@@ -137,12 +136,14 @@ public class GameThreadManager : FrameworkObject, IReadOnlyList<GameThread>
         pauseAllThreads();
     }
 
-    internal void Run()
+    internal void Run(GameThread mainThread)
     {
-        if (running)
+        if (isRunning)
             return;
 
-        running = true;
+        this.mainThread = mainThread;
+
+        isRunning = true;
         cancellationTokenSource = new();
 
         while (true)
@@ -159,7 +160,7 @@ public class GameThreadManager : FrameworkObject, IReadOnlyList<GameThread>
             {
                 case ExecutionMode.MultiThread:
                     {
-                        mainThread.RunSingleFrame();
+                        mainThread?.RunSingleFrame();
                         break;
                     }
 
@@ -196,7 +197,7 @@ public class GameThreadManager : FrameworkObject, IReadOnlyList<GameThread>
             startThread(t);
         }
 
-        mainThread.Initialize(true);
+        mainThread?.Initialize(true);
 
         executionModeChanged = false;
     }

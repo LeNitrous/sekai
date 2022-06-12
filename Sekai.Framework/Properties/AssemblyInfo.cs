@@ -3,4 +3,5 @@
 
 using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("Sekai.Framework.Testing")]
 [assembly: InternalsVisibleTo("Sekai.Framework.Tests")]
