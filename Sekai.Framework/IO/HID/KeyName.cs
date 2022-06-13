@@ -10,6 +10,7 @@ namespace Sekai.Framework.IO.HID;
 ///<br></br>
 /// This is handled at <see cref="InputSystem"/>
 /// </summary>
+// TODO: Get all Silk.NET button IDs and have the input manager match that.
 public enum KeyName
 {
     #region Common
