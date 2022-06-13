@@ -2,7 +2,6 @@
 // Licensed under MIT. See LICENSE for details.
 
 using Silk.NET.Input;
-using System.Collections.Generic;
 using System.Numerics;
 
 namespace Sekai.Framework.IO.HID;
@@ -15,5 +14,4 @@ public interface InputSnapshot : IInputContext
     Vector2 MousePos { get; }
 
     float MouseWheelDelta { get; }
-
 }
