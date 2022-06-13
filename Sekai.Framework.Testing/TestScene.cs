@@ -17,6 +17,9 @@ public class TestScene : Component
     [OneTimeSetUp]
     public void OneTimeSetUpFromRunner()
     {
+        if (!TestUtils.IsNUnit)
+            return;
+
         host = new HeadlessHost();
         game = new TestSceneGame();
         game.Services.Cache(this);
@@ -33,12 +36,18 @@ public class TestScene : Component
     [TearDown]
     public void TearDownFromRunner()
     {
+        if (!TestUtils.IsNUnit)
+            return;
+
         checkForErrors();
     }
 
     [OneTimeTearDown]
     public void OneTimeTearDownFromRunner()
     {
+        if (!TestUtils.IsNUnit)
+            return;
+
         try
         {
             game?.Dispose();
