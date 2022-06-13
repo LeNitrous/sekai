@@ -44,7 +44,10 @@ public class InputSystem : GameSystem, IUpdateable
 
     public void Update(double elapsed)
     {
-        // TODO: Make a method here that gets a input snapshot per tick.
+        //TODO: CurrentSnapshot is just a placeholder here
+        // We want that snapshot to be made at the game level
+        // so we can process it here at UpdateFrameInput.
+        UpdateFrameInput(CurrentSnapshot);
         game.Update(elapsed);
     }
 
