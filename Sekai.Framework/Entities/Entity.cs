@@ -1,48 +1,89 @@
 ﻿// Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using Sekai.Framework.Extensions;
+using Sekai.Framework.Services;
 
 namespace Sekai.Framework.Entities;
 
-public class Entity : FrameworkObject, ILoadable, IUpdateable
+[Cached]
+public class Entity : LoadableObject
 {
-    public LoadableObject Parent { get; private set; }
+    public Entity? Parent { get; set; }
+    public IReadOnlyList<Entity> Children => children;
+    public IReadOnlyList<Component> Components => components;
+    public readonly Guid ID = Guid.NewGuid();
+    private readonly List<string> tags = new();
+    private readonly List<Entity> children = new();
+    private readonly List<Component> components = new();
 
-    public IReadOnlyList<LoadableObject> Children { get; private set; }
-
-    public void Update(double delta)
+    public string Tag
     {
-
+        get => tags.Single();
+        set => tags[0] = value;
     }
 
-    public void Add(LoadableObject lo)
+    public IEnumerable<string> Tags
     {
-
+        get => tags;
+        set
+        {
+            tags.Clear();
+            tags.AddRange(value);
+        }
     }
 
-    public void AddRange(IEnumerable<LoadableObject> loc)
-    {
+    [Resolved]
+    private Scene scene { get; set; } = null!;
 
+    public void Add(Entity entity)
+    {
+        children.Add(entity);
+        this.Add((LoadableObject)entity);
+        scene.Remove(entity, false);
     }
 
-    public void Remove(LoadableObject lo)
+    public void Remove(Entity entity)
     {
-
+        children.Remove(entity);
+        this.Remove((LoadableObject)entity);
+        scene.Remove(entity, false);
     }
 
-    public void RemoveRange(IEnumerable<LoadableObject> loc)
+    public void Add(Component component)
     {
-
+        components.Add(component);
+        this.Add((LoadableObject)component);
     }
 
-    public void Clear()
+    public void Remove(Component component)
     {
-
+        components.Remove(component);
+        this.Remove((LoadableObject)component);
     }
 
-    public void Destroy()
+    public IEnumerable<T> GetComponents<T>()
+        where T : Component
     {
-        Clear();
+        return components.OfType<T>();
+    }
+
+    public T GetComponent<T>()
+        where T : Component
+    {
+        return GetComponents<T>().Single();
+    }
+
+    public IEnumerable<Component> GetComponents(Type type)
+    {
+        return components.Where(c => c.GetType().IsAssignableTo(type));
+    }
+
+    public Component GetComponent(Type type)
+    {
+        return GetComponents(type).Single();
     }
 }

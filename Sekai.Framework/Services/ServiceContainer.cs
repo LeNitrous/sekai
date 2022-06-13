@@ -10,14 +10,12 @@ namespace Sekai.Framework.Services;
 public class ServiceContainer : FrameworkObject, IReadOnlyServiceContainer
 {
     public IReadOnlyDictionary<Type, Func<object>> Cached => cache;
-    private IReadOnlyServiceContainer? parent;
+    internal IReadOnlyServiceContainer? Parent;
     private readonly object syncLock = new();
     private readonly Dictionary<Type, Func<object>> cache = new();
 
-    public ServiceContainer(IReadOnlyServiceContainer? parent = null, IReadOnlyDictionary<Type, Func<object>>? cache = null)
+    public ServiceContainer(IReadOnlyDictionary<Type, Func<object>>? cache = null)
     {
-        this.parent = parent;
-
         if (cache == null)
             return;
 
@@ -35,8 +33,8 @@ public class ServiceContainer : FrameworkObject, IReadOnlyServiceContainer
     {
         if (!cache.ContainsKey(target))
         {
-            if (parent != null)
-                return parent.Resolve(target, required);
+            if (Parent != null)
+                return Parent.Resolve(target, required);
         }
 
         lock (syncLock)
@@ -96,7 +94,7 @@ public class ServiceContainer : FrameworkObject, IReadOnlyServiceContainer
 
     protected override void Destroy()
     {
-        parent = null;
+        Parent = null;
         cache.Clear();
     }
 }

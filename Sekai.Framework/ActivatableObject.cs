@@ -7,9 +7,9 @@ namespace Sekai.Framework;
 
 public class ActivatableObject : LoadableObject
 {
-    public bool IsActive { get; private set; }
+    public bool IsEnabled { get; private set; }
 
-    internal void Activate()
+    internal void Enable()
     {
         if (IsDisposed)
             throw new InvalidOperationException(@"Cannot activate destroyed loadables.");
@@ -17,14 +17,14 @@ public class ActivatableObject : LoadableObject
         if (!IsLoaded)
             throw new InvalidOperationException(@"This loadable is not yet loaded.");
 
-        if (IsActive)
+        if (IsEnabled)
             throw new InvalidOperationException(@"This loadable is already activated.");
 
-        IsActive = true;
+        IsEnabled = true;
         OnActivate();
     }
 
-    internal void Deactivate()
+    internal void Disable()
     {
         if (IsDisposed)
             throw new InvalidOperationException(@"Cannot deactivate destroyed loadables.");
@@ -32,10 +32,10 @@ public class ActivatableObject : LoadableObject
         if (!IsLoaded)
             throw new InvalidOperationException(@"This loadable is not yet loaded.");
 
-        if (!IsActive)
+        if (!IsEnabled)
             throw new InvalidOperationException(@"This loadable is not activated.");
 
-        IsActive = false;
+        IsEnabled = false;
         OnDeactivate();
     }
 
@@ -49,8 +49,8 @@ public class ActivatableObject : LoadableObject
 
     protected override void Destroy()
     {
-        if (IsActive)
-            Deactivate();
+        if (IsEnabled)
+            Disable();
 
         base.Destroy();
     }

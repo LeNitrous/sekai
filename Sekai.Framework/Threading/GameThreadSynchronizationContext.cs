@@ -47,7 +47,7 @@ internal sealed class GameThreadSynchronizationContext : SynchronizationContext
             item.Execute();
 
             if (item.Exception != null)
-                throw item.Exception;
+                throw new AggregateException(item.Exception);
         }
     }
 

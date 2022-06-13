@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using Sekai.Framework.Entities;
 using Sekai.Framework.IO.Storage;
 using Sekai.Framework.Logging;
 using Sekai.Framework.Systems;
@@ -27,6 +28,7 @@ public abstract class Host : FrameworkObject
         threads.Add(new UpdateThread(update));
 
         systems = new(game);
+        systems.Register<SceneManager>();
 
         game.Services.Cache(this);
         game.Services.Cache(threads);
