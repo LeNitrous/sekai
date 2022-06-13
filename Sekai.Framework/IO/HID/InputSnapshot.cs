@@ -1,8 +1,8 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-using Silk.NET.Input;
 using System.Numerics;
+using Silk.NET.Input;
 
 namespace Sekai.Framework.IO.HID;
 

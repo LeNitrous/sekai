@@ -62,13 +62,13 @@ public class InputSystem : GameSystem, IUpdateable
         var mcs = snapshot.Mice;
         var jys = snapshot.Joysticks;
 
-        foreach(var kb in kbs)
+        foreach (var kb in kbs)
         {
             kb.KeyDown += keyDown;
             kb.KeyUp += keyUp;
         }
 
-        foreach(var m in mcs)
+        foreach (var m in mcs)
         {
             // set the position on poll
             MousePosition = m.Position;
@@ -78,7 +78,7 @@ public class InputSystem : GameSystem, IUpdateable
             m.Scroll += onMouseScroll;
         }
 
-        foreach(var j in jys)
+        foreach (var j in jys)
         {
             j.ButtonUp += keyUp;
             j.ButtonDown += keyDown;
@@ -156,7 +156,7 @@ public class InputSystem : GameSystem, IUpdateable
 
     private void keyDown(IJoystick joystick, Button btn)
     {
-       if (currentlyPressedKeys.Add((KeyName)btn.Index))
+        if (currentlyPressedKeys.Add((KeyName)btn.Index))
             newKeysThisFrame.Add((KeyName)btn.Index);
     }
     #endregion
