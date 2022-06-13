@@ -29,6 +29,15 @@ public abstract class LoadableObject : FrameworkObject, ILoadable
 
         var type = GetType();
 
+        if (!cacheSelfOnInit.TryGetValue(type, out bool shouldCache))
+        {
+            shouldCache = type.GetCustomAttribute<CachedAttribute>() != null;
+            cacheSelfOnInit.Add(type, shouldCache);
+        }
+
+        if (shouldCache)
+            Services.Cache(type, this);
+
         if (!metadatas.TryGetValue(type, out var metadata))
         {
             metadata = new LoadableData(type);
@@ -57,11 +66,11 @@ public abstract class LoadableObject : FrameworkObject, ILoadable
 
     protected override void Destroy()
     {
+        OnUnload();
         parent = null;
         IsLoaded = false;
         Services.Dispose();
         loadables?.Clear();
-        OnUnload();
     }
 
     IReadOnlyList<LoadableObject> ILoadable.Children => loadables?.ToArray() ?? Array.Empty<LoadableObject>();
@@ -77,8 +86,8 @@ public abstract class LoadableObject : FrameworkObject, ILoadable
                 return;
 
             loadable.parent = this;
+            loadable.Services.Parent = Services;
             loadables.Add(loadable);
-            loadable.Services = new ServiceContainer(Services, loadable.Services.Cached);
         }
 
         if (IsLoaded)
@@ -99,8 +108,8 @@ public abstract class LoadableObject : FrameworkObject, ILoadable
         lock (loadables)
         {
             loadable.parent = null;
+            loadable.Services.Parent = null;
             loadables.Remove(loadable);
-            loadable.Services = new ServiceContainer();
         }
     }
 
@@ -116,6 +125,7 @@ public abstract class LoadableObject : FrameworkObject, ILoadable
     }
 
     private static readonly Dictionary<Type, LoadableData> metadatas = new();
+    private static readonly Dictionary<Type, bool> cacheSelfOnInit = new();
 
     private class LoadableData
     {

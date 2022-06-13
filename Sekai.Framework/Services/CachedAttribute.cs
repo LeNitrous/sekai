@@ -5,7 +5,7 @@ using System;
 
 namespace Sekai.Framework.Services;
 
-[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property | AttributeTargets.Class)]
 public class CachedAttribute : Attribute
 {
 }

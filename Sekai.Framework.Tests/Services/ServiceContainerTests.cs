@@ -3,7 +3,6 @@
 
 using System;
 using NUnit.Framework;
-using Sekai.Framework.Extensions;
 using Sekai.Framework.Services;
 
 namespace Sekai.Framework.Tests.Services;
@@ -53,7 +52,7 @@ public class ServiceContainerTests
         var parentService = new TestService();
         parent.Cache(parentService);
 
-        var child = new ServiceContainer(parent);
+        var child = new ServiceContainer { Parent = parent };
         Assert.That(child.Resolve<TestService>().ID, Is.EqualTo(parentService.ID));
 
         var childService = new TestService();
