@@ -70,7 +70,7 @@ public abstract class LoadableObject : FrameworkObject, ILoadable
         parent = null;
         IsLoaded = false;
         Services.Dispose();
-        loadables?.Clear();
+        this.Clear();
     }
 
     IReadOnlyList<LoadableObject> ILoadable.Children => loadables?.ToArray() ?? Array.Empty<LoadableObject>();

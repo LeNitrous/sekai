@@ -8,10 +8,10 @@ namespace Sekai.Framework.Entities;
 public abstract class Component : ActivatableObject
 {
     [Resolved]
-    public Entity Entity { get; private set; } = null!;
+    public Entity Entity { get; set; } = null!;
 
     [Resolved]
-    public Scene Scene { get; private set; } = null!;
+    public Scene Scene { get; set; } = null!;
 
     public virtual void Load()
     {
