@@ -3,9 +3,7 @@
 
 using Sekai.Framework.Services;
 using Sekai.Framework.Systems;
-using Silk.NET.SDL;
-using Silk.NET.Windowing;
-using System;
+using Silk.NET.Input;
 using System.Collections.Generic;
 using System.Numerics;
 
@@ -20,11 +18,9 @@ public class InputSystem : GameSystem, IUpdateable
 
     private readonly HashSet<KeyName> newKeysThisFrame = new();
 
-    private readonly List<Action<InputSystem>> cbs = new();
-
     private Vector2 prevMousePos;
 
-    public Vector2 MousePosition
+    public Vector2? MousePosition
     {
         get => CurrentSnapshot.MousePos;
         set
@@ -37,46 +33,62 @@ public class InputSystem : GameSystem, IUpdateable
 
     public Vector2 MouseDelta { get; private set; }
 
-    public InputSnapshot CurrentSnapshot { get; set; }
+    public InputSnapshot? CurrentSnapshot { get; set; }
 
-    public InputSystem()
+    public InputSystem(Game targetGame)
     {
-        // nothing to initialize here yet
-        //
-        // TODO: use the WindowFocusChanged handle to handle focus events
-        // from the host.
-    }
-
-    public void RegisterCallback(Action<InputSystem> callback)
-    {
-        cbs.Add(callback);
+        game = targetGame;
     }
 
     public void Update(double elapsed)
     {
         // TODO: Make a method here that gets a input snapshot per tick.
         game.Update(elapsed);
+    }
 
-        foreach (var cb in cbs)
-            cb(this);
+    public void UpdateFrameInput(InputSnapshot snapshot)
+    {
+        CurrentSnapshot = snapshot;
+        // ensure state is clear before we update.
+        newKeysThisFrame.Clear();
+
+        MouseDelta = CurrentSnapshot.MousePos - prevMousePos;
+        prevMousePos = CurrentSnapshot.MousePos;
+
+        // we can't do event-based polling, oh well....
+        var kbs = snapshot.Keyboards;
+        var mcs = snapshot.Mice;
+        var jys = snapshot.Joysticks;
+
+        foreach(var kb in kbs)
+        {
+            kb.KeyDown += keyDown;
+            kb.KeyUp += keyUp;
+        }
+
+        foreach(var m in mcs)
+        {
+            // set the position on poll
+            MousePosition = m.Position;
+            m.MouseDown += keyDown;
+            m.MouseUp += keyUp;
+            m.MouseMove += onMouseMove;
+            m.Scroll += onMouseScroll;
+        }
+
+        foreach(var j in jys)
+        {
+            j.ButtonUp += keyUp;
+            j.ButtonDown += keyDown;
+        }
     }
 
     public void OnNewSceneLoad()
     {
-        clearState();
+        ClearState();
     }
 
-    public void WindowFocusChanged(bool isFocused)
-    {
-        // Regardless if we got back our focus, state must be cleared.
-        // This prevents any ghosting of the input.
-        if (isFocused)
-            clearState();
-
-        clearState();
-    }
-
-    private void clearState()
+    public void ClearState()
     {
         currentlyPressedKeys.Clear();
         newKeysThisFrame.Clear();
@@ -92,84 +104,53 @@ public class InputSystem : GameSystem, IUpdateable
         return newKeysThisFrame.Contains(key);
     }
 
-    public void UpdateFrameInput(InputSnapshot snapshot)
+    #region Keyboard handling code
+    private void keyUp(IKeyboard kb, Key key, int id)
     {
-        CurrentSnapshot = snapshot;
-        newKeysThisFrame.Clear();
-
-        MouseDelta = CurrentSnapshot.MousePos - prevMousePos;
-        prevMousePos = CurrentSnapshot.MousePos;
-
-        var keyboardEvents = snapshot.KeyboardEvents;
-        var mouseEvents = snapshot.MouseEvents;
-
-        // FIXME: consolidate this on one loop maybe?
-        foreach (var k in keyboardEvents)
-        {
-            // SDL_PRESSED is 0x01?
-            // Silk uses Uint8 but according to
-            // SDL_events.h, this:
-            // #define SDL_RELEASED 0
-            // #define SDL_PRESSED 1
-            if (k.State == 0x01)
-            {
-                if (Enum.IsDefined(typeof(KeyName), k.Keysym.Scancode))
-                    keyDown((KeyName)k.Keysym.Scancode);
-
-                // We'd still register it, but it'll be unknown
-                // HACK: jank ahoy! Debug the input code if you see this!
-                keyDown(KeyName.Unknown);
-            }
-            else
-            {
-                if (Enum.IsDefined(typeof(KeyName), k.Keysym.Scancode))
-                    keyUp((KeyName)k.Keysym.Scancode);
-
-                // We'd still register it, but it'll be unknown
-                // HACK: jank ahoy! Debug the input code if you see this!
-                keyDown(KeyName.Unknown);
-            }
-        }
-
-        foreach (var m in mouseEvents)
-        {
-            // same deal but nested
-            // because lmao
-            var mbes = m.MouseButtonEvents;
-
-            foreach (var mbe in mbes)
-            {
-                if (mbe.State == 0x01)
-                {
-                    if (Enum.IsDefined(typeof(KeyName), mbe.Button))
-                        keyDown((KeyName)mbe.Button);
-
-                    // We'd still register it, but it'll be unknown
-                    // HACK: jank ahoy! Debug the input code if you see this!
-                    keyDown(KeyName.Unknown);
-                }
-                else
-                {
-                    if (Enum.IsDefined(typeof(KeyName), mbe.Button))
-                        keyUp((KeyName)mbe.Button);
-
-                    // We'd still register it, but it'll be unknown
-                    // HACK: jank ahoy! Debug the input code if you see this!
-                    keyUp(KeyName.Unknown);
-                }
-            }
-        }
+        currentlyPressedKeys.Remove((KeyName)key);
+        newKeysThisFrame.Remove((KeyName)key);
     }
 
-    private void keyUp(KeyName key)
+    private void keyDown(IKeyboard kb, Key key, int id)
     {
-        currentlyPressedKeys.Remove(key);
-        newKeysThisFrame.Remove(key);
+        if (currentlyPressedKeys.Add((KeyName)key))
+            newKeysThisFrame.Add((KeyName)key);
+    }
+    #endregion
+
+    #region Mouse handling code
+    private void onMouseMove(IMouse mouse, Vector2 pos)
+    {
+        // we'd love to set our snapshots here actually!
     }
 
-    private void keyDown(KeyName key)
+    private void onMouseScroll(IMouse mouse, ScrollWheel wheel)
     {
-        if (currentlyPressedKeys.Add(key))
-            newKeysThisFrame.Add(key);
+        // TODO: calculate the delta of the scroll wheel here!
     }
+
+    private void keyUp(IMouse mouse, MouseButton btn)
+    {
+        if (currentlyPressedKeys.Add((KeyName)btn))
+            newKeysThisFrame.Add((KeyName)btn);
+    }
+
+    private void keyDown(IMouse mouse, MouseButton btn)
+    {
+        if (currentlyPressedKeys.Add((KeyName)btn))
+            newKeysThisFrame.Add((KeyName)btn);
+    }
+    #endregion
+
+    #region Joystick Handling code
+    private void keyUp(IJoystick joystick, Button btn)
+    {
+
+    }
+
+    private void keyDown(IJoystick joystick, Button btn)
+    {
+
+    }
+    #endregion
 }

@@ -11,12 +11,12 @@ public struct ButtonCommand
     /// The name of the Key button command.
     /// Ex: IN_STRAFE.
     /// </summary>
-    public string CmdName;
+    public string Name;
 
     /// <summary>
     /// The keys holding it down.
     /// </summary>
-    public int[]? KeysDown;
+    public KeyName[]? KeysDown;
 
     /// <summary>
     /// The current state of the key button command.
