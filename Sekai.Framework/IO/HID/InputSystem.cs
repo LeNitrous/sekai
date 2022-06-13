@@ -35,7 +35,7 @@ public class InputSystem : GameSystem, IUpdateable
 
     public Vector2 MouseDelta { get; private set; }
 
-    public InputSnapshot? CurrentSnapshot { get; set; }
+    public IInputSnapshot? CurrentSnapshot { get; set; }
 
     public InputSystem(Game targetGame)
     {
@@ -48,7 +48,7 @@ public class InputSystem : GameSystem, IUpdateable
         game.Update(elapsed);
     }
 
-    public void UpdateFrameInput(InputSnapshot snapshot)
+    public void UpdateFrameInput(IInputSnapshot snapshot)
     {
         CurrentSnapshot = snapshot;
         // ensure state is clear before we update.
@@ -82,6 +82,8 @@ public class InputSystem : GameSystem, IUpdateable
         {
             j.ButtonUp += keyUp;
             j.ButtonDown += keyDown;
+            j.AxisMoved += onAxisMoved;
+            j.HatMoved += onHatMoved;
         }
     }
 
@@ -145,13 +147,22 @@ public class InputSystem : GameSystem, IUpdateable
     #endregion
 
     #region Joystick Handling code
+    private void onAxisMoved(IJoystick joystick, Axis axis)
+    {
+
+    }
+
+    private void onHatMoved(IJoystick joystick, Hat hat)
+    {
+
+    }
+
     private void keyUp(IJoystick joystick, Button btn)
     {
         // Button is a struct unlike the rest, so we will
         // have to parse it's ID then map this to KeyName enum.
         currentlyPressedKeys.Remove((KeyName)btn.Index);
         newKeysThisFrame.Remove((KeyName)btn.Index);
-
     }
 
     private void keyDown(IJoystick joystick, Button btn)

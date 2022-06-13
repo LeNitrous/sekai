@@ -9,7 +9,7 @@ namespace Sekai.Framework.IO.HID;
 /// <summary>
 /// Snapshot of a input frame
 /// </summary>
-public interface InputSnapshot : IInputContext
+public interface IInputSnapshot : IInputContext
 {
     Vector2 MousePos { get; }
 
