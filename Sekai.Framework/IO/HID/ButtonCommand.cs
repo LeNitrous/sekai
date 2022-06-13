@@ -3,7 +3,7 @@
 
 namespace Sekai.Framework.IO.HID;
 /// <summary>
-/// A struct defining a Key button command. 
+/// A struct defining a Key button command.
 /// </summary>
 public struct ButtonCommand
 {
