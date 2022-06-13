@@ -1,6 +1,7 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Sekai.Framework.Extensions;
@@ -18,13 +19,19 @@ public class SceneManager : GameSystem, IUpdateable
     public void Load(Scene scene)
     {
         if (Current != null)
-        {
-            this.Remove(scene);
-            Current?.Dispose();
-        }
+            Unload(Current);
 
         this.Add(scene);
         Current = scene;
+    }
+
+    public void Unload(Scene scene)
+    {
+        if (Current != scene)
+            throw new InvalidOperationException(@"Cannot unload scene as it is not the current.");
+
+        this.Remove(scene);
+        Current.Dispose();
     }
 
     public Task LoadAsync(Scene scene)
@@ -76,5 +83,11 @@ public class SceneManager : GameSystem, IUpdateable
             if (currentAliveEntities.Count > 0)
                 currentAliveEntities.Clear();
         }
+    }
+
+    protected override void OnUnload()
+    {
+        if (Current != null)
+            Unload(Current);
     }
 }
