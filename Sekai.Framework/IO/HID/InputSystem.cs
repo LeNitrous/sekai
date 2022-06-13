@@ -1,11 +1,11 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
+using System.Collections.Generic;
+using System.Numerics;
 using Sekai.Framework.Services;
 using Sekai.Framework.Systems;
 using Silk.NET.Input;
-using System.Collections.Generic;
-using System.Numerics;
 
 namespace Sekai.Framework.IO.HID;
 
