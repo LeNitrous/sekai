@@ -22,7 +22,9 @@ public class InputSystem : GameSystem, IUpdateable
 
     public Vector2? MousePosition
     {
+#pragma warning disable CS8602
         get => CurrentSnapshot.MousePos;
+#pragma warning restore CS8602
         set
         {
             // TODO: if we wanna set something here it has to be valid Vector2
@@ -121,18 +123,18 @@ public class InputSystem : GameSystem, IUpdateable
     #region Mouse handling code
     private void onMouseMove(IMouse mouse, Vector2 pos)
     {
-        // we'd love to set our snapshots here actually!
+        // TODO: Set mouse snapshot here for position.
     }
 
     private void onMouseScroll(IMouse mouse, ScrollWheel wheel)
     {
-        // TODO: calculate the delta of the scroll wheel here!
+        // TODO: Set mouse snapshot delta here.
     }
 
     private void keyUp(IMouse mouse, MouseButton btn)
     {
-        if (currentlyPressedKeys.Add((KeyName)btn))
-            newKeysThisFrame.Add((KeyName)btn);
+        currentlyPressedKeys.Remove((KeyName)btn);
+        newKeysThisFrame.Remove((KeyName)btn);
     }
 
     private void keyDown(IMouse mouse, MouseButton btn)
@@ -145,12 +147,17 @@ public class InputSystem : GameSystem, IUpdateable
     #region Joystick Handling code
     private void keyUp(IJoystick joystick, Button btn)
     {
+        // Button is a struct unlike the rest, so we will
+        // have to parse it's ID then map this to KeyName enum.
+        currentlyPressedKeys.Remove((KeyName)btn.Index);
+        newKeysThisFrame.Remove((KeyName)btn.Index);
 
     }
 
     private void keyDown(IJoystick joystick, Button btn)
     {
-
+       if (currentlyPressedKeys.Add((KeyName)btn.Index))
+            newKeysThisFrame.Add((KeyName)btn.Index);
     }
     #endregion
 }
