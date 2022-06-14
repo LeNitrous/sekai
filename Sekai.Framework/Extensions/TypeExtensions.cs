@@ -13,15 +13,12 @@ public static class TypeExtensions
 
     public static Type? GetUnderlyingNullableType(this Type type)
     {
-        if (IsNullable(type))
-            return underlying_type_cache.GetOrAdd(type, t => Nullable.GetUnderlyingType(t)!);
-
-        return type;
+        return underlying_type_cache.GetOrAdd(type, t => Nullable.GetUnderlyingType(t)!);
     }
 
     public static bool IsNullable(this Type type)
     {
-        return type.IsGenericType && !type.IsGenericTypeDefinition && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+        return GetUnderlyingNullableType(type) != null;
     }
 
     public static bool IsNullable(this MemberInfo member)
