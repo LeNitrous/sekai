@@ -19,7 +19,7 @@ internal class UpdateThread : GameThread
 
     private void onNewFrame()
     {
-        onUpdate?.Invoke(Clock.Elapsed.Milliseconds - lastFrameTime);
-        lastFrameTime = Clock.Elapsed.Milliseconds;
+        onUpdate?.Invoke(CurrentTime - lastFrameTime);
+        lastFrameTime = CurrentTime;
     }
 }

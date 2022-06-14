@@ -7,19 +7,14 @@ using Sekai.Framework.Threading;
 
 namespace Sekai.Framework.Testing;
 
-internal class HeadlessHost : Host
+internal class TestHost : HeadlessHost
 {
-    protected override GameThread CreateMainThread()
-    {
-        return new GameThread("Main");
-    }
-
     protected sealed override GameThreadManager CreateThreadManager()
     {
-        return new HeadlessThreadManager();
+        return new TestThreadManager();
     }
 
-    private class HeadlessThreadManager : GameThreadManager
+    private class TestThreadManager : GameThreadManager
     {
         public override void Add(GameThread thread)
         {

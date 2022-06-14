@@ -39,12 +39,12 @@ public abstract class Component : ActivatableObject
         Unload();
     }
 
-    protected sealed override void OnActivate()
+    protected sealed override void OnEnable()
     {
         Activate();
     }
 
-    protected sealed override void OnDeactivate()
+    protected sealed override void OnDisable()
     {
         Deactivate();
     }

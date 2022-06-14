@@ -7,9 +7,30 @@ namespace Sekai.Framework;
 
 public class ActivatableObject : LoadableObject
 {
-    public bool IsEnabled { get; private set; }
+    private bool isEnabled;
 
-    internal void Enable()
+    public bool Enabled
+    {
+        get => isEnabled;
+        set
+        {
+            if (isEnabled == value)
+                return;
+
+            isEnabled = value;
+
+            if (isEnabled)
+            {
+                enable();
+            }
+            else
+            {
+                disable();
+            }
+        }
+    }
+
+    private void enable()
     {
         if (IsDisposed)
             throw new InvalidOperationException(@"Cannot activate destroyed loadables.");
@@ -17,14 +38,10 @@ public class ActivatableObject : LoadableObject
         if (!IsLoaded)
             throw new InvalidOperationException(@"This loadable is not yet loaded.");
 
-        if (IsEnabled)
-            throw new InvalidOperationException(@"This loadable is already activated.");
-
-        IsEnabled = true;
-        OnActivate();
+        OnEnable();
     }
 
-    internal void Disable()
+    private void disable()
     {
         if (IsDisposed)
             throw new InvalidOperationException(@"Cannot deactivate destroyed loadables.");
@@ -32,25 +49,27 @@ public class ActivatableObject : LoadableObject
         if (!IsLoaded)
             throw new InvalidOperationException(@"This loadable is not yet loaded.");
 
-        if (!IsEnabled)
-            throw new InvalidOperationException(@"This loadable is not activated.");
-
-        IsEnabled = false;
-        OnDeactivate();
+        OnDisable();
     }
 
-    protected virtual void OnActivate()
+    internal override void Initialize()
+    {
+        base.Initialize();
+        Enabled = true;
+    }
+
+    protected virtual void OnEnable()
     {
     }
 
-    protected virtual void OnDeactivate()
+    protected virtual void OnDisable()
     {
     }
 
     protected override void Destroy()
     {
-        if (IsEnabled)
-            Disable();
+        if (Enabled)
+            Enabled = false;
 
         base.Destroy();
     }

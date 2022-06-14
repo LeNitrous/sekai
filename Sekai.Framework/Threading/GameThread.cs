@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 
 namespace Sekai.Framework.Threading;
@@ -17,14 +18,16 @@ public class GameThread
     public event Action? OnExit;
     public GameThreadState State { get; private set; }
     internal Thread? Thread { get; private set; }
+    internal bool PropagatesExceptions;
     internal bool IsCurrent => Thread == null || Thread.CurrentThread == Thread;
-    protected readonly Stopwatch Clock = new();
+    internal double CurrentTime => stopwatch.Elapsed.Milliseconds;
     private bool throttled;
     private bool pauseRequested;
     private bool exitRequested;
     private double updatePeriod;
     private readonly GameThreadSynchronizationContext syncContext;
     private readonly object syncLock = new();
+    private readonly Stopwatch stopwatch = new();
 
     internal double UpdatePerSecond
     {
@@ -107,7 +110,7 @@ public class GameThread
         {
             this.throttled = throttled;
             OnInitialize?.Invoke();
-            Clock.Start();
+            stopwatch.Start();
             State = GameThreadState.Running;
         }
     }
@@ -184,14 +187,16 @@ public class GameThread
             return GameThreadState.Paused;
         }
 
+        ExceptionDispatchInfo? exceptionInfo = null;
+
         try
         {
-            double start = Clock.Elapsed.TotalMilliseconds;
+            double start = stopwatch.Elapsed.TotalMilliseconds;
 
-            syncContext.DoWork();
             OnNewFrame?.Invoke();
+            syncContext.DoWork();
 
-            double end = Clock.Elapsed.TotalMilliseconds;
+            double end = stopwatch.Elapsed.TotalMilliseconds;
 
             if (throttled)
                 Thread.Sleep((int)Math.Max(0, start + (1000d / UpdatePerSecond) - end));
@@ -199,7 +204,13 @@ public class GameThread
         catch (Exception e)
         {
             OnUnhandledException?.Invoke(this, new UnhandledExceptionEventArgs(e, false));
+
+            if (PropagatesExceptions)
+                exceptionInfo = ExceptionDispatchInfo.Capture(e);
         }
+
+        if (PropagatesExceptions && exceptionInfo != null)
+            exceptionInfo.Throw();
 
         return null;
     }

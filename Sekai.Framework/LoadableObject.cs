@@ -19,7 +19,7 @@ public abstract class LoadableObject : FrameworkObject, ILoadable
     private LoadableObject? parent;
     private WeakCollection<LoadableObject>? loadables;
 
-    internal void Initialize()
+    internal virtual void Initialize()
     {
         if (IsLoaded)
             throw new InvalidOperationException(@"This loadable is already loaded.");
@@ -29,14 +29,14 @@ public abstract class LoadableObject : FrameworkObject, ILoadable
 
         var type = GetType();
 
-        if (!cacheSelfOnInit.TryGetValue(type, out bool shouldCache))
+        if (!cacheSelfOnInit.TryGetValue(type, out var attrib))
         {
-            shouldCache = type.GetCustomAttribute<CachedAttribute>() != null;
-            cacheSelfOnInit.Add(type, shouldCache);
+            attrib = type.GetCustomAttribute<CachedAttribute>();
+            cacheSelfOnInit.Add(type, attrib);
         }
 
-        if (shouldCache)
-            Services.Cache(type, this);
+        if (attrib != null)
+            Services.Cache(attrib.AsType ?? type, this);
 
         if (!metadatas.TryGetValue(type, out var metadata))
         {
@@ -110,6 +110,7 @@ public abstract class LoadableObject : FrameworkObject, ILoadable
             loadable.parent = null;
             loadable.Services.Parent = null;
             loadables.Remove(loadable);
+            loadable.Dispose();
         }
     }
 
@@ -125,7 +126,7 @@ public abstract class LoadableObject : FrameworkObject, ILoadable
     }
 
     private static readonly Dictionary<Type, LoadableData> metadatas = new();
-    private static readonly Dictionary<Type, bool> cacheSelfOnInit = new();
+    private static readonly Dictionary<Type, CachedAttribute?> cacheSelfOnInit = new();
 
     private class LoadableData
     {
@@ -162,8 +163,10 @@ public abstract class LoadableObject : FrameworkObject, ILoadable
         {
             foreach (var member in type.GetMembers(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
             {
-                bool resolvable = member.GetCustomAttribute<ResolvedAttribute>() != null;
-                bool cacheable = member.GetCustomAttribute<CachedAttribute>() != null;
+                var resolvedAttrib = member.GetCustomAttribute<ResolvedAttribute>();
+                var cachedAttrib = member.GetCustomAttribute<CachedAttribute>();
+                bool resolvable = resolvedAttrib != null;
+                bool cacheable = cachedAttrib != null;
 
                 if (!resolvable && !cacheable)
                     continue;
@@ -185,7 +188,7 @@ public abstract class LoadableObject : FrameworkObject, ILoadable
                     isReadable = pi.CanRead;
                     isWritable = pi.CanWrite;
                     isNullable = pi.IsNullable();
-                    memberType = pi.PropertyType.GetUnderlyingNullableType();
+                    memberType = pi.PropertyType.GetUnderlyingNullableType() ?? pi.PropertyType;
                     memberAccess = Expression.Property(Expression.Convert(target, type), pi);
                 }
 
@@ -194,8 +197,13 @@ public abstract class LoadableObject : FrameworkObject, ILoadable
                     isReadable = true;
                     isWritable = !fi.IsInitOnly;
                     isNullable = fi.IsNullable();
-                    memberType = fi.FieldType.GetUnderlyingNullableType();
+                    memberType = fi.FieldType.GetUnderlyingNullableType() ?? fi.FieldType;
                     memberAccess = Expression.Field(Expression.Convert(target, type), fi);
+                }
+
+                if (cacheable)
+                {
+                    memberType = cachedAttrib!.AsType ?? memberType;
                 }
 
                 if (memberAccess is null || memberType is null)
