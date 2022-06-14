@@ -2,11 +2,10 @@
 // Licensed under MIT. See LICENSE for details.
 
 using NUnit.Framework;
-using Sekai.Framework.Testing;
 
 namespace Sekai.Framework.Tests;
 
-public class TestSceneTest : TestScene
+public class TestSceneTest : FrameworkTestScene
 {
     [Test]
     public void TestSceneInitialization()

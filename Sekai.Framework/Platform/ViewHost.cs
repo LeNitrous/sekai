@@ -66,8 +66,9 @@ public abstract class ViewHost : Host
 
     protected override GameThread CreateMainThread()
     {
-        var thread = new GameThread("Window", View.DoEvents);
-        thread.OnExit += () => View.Reset();
+        var thread = new GameThread("Window");
+        thread.OnExit += View.Reset;
+        thread.OnNewFrame += View.DoEvents;
         return thread;
     }
 

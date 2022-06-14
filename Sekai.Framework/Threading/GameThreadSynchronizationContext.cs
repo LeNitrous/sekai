@@ -19,11 +19,7 @@ internal sealed class GameThreadSynchronizationContext : SynchronizationContext
 
     public override void Post(SendOrPostCallback d, object? state)
     {
-        var work = new WorkItem(d, state);
-        work.Execute();
-
-        if (work.Exception != null)
-            throw new AggregateException(work.Exception);
+        runQueue.Enqueue(new WorkItem(d, state));
     }
 
     public override void Send(SendOrPostCallback d, object? state)

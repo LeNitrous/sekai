@@ -26,6 +26,8 @@ public abstract class Host : FrameworkObject
         threads.FramesPerSecond = 120;
         threads.UpdatePerSecond = 240;
         threads.Add(new UpdateThread(update));
+        mainThread = CreateMainThread();
+        mainThread.PropagatesExceptions = true;
 
         systems = new(game);
         systems.Register<SceneManager>();
@@ -35,11 +37,10 @@ public abstract class Host : FrameworkObject
         game.Services.Cache(systems);
         game.Services.Cache(CreateStorage());
 
-        mainThread = CreateMainThread();
-        mainThread.Dispatch(game.Initialize);
-
         Initialize(game);
-        Run();
+
+        mainThread.Dispatch(game.Initialize);
+        threads.Run(mainThread);
 
         void update(double delta)
         {
@@ -57,7 +58,7 @@ public abstract class Host : FrameworkObject
 
     protected virtual GameThreadManager CreateThreadManager()
     {
-        return new GameThreadManager();
+        return new();
     }
 
     protected virtual IStorage CreateStorage()
@@ -67,12 +68,6 @@ public abstract class Host : FrameworkObject
 
     protected virtual void Initialize(Game game)
     {
-    }
-
-    protected virtual void Run()
-    {
-        if (mainThread != null)
-            threads?.Run(mainThread);
     }
 
     protected override void Destroy()

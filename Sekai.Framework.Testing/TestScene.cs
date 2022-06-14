@@ -5,14 +5,17 @@ using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Sekai.Framework.Entities;
+using Sekai.Framework.Systems;
 
 namespace Sekai.Framework.Testing;
 
-public class TestScene : Component
+public abstract class TestScene : Component
 {
-    private HeadlessHost? host;
-    private TestSceneGame? game;
+    private TestHost? host;
+    private Game? game;
     private Task? runTask;
+    private Scene? scene;
+    private Entity? entity;
 
     [OneTimeSetUp]
     public void OneTimeSetUpFromRunner()
@@ -20,9 +23,21 @@ public class TestScene : Component
         if (!TestUtils.IsNUnit)
             return;
 
-        host = new HeadlessHost();
-        game = new TestSceneGame();
-        game.Services.Cache(this);
+        host = new TestHost();
+        game = CreateGame();
+
+        host.Dispatch(() =>
+        {
+            var systems = game.Services.Resolve<GameSystemRegistry>();
+            var sceneManager = systems.GetSystem<SceneManager>();
+            scene = new Scene();
+
+            entity = new Entity();
+            entity.Add(this);
+
+            scene.Add(entity);
+            sceneManager.Load(scene);
+        });
 
         runTask = Task.Factory.StartNew(() => host.Run(game), TaskCreationOptions.LongRunning);
 
@@ -57,6 +72,8 @@ public class TestScene : Component
         {
         }
     }
+
+    protected abstract Game CreateGame();
 
     private void checkForErrors()
     {
