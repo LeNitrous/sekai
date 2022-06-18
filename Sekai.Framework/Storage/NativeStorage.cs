@@ -4,13 +4,13 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace Sekai.Framework.IO.Storage;
+namespace Sekai.Framework.Storage;
 
-public class PlatformStorage : IStorage
+public class NativeStorage : IStorage
 {
     public readonly string LocalBasePath;
 
-    public PlatformStorage(string localBasePath)
+    public NativeStorage(string localBasePath)
     {
         LocalBasePath = localBasePath;
     }

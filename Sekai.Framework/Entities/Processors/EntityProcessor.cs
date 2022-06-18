@@ -2,8 +2,10 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
+using System.Linq;
+using Veldrid;
 
-namespace Sekai.Framework.Entities;
+namespace Sekai.Framework.Entities.Processors;
 
 public abstract class EntityProcessor : FrameworkObject
 {
@@ -12,11 +14,26 @@ public abstract class EntityProcessor : FrameworkObject
 
     public void Update(Entity entity, double elapsed)
     {
-        foreach (var component in entity.GetComponents(ComponentType))
+        var components = entity.GetComponents(ComponentType).ToArray();
+
+        foreach (var component in components)
+        {
             Update(entity, component, elapsed);
+        }
+    }
+
+    public void Render(Entity entity, CommandList commands)
+    {
+        var components = entity.GetComponents(ComponentType).ToArray();
+
+        foreach (var component in components)
+        {
+            Render(entity, component, commands);
+        }
     }
 
     protected abstract void Update(Entity entity, Component component, double elapsed);
+    protected abstract void Render(Entity entity, Component component, CommandList commands);
 }
 
 public abstract class EntityProcessor<T> : EntityProcessor
@@ -29,5 +46,11 @@ public abstract class EntityProcessor<T> : EntityProcessor
         Update(entity, (T)component, elapsed);
     }
 
+    protected sealed override void Render(Entity entity, Component component, CommandList commands)
+    {
+        Render(entity, (T)component, commands);
+    }
+
     protected abstract void Update(Entity entity, T component, double elapsed);
+    protected abstract void Render(Entity entity, T component, CommandList commands);
 }

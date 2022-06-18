@@ -5,32 +5,62 @@ using System;
 
 namespace Sekai.Framework;
 
+/// <summary>
+/// An object capable of switching states between activated or not.
+/// </summary>
 public class ActivatableObject : LoadableObject
 {
-    private bool isEnabled;
+    private bool enabled;
 
+    /// <summary>
+    /// Gets or sets whether this activatable object is enabled or not.
+    /// </summary>
     public bool Enabled
     {
-        get => isEnabled;
+        get => enabled;
         set
         {
-            if (isEnabled == value)
+            if (enabled == value)
                 return;
 
-            isEnabled = value;
+            enabled = value;
 
-            if (isEnabled)
+            if (enabled)
             {
-                enable();
+                activate();
             }
             else
             {
-                disable();
+                deactivate();
             }
         }
     }
 
-    private void enable()
+    protected override void OnLoad()
+    {
+        Enabled = true;
+    }
+
+    protected override void OnUnload()
+    {
+        Enabled = false;
+    }
+
+    /// <summary>
+    /// Called when this activatable object is enabled.
+    /// </summary>
+    protected virtual void OnActivate()
+    {
+    }
+
+    /// <summary>
+    /// Called when this activatable object is disabled.
+    /// </summary>
+    protected virtual void OnDeactivate()
+    {
+    }
+
+    private void activate()
     {
         if (IsDisposed)
             throw new InvalidOperationException(@"Cannot activate destroyed loadables.");
@@ -38,10 +68,10 @@ public class ActivatableObject : LoadableObject
         if (!IsLoaded)
             throw new InvalidOperationException(@"This loadable is not yet loaded.");
 
-        OnEnable();
+        OnActivate();
     }
 
-    private void disable()
+    private void deactivate()
     {
         if (IsDisposed)
             throw new InvalidOperationException(@"Cannot deactivate destroyed loadables.");
@@ -49,28 +79,6 @@ public class ActivatableObject : LoadableObject
         if (!IsLoaded)
             throw new InvalidOperationException(@"This loadable is not yet loaded.");
 
-        OnDisable();
-    }
-
-    internal override void Initialize()
-    {
-        base.Initialize();
-        Enabled = true;
-    }
-
-    protected virtual void OnEnable()
-    {
-    }
-
-    protected virtual void OnDisable()
-    {
-    }
-
-    protected override void Destroy()
-    {
-        if (Enabled)
-            Enabled = false;
-
-        base.Destroy();
+        OnDeactivate();
     }
 }

@@ -8,7 +8,7 @@ using System.Linq;
 using System.Reflection;
 using DotNet.Globbing;
 
-namespace Sekai.Framework.IO.Storage;
+namespace Sekai.Framework.Storage;
 
 public class AssemblyBackedStorage : IStorage
 {

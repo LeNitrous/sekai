@@ -8,6 +8,9 @@ using Silk.NET.Windowing;
 
 namespace Sekai.Framework.Platform;
 
+/// <summary>
+/// A host backed by a <see cref="IWindow"/>.
+/// </summary>
 public class DesktopHost : ViewHost
 {
     public event Action<Vector2>? OnMove;
@@ -15,25 +18,24 @@ public class DesktopHost : ViewHost
     public event Action<WindowState>? OnStateChange;
     protected new IWindow View => (IWindow)base.View;
 
+    internal DesktopHost(HostOptions? options = null)
+        : base(options)
+    {
+    }
+
     protected override void Initialize(Game game)
     {
         View.IsVisible = false;
+        View.Title = Options.Title;
         View.Move += e => OnMove?.Invoke((Vector2)e);
         View.FileDrop += e => OnFileDrop?.Invoke(e);
         View.StateChanged += e => OnStateChange?.Invoke(e);
 
+        var threads = game.Services.Resolve<FrameworkThreadManager>(true);
+        threads.Post(() => View.IsVisible = true);
+
         base.Initialize(game);
     }
 
-    protected override IView CreateView(ViewOptions opts)
-    {
-        return Window.Create(new WindowOptions(opts));
-    }
-
-    protected override GameThread CreateMainThread()
-    {
-        var thread = base.CreateMainThread();
-        thread.Dispatch(() => View.IsVisible = true);
-        return thread;
-    }
+    protected override IView CreateView(ViewOptions opts) => Window.Create(new WindowOptions(opts));
 }

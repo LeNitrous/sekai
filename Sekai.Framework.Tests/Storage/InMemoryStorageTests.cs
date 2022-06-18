@@ -3,9 +3,9 @@
 
 using System.IO;
 using NUnit.Framework;
-using Sekai.Framework.IO.Storage;
+using Sekai.Framework.Storage;
 
-namespace Sekai.Framework.Tests.IO;
+namespace Sekai.Framework.Tests.Storage;
 
 public class InMemoryStorageTests
 {

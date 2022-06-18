@@ -15,14 +15,14 @@ public class LoadableObjectTests
         var loadable = new TestLoadableWithCached();
         Assert.Multiple(() =>
         {
-            Assert.That(() => loadable.Initialize(), Throws.Nothing);
+            Assert.That(() => loadable.Load(), Throws.Nothing);
             Assert.That(loadable.IsLoaded, Is.True);
             Assert.That(loadable.Services.Resolve<string>(), Is.EqualTo("Hello World"));
-            Assert.That(() => loadable.Initialize(), Throws.InvalidOperationException);
+            Assert.That(() => loadable.Load(), Throws.InvalidOperationException);
             Assert.That(() => loadable.Dispose(), Throws.Nothing);
             Assert.That(loadable.IsLoaded, Is.False);
             Assert.That(loadable.IsDisposed, Is.True);
-            Assert.That(() => loadable.Initialize(), Throws.InvalidOperationException);
+            Assert.That(() => loadable.Load(), Throws.InvalidOperationException);
         });
     }
 
@@ -34,7 +34,7 @@ public class LoadableObjectTests
         loadableA.Add(loadableB);
         Assert.Multiple(() =>
         {
-            Assert.That(() => loadableA.Initialize(), Throws.Nothing);
+            Assert.That(() => loadableA.Load(), Throws.Nothing);
             Assert.That(() => ((ILoadable)loadableA).Children, Is.Not.Empty);
             Assert.That(loadableA.IsLoaded, Is.True);
             Assert.That(loadableB.IsLoaded, Is.True);
@@ -52,7 +52,7 @@ public class LoadableObjectTests
         var loadable = new TestLoadableWithNullableResolvable();
         Assert.Multiple(() =>
         {
-            Assert.That(() => loadable.Initialize(), Throws.Nothing);
+            Assert.That(() => loadable.Load(), Throws.Nothing);
             Assert.That(loadable.IsLoaded, Is.True);
             Assert.That(loadable.Message, Is.Null);
         });
@@ -64,7 +64,7 @@ public class LoadableObjectTests
         var loadable = new TestLoadableWithResolvable();
         Assert.Multiple(() =>
         {
-            Assert.That(() => loadable.Initialize(), Throws.InstanceOf<ServiceNotFoundException>());
+            Assert.That(() => loadable.Load(), Throws.InstanceOf<ServiceNotFoundException>());
             Assert.That(loadable.IsLoaded, Is.False);
             Assert.That(loadable.Message, Is.Null);
         });
@@ -74,24 +74,24 @@ public class LoadableObjectTests
     public void TestLoadableResolvingReadOnly()
     {
         var loadableA = new TestLoadableWithResolvableReadOnlyProperty();
-        Assert.That(() => loadableA.Initialize(), Throws.InvalidOperationException);
+        Assert.That(() => loadableA.Load(), Throws.InvalidOperationException);
 
         var loadableB = new TestLoadableWithResolvableReadOnlyField();
-        Assert.That(() => loadableB.Initialize(), Throws.InvalidOperationException);
+        Assert.That(() => loadableB.Load(), Throws.InvalidOperationException);
     }
 
     [Test]
     public void TestLoadableCachingWriteOnly()
     {
         var loadable = new TestLoadableWithCachedWriteOnlyProperty();
-        Assert.That(() => loadable.Initialize(), Throws.InvalidOperationException);
+        Assert.That(() => loadable.Load(), Throws.InvalidOperationException);
     }
 
     [Test]
     public void TestLoadableWithInvalidState()
     {
         var loadable = new TestLoadableWithBothResolvableAndCached();
-        Assert.That(() => loadable.Initialize(), Throws.InvalidOperationException);
+        Assert.That(() => loadable.Load(), Throws.InvalidOperationException);
     }
 
     [Test]
@@ -100,7 +100,7 @@ public class LoadableObjectTests
         var loadable = new TestLoadableWithCachedAsType();
         Assert.Multiple(() =>
         {
-            Assert.That(() => loadable.Initialize(), Throws.Nothing);
+            Assert.That(() => loadable.Load(), Throws.Nothing);
             Assert.That(loadable.IsLoaded, Is.True);
             Assert.That(loadable.Services.Resolve<TestLoadable>(), Is.Not.Null);
         });
@@ -112,7 +112,7 @@ public class LoadableObjectTests
         var loadableA = new TestLoadableSelfCaching();
         Assert.Multiple(() =>
         {
-            Assert.That(() => loadableA.Initialize(), Throws.Nothing);
+            Assert.That(() => loadableA.Load(), Throws.Nothing);
             Assert.That(loadableA.IsLoaded, Is.True);
             Assert.That(loadableA.Services.Resolve<TestLoadableSelfCaching>(), Is.EqualTo(loadableA));
         });
@@ -120,15 +120,18 @@ public class LoadableObjectTests
         var loadableB = new TestLoadableSelfCachingAsType();
         Assert.Multiple(() =>
         {
-            Assert.That(() => loadableB.Initialize(), Throws.Nothing);
+            Assert.That(() => loadableB.Load(), Throws.Nothing);
             Assert.That(loadableB.IsLoaded, Is.True);
             Assert.That(loadableB.Services.Resolve<TestLoadable>(), Is.EqualTo(loadableB));
         });
     }
 
+#pragma warning disable CS0649
+#pragma warning disable CA1822
+
     private class TestLoadable : LoadableObject
     {
-        public new ServiceContainer Services => base.Services;
+        public new ServiceContainer Services => (ServiceContainer)base.Services;
     }
 
     private class TestLoadableWithCached : TestLoadable
@@ -143,7 +146,7 @@ public class LoadableObjectTests
         public TestLoadableWithCached Object = new();
     }
 
-#pragma warning disable CA1822
+
 
     private class TestLoadableWithCachedWriteOnlyProperty : TestLoadable
     {
@@ -151,7 +154,7 @@ public class LoadableObjectTests
         public string Message { set { } }
     }
 
-#pragma warning restore CA1822
+
 
     private class TestLoadableWithResolvable : TestLoadable
     {
@@ -193,4 +196,8 @@ public class LoadableObjectTests
     private class TestLoadableSelfCachingAsType : TestLoadable
     {
     }
+
+#pragma warning restore CA1822
+#pragma warning restore CS0649
+
 }

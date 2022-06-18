@@ -7,10 +7,9 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Sekai.Framework.Services;
 
-public class ServiceContainer : FrameworkObject, IReadOnlyServiceContainer
+public class ServiceContainer : FrameworkObject, IServiceContainer
 {
-    public IReadOnlyDictionary<Type, Func<object>> Cached => cache;
-    internal IReadOnlyServiceContainer? Parent;
+    public IReadOnlyServiceContainer? Parent { get; set; }
     private readonly object syncLock = new();
     private readonly Dictionary<Type, Func<object>> cache = new();
 
@@ -29,30 +28,27 @@ public class ServiceContainer : FrameworkObject, IReadOnlyServiceContainer
         return result is null ? default! : (T)result;
     }
 
-    public object Resolve(Type target, [DoesNotReturnIf(true)] bool required = true)
+    public object Resolve(Type type, [DoesNotReturnIf(true)] bool required = true)
     {
-        if (!cache.ContainsKey(target))
-        {
-            if (Parent != null)
-                return Parent.Resolve(target, required);
-        }
-
         lock (syncLock)
         {
-            if (cache.TryGetValue(target, out var func))
+            if (cache.TryGetValue(type, out var func))
             {
                 object result = func();
-                var type = result.GetType();
+                var resultType = result.GetType();
 
-                if (!type.IsAssignableTo(target))
-                    throw new InvalidCastException($"Cannot cast {type} to {target}");
+                if (!resultType.IsAssignableTo(type))
+                    throw new InvalidCastException($"Cannot cast {resultType} to {type}");
 
                 return result;
             }
         }
 
+        if (Parent != null)
+            return Parent.Resolve(type, required);
+
         if (required)
-            throw new ServiceNotFoundException($"{target} is not currently registered.");
+            throw new ServiceNotFoundException(type);
 
         return null!;
     }
@@ -63,7 +59,7 @@ public class ServiceContainer : FrameworkObject, IReadOnlyServiceContainer
             throw new InvalidCastException($"Cannot cast {type} to {instance.GetType()}");
 
         if (cache.ContainsKey(type))
-            throw new ServiceExistsException($"{type} is already registered for this container.");
+            throw new ServiceExistsException(type);
 
         lock (syncLock)
         {
@@ -74,7 +70,7 @@ public class ServiceContainer : FrameworkObject, IReadOnlyServiceContainer
     public void Cache(Type type, Func<object> creationFunc)
     {
         if (cache.ContainsKey(type))
-            throw new ServiceExistsException($"{type} is already registered for this container.");
+            throw new ServiceExistsException(type);
 
         lock (syncLock)
         {
@@ -94,23 +90,22 @@ public class ServiceContainer : FrameworkObject, IReadOnlyServiceContainer
 
     protected override void Destroy()
     {
-        Parent = null;
         cache.Clear();
     }
 }
 
 public class ServiceNotFoundException : Exception
 {
-    public ServiceNotFoundException(string? message)
-        : base(message)
+    public ServiceNotFoundException(Type type)
+        : base($"{type} is not currently registered.")
     {
     }
 }
 
 public class ServiceExistsException : Exception
 {
-    public ServiceExistsException(string? message)
-        : base(message)
+    public ServiceExistsException(Type type)
+        : base($"{type} is already registered for this container.")
     {
     }
 }

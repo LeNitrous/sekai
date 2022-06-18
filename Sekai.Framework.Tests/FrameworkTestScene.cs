@@ -5,10 +5,6 @@ using Sekai.Framework.Testing;
 
 namespace Sekai.Framework.Tests;
 
-public class FrameworkTestScene : TestScene
+public class FrameworkTestScene : TestScene<FrameworkGame>
 {
-    protected override Game CreateGame()
-    {
-        return new FrameworkGame();
-    }
 }

@@ -9,8 +9,8 @@ namespace Sekai.Framework.Logging;
 public partial class Logger
 {
     public static event Action<LogMessage>? OnMessageLogged;
-    private static readonly ILogger global = new Logger();
-    private static readonly Dictionary<string, ILogger> loggers = new();
+    private static readonly Logger global = new();
+    private static readonly Dictionary<string, Logger> loggers = new();
 
     public static void Debug(string message)
     {
@@ -42,7 +42,7 @@ public partial class Logger
         global.Warning(message);
     }
 
-    public static ILogger GetLogger(string name)
+    public static Logger GetLogger(string name)
     {
         if (!loggers.TryGetValue(name, out var logger))
         {

@@ -10,6 +10,9 @@ namespace Sekai.Framework.Extensions;
 
 internal static class ViewExtensions
 {
+    /// <summary>
+    /// Creates a graphics context for the given view.
+    /// </summary>
     public static IGraphicsContext CreateGraphics(this IView view, GraphicsBackend backend)
     {
         if (!view.IsInitialized)

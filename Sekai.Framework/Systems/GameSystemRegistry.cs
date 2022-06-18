@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Sekai.Framework.Extensions;
+using Veldrid;
 
 namespace Sekai.Framework.Systems;
 
@@ -12,7 +13,7 @@ namespace Sekai.Framework.Systems;
 /// This class keeps track of the actively registered game classes.
 //  Every game system must be registered here, otherwise, it cannot be used.
 /// </summary>
-public class GameSystemRegistry : FrameworkObject, IEnumerable<GameSystem>
+public class GameSystemRegistry : FrameworkObject, IRenderable, IUpdateable, IEnumerable<GameSystem>
 {
     private readonly Dictionary<Type, GameSystem> systems = new();
     private readonly Game game;
@@ -79,6 +80,24 @@ public class GameSystemRegistry : FrameworkObject, IEnumerable<GameSystem>
     public IEnumerator<GameSystem> GetEnumerator()
     {
         return systems.Values.GetEnumerator();
+    }
+
+    public void Update(double elapsed)
+    {
+        foreach (var system in systems.Values)
+        {
+            if (system.Enabled && system is IUpdateable updateable)
+                updateable.Update(elapsed);
+        }
+    }
+
+    public void Render(CommandList commands)
+    {
+        foreach (var system in systems.Values)
+        {
+            if (system.Enabled && system is IRenderable renderable)
+                renderable.Render(commands);
+        }
     }
 
     IEnumerator IEnumerable.GetEnumerator()
