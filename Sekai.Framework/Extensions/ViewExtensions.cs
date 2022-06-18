@@ -4,7 +4,6 @@
 using System;
 using Sekai.Framework.Graphics;
 using Silk.NET.Windowing;
-using Veldrid;
 
 namespace Sekai.Framework.Extensions;
 
@@ -13,22 +12,11 @@ internal static class ViewExtensions
     /// <summary>
     /// Creates a graphics context for the given view.
     /// </summary>
-    public static IGraphicsContext CreateGraphics(this IView view, GraphicsBackend backend)
+    public static IGraphicsContext CreateGraphics(this IView view, Graphics.GraphicsAPI api)
     {
         if (!view.IsInitialized)
             throw new InvalidOperationException(@"View must be initialized before a graphics context can be made.");
 
-        GraphicsContext context = backend switch
-        {
-            GraphicsBackend.Vulkan => new VulkanGraphicsContext(),
-            GraphicsBackend.OpenGL => new GLGraphicsContext(),
-            GraphicsBackend.OpenGLES => new GLGraphicsContext(),
-            GraphicsBackend.Direct3D11 => new Direct3D11GraphicsContext(),
-            GraphicsBackend.Metal => throw new NotSupportedException(@"Metal is not supported."),
-            _ => throw new ArgumentOutOfRangeException(nameof(backend)),
-        };
-
-        context.Initialize(view);
-        return context;
+        return new GraphicsContext(view, api);
     }
 }

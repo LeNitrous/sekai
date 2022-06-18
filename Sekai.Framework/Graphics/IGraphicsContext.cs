@@ -8,5 +8,7 @@ namespace Sekai.Framework.Graphics;
 
 public interface IGraphicsContext : IDisposable
 {
+    GraphicsAPI API { get; }
     GraphicsDevice Device { get; }
+    ResourceFactory Resources { get; }
 }

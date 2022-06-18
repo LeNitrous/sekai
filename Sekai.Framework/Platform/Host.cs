@@ -34,7 +34,10 @@ public abstract class Host : FrameworkObject
     {
         Logger.OnMessageLogged += new LogListenerConsole();
 
-        game = Activator.CreateInstance<T>();
+        if (Game.Current != null)
+            throw new InvalidOperationException(@"An active game is currently running. Failed start another instance.");
+
+        Game.Current = game = Activator.CreateInstance<T>();
 
         game.Services.Cache(this);
         game.Services.Cache(storage = new());
@@ -78,6 +81,7 @@ public abstract class Host : FrameworkObject
 
     protected override void Destroy()
     {
+        Game.Current = null!;
         game?.Dispose();
         storage?.Dispose();
         systems?.Dispose();

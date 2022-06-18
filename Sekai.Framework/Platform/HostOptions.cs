@@ -3,8 +3,8 @@
 
 using System;
 using System.Reflection;
+using Sekai.Framework.Graphics;
 using Sekai.Framework.Threading;
-using Veldrid;
 
 namespace Sekai.Framework.Platform;
 
@@ -35,5 +35,5 @@ public class HostOptions
     /// <summary>
     /// The backend graphics to be used by the renderer.
     /// </summary>
-    public GraphicsBackend Renderer { get; set; } = GraphicsBackend.Vulkan;
+    public GraphicsAPI Renderer { get; set; } = GraphicsAPI.Vulkan;
 }

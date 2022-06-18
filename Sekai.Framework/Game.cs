@@ -10,6 +10,11 @@ namespace Sekai.Framework;
 /// </summary>
 public abstract class Game : LoadableObject, IUpdateable, IRenderable
 {
+    /// <summary>
+    /// The currently running game. May be null if host is currently not running.
+    /// </summary>
+    public static Game Current { get; internal set; } = null!;
+
     /// <inheritdoc cref="OnLoad"/>
     public virtual void Load()
     {

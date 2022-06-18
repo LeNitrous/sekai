@@ -9,7 +9,6 @@ using Sekai.Framework.Systems;
 using Sekai.Framework.Threading;
 using Silk.NET.Input;
 using Silk.NET.Windowing;
-using Silk.NET.Windowing.Extensions.Veldrid;
 using Veldrid;
 
 namespace Sekai.Framework.Platform;
@@ -28,7 +27,7 @@ public class ViewHost : Host
         : base(options)
     {
         var opts = ViewOptions.Default;
-        opts.API = Options.Renderer.ToGraphicsAPI();
+        opts.API = Options.Renderer.ToSilkGraphicsApi();
         opts.VSync = false;
         opts.ShouldSwapAutomatically = false;
         View = CreateView(opts);
