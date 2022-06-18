@@ -17,7 +17,7 @@ using Vulkan;
 
 namespace Sekai.Framework.Graphics;
 
-public class GraphicsContext : FrameworkObject, IGraphicsContext
+internal class GraphicsContext : FrameworkObject, IGraphicsContext
 {
     public GraphicsAPI API { get; }
 
@@ -54,7 +54,7 @@ public class GraphicsContext : FrameworkObject, IGraphicsContext
             {
                 PreferStandardClipSpaceYDirection = true,
                 PreferDepthRangeZeroToOne = true
-            }, api.ToVeldridBackend()
+            }, api.ToVeldrid()
         );
 
         switch (api)
