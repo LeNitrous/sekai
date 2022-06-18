@@ -3,7 +3,7 @@
 
 using System;
 using System.Linq;
-using Veldrid;
+using Sekai.Framework.Graphics;
 
 namespace Sekai.Framework.Entities.Processors;
 

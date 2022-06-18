@@ -4,25 +4,22 @@
 using System;
 using System.Runtime.ExceptionServices;
 using Sekai.Framework.Graphics;
-using Veldrid;
 
 namespace Sekai.Framework.Threading;
 
 public abstract class RenderThread : FrameworkThread
 {
     private readonly bool isPrimaryRenderThread;
-    private readonly CommandList commands;
-    private readonly IGraphicsContext graphics;
+    private readonly CommandList commands = new();
+    private readonly GraphicsContext context = (GraphicsContext)Game.Current.Services.Resolve<IGraphicsContext>(true);
 
-    protected RenderThread(IGraphicsContext graphics, string name = "unknown")
+    protected RenderThread(string name = "unknown")
         : base($"Render ({name})")
     {
-        this.graphics = graphics;
-        commands = graphics.Device.ResourceFactory.CreateCommandList();
     }
 
-    internal RenderThread(IGraphicsContext graphics)
-        : this(graphics, "Main")
+    internal RenderThread()
+        : this("Main")
     {
         isPrimaryRenderThread = true;
     }
@@ -46,13 +43,12 @@ public abstract class RenderThread : FrameworkThread
         finally
         {
             commands.End();
-            graphics.Device.SubmitCommands(commands);
         }
 
         if (isPrimaryRenderThread)
         {
-            graphics.Device.WaitForIdle();
-            graphics.Device.SwapBuffers();
+            context.Device.WaitForIdle();
+            context.Device.SwapBuffers();
         }
 
         exceptionInfo?.Throw();

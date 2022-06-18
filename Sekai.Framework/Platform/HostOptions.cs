@@ -16,7 +16,7 @@ public class HostOptions
     /// <summary>
     /// The title of the game window.
     /// </summary>
-    public string Title { get; set; } = Assembly.GetCallingAssembly().GetName().Name ?? "Sekai Framework";
+    public string Title { get; set; } = Assembly.GetEntryAssembly()?.GetName().Name ?? "Sekai Framework";
 
     /// <summary>
     /// Arguments obtained from launching the process.

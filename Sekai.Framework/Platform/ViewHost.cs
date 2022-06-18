@@ -2,14 +2,12 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using System.Linq;
 using Sekai.Framework.Extensions;
 using Sekai.Framework.Graphics;
 using Sekai.Framework.Systems;
 using Sekai.Framework.Threading;
 using Silk.NET.Input;
 using Silk.NET.Windowing;
-using Veldrid;
 
 namespace Sekai.Framework.Platform;
 
@@ -27,7 +25,7 @@ public class ViewHost : Host
         : base(options)
     {
         var opts = ViewOptions.Default;
-        opts.API = Options.Renderer.ToSilkGraphicsApi();
+        opts.API = Options.Renderer.ToSilk();
         opts.VSync = false;
         opts.ShouldSwapAutomatically = false;
         View = CreateView(opts);
@@ -47,9 +45,9 @@ public class ViewHost : Host
         game.Services.Cache(graphics = View.CreateGraphics(Options.Renderer));
 
         var threads = game.Services.Resolve<FrameworkThreadManager>(true);
-        threads.Add(new GameRenderThread(game, graphics));
+        threads.Add(new GameRenderThread(game));
 
-        View.Resize += size => graphics.Device.ResizeMainWindow((uint)size.X, (uint)size.Y);
+        View.Resize += size => ((GraphicsContext)graphics).Device.ResizeMainWindow((uint)size.X, (uint)size.Y);
         View.Closing += Dispose;
         View.FocusChanged += e => OnFocusChanged?.Invoke(e);
     }
@@ -99,8 +97,7 @@ public class ViewHost : Host
         private readonly Game game;
         private readonly GameSystemRegistry systems;
 
-        public GameRenderThread(Game game, IGraphicsContext graphics)
-            : base(graphics)
+        public GameRenderThread(Game game)
         {
             this.game = game;
             systems = game.Services.Resolve<GameSystemRegistry>(true);
@@ -108,9 +105,7 @@ public class ViewHost : Host
 
         protected override void OnRenderFrame(CommandList commands)
         {
-            foreach (var system in systems.OfType<IRenderable>())
-                system.Render(commands);
-
+            systems.Render(commands);
             game.Render(commands);
         }
     }

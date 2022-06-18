@@ -1,7 +1,7 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-using Veldrid;
+using Sekai.Framework.Graphics;
 
 namespace Sekai.Framework.Entities.Processors;
 

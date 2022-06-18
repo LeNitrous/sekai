@@ -2,7 +2,6 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using System.Linq;
 using Sekai.Framework.Entities;
 using Sekai.Framework.Logging;
 using Sekai.Framework.Storage;
@@ -115,9 +114,7 @@ public abstract class Host : FrameworkObject
 
         protected override void OnUpdateFrame(double delta)
         {
-            foreach (var system in systems.OfType<IUpdateable>())
-                system.Update(delta);
-
+            systems.Update(delta);
             game.Update(delta);
         }
     }

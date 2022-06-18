@@ -2,7 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 
 using Sekai.Framework.Entities.Processors;
-using Veldrid;
+using Sekai.Framework.Graphics;
 
 namespace Sekai.Framework.Entities;
 

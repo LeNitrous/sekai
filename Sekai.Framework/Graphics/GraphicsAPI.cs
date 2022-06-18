@@ -19,7 +19,7 @@ public enum GraphicsAPI
 
 internal static class GraphicsAPIExtensions
 {
-    public static GraphicsBackend ToVeldridBackend(this GraphicsAPI api)
+    public static GraphicsBackend ToVeldrid(this GraphicsAPI api)
     {
         return api switch
         {
@@ -31,7 +31,7 @@ internal static class GraphicsAPIExtensions
         };
     }
 
-    public static SilkGraphicsAPI ToSilkGraphicsApi(this GraphicsAPI api)
+    public static SilkGraphicsAPI ToSilk(this GraphicsAPI api)
     {
         return api switch
         {

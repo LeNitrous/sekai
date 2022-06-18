@@ -5,7 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Sekai.Framework.Extensions;
-using Veldrid;
+using Sekai.Framework.Graphics;
 
 namespace Sekai.Framework.Systems;
 

@@ -4,9 +4,9 @@
 using System;
 using System.Collections.Generic;
 using Sekai.Framework.Extensions;
+using Sekai.Framework.Graphics;
 using Sekai.Framework.Logging;
 using Sekai.Framework.Systems;
-using Veldrid;
 
 namespace Sekai.Framework.Entities;
 
@@ -89,5 +89,10 @@ public class SceneManager : GameSystem, IUpdateable, IRenderable
     void IRenderable.Render(CommandList commands)
     {
         (Current as IRenderable)?.Render(commands);
+    }
+
+    public void Render(CommandList commands)
+    {
+        throw new NotImplementedException();
     }
 }
