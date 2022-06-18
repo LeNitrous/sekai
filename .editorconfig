@@ -63,8 +63,8 @@ csharp_style_var_elsewhere = true:suggestion
 
 # Expression-bodied members
 csharp_style_expression_bodied_constructors = false:warning
-csharp_style_expression_bodied_methods = false:warning
-csharp_style_expression_bodied_operators = false:warning
+csharp_style_expression_bodied_methods = false:silent
+csharp_style_expression_bodied_operators = false:silent
 csharp_style_expression_bodied_properties = when_on_single_line:warning
 csharp_style_expression_bodied_indexers = when_on_single_line:warning
 csharp_style_expression_bodied_accessors = when_on_single_line:warning

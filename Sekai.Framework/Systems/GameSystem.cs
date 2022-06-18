@@ -3,6 +3,6 @@
 
 namespace Sekai.Framework.Systems;
 
-public abstract class GameSystem : LoadableObject
+public abstract class GameSystem : ActivatableObject
 {
 }

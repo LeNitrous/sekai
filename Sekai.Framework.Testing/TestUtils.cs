@@ -8,6 +8,6 @@ namespace Sekai.Framework.Testing;
 
 internal class TestUtils
 {
-    public static bool IsNUnit => isTesting.Value;
-    private static readonly Lazy<bool> isTesting = new(() => Assembly.GetEntryAssembly()?.Location.Contains("testhost") ?? false);
+    public static bool IsNUnit => isNUnit.Value;
+    private static readonly Lazy<bool> isNUnit = new(() => Assembly.GetEntryAssembly()?.Location.Contains("testhost") ?? false);
 }

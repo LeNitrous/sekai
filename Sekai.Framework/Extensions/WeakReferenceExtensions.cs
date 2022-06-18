@@ -10,7 +10,7 @@ namespace Sekai.Framework.Extensions;
 ///     A collection of extension methods for working with weak references
 ///     (a weak reference does not prevent an object from being garbage collected).
 /// </summary>
-public static partial class WeakReferenceExtensions
+public static class WeakReferenceExtensions
 {
     /// <summary>
     ///     Gets the value of a weak reference (what the reference it to)

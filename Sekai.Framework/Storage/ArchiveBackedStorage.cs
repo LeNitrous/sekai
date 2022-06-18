@@ -8,7 +8,7 @@ using System.IO.Compression;
 using System.Linq;
 using DotNet.Globbing;
 
-namespace Sekai.Framework.IO.Storage;
+namespace Sekai.Framework.Storage;
 
 public class ArchiveBackedStorage : FrameworkObject, IStorage
 {

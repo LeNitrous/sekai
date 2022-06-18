@@ -5,20 +5,27 @@ using Veldrid;
 
 namespace Sekai.Framework;
 
+/// <summary>
+/// The game application and the entry point for Sekai.
+/// </summary>
 public abstract class Game : LoadableObject, IUpdateable, IRenderable
 {
+    /// <inheritdoc cref="OnLoad"/>
     public virtual void Load()
     {
     }
 
+    /// <inheritdoc cref="IRenderable.Render"/>
     public virtual void Render(CommandList commands)
     {
     }
 
+    /// <inheritdoc cref="IUpdateable.Update"/>
     public virtual void Update(double elapsed)
     {
     }
 
+    /// <inheritdoc cref="OnUnload"/>
     public virtual void Unload()
     {
     }
@@ -31,10 +38,5 @@ public abstract class Game : LoadableObject, IUpdateable, IRenderable
     protected sealed override void OnUnload()
     {
         Unload();
-    }
-
-    protected sealed override void Destroy()
-    {
-        base.Destroy();
     }
 }

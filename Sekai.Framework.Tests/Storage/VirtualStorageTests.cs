@@ -2,14 +2,14 @@
 // Licensed under MIT. See LICENSE for details.
 
 using NUnit.Framework;
-using Sekai.Framework.IO.Storage;
+using Sekai.Framework.Storage;
 
-namespace Sekai.Framework.Tests.IO;
+namespace Sekai.Framework.Tests.Storage;
 
 public class VirtualStorageTests
 {
     [Test]
-    public void TestMounting()
+    public void TestStorageMounting()
     {
         var vfs = new VirtualStorage();
         var a = new InMemoryStorage();

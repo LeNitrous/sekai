@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace Sekai.Framework.IO.Storage;
+namespace Sekai.Framework.Storage;
 
 public class VirtualStorage : FrameworkObject, IStorage
 {

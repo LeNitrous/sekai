@@ -3,91 +3,91 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Sekai.Framework.Extensions;
+using Sekai.Framework.Logging;
 using Sekai.Framework.Systems;
+using Veldrid;
 
 namespace Sekai.Framework.Entities;
 
-public class SceneManager : GameSystem, IUpdateable
+/// <summary>
+/// A game system that manages loading and unloading <see cref="Scene"/>s.
+/// </summary>
+public class SceneManager : GameSystem, IUpdateable, IRenderable
 {
-    public Scene? Current { get; private set; }
-    public IReadOnlyList<EntityProcessor> Processors => processors;
-    private readonly List<EntityProcessor> processors = new();
-    private readonly List<Entity> currentAliveEntities = new();
+    private Scene? current;
+    private static readonly Logger logger = Logger.GetLogger("Scenes");
 
+    /// <summary>
+    /// Gets or sets the current scene.
+    /// </summary>
+    /// <remarks>
+    /// The scene is implicitly loaded if it has not been loaded yet
+    /// and implicitly unloads the previous scene.
+    /// </remarks>
+    public Scene? Current
+    {
+        get => current;
+        set
+        {
+            if (current == value)
+                return;
+
+            if (current != null)
+                Unload(current);
+
+            logger.Info(@$"Switching scenes ""{current?.Name ?? "null"}"" → ""{value?.Name ?? "null"}"".");
+            current = value;
+
+            if (current != null)
+                Load(current);
+        }
+    }
+
+    /// <summary>
+    /// Loads a given scene for use later.
+    /// </summary>
     public void Load(Scene scene)
     {
-        if (Current != null)
-            Unload(Current);
+        if (scene == null)
+            throw new ArgumentNullException(nameof(scene));
 
-        this.Add(scene);
-        Current = scene;
-    }
-
-    public void Unload(Scene scene)
-    {
-        if (Current != scene)
-            throw new InvalidOperationException(@"Cannot unload scene as it is not the current.");
-
-        this.Remove(scene);
-        Current.Dispose();
-    }
-
-    public Task LoadAsync(Scene scene)
-    {
-        return Task.Run(() => Load(scene));
-    }
-
-    public void Add(EntityProcessor processor)
-    {
-        processors.Add(processor);
-    }
-
-    public void Remove(EntityProcessor processor)
-    {
-        processors.Remove(processor);
-    }
-
-    public void Update(double elapsed)
-    {
-        if (Current is null)
+        if (scene.Manager == this)
             return;
 
-        getCurrentAliveEntities();
+        logger.Info(@$"Loading scene ""{scene.Name}"".");
 
-        foreach (var processor in Processors)
-        {
-            foreach (var entity in currentAliveEntities)
-            {
-                processor.Update(entity, elapsed);
-            }
-        }
-
-        clearCurrentAliveEntities();
+        scene.Manager = this;
+        this.Add(scene);
     }
 
-    private void getCurrentAliveEntities()
+    /// <summary>
+    /// Unloads an owned scene.
+    /// </summary>
+    public void Unload(Scene scene)
     {
-        lock (currentAliveEntities)
-        {
-            if (currentAliveEntities.Count == 0)
-                currentAliveEntities.AddRange(Current!.AllAliveEntities);
-        }
+        if (scene == null)
+            throw new ArgumentNullException(nameof(scene));
+
+        if (scene.Manager == null)
+            return;
+
+        if (scene.Manager != this)
+            throw new InvalidOperationException(@"Cannot unload a scene not owned by this scene manager.");
+
+        logger.Info(@$"Unloading scene ""{scene.Name}"".");
+
+        scene.Manager = null;
+        this.Remove(scene);
     }
 
-    private void clearCurrentAliveEntities()
+    void IUpdateable.Update(double elapsed)
     {
-        lock (currentAliveEntities)
-        {
-            if (currentAliveEntities.Count > 0)
-                currentAliveEntities.Clear();
-        }
+        (Current as IUpdateable)?.Update(elapsed);
     }
 
-    protected override void OnUnload()
+    void IRenderable.Render(CommandList commands)
     {
-        if (Current != null)
-            Unload(Current);
+        (Current as IRenderable)?.Render(commands);
     }
 }

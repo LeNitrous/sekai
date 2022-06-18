@@ -2,46 +2,29 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
+using System.Linq;
 using Pastel;
 
 namespace Sekai.Framework.Logging;
 
 public class LogListenerConsole : LogListenerTextWriter
 {
-    public LogListenerConsole()
-        : base(Console.Out)
-    {
-    }
-
     protected override Func<Exception, string> FormatException => formatException;
     protected override Func<DateTime, string> FormatTimestamp => formatTimestamp;
     protected override Func<LogLevel, string> FormatLogLevel => formatLogLevel;
     protected override Func<string, string> FormatMessage => formatMessage;
 
-    protected override string GetTextFormatted(LogMessage message)
+    public LogListenerConsole()
+        : base(Console.Out)
     {
-        return base.GetTextFormatted(message).Pastel(gray1);
     }
 
-    private string formatTimestamp(DateTime time)
-    {
-        return base.FormatTimestamp(time).Pastel(gray3);
-    }
+    protected override string GetTextFormatted(LogMessage message) => base.GetTextFormatted(message).Pastel(gray1);
 
-    private string formatLogLevel(LogLevel level)
-    {
-        return "⬤".Pastel(getColorForLevel(level));
-    }
-
-    private string formatMessage(string message)
-    {
-        return base.FormatMessage(message).Pastel(white);
-    }
-
-    private string formatException(Exception exception)
-    {
-        return base.FormatException(exception).Pastel(critical);
-    }
+    private string formatTimestamp(DateTime time) => base.FormatTimestamp(time).Pastel(gray3);
+    private string formatLogLevel(LogLevel level) => "⬤".Pastel(getColorForLevel(level));
+    private string formatMessage(string message) => base.FormatMessage(message).Pastel(white);
+    private string formatException(Exception exception) => string.Join('\n', exception.ToString().Split('\n').Select(line => line.Pastel(critical)));
 
     private static readonly string critical = @"#eb4034";
     private static readonly string verbose = @"#3794ff";

@@ -2,50 +2,62 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
+using System.Runtime.ExceptionServices;
 using Sekai.Framework.Graphics;
 using Veldrid;
 
 namespace Sekai.Framework.Threading;
 
-public sealed class RenderThread : GameThread
+public abstract class RenderThread : FrameworkThread
 {
-    private readonly Action<CommandList>? onRenderFrame;
-    private readonly IGraphicsContext graphics;
+    private readonly bool isPrimaryRenderThread;
     private readonly CommandList commands;
-    private readonly bool isMainRenderThread;
+    private readonly IGraphicsContext graphics;
 
-    public RenderThread(IGraphicsContext graphics, string name = "unknown", Action<CommandList>? onRenderFrame = null)
+    protected RenderThread(IGraphicsContext graphics, string name = "unknown")
         : base($"Render ({name})")
     {
-        commands = graphics.Device.ResourceFactory.CreateCommandList();
-        OnExit += onExit;
-        OnNewFrame += onNewFrame;
         this.graphics = graphics;
-        this.onRenderFrame = onRenderFrame;
+        commands = graphics.Device.ResourceFactory.CreateCommandList();
     }
 
-    internal RenderThread(IGraphicsContext graphics, Action<CommandList>? onRenderFrame = null)
-        : this(graphics, "Main", onRenderFrame)
+    internal RenderThread(IGraphicsContext graphics)
+        : this(graphics, "Main")
     {
-        isMainRenderThread = true;
+        isPrimaryRenderThread = true;
     }
 
-    private void onNewFrame()
+    protected abstract void OnRenderFrame(CommandList commands);
+
+    protected sealed override void OnNewFrame()
     {
         commands.Begin();
-        onRenderFrame?.Invoke(commands);
-        commands.End();
-        graphics.Device.SubmitCommands(commands);
 
-        if (isMainRenderThread)
+        ExceptionDispatchInfo? exceptionInfo = null;
+
+        try
+        {
+            OnRenderFrame(commands);
+        }
+        catch (Exception e)
+        {
+            exceptionInfo = ExceptionDispatchInfo.Capture(e);
+        }
+        finally
+        {
+            commands.End();
+            graphics.Device.SubmitCommands(commands);
+        }
+
+        if (isPrimaryRenderThread)
         {
             graphics.Device.WaitForIdle();
             graphics.Device.SwapBuffers();
         }
+
+        exceptionInfo?.Throw();
     }
 
-    private void onExit()
-    {
-        commands.Dispose();
-    }
+    protected sealed override void Perform() => base.Perform();
+    protected override void Destroy() => commands.Dispose();
 }

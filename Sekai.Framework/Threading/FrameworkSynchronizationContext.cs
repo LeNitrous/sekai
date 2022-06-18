@@ -2,17 +2,18 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 
 namespace Sekai.Framework.Threading;
 
-internal sealed class GameThreadSynchronizationContext : SynchronizationContext
+internal class FrameworkSynchronizationContext : SynchronizationContext
 {
-    private readonly GameThread thread;
-    private readonly Queue<WorkItem> runQueue = new();
+    private readonly FrameworkThread thread;
+    private readonly ConcurrentQueue<WorkItem> runQueue = new();
 
-    public GameThreadSynchronizationContext(GameThread thread)
+    public FrameworkSynchronizationContext(FrameworkThread thread)
     {
         this.thread = thread;
     }
@@ -47,7 +48,7 @@ internal sealed class GameThreadSynchronizationContext : SynchronizationContext
             item.Execute();
 
             if (item.Exception != null)
-                throw new AggregateException(item.Exception);
+                ExceptionDispatchInfo.Capture(item.Exception).Throw();
         }
     }
 

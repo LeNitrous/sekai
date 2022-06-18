@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace Sekai.Framework.IO.Storage;
+namespace Sekai.Framework.Storage;
 
 public interface IStorage
 {

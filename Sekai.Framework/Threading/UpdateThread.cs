@@ -1,25 +1,32 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-using System;
+using System.Diagnostics;
 
 namespace Sekai.Framework.Threading;
 
-internal class UpdateThread : GameThread
+public abstract class UpdateThread : FrameworkThread
 {
-    private double lastFrameTime;
-    private readonly Action<double>? onUpdate;
+    private readonly Stopwatch stopwatch = new();
 
-    public UpdateThread(Action<double>? onUpdate = null)
-        : base("Update")
+    protected UpdateThread(string name = "unknown")
+        : base($"Update ({name})")
     {
-        OnNewFrame += onNewFrame;
-        this.onUpdate = onUpdate;
     }
 
-    private void onNewFrame()
+    internal UpdateThread()
+        : this("Main")
     {
-        onUpdate?.Invoke(CurrentTime - lastFrameTime);
-        lastFrameTime = CurrentTime;
     }
+
+    protected abstract void OnUpdateFrame(double delta);
+
+    protected sealed override void OnNewFrame()
+    {
+        stopwatch.Restart();
+        OnUpdateFrame(stopwatch.Elapsed.TotalMilliseconds);
+    }
+
+    protected sealed override void Perform() => base.Perform();
+    protected override void Destroy() => stopwatch.Reset();
 }

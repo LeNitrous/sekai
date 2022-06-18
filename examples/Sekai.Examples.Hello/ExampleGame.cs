@@ -17,12 +17,10 @@ public class ExampleGame : Game
     public override void Load()
     {
         var scenes = systems.GetSystem<SceneManager>();
-        var entity = new Entity();
-        var scene = new Scene();
-
-        entity.Add(new MyComponent());
-        scene.Add(entity);
-        scenes.Load(scene);
+        scenes.Current = new Scene
+        {
+            Entities = new[] { new Entity { Components = new[] { new MyComponent() } } }
+        };
     }
 }
 

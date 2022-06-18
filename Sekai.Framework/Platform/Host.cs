@@ -4,8 +4,8 @@
 using System;
 using System.Linq;
 using Sekai.Framework.Entities;
-using Sekai.Framework.IO.Storage;
 using Sekai.Framework.Logging;
+using Sekai.Framework.Storage;
 using Sekai.Framework.Systems;
 using Sekai.Framework.Threading;
 
@@ -13,77 +13,108 @@ namespace Sekai.Framework.Platform;
 
 public abstract class Host : FrameworkObject
 {
-    private GameThreadManager? threads;
-    private GameSystemRegistry? systems;
-    private GameThread? mainThread;
+    public bool IsRunning => threads != null && threads.IsRunning;
 
-    public void Run(Game game)
+    private Game? game;
+    private VirtualStorage? storage;
+    private GameSystemRegistry? systems;
+    private FrameworkThreadManager? threads;
+    protected readonly HostOptions Options;
+
+    protected Host(HostOptions? options = null)
+    {
+        Options = options ?? new();
+    }
+
+    /// <summary>
+    /// Starts and runs the game.
+    /// </summary>
+    public void Run<T>()
+        where T : Game, new()
     {
         Logger.OnMessageLogged += new LogListenerConsole();
 
-        threads = CreateThreadManager();
-        threads.ExecutionMode = ExecutionMode.MultiThread;
-        threads.FramesPerSecond = 120;
-        threads.UpdatePerSecond = 240;
-        threads.Add(new UpdateThread(update));
-        mainThread = CreateMainThread();
-        mainThread.PropagatesExceptions = true;
-
-        systems = new(game);
-        systems.Register<SceneManager>();
+        game = Activator.CreateInstance<T>();
 
         game.Services.Cache(this);
-        game.Services.Cache(threads);
-        game.Services.Cache(systems);
-        game.Services.Cache(CreateStorage());
+        game.Services.Cache(storage = new());
+        game.Services.Cache(systems = new(game));
+        game.Services.Cache(threads = CreateThreadManager());
+        game.Services.Cache(Options);
+
+        systems.Register<SceneManager>();
+
+        threads.Add(new GameUpdateThread(game, systems));
+        threads.Post(((ILoadable)game).Load);
 
         Initialize(game);
 
-        mainThread.Dispatch(game.Initialize);
-        threads.Run(mainThread);
+        threads.ExecutionMode = Options.ExecutionMode;
+        threads.UpdatePerSecond = Options.UpdatePerSecond;
+        threads.FramesPerSecond = Options.FramesPerSecond;
 
-        void update(double delta)
-        {
-            if (systems != null)
-            {
-                foreach (var system in systems.OfType<IUpdateable>())
-                    system.Update(delta);
-            }
-
-            game.Update(delta);
-        }
+        threads.Run();
     }
 
-    protected abstract GameThread CreateMainThread();
-
-    protected virtual GameThreadManager CreateThreadManager()
+    /// <summary>
+    /// Exits the game.
+    /// </summary>
+    public void Exit()
     {
-        return new();
+        Dispose();
     }
 
-    protected virtual IStorage CreateStorage()
-    {
-        return new VirtualStorage();
-    }
+    /// <summary>
+    /// Creates the threading manager for this host.
+    /// </summary>
+    protected abstract FrameworkThreadManager CreateThreadManager();
 
+    /// <summary>
+    /// Initializes the game before the main loop is started.
+    /// </summary>
     protected virtual void Initialize(Game game)
     {
     }
 
     protected override void Destroy()
     {
+        game?.Dispose();
+        storage?.Dispose();
         systems?.Dispose();
         threads?.Dispose();
     }
 
-    public static Host GetSuitableHost()
+    /// <summary>
+    /// Gets the appropriate host for the platform it is executing on.
+    /// </summary>
+    public static Host GetSuitableHost(HostOptions? options = null)
     {
         if (RuntimeInfo.IsDesktop)
-            return new DesktopHost();
+            return new DesktopHost(options);
 
         if (RuntimeInfo.IsMobile)
-            return new MobileHost();
+            return new ViewHost(options);
 
         throw new PlatformNotSupportedException(@"Failed to find suitable host for the current platform.");
+    }
+
+    private class GameUpdateThread : UpdateThread
+    {
+        private readonly Game game;
+        private readonly GameSystemRegistry systems;
+
+        public GameUpdateThread(Game game, GameSystemRegistry systems)
+        {
+            this.game = game;
+            this.systems = systems;
+        }
+
+        protected override void OnUpdateFrame(double delta)
+        {
+            foreach (var system in systems.OfType<IUpdateable>())
+                system.Update(delta);
+
+            game.Update(delta);
+        }
     }
 }

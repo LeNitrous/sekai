@@ -5,17 +5,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Sekai.Framework.Entities;
-using Sekai.Framework.Systems;
 
 namespace Sekai.Framework.Testing;
 
-public abstract class TestScene : Component
+public abstract class TestScene<T> : Component
+    where T : Game, new()
 {
     private TestHost? host;
-    private Game? game;
     private Task? runTask;
-    private Scene? scene;
-    private Entity? entity;
 
     [OneTimeSetUp]
     public void OneTimeSetUpFromRunner()
@@ -23,23 +20,8 @@ public abstract class TestScene : Component
         if (!TestUtils.IsNUnit)
             return;
 
-        host = new TestHost();
-        game = CreateGame();
-
-        host.Dispatch(() =>
-        {
-            var systems = game.Services.Resolve<GameSystemRegistry>();
-            var sceneManager = systems.GetSystem<SceneManager>();
-            scene = new Scene();
-
-            entity = new Entity();
-            entity.Add(this);
-
-            scene.Add(entity);
-            sceneManager.Load(scene);
-        });
-
-        runTask = Task.Factory.StartNew(() => host.Run(game), TaskCreationOptions.LongRunning);
+        host = new TestHost(this);
+        runTask = Task.Factory.StartNew(() => host.Run<T>(), TaskCreationOptions.LongRunning);
 
         while (!IsLoaded)
         {
@@ -65,15 +47,12 @@ public abstract class TestScene : Component
 
         try
         {
-            game?.Dispose();
             host?.Dispose();
         }
         catch
         {
         }
     }
-
-    protected abstract Game CreateGame();
 
     private void checkForErrors()
     {

@@ -1,36 +1,24 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-using System;
-using System.Collections.Generic;
 using Sekai.Framework.Threading;
 
 namespace Sekai.Framework.Platform;
 
+/// <summary>
+/// A host capable of running in the background.
+/// </summary>
 public class HeadlessHost : Host
 {
-    private GameThread? mainThread;
-    private readonly Queue<Action> deferredDispatchQueue = new();
-
-    public void Dispatch(Action action)
+    public HeadlessHost()
+        : base(null)
     {
-        if (mainThread == null)
-        {
-            deferredDispatchQueue.Enqueue(action);
-            return;
-        }
-
-        mainThread.Dispatch(action);
     }
 
-    protected override void Initialize(Game game)
-    {
-        while (deferredDispatchQueue.TryDequeue(out var action))
-            mainThread!.Dispatch(action);
-    }
+    protected override FrameworkThreadManager CreateThreadManager() => new HeadlessThreadManager();
 
-    protected override GameThread CreateMainThread()
+    protected class HeadlessThreadManager : FrameworkThreadManager
     {
-        return mainThread = new GameThread("Main");
+        protected override MainThread CreateMainThread() => new();
     }
 }

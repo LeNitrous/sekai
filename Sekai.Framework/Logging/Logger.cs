@@ -61,3 +61,36 @@ public sealed partial class Logger : ILogger
         OnMessageLogged?.Invoke(message);
     }
 }
+
+public static class LoggerExtensions
+{
+    public static void Log(this Logger logger, string message, LogLevel level = LogLevel.Verbose)
+    {
+        ((ILogger)logger).Log(message, level);
+    }
+
+    public static void Debug(this Logger logger, string message)
+    {
+        ((ILogger)logger).Debug(message);
+    }
+
+    public static void Error(this Logger logger, string message, Exception? exception = null)
+    {
+        ((ILogger)logger).Error(message, exception);
+    }
+
+    public static void Info(this Logger logger, string message)
+    {
+        ((ILogger)logger).Info(message);
+    }
+
+    public static void Verbose(this Logger logger, string message)
+    {
+        ((ILogger)logger).Verbose(message);
+    }
+
+    public static void Warning(this Logger logger, string message)
+    {
+        ((ILogger)logger).Warning(message);
+    }
+}
