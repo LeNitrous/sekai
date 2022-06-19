@@ -1,7 +1,6 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-using Sekai.Framework.Extensions;
 using Sekai.Framework.Services;
 
 namespace Sekai.Framework;
@@ -11,7 +10,7 @@ namespace Sekai.Framework;
 /// <see cref="CachedAttribute"/> and <see cref="ResolvedAttribute"/> or through <see cref="Services"/>
 /// and is also capable of loading children while resolving and caching their own services.
 /// </summary>
-public abstract partial class LoadableObject : FrameworkObject, ILoadable
+public abstract partial class LoadableObject : FrameworkObject
 {
     private LoadableObject? parent;
 
@@ -45,6 +44,6 @@ public abstract partial class LoadableObject : FrameworkObject, ILoadable
         IsLoaded = false;
         parent = null;
         Services.Dispose();
-        this.Clear();
+        ClearInternal();
     }
 }

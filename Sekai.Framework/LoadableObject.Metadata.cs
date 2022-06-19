@@ -14,7 +14,7 @@ public partial class LoadableObject
 {
     /// <summary>
     /// Stores information about a given type that extends <see cref="LoadableObject"/>.
-    /// Used for injecting services during <see cref="ILoadable.Load"/>.
+    /// Used for injecting services during <see cref="LoadInternal"/>.
     /// </summary>
     private class LoadableMetadata
     {

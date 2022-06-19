@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Sekai.Framework.Extensions;
 using Sekai.Framework.Services;
 
 namespace Sekai.Framework.Entities;
@@ -134,8 +133,8 @@ public class Entity : LoadableObject
 
             entity.Depth = Depth + 1;
             entity.Parent = this;
+            AddInternal(entity);
             children.Add(entity);
-            this.Add((LoadableObject)entity);
             scene?.Add(entity, false);
         }
     }
@@ -155,8 +154,8 @@ public class Entity : LoadableObject
 
             entity.Depth = 0;
             entity.Parent = null;
+            RemoveInternal(entity);
             children.Remove(entity);
-            this.Remove((LoadableObject)entity);
             scene?.Remove(entity, false);
         }
     }
@@ -177,7 +176,7 @@ public class Entity : LoadableObject
             component.Entity = this;
             components.Add(component);
             components.Sort(ComponentComparer.Instance);
-            this.Add((LoadableObject)component);
+            AddInternal(component);
             scene?.RegisterComponent(component);
         }
     }
@@ -198,7 +197,7 @@ public class Entity : LoadableObject
             component.Entity = null!;
             components.Remove(component);
             components.Sort(ComponentComparer.Instance);
-            this.Remove((LoadableObject)component);
+            RemoveInternal(component);
         }
     }
 
