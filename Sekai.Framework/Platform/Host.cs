@@ -53,7 +53,7 @@ public abstract class Host : FrameworkObject
 
         threads.Add(new GameUpdateThread(game, systems));
         threads.Add(new GameRenderThread(game, systems));
-        threads.Post(((ILoadable)game).Load);
+        threads.Post(game.LoadInternal);
 
         Initialize(game);
 

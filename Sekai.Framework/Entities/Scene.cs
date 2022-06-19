@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Sekai.Framework.Entities.Processors;
-using Sekai.Framework.Extensions;
 using Sekai.Framework.Graphics;
 using Sekai.Framework.Services;
 
@@ -109,8 +108,8 @@ public class Scene : LoadableObject, IUpdateable, IRenderable
                 if (rootEntities.Contains(entity))
                     return;
 
+                AddInternal(entity);
                 rootEntities.Add(entity);
-                this.Add((LoadableObject)entity);
             }
 
         }
@@ -134,8 +133,8 @@ public class Scene : LoadableObject, IUpdateable, IRenderable
                 if (!rootEntities.Contains(entity))
                     return;
 
+                RemoveInternal(entity);
                 rootEntities.Remove(entity);
-                this.Remove((LoadableObject)entity);
             }
         }
 

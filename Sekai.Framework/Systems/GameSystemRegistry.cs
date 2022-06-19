@@ -4,7 +4,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Sekai.Framework.Extensions;
 using Sekai.Framework.Graphics;
 
 namespace Sekai.Framework.Systems;
@@ -44,7 +43,7 @@ public class GameSystemRegistry : FrameworkObject, IRenderable, IUpdateable, IEn
             throw new InvalidOperationException($"System of type {typeof(T).Name} is already registered.");
 
         var system = Activator.CreateInstance<T>();
-        game.Add(system);
+        game.AddInternal(system);
         systems.Add(typeof(T), system);
     }
 
@@ -59,7 +58,7 @@ public class GameSystemRegistry : FrameworkObject, IRenderable, IUpdateable, IEn
 
         var system = systems[typeof(T)];
 
-        game.Remove(system);
+        game.RemoveInternal(system);
         systems.Remove(typeof(T));
         system.Dispose();
     }
@@ -70,7 +69,7 @@ public class GameSystemRegistry : FrameworkObject, IRenderable, IUpdateable, IEn
         // so we'll have to dispose them immediately on dispose.
         foreach (var system in systems.Values)
         {
-            game.Remove(system);
+            game.RemoveInternal(system);
             system.Dispose();
         }
 

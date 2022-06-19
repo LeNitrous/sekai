@@ -2,7 +2,6 @@
 // Licensed under MIT. See LICENSE for details.
 
 using NUnit.Framework;
-using Sekai.Framework.Extensions;
 
 namespace Sekai.Framework.Tests;
 
@@ -14,7 +13,7 @@ public class ActivatableObjectTests
         var activatable = new TestActivatable();
         Assert.Multiple(() =>
         {
-            Assert.That(() => activatable.Load(), Throws.Nothing);
+            Assert.That(() => activatable.LoadInternal(), Throws.Nothing);
             Assert.That(activatable.IsLoaded, Is.True);
             Assert.That(activatable.Enabled, Is.True);
             Assert.That(() => activatable.Enabled = false, Throws.Nothing);

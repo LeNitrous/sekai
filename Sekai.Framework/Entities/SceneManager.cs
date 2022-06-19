@@ -2,8 +2,6 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using System.Collections.Generic;
-using Sekai.Framework.Extensions;
 using Sekai.Framework.Graphics;
 using Sekai.Framework.Logging;
 using Sekai.Framework.Systems;
@@ -58,7 +56,7 @@ public class SceneManager : GameSystem, IUpdateable, IRenderable
         logger.Info(@$"Loading scene ""{scene.Name}"".");
 
         scene.Manager = this;
-        this.Add(scene);
+        AddInternal(scene);
     }
 
     /// <summary>
@@ -78,7 +76,7 @@ public class SceneManager : GameSystem, IUpdateable, IRenderable
         logger.Info(@$"Unloading scene ""{scene.Name}"".");
 
         scene.Manager = null;
-        this.Remove(scene);
+        RemoveInternal(scene);
     }
 
     void IUpdateable.Update(double elapsed)
