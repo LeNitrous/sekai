@@ -7,21 +7,26 @@ using Sekai.Framework.Entities;
 using Sekai.Framework.Platform;
 using Sekai.Framework.Systems;
 using Sekai.Framework.Threading;
+using Silk.NET.Windowing;
 
 namespace Sekai.Framework.Testing;
 
 /// <summary>
 /// A host capable of executing a <see cref="TestScene{T}"/>
 /// </summary>
-internal class TestHost : HeadlessHost
+internal class TestHost : ViewHost
 {
     public readonly FrameworkThreadManager Threads;
     private readonly Component test;
 
     public TestHost(Component test)
     {
-        this.test = test;
         Threads = new TestThreadManager();
+
+        if (View is IWindow window)
+            window.IsVisible = false;
+
+        this.test = test;
     }
 
     protected sealed override void Initialize(Game game)
@@ -45,7 +50,7 @@ internal class TestHost : HeadlessHost
 
     protected sealed override FrameworkThreadManager CreateThreadManager() => Threads;
 
-    private class TestThreadManager : HeadlessThreadManager
+    private class TestThreadManager : FrameworkThreadManager
     {
         private readonly TestExecutionContext context = TestExecutionContext.CurrentContext;
 
@@ -54,6 +59,7 @@ internal class TestHost : HeadlessHost
             Post(registerContext);
         }
 
+        protected override MainThread CreateMainThread() => new();
         protected override bool OnUnobservedException(Exception exception) => true;
 
         protected override void OnThreadAdded(FrameworkThread thread)

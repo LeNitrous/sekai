@@ -1,6 +1,7 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
+using Sekai.Framework.Graphics;
 using Sekai.Framework.Threading;
 
 namespace Sekai.Framework.Platform;
@@ -15,6 +16,7 @@ public class HeadlessHost : Host
     {
     }
 
+    protected override IGraphicsContext CreateGraphicsContext(GraphicsAPI api) => new GraphicsContext(api);
     protected override FrameworkThreadManager CreateThreadManager() => new HeadlessThreadManager();
 
     protected class HeadlessThreadManager : FrameworkThreadManager

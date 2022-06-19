@@ -151,7 +151,6 @@ public abstract class FrameworkThread : FrameworkObject
 
         IsRunning = false;
 
-        cts = null;
         thread = null;
         stopwatch.Reset();
     }

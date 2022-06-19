@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using Sekai.Framework.Extensions;
 using Sekai.Framework.Logging;
 using Sekai.Framework.Platform;
 using SharpDX;
@@ -19,36 +20,40 @@ namespace Sekai.Framework.Graphics;
 
 internal class GraphicsContext : FrameworkObject, IGraphicsContext
 {
+    public readonly GraphicsDevice Device;
     public GraphicsAPI API { get; }
+    public ResourceFactory Resources => Device.ResourceFactory;
 
-    public GraphicsDevice Device
+    public bool VSync
     {
-        get
-        {
-            if (IsDisposed)
-                throw new ObjectDisposedException(nameof(GraphicsContext));
-
-            return device;
-        }
+        get => Device.SyncToVerticalBlank;
+        set => Device.SyncToVerticalBlank = value;
     }
 
-    public ResourceFactory Resources
+    public GraphicsContext(GraphicsAPI api)
     {
-        get
+        API = api;
+
+        Device = api switch
         {
-            if (IsDisposed)
-                throw new ObjectDisposedException(nameof(GraphicsContext));
+            GraphicsAPI.Direct3D11 => GraphicsDevice.CreateD3D11(new GraphicsDeviceOptions()),
+            GraphicsAPI.Vulkan => GraphicsDevice.CreateVulkan(new GraphicsDeviceOptions()),
+            GraphicsAPI.Metal => GraphicsDevice.CreateMetal(new GraphicsDeviceOptions()),
+            GraphicsAPI.OpenGL => throw new NotSupportedException(),
+            _ => throw new ArgumentOutOfRangeException(nameof(api))
+        };
 
-            return device.ResourceFactory;
-        }
+        initialize();
     }
-
-    private readonly GraphicsDevice device;
 
     public GraphicsContext(IView view, GraphicsAPI api)
     {
         API = api;
-        device = view.CreateGraphicsDevice
+
+        if (!view.IsInitialized)
+            throw new InvalidOperationException(@"View must be initialized before a graphics context can be created.");
+
+        Device = view.CreateGraphicsDevice
         (
             new()
             {
@@ -57,7 +62,12 @@ internal class GraphicsContext : FrameworkObject, IGraphicsContext
             }, api.ToVeldrid()
         );
 
-        switch (api)
+        initialize();
+    }
+
+    private void initialize()
+    {
+        switch (API)
         {
             case GraphicsAPI.Direct3D11:
                 initializeDirect3D11();
@@ -73,7 +83,7 @@ internal class GraphicsContext : FrameworkObject, IGraphicsContext
 
             case GraphicsAPI.Metal:
             default:
-                throw new NotSupportedException($"{api} is not supported.");
+                throw new NotSupportedException($"{API} is not supported.");
         }
     }
 

@@ -21,20 +21,18 @@ public class DesktopHost : ViewHost
     internal DesktopHost(HostOptions? options = null)
         : base(options)
     {
-    }
-
-    protected override void Initialize(Game game)
-    {
         View.IsVisible = false;
         View.Title = Options.Title;
         View.Move += e => OnMove?.Invoke((Vector2)e);
         View.FileDrop += e => OnFileDrop?.Invoke(e);
         View.StateChanged += e => OnStateChange?.Invoke(e);
+    }
 
+    protected override void Initialize(Game game)
+    {
+        base.Initialize(game);
         var threads = game.Services.Resolve<FrameworkThreadManager>(true);
         threads.Post(() => View.IsVisible = true);
-
-        base.Initialize(game);
     }
 
     protected override IView CreateView(ViewOptions opts) => Window.Create(new WindowOptions(opts));

@@ -10,6 +10,6 @@ public class TestSceneTest : FrameworkTestScene
     [Test]
     public void TestSceneInitialization()
     {
-        Assert.Pass();
+        Assert.That(IsLoaded, Is.True);
     }
 }

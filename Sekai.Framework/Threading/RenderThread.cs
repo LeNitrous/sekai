@@ -28,7 +28,7 @@ public abstract class RenderThread : FrameworkThread
 
     protected sealed override void OnNewFrame()
     {
-        commands.Begin();
+        commands.Start();
 
         ExceptionDispatchInfo? exceptionInfo = null;
 
