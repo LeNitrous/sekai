@@ -5,18 +5,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Sekai.Framework.Collections;
-using Sekai.Framework.Extensions;
 
 namespace Sekai.Framework;
 
 public partial class LoadableObject
 {
-    IReadOnlyList<LoadableObject> ILoadable.Children => loadables?.ToArray() ?? Array.Empty<LoadableObject>();
-    LoadableObject? ILoadable.Parent => parent;
+    internal IReadOnlyList<LoadableObject> InternalChildren => loadables?.ToArray() ?? Array.Empty<LoadableObject>();
+    internal LoadableObject? InternalParent => parent;
     private WeakCollection<LoadableObject>? loadables;
     private static readonly Dictionary<Type, LoadableMetadata> metadatas = new();
 
-    void ILoadable.Load()
+    /// <summary>
+    /// Loads this loadable and its children.
+    /// </summary>
+    internal void LoadInternal()
     {
         if (IsLoaded)
             throw new InvalidOperationException(@"This loadable is already loaded.");
@@ -40,11 +42,14 @@ public partial class LoadableObject
         if (loadables != null)
         {
             foreach (var loadable in loadables)
-                loadable.Load();
+                loadable.LoadInternal();
         }
     }
 
-    void ILoadable.Add(LoadableObject loadable)
+    /// <summary>
+    /// Adds a loadable object to be part of its hierarchy.
+    /// </summary>
+    internal void AddInternal(LoadableObject loadable)
     {
         if (loadable == this)
             throw new InvalidOperationException(@"Cannot add itself as a loadable.");
@@ -63,16 +68,22 @@ public partial class LoadableObject
         loadable.Services.Parent = Services;
 
         if (IsLoaded)
-            loadable.Load();
+            loadable.LoadInternal();
     }
 
-    void ILoadable.AddRange(IEnumerable<LoadableObject> loadables)
+    /// <summary>
+    /// Adds a range of loadable objects to be part of its hierarchy.
+    /// </summary>
+    internal void AddRangeInternal(IEnumerable<LoadableObject> loadables)
     {
         foreach (var loadable in loadables)
-            ((ILoadable)this).Add(loadable);
+            AddInternal(loadable);
     }
 
-    void ILoadable.Remove(LoadableObject loadable)
+    /// <summary>
+    /// Removes a loadable object from its hierarchy.
+    /// </summary>
+    internal void RemoveInternal(LoadableObject loadable)
     {
         if (loadables == null)
             return;
@@ -88,14 +99,20 @@ public partial class LoadableObject
         loadable.Dispose();
     }
 
-    void ILoadable.RemoveRange(IEnumerable<LoadableObject> loadables)
+    /// <summary>
+    /// Removes a range of loadable objects from its hierarchy.
+    /// </summary>
+    internal void RemoveRangeInternal(IEnumerable<LoadableObject> loadables)
     {
         foreach (var loadable in loadables)
-            ((ILoadable)this).Remove(loadable);
+            RemoveInternal(loadable);
     }
 
-    void ILoadable.Clear()
+    /// <summary>
+    /// Removes all loadable objects from its hierarchy.
+    /// </summary>
+    internal void ClearInternal()
     {
-        ((ILoadable)this).RemoveRange(((ILoadable)this).Children);
+        RemoveRangeInternal(InternalChildren);
     }
 }

@@ -45,7 +45,7 @@ public abstract class Host : FrameworkObject
         systems.Register<SceneManager>();
 
         threads.Add(new GameUpdateThread(game, systems));
-        threads.Post(((ILoadable)game).Load);
+        threads.Post(game.LoadInternal);
 
         Initialize(game);
 
