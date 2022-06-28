@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using Sekai.Framework.Extensions;
 using Sekai.Framework.Graphics;
+using Sekai.Framework.Logging;
 using Sekai.Framework.Systems;
 using Sekai.Framework.Threading;
 using Silk.NET.Input;
@@ -42,6 +43,8 @@ public class ViewHost : Host
 
     protected override void Initialize(Game game)
     {
+        Logger.OnMessageLogged += new LogListenerConsole();
+
         View.Initialize();
 
         game.Services.Cache(input = View.CreateInput());
