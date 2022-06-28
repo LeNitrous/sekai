@@ -4,7 +4,6 @@
 using System;
 using Sekai.Framework.Entities;
 using Sekai.Framework.Graphics;
-using Sekai.Framework.Logging;
 using Sekai.Framework.Storage;
 using Sekai.Framework.Systems;
 using Sekai.Framework.Threading;
@@ -41,7 +40,6 @@ public abstract class Host : FrameworkObject
         if (Game.Current != null)
             throw new InvalidOperationException(@"An active game is currently running. Failed start another instance.");
 
-        Logger.OnMessageLogged += new LogListenerConsole();
         Game.Current = game = Activator.CreateInstance<T>();
 
         game.Services.Cache(this);

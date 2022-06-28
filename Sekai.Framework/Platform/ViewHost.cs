@@ -4,6 +4,7 @@
 using System;
 using Sekai.Framework.Extensions;
 using Sekai.Framework.Graphics;
+using Sekai.Framework.Logging;
 using Sekai.Framework.Threading;
 using Silk.NET.Windowing;
 
@@ -41,6 +42,14 @@ public class ViewHost : Host
     {
         var graphics = (GraphicsContext)game.Services.Resolve<IGraphicsContext>(true);
         View.Resize += size => RenderThread?.Post(() => graphics.Device.ResizeMainWindow((uint)size.X, (uint)size.Y));
+
+        Logger.OnMessageLogged += new LogListenerConsole();
+
+        View.Initialize();
+
+        View.Resize += size => graphics.Device.ResizeMainWindow((uint)size.X, (uint)size.Y);
+        View.Closing += Dispose;
+        View.FocusChanged += e => OnFocusChanged?.Invoke(e);
     }
 
     protected sealed override IGraphicsContext CreateGraphicsContext(Graphics.GraphicsAPI api)
