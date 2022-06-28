@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using Sekai.Framework.Entities;
-using Sekai.Framework.Logging;
 using Sekai.Framework.Storage;
 using Sekai.Framework.Systems;
 using Sekai.Framework.Threading;
@@ -32,8 +31,6 @@ public abstract class Host : FrameworkObject
     public void Run<T>()
         where T : Game, new()
     {
-        Logger.OnMessageLogged += new LogListenerConsole();
-
         game = Activator.CreateInstance<T>();
 
         game.Services.Cache(this);
