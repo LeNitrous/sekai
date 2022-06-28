@@ -2,7 +2,6 @@
 // Licensed under MIT. See LICENSE for details.
 
 using NUnit.Framework;
-using Sekai.Framework.Graphics;
 using Sekai.Framework.Graphics.Buffers;
 
 namespace Sekai.Framework.Tests.Graphics;
@@ -26,18 +25,11 @@ public class BufferTests : FrameworkTestScene
     [Test]
     public void TestBufferGetData()
     {
-        var commands = new CommandList();
-
         using var a = new Buffer<int>(1, BufferUsage.Index);
         a.SetData(256);
 
-        commands.Start();
-
         int num = 0;
-        a.GetData(commands, ref num);
-
-        commands.End();
-        commands.Context.Device.WaitForIdle();
+        a.GetData(ref num);
 
         Assert.That(num, Is.EqualTo(256));
     }
@@ -45,20 +37,13 @@ public class BufferTests : FrameworkTestScene
     [Test]
     public void TestBufferGetDataArray()
     {
-        var commands = new CommandList();
-
         int[] src = new[] { 1, 2, 3 };
 
         using var a = new Buffer<int>(src.Length, BufferUsage.Index);
         a.SetData(src);
 
-        commands.Start();
-
         int[] dst = new int[3];
-        a.GetData(commands, dst);
-
-        commands.End();
-        commands.Context.Device.WaitForIdle();
+        a.GetData(dst);
 
         Assert.That(src, Is.EquivalentTo(dst));
     }

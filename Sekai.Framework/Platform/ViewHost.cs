@@ -40,7 +40,7 @@ public class ViewHost : Host
     protected override void Initialize(Game game)
     {
         var graphics = (GraphicsContext)game.Services.Resolve<IGraphicsContext>(true);
-        View.Resize += size => graphics.Device.ResizeMainWindow((uint)size.X, (uint)size.Y);
+        View.Resize += size => RenderThread?.Post(() => graphics.Device.ResizeMainWindow((uint)size.X, (uint)size.Y));
     }
 
     protected sealed override IGraphicsContext CreateGraphicsContext(Graphics.GraphicsAPI api)

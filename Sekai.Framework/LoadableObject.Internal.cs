@@ -36,14 +36,18 @@ public partial class LoadableObject
 
         metadata.Load(this);
 
-        IsLoaded = true;
         OnLoad();
 
         if (loadables != null)
         {
-            foreach (var loadable in loadables)
-                loadable.LoadInternal();
+            lock (loadables)
+            {
+                foreach (var loadable in loadables)
+                    loadable.LoadInternal();
+            }
         }
+
+        IsLoaded = true;
     }
 
     /// <summary>

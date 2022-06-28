@@ -2,6 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -23,6 +24,8 @@ internal class GraphicsContext : FrameworkObject, IGraphicsContext
     public readonly GraphicsDevice Device;
     public GraphicsAPI API { get; }
     public ResourceFactory Resources => Device.ResourceFactory;
+    private readonly Dictionary<ResourceLayoutDescription, ResourceLayout> resourceLayoutCache = new();
+    private readonly Dictionary<GraphicsPipelineState, Pipeline> graphicsPipelineCache = new();
 
     public bool VSync
     {
@@ -63,6 +66,54 @@ internal class GraphicsContext : FrameworkObject, IGraphicsContext
         );
 
         initialize();
+    }
+
+    internal Pipeline FetchPipeline(GraphicsPipelineState state)
+    {
+        lock (graphicsPipelineCache)
+        {
+            if (!graphicsPipelineCache.TryGetValue(state, out var pipeline))
+            {
+                var desc = new GraphicsPipelineDescription
+                {
+                    Outputs = state.Output.ToVeldrid(),
+                    BlendState = state.Blending.ToVeldrid(),
+                    ResourceLayouts = state.Shader.ResourceLayouts,
+                    RasterizerState = state.Rasterizer.ToVeldrid(),
+                    PrimitiveTopology = state.Rasterizer.Topology.ToVeldrid(),
+                    ResourceBindingModel = ResourceBindingModel.Improved
+                };
+
+                desc.DepthStencilState.StencilBack = state.Stencil.Back.ToVeldrid();
+                desc.DepthStencilState.StencilFront = state.Stencil.Front.ToVeldrid();
+                desc.DepthStencilState.StencilReadMask = state.Stencil.ReadMask;
+                desc.DepthStencilState.StencilWriteMask = state.Stencil.WriteMask;
+                desc.DepthStencilState.StencilReference = (uint)state.Stencil.Reference;
+                desc.DepthStencilState.StencilTestEnabled = state.Stencil.StencilTest;
+                desc.DepthStencilState.DepthComparison = state.Depth.Comparison.ToVeldrid();
+                desc.DepthStencilState.DepthTestEnabled = state.Depth.DepthTest;
+                desc.DepthStencilState.DepthWriteEnabled = state.Depth.WriteDepth;
+                desc.ShaderSet.VertexLayouts = new[] { state.Shader.VertexLayout };
+                desc.ShaderSet.Shaders = state.Shader.Resources.ToArray();
+
+                graphicsPipelineCache[state] = pipeline = Resources.CreateGraphicsPipeline(desc);
+            }
+
+            return pipeline;
+        }
+    }
+
+    internal ResourceLayout FetchResourceLayout(ResourceLayoutDescription desc)
+    {
+        lock (resourceLayoutCache)
+        {
+            if (!resourceLayoutCache.TryGetValue(desc, out var layout))
+            {
+                resourceLayoutCache[desc] = layout = Resources.CreateResourceLayout(desc);
+            }
+
+            return layout;
+        }
     }
 
     private void initialize()
@@ -181,5 +232,14 @@ internal class GraphicsContext : FrameworkObject, IGraphicsContext
         Logger.Log($@"{gl} Extensions:              {extensions}");
     }
 
-    protected sealed override void Destroy() => Device.Dispose();
+    protected sealed override void Destroy()
+    {
+        foreach ((var _, var pipeline) in graphicsPipelineCache)
+            pipeline.Dispose();
+
+        foreach ((var _, var layout) in resourceLayoutCache)
+            layout.Dispose();
+
+        Device.Dispose();
+    }
 }

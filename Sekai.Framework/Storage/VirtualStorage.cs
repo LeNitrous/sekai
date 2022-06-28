@@ -111,8 +111,8 @@ public class VirtualStorage : FrameworkObject, IStorage
 
         for (int i = path.Length; i >= 0; i--)
         {
-            if (path[i - 1] != Path.AltDirectorySeparatorChar)
-                continue;
+            // if (path[i - 1] != Path.AltDirectorySeparatorChar)
+            //     continue;
 
             if (!storages.TryGetValue(path[..i], out var storage))
                 continue;

@@ -2,6 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
+using System.Collections.Generic;
 using Veldrid;
 
 namespace Sekai.Framework.Graphics;
@@ -33,19 +34,34 @@ public abstract class GraphicsObject<T> : GraphicsObject
     where T : DeviceResource
 {
     /// <summary>
-    /// The underlying graphics resource that is lazily initialized.
+    /// The underlying graphics resource.
     /// </summary>
-    internal T Resource => resource.Value;
-    private readonly Lazy<T> resource;
+    internal abstract T Resource { get; }
 
-    public GraphicsObject()
+    protected override void Destroy()
     {
-        resource = new Lazy<T>(CreateResource);
+        if (Resource is IDisposable disposable)
+            disposable.Dispose();
     }
+}
 
+/// <summary>
+/// An object capable of holding one or more resources.
+/// </summary>
+public abstract class GraphicsObjectCollection<T> : GraphicsObject
+    where T : DeviceResource
+{
     /// <summary>
-    /// Creates the resource for this graphics object.
+    /// The underlying graphics resources.
     /// </summary>
-    protected abstract T CreateResource();
-    protected override void Destroy() => (Resource as IDisposable)?.Dispose();
+    internal abstract IReadOnlyList<T> Resources { get; }
+
+    protected override void Destroy()
+    {
+        foreach (var res in Resources)
+        {
+            if (res is IDisposable disposable)
+                disposable.Dispose();
+        }
+    }
 }

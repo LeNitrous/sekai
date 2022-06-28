@@ -26,7 +26,7 @@ public class AssemblyBackedStorage : IStorage
         {
             char[] chars = name[(name.StartsWith(prefix, StringComparison.Ordinal) ? prefix.Length + 1 : 0)..].ToCharArray();
 
-            for (int i = name.LastIndexOf(separator) - 1; i >= 0; i--)
+            for (int i = Array.LastIndexOf(chars, separator) - 1; i >= 0; i--)
             {
                 if (chars[i] == separator)
                     chars[i] = Path.AltDirectorySeparatorChar;

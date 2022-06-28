@@ -24,6 +24,8 @@ public abstract class Host : FrameworkObject
     private GameSystemRegistry? systems;
     private FrameworkThreadManager? threads;
     protected readonly HostOptions Options;
+    protected RenderThread? RenderThread { get; private set; }
+    protected UpdateThread? UpdateThread { get; private set; }
 
     protected Host(HostOptions? options = null)
     {
@@ -51,8 +53,8 @@ public abstract class Host : FrameworkObject
 
         systems.Register<SceneManager>();
 
-        threads.Add(new GameUpdateThread(game, systems));
-        threads.Add(new GameRenderThread(game, systems));
+        threads.Add(UpdateThread = new GameUpdateThread(game, systems));
+        threads.Add(RenderThread = new GameRenderThread(game, systems));
         threads.Post(game.LoadInternal);
 
         Initialize(game);
@@ -127,6 +129,9 @@ public abstract class Host : FrameworkObject
 
         protected override void OnUpdateFrame(double delta)
         {
+            if (!game.IsLoaded)
+                return;
+
             systems.Update(delta);
             game.Update(delta);
         }
@@ -145,6 +150,9 @@ public abstract class Host : FrameworkObject
 
         protected override void OnRenderFrame(CommandList commands)
         {
+            if (!game.IsLoaded)
+                return;
+
             systems.Render(commands);
             game.Render(commands);
         }

@@ -13,6 +13,7 @@
     <PackageReference Include="Silk.NET.Input.Sdl" Version="2.15.0" />
     <PackageReference Include="Silk.NET.Windowing.Extensions.Veldrid" Version="2.15.0" />
     <PackageReference Include="Silk.NET.Windowing.Sdl" Version="2.15.0" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.3" />
     <PackageReference Include="Veldrid" Version="4.8.0" />
     <PackageReference Include="Veldrid.SPIRV" Version="1.0.14" />
   </ItemGroup>

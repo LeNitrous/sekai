@@ -2,7 +2,6 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Sekai.Framework.Extensions;
 using Veldrid;
@@ -14,7 +13,7 @@ namespace Sekai.Framework.Graphics.Buffers;
 /// <summary>
 /// Represents a buffer of memory in the GPU.
 /// </summary>
-public class Buffer : MappableObject<DeviceBuffer>
+public class Buffer : GraphicsObject<DeviceBuffer>, IBindableResource
 {
     /// <summary>
     /// The size of this buffer in bytes.
@@ -26,10 +25,13 @@ public class Buffer : MappableObject<DeviceBuffer>
     /// </summary>
     public BufferUsage Usage { get; }
 
+    internal override DeviceBuffer Resource { get; }
+
     public Buffer(int size, BufferUsage usage)
     {
         Size = size;
         Usage = usage;
+        Resource = Context.Resources.CreateBuffer(new BufferDescription((uint)Size, Usage.ToVeldrid()));
     }
 
     /// <summary>
@@ -44,38 +46,34 @@ public class Buffer : MappableObject<DeviceBuffer>
     }
 
     /// <summary>
-    /// Sets the data at a given offset with a provided command list.
-    /// </summary>
-    public void SetData(CommandList commands, nint data, int offset = 0)
-    {
-        if (offset > Size || offset < 0)
-            throw new ArgumentOutOfRangeException(nameof(offset));
-
-        commands.UpdateBuffer(Resource, offset, data);
-    }
-
-    /// <summary>
     /// Gets the data and stores it to the provided pointer.
     /// </summary>
-    public unsafe void GetData(CommandList commands, nint data)
+    public unsafe void GetData(nint data)
     {
-        commands.EnsureStart();
+        using var commands = new CommandList();
+        commands.Start();
 
         using var staging = new Buffer(Size, BufferUsage.Staging);
         commands.CopyBuffer(Resource, staging.Resource, Size, 0, 0);
         commands.End();
 
-        using var mapped = staging.Map(MapMode.Read);
+        using var mapped = new BufferMappedResource(this, MapMode.Read);
         System.Buffer.MemoryCopy((void*)mapped.Data, (void*)data, Size, Size);
-        commands.Start();
     }
 
-    internal override MappedResource Map(MapMode mode) => new(this, mode);
-    protected override DeviceBuffer CreateResource() => Context.Resources.CreateBuffer(new BufferDescription((uint)Size, Usage.ToVeldrid()));
+    BindableResource IBindableResource.Resource => Resource;
+
+    internal class BufferMappedResource : MappedResource
+    {
+        internal BufferMappedResource(Buffer buffer, MapMode mode)
+            : base(buffer.Resource, mode)
+        {
+        }
+    }
 }
 
 /// <inheritdoc cref="Buffer"/>
-public class Buffer<T> : Buffer, IBindable
+public class Buffer<T> : Buffer
     where T : unmanaged
 {
     /// <summary>
@@ -89,28 +87,6 @@ public class Buffer<T> : Buffer, IBindable
         : base(count * stride, usage)
     {
         Count = count;
-    }
-
-    public void Bind(CommandList commands)
-    {
-        if (Usage.HasFlag(BufferUsage.Index))
-        {
-            if (index_format_map.TryGetValue(typeof(T), out var format))
-            {
-                commands.Bind(Resource, format);
-                return;
-            }
-
-            throw new InvalidOperationException(@"Index buffer has invalid type.");
-        }
-
-        if (Usage.HasFlag(BufferUsage.Vertex))
-        {
-            commands.Bind(Resource);
-            return;
-        }
-
-        throw new InvalidOperationException(@"Buffer must be an index or vertex buffer to be bound.");
     }
 
     /// <inheritdoc cref="Buffer.SetData(nint, int)"/>
@@ -137,75 +113,41 @@ public class Buffer<T> : Buffer, IBindable
         Context.Device.UpdateBuffer(Resource, (uint)(offset * stride), data);
     }
 
-    /// <inheritdoc cref="Buffer.SetData(nint, int)"/>
-    public void SetData(CommandList commands, T data, int offset = 0)
-    {
-        SetData(commands, ref data, offset);
-    }
-
-    /// <inheritdoc cref="Buffer.SetData(nint, int)"/>
-    public void SetData(CommandList commands, ref T data, int offset = 0)
-    {
-        if (Size < (offset * stride) || offset < 0)
-            throw new ArgumentOutOfRangeException(nameof(offset));
-
-        commands.UpdateBuffer(Resource, offset * stride, ref data);
-    }
-
-    /// <inheritdoc cref="Buffer.SetData(nint, int)"/>
-    public void SetData(CommandList commands, T[] data, int offset = 0)
-    {
-        if ((offset * stride) + (data.Length * stride) > Size || offset < 0)
-            throw new ArgumentOutOfRangeException(nameof(offset));
-
-        commands.UpdateBuffer(Resource, offset * stride, data);
-    }
-
     /// <summary>
     /// Gets the data and stores it to the reference.
     /// </summary>
-    public unsafe void GetData(CommandList commands, ref T data)
+    public unsafe void GetData(ref T data)
     {
-        commands.EnsureStart();
+        using var commands = new CommandList();
+        commands.Start();
 
         using var staging = new Buffer(Size, BufferUsage.Staging);
         commands.CopyBuffer(Resource, staging.Resource, Size, 0, 0);
         commands.End();
 
-        using var mapped = staging.Map(MapMode.Read);
-        fixed (byte* ptr = &Unsafe.AsRef<byte>(Unsafe.AsPointer(ref data)))
+        using var mapped = new BufferMappedResource(this, MapMode.Read);
+        fixed (byte* ptr = &Unsafe.As<T, byte>(ref data))
         {
             System.Buffer.MemoryCopy((void*)mapped.Data, ptr, Size, Size);
         }
-
-        commands.Start();
     }
 
     /// <summary>
     /// Gets the data and stores it to the array.
     /// </summary>
-    public unsafe void GetData(CommandList commands, T[] data)
+    public unsafe void GetData(T[] data)
     {
-        commands.EnsureStart();
+        using var commands = new CommandList();
+        commands.Start();
 
         using var staging = new Buffer(Size, BufferUsage.Staging);
         commands.CopyBuffer(Resource, staging.Resource, data.Length * stride, 0, 0);
         commands.End();
 
-        using var mapped = staging.Map(MapMode.Read);
-        fixed (byte* ptr = &Unsafe.AsRef<byte>(Unsafe.AsPointer(ref data[0])))
+        using var mapped = new BufferMappedResource(this, MapMode.Read);
+        fixed (byte* ptr = &Unsafe.As<T, byte>(ref data[0]))
         {
             System.Buffer.MemoryCopy((void*)mapped.Data, ptr, data.Length * stride, data.Length * stride);
         }
-
-        commands.Start();
     }
-
-    private static readonly Dictionary<Type, IndexFormat> index_format_map = new()
-    {
-        { typeof(int), IndexFormat.UInt32 },
-        { typeof(uint), IndexFormat.UInt32 },
-        { typeof(short), IndexFormat.UInt16 },
-        { typeof(ushort), IndexFormat.UInt16 },
-    };
 }

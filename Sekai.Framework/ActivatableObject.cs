@@ -65,9 +65,6 @@ public class ActivatableObject : LoadableObject
         if (IsDisposed)
             throw new InvalidOperationException(@"Cannot activate destroyed loadables.");
 
-        if (!IsLoaded)
-            throw new InvalidOperationException(@"This loadable is not yet loaded.");
-
         OnActivate();
     }
 
@@ -75,9 +72,6 @@ public class ActivatableObject : LoadableObject
     {
         if (IsDisposed)
             throw new InvalidOperationException(@"Cannot deactivate destroyed loadables.");
-
-        if (!IsLoaded)
-            throw new InvalidOperationException(@"This loadable is not yet loaded.");
 
         OnDeactivate();
     }
