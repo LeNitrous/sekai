@@ -3,20 +3,32 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32526.322
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sekai.Framework", "Sekai.Framework\Sekai.Framework.csproj", "{EEBE0ED3-A525-48E7-8ACF-0FE6BC17E3F1}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sekai.Framework.Tests", "Sekai.Framework.Tests\Sekai.Framework.Tests.csproj", "{D0C6121E-E26E-42C1-AD0B-E508F15EC9F4}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B19633DC-51B4-49E4-ACC5-D7EB421928B8}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{0AD7A49D-29FF-49C4-9CEB-2C26FAE1BCAF}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "source", "source", "{463413EF-A16A-4403-8797-4BBEE5D39781}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Examples.Hello", "examples\Sekai.Examples.Hello\Sekai.Examples.Hello.csproj", "{995CD42A-A2A2-4457-86F5-376D8EB57DAE}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "engine", "engine", "{D4B811C4-32E2-47E1-9645-F7E3142F79B5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Framework.Testing", "Sekai.Framework.Testing\Sekai.Framework.Testing.csproj", "{8AD3B3FA-26A6-4C08-9156-E588E63D1C05}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Engine", "source\engine\Sekai.Engine\Sekai.Engine.csproj", "{19B3662C-486F-4518-A4BA-4EA647DFABD9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "framework", "framework", "{1FEAA352-492E-461C-B970-12C2165484F1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Framework", "source\framework\Sekai.Framework\Sekai.Framework.csproj", "{C7A3943E-AE85-409A-BF64-F78DD1E28920}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "extensions", "extensions", "{057546DB-E807-4869-8E67-BC68A390E03F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Forms", "source\extensions\Sekai.Forms\Sekai.Forms.csproj", "{4E3F1672-4646-43BE-9FE6-545BC87387CA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.SDL", "source\extensions\Sekai.SDL\Sekai.SDL.csproj", "{2BAF43A7-06E2-4985-BDC0-96F4E777F204}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{95FF42D1-ACB0-470A-B45D-0A5CF8C6FE4D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Framework.Tests", "tests\Sekai.Framework.Tests\Sekai.Framework.Tests.csproj", "{49F3B3FC-E123-45CD-BA12-582D47E72EA2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Engine.Testing", "source\engine\Sekai.Engine.Testing\Sekai.Engine.Testing.csproj", "{505A84F9-2AF5-43C4-9150-1FB933EC80A8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -24,22 +36,30 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{EEBE0ED3-A525-48E7-8ACF-0FE6BC17E3F1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EEBE0ED3-A525-48E7-8ACF-0FE6BC17E3F1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EEBE0ED3-A525-48E7-8ACF-0FE6BC17E3F1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EEBE0ED3-A525-48E7-8ACF-0FE6BC17E3F1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D0C6121E-E26E-42C1-AD0B-E508F15EC9F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D0C6121E-E26E-42C1-AD0B-E508F15EC9F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D0C6121E-E26E-42C1-AD0B-E508F15EC9F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D0C6121E-E26E-42C1-AD0B-E508F15EC9F4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{995CD42A-A2A2-4457-86F5-376D8EB57DAE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{995CD42A-A2A2-4457-86F5-376D8EB57DAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{995CD42A-A2A2-4457-86F5-376D8EB57DAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{995CD42A-A2A2-4457-86F5-376D8EB57DAE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8AD3B3FA-26A6-4C08-9156-E588E63D1C05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8AD3B3FA-26A6-4C08-9156-E588E63D1C05}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8AD3B3FA-26A6-4C08-9156-E588E63D1C05}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8AD3B3FA-26A6-4C08-9156-E588E63D1C05}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19B3662C-486F-4518-A4BA-4EA647DFABD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19B3662C-486F-4518-A4BA-4EA647DFABD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19B3662C-486F-4518-A4BA-4EA647DFABD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19B3662C-486F-4518-A4BA-4EA647DFABD9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7A3943E-AE85-409A-BF64-F78DD1E28920}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7A3943E-AE85-409A-BF64-F78DD1E28920}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7A3943E-AE85-409A-BF64-F78DD1E28920}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7A3943E-AE85-409A-BF64-F78DD1E28920}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E3F1672-4646-43BE-9FE6-545BC87387CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E3F1672-4646-43BE-9FE6-545BC87387CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E3F1672-4646-43BE-9FE6-545BC87387CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E3F1672-4646-43BE-9FE6-545BC87387CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2BAF43A7-06E2-4985-BDC0-96F4E777F204}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2BAF43A7-06E2-4985-BDC0-96F4E777F204}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2BAF43A7-06E2-4985-BDC0-96F4E777F204}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2BAF43A7-06E2-4985-BDC0-96F4E777F204}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49F3B3FC-E123-45CD-BA12-582D47E72EA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49F3B3FC-E123-45CD-BA12-582D47E72EA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49F3B3FC-E123-45CD-BA12-582D47E72EA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49F3B3FC-E123-45CD-BA12-582D47E72EA2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{505A84F9-2AF5-43C4-9150-1FB933EC80A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{505A84F9-2AF5-43C4-9150-1FB933EC80A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{505A84F9-2AF5-43C4-9150-1FB933EC80A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{505A84F9-2AF5-43C4-9150-1FB933EC80A8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -48,6 +68,14 @@ Global
 		SolutionGuid = {B561F441-82A5-4270-9631-D1D7C712B152}
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{995CD42A-A2A2-4457-86F5-376D8EB57DAE} = {0AD7A49D-29FF-49C4-9CEB-2C26FAE1BCAF}
+		{D4B811C4-32E2-47E1-9645-F7E3142F79B5} = {463413EF-A16A-4403-8797-4BBEE5D39781}
+		{19B3662C-486F-4518-A4BA-4EA647DFABD9} = {D4B811C4-32E2-47E1-9645-F7E3142F79B5}
+		{1FEAA352-492E-461C-B970-12C2165484F1} = {463413EF-A16A-4403-8797-4BBEE5D39781}
+		{C7A3943E-AE85-409A-BF64-F78DD1E28920} = {1FEAA352-492E-461C-B970-12C2165484F1}
+		{057546DB-E807-4869-8E67-BC68A390E03F} = {463413EF-A16A-4403-8797-4BBEE5D39781}
+		{4E3F1672-4646-43BE-9FE6-545BC87387CA} = {057546DB-E807-4869-8E67-BC68A390E03F}
+		{2BAF43A7-06E2-4985-BDC0-96F4E777F204} = {057546DB-E807-4869-8E67-BC68A390E03F}
+		{49F3B3FC-E123-45CD-BA12-582D47E72EA2} = {95FF42D1-ACB0-470A-B45D-0A5CF8C6FE4D}
+		{505A84F9-2AF5-43C4-9150-1FB933EC80A8} = {D4B811C4-32E2-47E1-9645-F7E3142F79B5}
 	EndGlobalSection
 EndGlobal
