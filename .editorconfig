@@ -9,6 +9,9 @@ charset = utf-8
 indent_size = 4
 insert_final_newline = true
 
+# Namespace
+dotnet_diagnostic.IDE0130.severity = error
+
 # File Header
 file_header_template = Copyright (c) The Vignette Authors\nLicensed under MIT. See LICENSE for details.
 dotnet_diagnostic.IDE0073.severity = error
@@ -239,7 +242,6 @@ dotnet_naming_rule.type_parameters.severity = warning
 dotnet_naming_rule.type_parameters.style = type_parameters_style
 dotnet_naming_rule.type_parameters.symbols = type_parameters_symbols
 dotnet_naming_style.type_parameters_style.capitalization = pascal_case
-dotnet_naming_style.type_parameters_style.required_prefix = T
 dotnet_naming_symbols.type_parameters_symbols.applicable_kinds = type_parameter
 
 # Non-interface Types

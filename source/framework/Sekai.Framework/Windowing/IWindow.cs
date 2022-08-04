@@ -9,11 +9,6 @@ namespace Sekai.Framework.Windowing;
 public interface IWindow
 {
     /// <summary>
-    /// The native handle for this <see cref="IWindow"/>
-    /// </summary>
-    nint Handle { get; }
-
-    /// <summary>
     /// Gets or sets the window title.
     /// </summary>
     string Title { get; set; }

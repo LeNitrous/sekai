@@ -2,29 +2,81 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
+using Sekai.Engine.Threading;
 using Sekai.Framework;
-using Sekai.Framework.Threading;
+using Sekai.Framework.Containers;
 
 namespace Sekai.Engine.Platform;
 
-public abstract class Host : FrameworkObject
+public static class Host
 {
-    private Game? game;
-    protected readonly HostOptions Options;
-
-    protected Host(HostOptions? options = null)
+    public static Host<T> Setup<T>(HostOptions? options = null)
+        where T : Game, new()
     {
-        Options = options ?? new();
+        return new Host<T>(new T(), options);
+    }
+}
+
+public sealed partial class Host<T> : FrameworkObject
+    where T : Game
+{
+    public bool IsRunning => threads?.IsRunning ?? false;
+    public T Game = null!;
+    private readonly HostOptions options;
+    private ThreadController threads = null!;
+
+    internal Host(T game, HostOptions? options = null)
+    {
+        Game = game;
+        this.options = options ?? new();
     }
 
     /// <summary>
     /// Starts and runs the game.
     /// </summary>
-    public void Run<T>()
-        where T : Game, new()
+    public void Run()
     {
-        game = Activator.CreateInstance<T>();
-        Initialize(game);
+        if (IsRunning)
+            throw new InvalidOperationException(@"This host is already running.");
+
+        setupHostInstances();
+
+        window.Size = options.Size;
+        window.Title = options.Title;
+        window.Visible = false;
+
+        var systems = new GameSystemCollection();
+        systems.Register<SceneManager>();
+        systems.Register<BehaviorManager>();
+
+        var updateThread = new MainUpdateThread(systems);
+        var renderThread = new MainRenderThread(systems);
+
+        threads = new ThreadController(window);
+        threads.Add(updateThread);
+        threads.Add(renderThread);
+        threads.ExecutionMode = options.ExecutionMode;
+        threads.FramesPerSecond = options.FramesPerSecond;
+        threads.UpdatePerSecond = options.UpdatePerSecond;
+
+        callbackThreadController?.Invoke(threads);
+
+        Game.AddInternal(systems);
+        Game.OnLoad += () =>
+        {
+            var container = (Game.Container as Container)!;
+            container.Cache(this);
+            container.Cache(window);
+            container.Cache(threads);
+            container.Cache(systems);
+
+            callbackGameLoad?.Invoke(Game);
+
+            window.Visible = true;
+        };
+
+        threads.Post(() => Game.Initialize(thread: updateThread));
+        threads.Run();
     }
 
     /// <summary>
@@ -35,15 +87,12 @@ public abstract class Host : FrameworkObject
         Dispose();
     }
 
-    /// <summary>
-    /// Creates the threading manager for this host.
-    /// </summary>
-    protected abstract FrameworkThreadManager CreateThreadManager();
-
-    /// <summary>
-    /// Initializes the game before the main loop is started.
-    /// </summary>
-    protected virtual void Initialize(Game game)
+    protected override void Destroy()
     {
+        if (!IsRunning)
+            return;
+
+        Game.Dispose();
+        threads.Dispose();
     }
 }

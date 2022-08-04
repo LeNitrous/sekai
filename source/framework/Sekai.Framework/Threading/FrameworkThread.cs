@@ -144,14 +144,17 @@ public abstract class FrameworkThread : FrameworkObject
         if (!IsRunning)
             return;
 
+        const int timeout = 30000;
+
         cts.Cancel();
 
-        if (IsBackground && !thread.Join(30000))
+        if (!cts.Token.WaitHandle.WaitOne(timeout))
+        {
             throw new TimeoutException($"Thread took too long to stop.");
+        }
 
         IsRunning = false;
 
-        cts = null;
         thread = null;
         stopwatch.Reset();
     }
