@@ -156,7 +156,7 @@ public class LoadableObjectTests
     private class TestResolvingLoadableOptional : TestLoadable
     {
         [Resolved]
-        public string? Value;
+        public string? Value = null;
     }
 
     private class TestResolvingLoadableReadOnly : TestLoadable

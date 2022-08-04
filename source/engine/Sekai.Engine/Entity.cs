@@ -71,7 +71,7 @@ public class Entity : ActivatableObject
     }
 
     [Resolved]
-    private Scene scene = null!;
+    private Scene scene { get; set; } = null!;
 
     private List<string> tags = null!;
 
@@ -119,7 +119,7 @@ public class Entity : ActivatableObject
     /// </summary>
     public void RemoveRange(IEnumerable<Entity> entities)
     {
-        foreach(var entity in entities)
+        foreach (var entity in entities)
             Remove(entity);
     }
 

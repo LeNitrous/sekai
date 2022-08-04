@@ -19,12 +19,17 @@ public class HeadlessWindow : FrameworkObject, IWindow
     public bool Resizable { get; set; }
     public bool Focused => true;
     public bool Visible { get; set; }
+
+#pragma warning disable CS0414
+
     public event Action OnLoad = null!;
     public event Action OnClose = null!;
     public event Func<bool> OnCloseRequested = null!;
     public event Action<Size> OnResize = null!;
     public event Action<bool> OnFocusChanged = null!;
     public event Action<string[]> OnDataDropped = null!;
+
+#pragma warning restore CS0414
 
     public void DoEvents()
     {
