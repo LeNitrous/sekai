@@ -2,8 +2,9 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System.Diagnostics;
+using Sekai.Framework.Threading;
 
-namespace Sekai.Framework.Threading;
+namespace Sekai.Engine.Threading;
 
 public abstract class UpdateThread : FrameworkThread
 {
@@ -11,11 +12,6 @@ public abstract class UpdateThread : FrameworkThread
 
     protected UpdateThread(string name = "unknown")
         : base($"Update ({name})")
-    {
-    }
-
-    internal UpdateThread()
-        : this("Main")
     {
     }
 

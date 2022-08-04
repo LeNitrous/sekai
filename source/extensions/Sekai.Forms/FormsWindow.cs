@@ -10,7 +10,7 @@ using Sekai.Framework.Windowing;
 
 namespace Sekai.Forms;
 
-public class FormsWindow : IWindow
+public class FormsWindow : IWindow, INativeWindow
 {
     public nint Handle => form.Handle;
     public bool Focused => form.Focused;

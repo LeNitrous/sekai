@@ -2,6 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
+using System.Drawing;
 using System.Reflection;
 using Sekai.Framework.Threading;
 
@@ -16,6 +17,11 @@ public class HostOptions
     /// The title of the game window.
     /// </summary>
     public string Title { get; set; } = Assembly.GetCallingAssembly().GetName().Name ?? "Sekai Framework";
+
+    /// <summary>
+    /// The size of the game window.
+    /// </summary>
+    public Size Size { get; set; } = new Size(1280, 720);
 
     /// <summary>
     /// Arguments obtained from launching the process.

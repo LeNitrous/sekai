@@ -7,17 +7,39 @@ using System.Linq;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Sekai.Framework;
 using Sekai.Framework.Logging;
+using Sekai.Framework.Threading;
 using Sekai.Framework.Windowing;
 
-namespace Sekai.Framework.Threading;
+namespace Sekai.Engine.Threading;
 
-public abstract class FrameworkThreadManager : FrameworkObject
+public sealed class ThreadController : FrameworkObject
 {
     /// <summary>
-    /// Whether this thread manager is currently running.
+    /// Whether this thread controller is currently running.
     /// </summary>
     public bool IsRunning => mainThread.IsRunning;
+
+    /// <summary>
+    /// Whether this thread controller should stop when an unhandled exception occurs.
+    /// </summary>
+    public bool AbortOnUnhandledException = true;
+
+    /// <summary>
+    /// Whether this thread controller should stop when an unobserved exception occurs.
+    /// </summary>
+    public bool AbortOnUnobservedException = false;
+
+    /// <summary>
+    /// Called when a thread has been added.
+    /// </summary>
+    public event Action<FrameworkThread> OnThreadAdded = null!;
+
+    /// <summary>
+    /// Called when a thread has been removed.
+    /// </summary>
+    public event Action<FrameworkThread> OnThreadRemoved = null!;
 
     private double updatePerSecond = 60;
     private double framesPerSecond = 60;
@@ -77,11 +99,17 @@ public abstract class FrameworkThreadManager : FrameworkObject
             if (framesPerSecond == value)
                 return;
 
+            lock (threads)
+            {
+                foreach (var t in threads.OfType<RenderThread>())
+                    t.UpdatePerSecond = framesPerSecond;
+            }
+
             framesPerSecond = value;
         }
     }
 
-    internal FrameworkThreadManager(IWindow window)
+    public ThreadController(IWindow window)
     {
         this.window = window;
         mainThread = new MainThread(this);
@@ -91,7 +119,7 @@ public abstract class FrameworkThreadManager : FrameworkObject
     }
 
     /// <summary>
-    /// Posts a callback to the main thread's queue.
+    /// Posts an action to the main thread.
     /// </summary>
     public void Post(Action action)
     {
@@ -99,7 +127,7 @@ public abstract class FrameworkThreadManager : FrameworkObject
     }
 
     /// <summary>
-    /// Sends a callback to the main thread's queue.
+    /// Sends an action to the main thread.
     /// </summary>
     public void Send(Action action)
     {
@@ -128,7 +156,7 @@ public abstract class FrameworkThreadManager : FrameworkObject
         if (IsRunning && ExecutionMode == ExecutionMode.MultiThread)
             thread.Start();
 
-        OnThreadAdded(thread);
+        OnThreadAdded?.Invoke(thread);
     }
 
     /// <summary>
@@ -152,7 +180,7 @@ public abstract class FrameworkThreadManager : FrameworkObject
         if (IsRunning && ExecutionMode == ExecutionMode.MultiThread)
             thread.Stop();
 
-        OnThreadRemoved(thread);
+        OnThreadRemoved?.Invoke(thread);
     }
 
     /// <summary>
@@ -171,8 +199,6 @@ public abstract class FrameworkThreadManager : FrameworkObject
     {
         if (IsRunning)
             return;
-
-        Initialize();
 
         mainThread.Run();
     }
@@ -194,43 +220,12 @@ public abstract class FrameworkThreadManager : FrameworkObject
         }
     }
 
-    /// <summary>
-    /// Prepares this thread manager for running.
-    /// </summary>
-    protected virtual void Initialize()
-    {
-    }
-
-    /// <summary>
-    /// Called when a thread has been added and started.
-    /// </summary>
-    protected virtual void OnThreadAdded(FrameworkThread thread)
-    {
-    }
-
-    /// <summary>
-    /// Called when a thread is being removed and stopped.
-    /// </summary>
-    protected virtual void OnThreadRemoved(FrameworkThread thread)
-    {
-    }
-
-    /// <summary>
-    /// Called when an unhandled exception occurs. Return true to abort the process.
-    /// </summary>
-    protected virtual bool OnUnhandledException(Exception exception) => true;
-
-    /// <summary>
-    /// Called when an unobserved task exception occurs. Return true to abort the process.
-    /// </summary>
-    protected virtual bool OnUnobservedException(Exception exception) => false;
-
     private void onUnhandledException(object? sender, UnhandledExceptionEventArgs args)
     {
         var exception = (Exception)args.ExceptionObject;
         Logger.Error(@"An unhandled exception has occured.", exception);
 
-        if (OnUnhandledException(exception))
+        if (AbortOnUnhandledException)
             abortFromException(sender, exception, args.IsTerminating);
     }
 
@@ -238,7 +233,7 @@ public abstract class FrameworkThreadManager : FrameworkObject
     {
         Logger.Error(@"An unobserved exception has occured.", args.Exception);
 
-        if (OnUnobservedException(args.Exception))
+        if (AbortOnUnobservedException)
             abortFromException(sender, args.Exception, false);
     }
 
@@ -250,7 +245,7 @@ public abstract class FrameworkThreadManager : FrameworkObject
         using var reset = new ManualResetEventSlim(false);
         var exceptionInfo = ExceptionDispatchInfo.Capture(exception);
 
-        Post(() =>
+        mainThread.Post(() =>
         {
             try
             {
@@ -262,7 +257,7 @@ public abstract class FrameworkThreadManager : FrameworkObject
             }
         });
 
-        if (isTerminating || (sender is FrameworkThread && (sender == mainThread || ExecutionMode == ExecutionMode.SingleThread)))
+        if (isTerminating || sender == mainThread || ExecutionMode == ExecutionMode.SingleThread)
             return;
 
         reset.Wait(10000);
@@ -324,9 +319,11 @@ public abstract class FrameworkThreadManager : FrameworkObject
 
     private class MainThread : FrameworkThread
     {
-        private readonly FrameworkThreadManager manager;
+        protected override bool PropagateExceptions => true;
 
-        public MainThread(FrameworkThreadManager manager)
+        private readonly ThreadController manager;
+
+        public MainThread(ThreadController manager)
             : base(@"Main")
         {
             this.manager = manager;
