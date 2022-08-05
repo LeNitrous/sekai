@@ -45,7 +45,7 @@ public sealed class ThreadController : FrameworkObject
     private double framesPerSecond = 60;
     private ExecutionMode executionMode;
     private bool executionModeChanged = true;
-    private readonly IWindow window;
+    private readonly IView view;
     private readonly FrameworkThread mainThread;
     private readonly List<FrameworkThread> threads = new();
 
@@ -109,10 +109,10 @@ public sealed class ThreadController : FrameworkObject
         }
     }
 
-    public ThreadController(IWindow window)
+    public ThreadController(IView view)
     {
-        this.window = window;
-        mainThread = new MainThread(this);
+        this.view = view;
+        mainThread = new MainThread(run);
         mainThread.OnUnhandledException += onUnhandledException;
         TaskScheduler.UnobservedTaskException += onUnobservedTaskException;
         AppDomain.CurrentDomain.UnhandledException += onUnhandledException;
@@ -267,7 +267,7 @@ public sealed class ThreadController : FrameworkObject
     {
         ensureExecutionMode();
 
-        window.DoEvents();
+        view.DoEvents();
 
         if (ExecutionMode == ExecutionMode.SingleThread)
         {
@@ -321,14 +321,14 @@ public sealed class ThreadController : FrameworkObject
     {
         protected override bool PropagateExceptions => true;
 
-        private readonly ThreadController manager;
+        private readonly Action onNewFrame;
 
-        public MainThread(ThreadController manager)
+        public MainThread(Action onNewFrame)
             : base(@"Main")
         {
-            this.manager = manager;
+            this.onNewFrame = onNewFrame;
         }
 
-        protected override void OnNewFrame() => manager.run();
+        protected override void OnNewFrame() => onNewFrame();
     }
 }

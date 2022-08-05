@@ -3,7 +3,7 @@
 
 namespace Sekai.Framework.Windowing;
 
-public interface INativeWindow
+public interface INativeView
 {
     /// <summary>
     /// The native handle for this window.
