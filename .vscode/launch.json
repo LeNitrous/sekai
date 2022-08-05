@@ -1,16 +1,4 @@
 {
     "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Launch Example",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "build",
-            "program": "${workspaceFolder}/examples/Sekai.Examples.Hello/bin/Debug/net6.0/Sekai.Examples.Hello.dll",
-            "args": [],
-            "cwd": "${workspaceFolder}/examples/Sekai.Examples.Hello",
-            "console": "internalConsole",
-            "stopAtEntry": false
-        }
-    ]
+    "configurations": []
 }

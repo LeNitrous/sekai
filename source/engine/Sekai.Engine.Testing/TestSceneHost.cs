@@ -14,7 +14,7 @@ public static class TestSceneHost
     {
         var context = TestExecutionContext.CurrentContext;
 
-        host.UseWindow<HeadlessWindow>();
+        host.UseView<HeadlessView>();
 
         host.SetupThreadController(threads =>
         {

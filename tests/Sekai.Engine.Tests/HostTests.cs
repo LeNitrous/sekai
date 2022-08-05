@@ -20,7 +20,7 @@ public class HostTests
 
         var host = Host
             .Setup<TestGame>()
-            .UseWindow<HeadlessWindow>()
+            .UseView<HeadlessView>()
             .UseLoadCallback(game =>
             {
                 gameLoaded = true;
@@ -64,7 +64,7 @@ public class HostTests
     {
         var host = Host
             .Setup<ExceptionThrowingGame>()
-            .UseWindow<HeadlessWindow>();
+            .UseView<HeadlessView>();
 
         var runTask = Task.Factory.StartNew(() => host.Run(), TaskCreationOptions.LongRunning);
 

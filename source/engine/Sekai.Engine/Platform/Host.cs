@@ -5,6 +5,7 @@ using System;
 using Sekai.Engine.Threading;
 using Sekai.Framework;
 using Sekai.Framework.Containers;
+using Sekai.Framework.Windowing;
 
 namespace Sekai.Engine.Platform;
 
@@ -41,9 +42,12 @@ public sealed partial class Host<T> : FrameworkObject
 
         setupHostInstances();
 
-        window.Size = options.Size;
-        window.Title = options.Title;
-        window.Visible = false;
+        if (view is IWindow window)
+        {
+            window.Size = options.Size;
+            window.Title = options.Title;
+            window.Visible = false;
+        }
 
         var systems = new GameSystemCollection();
         systems.Register<SceneManager>();
@@ -52,7 +56,7 @@ public sealed partial class Host<T> : FrameworkObject
         var updateThread = new MainUpdateThread(systems);
         var renderThread = new MainRenderThread(systems);
 
-        threads = new ThreadController(window);
+        threads = new ThreadController(view);
         threads.Add(updateThread);
         threads.Add(renderThread);
         threads.ExecutionMode = options.ExecutionMode;
@@ -66,13 +70,17 @@ public sealed partial class Host<T> : FrameworkObject
         {
             var container = (Game.Container as Container)!;
             container.Cache(this);
-            container.Cache(window);
+            container.Cache(view);
             container.Cache(threads);
             container.Cache(systems);
 
             callbackGameLoad?.Invoke(Game);
 
-            window.Visible = true;
+            if (view is IWindow window)
+            {
+                window.Visible = true;
+                container.Cache(window);
+            }
         };
 
         threads.Post(() => Game.Initialize(thread: updateThread));

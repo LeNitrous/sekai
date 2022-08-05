@@ -6,7 +6,7 @@ using System.Drawing;
 
 namespace Sekai.Framework.Windowing;
 
-public interface IWindow
+public interface IWindow : IView
 {
     /// <summary>
     /// Gets or sets the window title.
@@ -39,14 +39,14 @@ public interface IWindow
     Size MaximumSize { get; set; }
 
     /// <summary>
-    /// Gets or sets whether this window can be resized.
+    /// Gets or sets the state of this window.
     /// </summary>
-    bool Resizable { get; set; }
+    WindowState State { get; set; }
 
     /// <summary>
-    /// Gets whether this window is currently focused.
+    /// Gets or sets the window borders.
     /// </summary>
-    bool Focused { get; }
+    WindowBorder Border { get; set; }
 
     /// <summary>
     /// Gets or sets whether this window is visible.
@@ -54,37 +54,12 @@ public interface IWindow
     bool Visible { get; set; }
 
     /// <summary>
-    /// Called when the window loads.
-    /// </summary>
-    event Action OnLoad;
-
-    /// <summary>
-    /// Called when the window closes.
-    /// </summary>
-    event Action OnClose;
-
-    /// <summary>
-    /// Called when the window requests to be closed. Return true to continue closing.
-    /// </summary>
-    event Func<bool> OnCloseRequested;
-
-    /// <summary>
-    /// Called when the window resizes.
+    /// Called when the view resizes.
     /// </summary>
     event Action<Size> OnResize;
-
-    /// <summary>
-    /// Called when the window focus changes.
-    /// </summary>
-    event Action<bool> OnFocusChanged;
 
     /// <summary>
     /// Called when a file has been dropped to this window.
     /// </summary>
     event Action<string[]> OnDataDropped;
-
-    /// <summary>
-    /// Process events for this window.
-    /// </summary>
-    void DoEvents();
 }
