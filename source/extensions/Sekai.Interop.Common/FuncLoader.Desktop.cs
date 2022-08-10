@@ -10,7 +10,7 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace Sekai.Framework.Interop;
+namespace Sekai.Interop.Common;
 public class FuncLoader
 {
     private class Windows
@@ -120,10 +120,6 @@ public class FuncLoader
 #pragma warning restore CS8603 // Possible null reference return.
         }
 
-#if NETSTANDARD
-            return Marshal.GetDelegateForFunctionPointer<T>(ret);
-#else
         return (T)(object)Marshal.GetDelegateForFunctionPointer(ret, typeof(T));
-#endif
     }
 }

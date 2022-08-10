@@ -9,7 +9,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace Sekai.Framework.Interop;
+namespace Sekai.Interop.Common;
 public static class InteropHelpers
 {
     /// <summary>
