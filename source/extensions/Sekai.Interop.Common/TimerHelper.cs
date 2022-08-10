@@ -6,9 +6,8 @@
 // Licensed under the Microsoft Public License and MIT.
 // See https://github.com/MonoGame/MonoGame/blob/develop/LICENSE.txt.
 using System.Runtime.InteropServices;
-using System.Threading;
 
-namespace Sekai.Framework.Interop;
+namespace Sekai.Interop.Common;
 internal static class TimerHelper
 {
     [DllImport("ntdll.dll", SetLastError = true)]

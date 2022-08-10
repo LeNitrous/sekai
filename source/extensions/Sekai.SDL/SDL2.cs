@@ -9,7 +9,8 @@ using System;
 using System.Text;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
-using Sekai.Framework.Interop;
+using Sekai.Interop.Common;
+
 namespace Sekai.SDL;
 
 internal static class SDL2
