@@ -10,6 +10,7 @@ using System.Text;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using Sekai.Interop.Common;
+using Sekai.Interop.Desktop;
 
 namespace Sekai.SDL;
 
@@ -202,7 +203,7 @@ internal static class SDL2
 
     public static string GetError()
     {
-        return InteropHelpers.Utf8ToString(SDL_GetError());
+        return Marshal.PtrToStringUTF8(SDL_GetError());
     }
 
     public static int GetError(int value)
@@ -231,7 +232,7 @@ internal static class SDL2
 
     public static string GetHint(string name)
     {
-        return InteropHelpers.Utf8ToString(SDL_GetHint(name));
+        return Marshal.PtrToStringUTF8(SDL_GetHint(name));
     }
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -482,7 +483,7 @@ internal static class SDL2
 
         public static string GetDisplayName(int index)
         {
-            return InteropHelpers.Utf8ToString(GetError(SDL_GetDisplayName(index)));
+            return Marshal.PtrToStringUTF8(GetError(SDL_GetDisplayName(index)));
         }
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -813,7 +814,7 @@ internal static class SDL2
 
         public static string GetJoystickName(IntPtr joystick)
         {
-            return InteropHelpers.Utf8ToString(JoystickName(joystick));
+            return Marshal.PtrToStringUTF8(JoystickName(joystick));
         }
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -973,7 +974,7 @@ internal static class SDL2
             if (nativeStr == IntPtr.Zero)
                 return string.Empty;
 
-            string mappingStr = InteropHelpers.Utf8ToString(nativeStr);
+            string mappingStr = Marshal.PtrToStringUTF8(nativeStr);
 
             //The mapping string returned by SDL is owned by us and thus must be freed
             SDL_Free(nativeStr);
@@ -996,7 +997,7 @@ internal static class SDL2
 
         public static string GetName(IntPtr gamecontroller)
         {
-            return InteropHelpers.Utf8ToString(SDL_GameControllerName(gamecontroller));
+            return Marshal.PtrToStringUTF8(SDL_GameControllerName(gamecontroller));
         }
 
         [UnmanagedFunctionPointer(CallingConvention.Cdecl)]

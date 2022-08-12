@@ -8,10 +8,8 @@
 
   <ItemGroup>
     <ProjectReference Include="../../framework/Sekai.Framework/Sekai.Framework.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Sekai.Interop.Common\Sekai.Interop.Common.csproj" />
+    <ProjectReference Include="..\Sekai.Interop.Desktop\Sekai.Interop.Desktop.csproj" />
   </ItemGroup>
 
 </Project>

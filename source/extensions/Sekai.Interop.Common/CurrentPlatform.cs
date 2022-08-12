@@ -8,6 +8,7 @@
 using System.Runtime.InteropServices;
 
 namespace Sekai.Interop.Common;
+
 public enum OS
 {
     Windows,
