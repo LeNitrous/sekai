@@ -6,9 +6,9 @@
 // Licensed under the Microsoft Public License and MIT.
 // See https://github.com/MonoGame/MonoGame/blob/develop/LICENSE.txt.
 using System;
-using System.Text;
-using System.Runtime.InteropServices;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Text;
 using Sekai.Interop.Desktop;
 
 namespace Sekai.SDL;

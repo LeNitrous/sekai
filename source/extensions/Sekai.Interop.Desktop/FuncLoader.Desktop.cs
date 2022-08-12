@@ -61,8 +61,7 @@ public class FuncLoader
         try
         {
             // let's discern symbols from a generic, then return a Delegate out of that.
-            var sym = NativeLibrary.GetExport(handle, function);
-            return (T)(object)Marshal.GetDelegateForFunctionPointer(sym, typeof(T));
+            return (T)(object)Marshal.GetDelegateForFunctionPointer(NativeLibrary.GetExport(handle, function), typeof(T));
 
         }
         catch(EntryPointNotFoundException e)
