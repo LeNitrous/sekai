@@ -2,9 +2,16 @@ name: Test
 on: push
 
 jobs:
+
   test:
     name: Test
-    runs-on: windows-latest
+    runs-on: ${{matrix.os}}
+    strategy:
+      fail-fast: true
+      matrix:
+         os:
+           - windows-latest
+           - ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -15,11 +22,11 @@ jobs:
           dotnet-version: '6.0.x'
 
       - name: Test
-        run: dotnet test Sekai.sln --logger "trx;LogFileName=results.trx"
+        run: dotnet test Sekai.sln --logger "trx;LogFileName=${{ github.workspace }}/results.trx"
 
       - name: Upload Results
         uses: actions/upload-artifact@v2
         if: ${{ always() }}
         with:
           name: results
-          path: ${{ github.workspace }}/Sekai.Framework.Tests/TestResults/results.trx
+          path: ${{ github.workspace }}/results.trx
