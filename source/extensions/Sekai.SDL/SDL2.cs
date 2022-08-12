@@ -203,7 +203,7 @@ internal static class SDL2
     private delegate IntPtr d_sdl_geterror();
     private static d_sdl_geterror SDL_GetError = FuncLoader.LoadFunction<d_sdl_geterror>(NativeLibrary, "SDL_GetError");
 
-    public static string GetError()
+    public static string? GetError()
     {
         return Marshal.PtrToStringUTF8(SDL_GetError());
     }
@@ -232,7 +232,7 @@ internal static class SDL2
     public delegate IntPtr d_sdl_gethint(string name);
     public static d_sdl_gethint SDL_GetHint = FuncLoader.LoadFunction<d_sdl_gethint>(NativeLibrary, "SDL_GetHint");
 
-    public static string GetHint(string name)
+    public static string? GetHint(string name)
     {
         return Marshal.PtrToStringUTF8(SDL_GetHint(name));
     }
@@ -483,7 +483,7 @@ internal static class SDL2
         private delegate IntPtr d_sdl_getdisplayname(int index);
         private static d_sdl_getdisplayname SDL_GetDisplayName = FuncLoader.LoadFunction<d_sdl_getdisplayname>(NativeLibrary, "SDL_GetDisplayName");
 
-        public static string GetDisplayName(int index)
+        public static string? GetDisplayName(int index)
         {
             return Marshal.PtrToStringUTF8(GetError(SDL_GetDisplayName(index)));
         }
@@ -814,7 +814,7 @@ internal static class SDL2
         private delegate IntPtr d_sdl_joystickname(IntPtr joystick);
         private static d_sdl_joystickname JoystickName = FuncLoader.LoadFunction<d_sdl_joystickname>(NativeLibrary, "SDL_JoystickName");
 
-        public static string GetJoystickName(IntPtr joystick)
+        public static string? GetJoystickName(IntPtr joystick)
         {
             return Marshal.PtrToStringUTF8(JoystickName(joystick));
         }
@@ -970,13 +970,13 @@ internal static class SDL2
         private delegate IntPtr d_sdl_gamecontrollermapping(IntPtr gamecontroller);
         private static d_sdl_gamecontrollermapping SDL_GameControllerMapping = FuncLoader.LoadFunction<d_sdl_gamecontrollermapping>(NativeLibrary, "SDL_GameControllerMapping");
 
-        public static string GetMapping(IntPtr gamecontroller)
+        public static string? GetMapping(IntPtr gamecontroller)
         {
-            IntPtr nativeStr = SDL_GameControllerMapping(gamecontroller);
+            var nativeStr = SDL_GameControllerMapping(gamecontroller);
             if (nativeStr == IntPtr.Zero)
                 return string.Empty;
 
-            string mappingStr = Marshal.PtrToStringUTF8(nativeStr);
+            string? mappingStr = Marshal.PtrToStringUTF8(nativeStr);
 
             //The mapping string returned by SDL is owned by us and thus must be freed
             SDL_Free(nativeStr);
@@ -997,7 +997,7 @@ internal static class SDL2
         private delegate IntPtr d_sdl_gamecontrollername(IntPtr gamecontroller);
         private static d_sdl_gamecontrollername SDL_GameControllerName = FuncLoader.LoadFunction<d_sdl_gamecontrollername>(NativeLibrary, "SDL_GameControllerName");
 
-        public static string GetName(IntPtr gamecontroller)
+        public static string? GetName(IntPtr gamecontroller)
         {
             return Marshal.PtrToStringUTF8(SDL_GameControllerName(gamecontroller));
         }
