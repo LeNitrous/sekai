@@ -5,7 +5,6 @@
 // Copyright 2021 the MonoGame Team.
 // Licensed under the Microsoft Public License and MIT.
 // See https://github.com/MonoGame/MonoGame/blob/develop/LICENSE.txt.
-using Sekai.Interop.Common;
 using System.Runtime.InteropServices;
 
 namespace Sekai.Interop.Desktop;
@@ -17,7 +16,7 @@ public class FuncLoader
         string? assemblyLocation = Path.GetDirectoryName(typeof(FuncLoader).Assembly.Location) ?? Environment.CurrentDirectory;
 
         // Try .NET Framework / mono locations
-        if (CurrentPlatform.OS == OS.MacOSX)
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
         {
             ret = NativeLibrary.Load(Path.Combine(assemblyLocation, libname));
 
@@ -35,7 +34,7 @@ public class FuncLoader
 
         // Try .NET Core development locations
         if (ret == IntPtr.Zero)
-            ret = NativeLibrary.Load(Path.Combine(assemblyLocation, "runtimes", CurrentPlatform.Rid, "native", libname));
+            ret = NativeLibrary.Load(Path.Combine(assemblyLocation, "runtimes", RuntimeInformation.RuntimeIdentifier, "native", libname));
 
         // Try current folder (.NET Core will copy it there after publish)
         if (ret == IntPtr.Zero)

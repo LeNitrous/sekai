@@ -9,7 +9,6 @@ using System;
 using System.Text;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
-using Sekai.Interop.Common;
 using Sekai.Interop.Desktop;
 
 namespace Sekai.SDL;
@@ -20,14 +19,17 @@ internal static class SDL2
 
     private static IntPtr getNativeLibrary()
     {
-        if (CurrentPlatform.OS == OS.Windows)
+        // would be nice if this was a case-switch
+        // but oh well
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             return FuncLoader.LoadLibraryExt("SDL2.dll");
-        else if (CurrentPlatform.OS == OS.Linux)
-            return FuncLoader.LoadLibraryExt("libSDL2-2.0.so.0");
-        else if (CurrentPlatform.OS == OS.MacOSX)
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            return FuncLoader.LoadLibraryExt("libSDL2-2.0.so.2");
+        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             return FuncLoader.LoadLibraryExt("libSDL2.dylib");
         else
             return FuncLoader.LoadLibraryExt("sdl2");
+
     }
 
     public static int Major;

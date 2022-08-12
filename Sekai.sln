@@ -34,8 +34,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sekai.Engine.Tests", "tests
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sekai.Interop.Desktop", "source\extensions\Sekai.Interop.Desktop\Sekai.Interop.Desktop.csproj", "{8F5F0890-3EA9-4287-9096-51E9792EEB3E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Interop.Common", "source\extensions\Sekai.Interop.Common\Sekai.Interop.Common.csproj", "{D924F1C1-4E5B-4925-9982-E28C795EC2A2}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -74,10 +72,6 @@ Global
 		{8F5F0890-3EA9-4287-9096-51E9792EEB3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8F5F0890-3EA9-4287-9096-51E9792EEB3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8F5F0890-3EA9-4287-9096-51E9792EEB3E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D924F1C1-4E5B-4925-9982-E28C795EC2A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D924F1C1-4E5B-4925-9982-E28C795EC2A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D924F1C1-4E5B-4925-9982-E28C795EC2A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D924F1C1-4E5B-4925-9982-E28C795EC2A2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -94,7 +88,6 @@ Global
 		{505A84F9-2AF5-43C4-9150-1FB933EC80A8} = {D4B811C4-32E2-47E1-9645-F7E3142F79B5}
 		{287CA94A-DF7B-461C-9E4C-D52650F5139F} = {95FF42D1-ACB0-470A-B45D-0A5CF8C6FE4D}
 		{8F5F0890-3EA9-4287-9096-51E9792EEB3E} = {057546DB-E807-4869-8E67-BC68A390E03F}
-		{D924F1C1-4E5B-4925-9982-E28C795EC2A2} = {057546DB-E807-4869-8E67-BC68A390E03F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B561F441-82A5-4270-9631-D1D7C712B152}

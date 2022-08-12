@@ -7,8 +7,4 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Sekai.Interop.Common\Sekai.Interop.Common.csproj" />
-  </ItemGroup>
-
 </Project>
