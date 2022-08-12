@@ -26,51 +26,51 @@ public class FuncLoader
         {
             // let's check if we can load it from the .NET Framework or the Mono Locations
             if (NativeLibrary.TryLoad(Path.Combine(assemblyLocation, libName), out var handle))
-              ret = handle;
+                ret = handle;
             // no? let's try the Framework .app bundle locations.
             else if (NativeLibrary.TryLoad(Path.Combine(assemblyLocation, "..", "Frameworks", libName), out var syshandle))
-              ret = syshandle;
+                ret = syshandle;
             else
-              ret = IntPtr.Zero;
+                ret = IntPtr.Zero;
         }
         else
         {
             if (Environment.Is64BitProcess)
-               ret = NativeLibrary.Load(Path.Combine(assemblyLocation, "x64", libName));
+                ret = NativeLibrary.Load(Path.Combine(assemblyLocation, "x64", libName));
             else
-              ret = NativeLibrary.Load(Path.Combine(assemblyLocation, "x86", libName));
+                ret = NativeLibrary.Load(Path.Combine(assemblyLocation, "x86", libName));
         }
 
         // Try .NET Core development locations
         if (ret == IntPtr.Zero)
         {
-          if (NativeLibrary.TryLoad(Path.Combine(assemblyLocation, "runtimes", RuntimeInformation.RuntimeIdentifier, "native", libName), out var handle))
-            ret = handle;
-          else
-            ret = IntPtr.Zero;
+            if (NativeLibrary.TryLoad(Path.Combine(assemblyLocation, "runtimes", RuntimeInformation.RuntimeIdentifier, "native", libName), out var handle))
+                ret = handle;
+            else
+                ret = IntPtr.Zero;
         }
 
         // Try current folder (usually this is the production build from `dotnet publish` goes to.)
         if (ret == IntPtr.Zero)
         {
-          if (NativeLibrary.TryLoad(Path.Combine(Environment.CurrentDirectory, libName), out var handle))
-            ret = handle;
-          else
-            ret = IntPtr.Zero;
+            if (NativeLibrary.TryLoad(Path.Combine(Environment.CurrentDirectory, libName), out var handle))
+                ret = handle;
+            else
+                ret = IntPtr.Zero;
         }
 
         // last-ditch effort: load from the system library and pray it works
         if (ret == IntPtr.Zero)
         {
-          if (NativeLibrary.TryLoad(libName, out var handle))
-            ret = handle;
-          else
-            ret = IntPtr.Zero;
+            if (NativeLibrary.TryLoad(libName, out var handle))
+                ret = handle;
+            else
+                ret = IntPtr.Zero;
         }
 
         // nothing works? too bad, let's tell everyone we can't load it.
         if (ret == IntPtr.Zero)
-          throw new Exception($"Could not load library {libName}");
+            throw new Exception($"Could not load library {libName}");
 
 
         return ret;
