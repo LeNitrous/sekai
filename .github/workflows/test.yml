@@ -5,13 +5,7 @@ jobs:
 
   test:
     name: Test
-    runs-on: ${{matrix.os}}
-    strategy:
-      fail-fast: true
-      matrix:
-         os:
-           - windows-latest
-           - ubuntu-latest
+    runs-on: windows-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
