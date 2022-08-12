@@ -170,7 +170,7 @@ internal static class SDL2
     public static d_sdl_getversion GetVersion = FuncLoader.LoadFunction<d_sdl_getversion>(NativeLibrary, "SDL_GetVersion");
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate int d_sdl_pollevent([Out] out Event _event);
+    public delegate int d_sdl_pollevent(out Event _event);
     public static d_sdl_pollevent PollEvent = FuncLoader.LoadFunction<d_sdl_pollevent>(NativeLibrary, "SDL_PollEvent");
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
