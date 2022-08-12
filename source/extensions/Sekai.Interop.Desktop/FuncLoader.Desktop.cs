@@ -36,9 +36,19 @@ public class FuncLoader
         else
         {
             if (Environment.Is64BitProcess)
-                ret = NativeLibrary.Load(Path.Combine(assemblyLocation, "x64", libName));
+            {
+                if (NativeLibrary.TryLoad(Path.Combine(assemblyLocation, "x64", libName), out var handle))
+                    ret = handle;
+                else
+                    ret = IntPtr.Zero;
+            }
             else
-                ret = NativeLibrary.Load(Path.Combine(assemblyLocation, "x86", libName));
+            {
+                if (NativeLibrary.TryLoad(Path.Combine(assemblyLocation, "x86", libName), out var handle))
+                    ret = handle;
+                else
+                    ret = IntPtr.Zero;
+            }
         }
 
         // Try .NET Core development locations
