@@ -64,7 +64,7 @@ public class FuncLoader
             return (T)(object)Marshal.GetDelegateForFunctionPointer(NativeLibrary.GetExport(handle, function), typeof(T));
 
         }
-        catch(EntryPointNotFoundException e)
+        catch (EntryPointNotFoundException e)
         {
             throw new EntryPointNotFoundException("Could not find function, check if the defined symbol is exported in the library.", e);
         }
