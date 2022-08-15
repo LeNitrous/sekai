@@ -1,0 +1,69 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup Label="Nuget">
+    <IsPackable>true</IsPackable>
+    <PackageId>Sekai.SDL.Redist</PackageId>
+    <Version>2.0.22</Version>
+    <Authors>slouken;Vignette</Authors>
+    <PackageTags>SDL;Sekai;</PackageTags>
+    <Title>Sekai.SDL.Redist</Title>
+    <Description>SDL Redistributables for Sekai based on latest release (this does not contain bindings, in which case, you should be looking for Sekai!)</Description>
+    <Copyright>2022 Vignette and the SDL Authors</Copyright>
+    <RepositoryUrl>https://github.com/libsdl-org/SDL</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/vignetteapp/Sekai</PackageProjectUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup Label="Documents">
+    <None Include="..\..\LICENSE" Pack="true" PackagePath="" />
+    <None Include=".\LICENSE.SDL" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+
+  <PropertyGroup Label="Pre-build task">
+    <PreBuildEvent Condition=" '$(OS)' == 'Windows_NT' ">
+      if not exist "$(MSBuildProjectDirectory)\runtimes\win-x64\native\SDL2.dll" (
+          cd $(MSBuildProjectDirectory)\..\
+          curl -LO https://github.com/libsdl-org/SDL/releases/download/release-2.0.22/SDL2-2.0.22-win32-x64.zip
+          unzip SDL2-2.0.22-win32-x64.zip
+          rm SDL2-2.0.22-win32-x64.zip
+          rm README-SDL2.txt
+      )
+    </PreBuildEvent>
+    <!-- TODO: Support MacOS and Linux redistributables (although package maintainers will hate us, but who cares about them?)-->
+    <PreBuildEvent Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' ">
+      if [ ! -f $(MSBuildProjectDirectory)/runtimes/linux-x64/native/libSDL2-2.0.so.2 ]; then
+        cd $(MSBuildProjectDirectory)/../
+        echo "I'm sorry, we do not support Linux at the moment (By any chance you already have one preinstalled on your distribution anyway!)"
+        exit 0;
+      fi
+    </PreBuildEvent>
+    <PreBuildEvent Condition=" '$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' ">
+      if [ ! -f $(MSBuildProjectDirectory)/runtimes/osx-x64/native/libSDL2.dylib ]; then
+        cd $(MSBuildProjectDirectory)/../
+        echo "I'm sorry, SDL2 is not available for macOS at the moment."
+        exit 0;
+      fi
+    </PreBuildEvent>
+  </PropertyGroup>
+
+  <ItemGroup Label="Native libraries">
+    <!-- See https://github.com/ppy/osu-framework/blob/master/osu.Framework.NativeLibs/osu.Framework.NativeLibs.csproj. -->
+    <None Include="runtimes\**\*" Pack="true" PackagePath="runtimes" />
+    <None Include="_._">
+      <!-- Means this package doesn't provide any reference assembly to the target framework.
+           nupkg is a zip file and doesn't has concept for folders,
+           so there must be something under the path, otherwise client will consider this package broken.
+           See https://docs.microsoft.com/en-us/nuget/reference/errors-and-warnings/nu5128#scenario-2 . -->
+      <Pack>true</Pack>
+      <PackagePath>lib\$(TargetFramework)</PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>
