@@ -5,9 +5,13 @@
 // Copyright 2021 the MonoGame Team.
 // Licensed under the Microsoft Public License and MIT.
 // See https://github.com/MonoGame/MonoGame/blob/develop/LICENSE.txt.
+
+using System;
+using System.IO;
 using System.Runtime.InteropServices;
 
-namespace Sekai.Interop.Desktop;
+namespace Sekai.SDL;
+
 public class FuncLoader
 {
     /// <summary>

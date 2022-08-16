@@ -1,4 +1,0 @@
-DISPLAY_DEVICE
-DEVMODE
-EnumDisplayDevices
-EnumDisplaySettings

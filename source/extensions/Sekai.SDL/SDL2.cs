@@ -5,11 +5,13 @@
 // Copyright 2021 the MonoGame Team.
 // Licensed under the Microsoft Public License and MIT.
 // See https://github.com/MonoGame/MonoGame/blob/develop/LICENSE.txt.
+
+#nullable enable
+
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
-using Sekai.Interop.Desktop;
 
 namespace Sekai.SDL;
 
@@ -29,7 +31,6 @@ internal static class SDL2
             return FuncLoader.LoadLibraryExt("libSDL2.dylib");
         else
             return FuncLoader.LoadLibraryExt("sdl2");
-
     }
 
     public static int Major;
