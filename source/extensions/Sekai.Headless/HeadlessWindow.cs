@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using Sekai.Engine.Testing;
 using Sekai.Framework.Windowing;
 
 namespace Sekai.Headless;
