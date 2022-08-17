@@ -51,7 +51,7 @@ internal class SDLMouse : IMouse
 
         switch (mouseButtonEvent.type)
         {
-           case SDL_EventType.SDL_MOUSEBUTTONDOWN:
+            case SDL_EventType.SDL_MOUSEBUTTONDOWN:
                 {
                     if (pressedButtons.Add(button))
                         OnMouseDown?.Invoke(this, button);
