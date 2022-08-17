@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../source/engine/Sekai.Engine/Sekai.Engine.csproj" />
+    <ProjectReference Include="../../source/extensions/Sekai.SDL/Sekai.SDL.csproj" />
+  </ItemGroup>
+
+</Project>

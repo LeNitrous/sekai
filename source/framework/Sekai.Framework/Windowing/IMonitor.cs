@@ -19,11 +19,6 @@ public interface IMonitor
     int Index { get; }
 
     /// <summary>
-    /// Whether this is the primary display or not.
-    /// </summary>
-    bool Primary { get; }
-
-    /// <summary>
     /// The bounds of this monitor.
     /// </summary>
     Rectangle Bounds { get; }

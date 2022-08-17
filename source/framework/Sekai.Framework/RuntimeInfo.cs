@@ -18,6 +18,7 @@ public static class RuntimeInfo
     public static bool SupportsJIT => OS != Platform.iOS;
     public static bool IsDesktop => OS is <= Platform.Windows or > Platform.iOS;
     public static bool IsMobile => OS is < Platform.macOS or >= Platform.Android;
+    public static bool IsApple => OS is Platform.iOS or Platform.macOS;
 
     static RuntimeInfo()
     {

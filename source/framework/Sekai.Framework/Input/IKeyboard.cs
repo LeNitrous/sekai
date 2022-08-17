@@ -27,11 +27,6 @@ public interface IKeyboard : IInputDevice
     event Action<IKeyboard, Key, int?> OnKeyUp;
 
     /// <summary>
-    /// Called when a character is received.
-    /// </summary>
-    event Action<IKeyboard, char> OnKeyChar;
-
-    /// <summary>
     /// Returns whether a given key is pressed.
     /// </summary>
     bool IsKeyPressed(Key key);

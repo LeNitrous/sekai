@@ -18,4 +18,12 @@ public struct ScrollWheel : IEquatable<ScrollWheel>
     }
 
     public bool Equals(ScrollWheel other) => other.X == X && other.Y == Y;
+
+    public override bool Equals(object? obj) => obj is ScrollWheel wheel && Equals(wheel);
+
+    public override int GetHashCode() => HashCode.Combine(X, Y);
+
+    public static bool operator ==(ScrollWheel left, ScrollWheel right) => left.Equals(right);
+
+    public static bool operator !=(ScrollWheel left, ScrollWheel right) => !(left == right);
 }

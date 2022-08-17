@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Numerics;
 
 namespace Sekai.Framework.Input;
 
@@ -31,16 +30,6 @@ public interface IMouse : IPointer
     /// Called when a mouse button has been released.
     /// </summary>
     event Action<IMouse, MouseButton> OnMouseUp;
-
-    /// <summary>
-    /// Called when a single click is performed.
-    /// </summary>
-    event Action<IMouse, MouseButton, Vector2> OnClick;
-
-    /// <summary>
-    /// Called when a double click is performed.
-    /// </summary>
-    event Action<IMouse, MouseButton, Vector2> OnDoubleClick;
 
     /// <summary>
     /// Called when the mouse wheel scrolls.

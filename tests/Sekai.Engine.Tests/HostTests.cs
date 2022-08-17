@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Sekai.Engine.Platform;
-using Sekai.Engine.Testing;
+using Sekai.Headless;
 
 namespace Sekai.Engine.Tests;
 
@@ -20,7 +20,7 @@ public class HostTests
 
         var host = Host
             .Setup<TestGame>()
-            .UseView<HeadlessView>()
+            .UseWindow<HeadlessWindow>()
             .UseLoadCallback(game =>
             {
                 gameLoaded = true;
@@ -64,7 +64,7 @@ public class HostTests
     {
         var host = Host
             .Setup<ExceptionThrowingGame>()
-            .UseView<HeadlessView>();
+            .UseWindow<HeadlessWindow>();
 
         var runTask = Task.Factory.StartNew(() => host.Run(), TaskCreationOptions.LongRunning);
 

@@ -12,7 +12,8 @@ public partial class LoadableObject
 {
     private protected virtual bool CanCache => true;
     private protected virtual bool CanResolve => true;
-    protected internal IReadOnlyContainer Container { get; private set; } = null!;
+    internal event Action<IContainer> OnContainerCreated = null!;
+    internal IReadOnlyContainer Container { get; private set; } = null!;
     internal LoadableObject Parent = null!;
     private FrameworkThread thread = null!;
     private List<LoadableObject> loadables = null!;
@@ -144,6 +145,7 @@ public partial class LoadableObject
         }
 
         var container = Container as IContainer;
+        OnContainerCreated?.Invoke(container!);
 
         if (container != null && CanResolve)
             data.Resolve(this, container);

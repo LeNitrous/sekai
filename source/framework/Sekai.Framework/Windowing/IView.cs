@@ -3,25 +3,26 @@
 
 using System;
 using System.Drawing;
+using Sekai.Framework.Input;
 
 namespace Sekai.Framework.Windowing;
 
 public interface IView
 {
     /// <summary>
-    /// Gets whether this view is currently focused.
+    /// The active state of this view.
     /// </summary>
-    bool Focused { get; }
+    bool Active { get; }
 
     /// <summary>
-    /// The monitor this view is currently present on.
+    /// Gets the input context for this window.
     /// </summary>
-    IMonitor Monitor { get; }
+    IInputContext Input { get; }
 
     /// <summary>
-    /// The video mode this view is currently using.
+    /// Called when the active state of this view changes.
     /// </summary>
-    VideoMode VideoMode { get; }
+    event Action<bool> OnStateChanged;
 
     /// <summary>
     /// Called when the view closes.
@@ -32,11 +33,6 @@ public interface IView
     /// Called when the view requests to be closed. Return true to continue closing.
     /// </summary>
     event Func<bool> OnCloseRequested;
-
-    /// <summary>
-    /// Called when the view focus changes.
-    /// </summary>
-    event Action<bool> OnFocusChanged;
 
     /// <summary>
     /// Convert this point to screen coordinates.
@@ -52,4 +48,9 @@ public interface IView
     /// Process events for this view.
     /// </summary>
     void DoEvents();
+
+    /// <summary>
+    /// Close this view.
+    /// </summary>
+    void Close();
 }
