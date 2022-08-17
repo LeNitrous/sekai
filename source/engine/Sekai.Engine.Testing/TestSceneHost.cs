@@ -4,6 +4,7 @@
 using NUnit.Framework.Internal;
 using Sekai.Engine.Platform;
 using Sekai.Framework.Threading;
+using Sekai.Headless;
 
 namespace Sekai.Engine.Testing;
 
@@ -14,7 +15,7 @@ public static class TestSceneHost
     {
         var context = TestExecutionContext.CurrentContext;
 
-        host.UseView<HeadlessView>();
+        host.UseWindow<HeadlessWindow>();
 
         host.SetupThreadController(threads =>
         {

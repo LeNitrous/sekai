@@ -1,4 +1,16 @@
 {
     "version": "0.2.0",
-    "configurations": []
+    "configurations": [
+        {
+            "name": "Launch Window Example",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/examples/Example.Window/bin/Debug/net6.0/Example.Window.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/examples/Example.Window",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        }
+    ]
 }

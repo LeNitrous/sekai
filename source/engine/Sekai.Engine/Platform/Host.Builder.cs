@@ -9,18 +9,18 @@ namespace Sekai.Engine.Platform;
 
 public partial class Host<T>
 {
-    private Type typeView = null!;
-    private IView view = null!;
+    private Type typeWindow = null!;
+    private IWindow window = null!;
     private Action<T> callbackGameLoad = null!;
     private Action<ThreadController> callbackThreadController = null!;
 
     /// <summary>
     /// Uses the window of a given type.
     /// </summary>
-    public Host<T> UseView<U>()
-        where U : IView
+    public Host<T> UseWindow<U>()
+        where U : IWindow
     {
-        typeView = typeof(U);
+        typeWindow = typeof(U);
         return this;
     }
 
@@ -44,9 +44,12 @@ public partial class Host<T>
 
     private void setupHostInstances()
     {
-        if (typeView == null)
+        if (typeWindow == null)
             throw new InvalidOperationException(@"Host does not have a window provided.");
 
-        view = (IView)Activator.CreateInstance(typeView)!;
+        window = (IWindow)Activator.CreateInstance(typeWindow)!;
+        window.Size = options.Size;
+        window.Title = options.Title;
+        window.OnClose += Exit;
     }
 }

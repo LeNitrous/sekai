@@ -3,15 +3,10 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <Nullable>enable</Nullable>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="../../framework/Sekai.Framework/Sekai.Framework.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="ppy.SDL2-CS" Version="1.0.82" />
   </ItemGroup>
 
 </Project>

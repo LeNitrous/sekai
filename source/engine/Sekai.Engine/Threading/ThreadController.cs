@@ -308,6 +308,11 @@ public sealed class ThreadController : FrameworkObject
         mainThread.OnUnhandledException -= onUnhandledException;
         mainThread.Dispose();
 
+        if (view is IDisposable disposable)
+        {
+            disposable.Dispose();
+        }
+
         lock (threads)
         {
             foreach (var t in threads)

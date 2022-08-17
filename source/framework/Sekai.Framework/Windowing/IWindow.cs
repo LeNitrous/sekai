@@ -2,6 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 
 namespace Sekai.Framework.Windowing;
@@ -14,9 +15,14 @@ public interface IWindow : IView
     string Title { get; set; }
 
     /// <summary>
+    /// Gets whether this window is currently focused.
+    /// </summary>
+    bool Focused { get; }
+
+    /// <summary>
     /// Gets or sets the window icon.
     /// </summary>
-    ReadOnlyMemory<byte> Icon { get; set; }
+    Icon Icon { get; set; }
 
     /// <summary>
     /// Gets or sets the position of the window.
@@ -49,14 +55,34 @@ public interface IWindow : IView
     WindowBorder Border { get; set; }
 
     /// <summary>
+    /// Gets the current monitor this window is on.
+    /// </summary>
+    IMonitor Monitor { get; }
+
+    /// <summary>
+    /// Gets all the monitors on this system.
+    /// </summary>
+    IEnumerable<IMonitor> Monitors { get; }
+
+    /// <summary>
     /// Gets or sets whether this window is visible.
     /// </summary>
     bool Visible { get; set; }
 
     /// <summary>
-    /// Called when the view resizes.
+    /// Called when the window resizes.
     /// </summary>
     event Action<Size> OnResize;
+
+    /// <summary>
+    /// Called when the window's position is changed.
+    /// </summary>
+    event Action<Point> OnMoved;
+
+    /// <summary>
+    /// Called when the window focus changes.
+    /// </summary>
+    event Action<bool> OnFocusChanged;
 
     /// <summary>
     /// Called when a file has been dropped to this window.

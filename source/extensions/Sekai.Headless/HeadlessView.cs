@@ -4,17 +4,19 @@
 using System;
 using System.Drawing;
 using Sekai.Framework;
+using Sekai.Framework.Input;
 using Sekai.Framework.Windowing;
 
-namespace Sekai.Engine.Testing;
+namespace Sekai.Headless;
 
 public class HeadlessView : FrameworkObject, IView
 {
-    public IMonitor Monitor { get; } = new HeadlessMonitor();
-    public VideoMode VideoMode => Monitor.Modes[0];
+    public bool Active { get; } = true;
+    public IInputContext Input { get; } = new HeadlessInputContext();
     public event Action OnClose = null!;
     public event Func<bool> OnCloseRequested = null!;
     public event Action<bool> OnFocusChanged = null!;
+    public event Action<bool> OnStateChanged = null!;
 
     private bool focused;
 

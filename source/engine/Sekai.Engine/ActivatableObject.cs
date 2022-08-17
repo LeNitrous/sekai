@@ -21,9 +21,6 @@ public abstract class ActivatableObject : LoadableObject
             if (!IsLoaded)
                 throw new InvalidOperationException(@"Cannot activate unloaded activatable objects.");
 
-            if (IsDisposed)
-                throw new ObjectDisposedException(GetType().Name);
-
             if (activated == value)
                 return;
 

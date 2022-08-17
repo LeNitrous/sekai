@@ -118,7 +118,7 @@ public enum Key
     KeypadEnter,
     KeypadEqual,
     ShiftLeft = 340,
-    Controlleft,
+    ControlLeft,
     AltLeft,
     SuperLeft,
     ShiftRight,
