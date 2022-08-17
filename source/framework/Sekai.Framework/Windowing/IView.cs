@@ -7,7 +7,7 @@ using Sekai.Framework.Input;
 
 namespace Sekai.Framework.Windowing;
 
-public interface IView
+public interface IView : IDisposable
 {
     /// <summary>
     /// The active state of this view.

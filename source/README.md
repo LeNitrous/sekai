@@ -6,9 +6,8 @@
 - **Sekai.Engine.Testing**
     - Provides extendability for headless testing.
 ### extensions
-- **Sekai.Forms**
-    - Provides **System.Windows.Forms** windowing and input support.
-    - Requires framework **net6.0-windows**.
+- **Sekai.Headless**
+    - Provides headless windowing support.
 - **Sekai.SDL**
     - Provides **SDL 2** windowing and input support.
 ### framework
