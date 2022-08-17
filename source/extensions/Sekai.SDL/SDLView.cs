@@ -15,7 +15,7 @@ public class SDLView : FrameworkObject, IView, INativeView
 {
     public nint Handle { get; }
     public bool Active { get; private set; } = true;
-    public IInputContext Input{ get; }
+    public IInputContext Input { get; }
     public event Action OnClose = null!;
     public event Func<bool> OnCloseRequested = null!;
     public event Action<bool> OnStateChanged = null!;
