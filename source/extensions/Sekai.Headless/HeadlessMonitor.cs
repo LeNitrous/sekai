@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using Sekai.Framework.Windowing;
 
-namespace Sekai.Engine.Testing;
+namespace Sekai.Headless;
 
 public class HeadlessMonitor : IMonitor
 {
