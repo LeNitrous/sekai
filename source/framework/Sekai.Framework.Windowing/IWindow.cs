@@ -32,7 +32,7 @@ public interface IWindow : IView
     /// <summary>
     /// Gets or sets the size of the window.
     /// </summary>
-    Size Size { get; set; }
+    new Size Size { get; set; }
 
     /// <summary>
     /// Gets or sets the minimum size of this window.

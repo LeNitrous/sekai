@@ -36,7 +36,7 @@ internal class SDLMouse : IMouse
                 return;
 
             position = value;
-            SDL_WarpMouseInWindow(view.Handle, (int)position.X, (int)position.Y);
+            SDL_WarpMouseInWindow(view.Window, (int)position.X, (int)position.Y);
         }
     }
 

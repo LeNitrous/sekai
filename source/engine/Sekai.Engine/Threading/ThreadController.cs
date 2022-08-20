@@ -195,10 +195,13 @@ public sealed class ThreadController : FrameworkObject
     /// <summary>
     /// Starts the threading manager.
     /// </summary>
-    internal void Run()
+    internal void Run(Action? action = null)
     {
         if (IsRunning)
             return;
+
+        if (action != null)
+            Post(action);
 
         mainThread.Run();
     }

@@ -7,15 +7,17 @@ using System.Runtime.InteropServices;
 using Sekai.Framework;
 using Sekai.Framework.Input;
 using Sekai.Framework.Windowing;
+using Sekai.Framework.Windowing.OpenGL;
 using static SDL2.SDL;
 
 namespace Sekai.SDL;
 
-public class SDLView : FrameworkObject, IView, INativeView
+internal class SDLView : FrameworkObject, IView, INativeWindowSource, IOpenGLProviderSource
 {
-    public nint Handle { get; }
+    public INativeWindow Native { get; }
     public bool Active { get; private set; } = true;
     public IInputContext Input { get; }
+
     public event Action OnClose = null!;
     public event Func<bool> OnCloseRequested = null!;
     public event Action<bool> OnStateChanged = null!;
@@ -27,7 +29,16 @@ public class SDLView : FrameworkObject, IView, INativeView
 
 #pragma warning restore IDE0052
 
-    protected readonly nint Window;
+    public Size Size
+    {
+        get
+        {
+            SDL_GetWindowSize(Window, out int w, out int h);
+            return new Size(w, h);
+        }
+    }
+
+    internal readonly nint Window;
 
     public SDLView()
     {
@@ -38,7 +49,7 @@ public class SDLView : FrameworkObject, IView, INativeView
 
         Input = new SDLInputContext(this);
         Window = SDL_CreateWindow("Sekai", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 100, 100, SDL_WindowFlags.SDL_WINDOW_HIDDEN);
-        Handle = getWindowHandle(Window);
+        Native = new SDLNativeWindow(this);
 
         SDL_SetEventFilter(filter = handleSdlEvent, IntPtr.Zero);
     }
@@ -176,31 +187,14 @@ public class SDLView : FrameworkObject, IView, INativeView
         OnClose?.Invoke();
     }
 
+    private IOpenGLProvider gl = null!;
+    public IOpenGLProvider GL => gl ??= new SDLGLProvider(this);
+
     protected override void Destroy()
     {
         if (Window != IntPtr.Zero)
             SDL_DestroyWindow(Window);
 
         SDL_Quit();
-    }
-
-    private static nint getWindowHandle(nint window)
-    {
-        var info = new SDL_SysWMinfo();
-        SDL_GetWindowWMInfo(window, ref info);
-
-        return info.subsystem switch
-        {
-            SDL_SYSWM_TYPE.SDL_SYSWM_WINDOWS => info.info.win.window,
-            SDL_SYSWM_TYPE.SDL_SYSWM_X11 => info.info.x11.window,
-            SDL_SYSWM_TYPE.SDL_SYSWM_DIRECTFB => info.info.dfb.window,
-            SDL_SYSWM_TYPE.SDL_SYSWM_COCOA => info.info.cocoa.window,
-            SDL_SYSWM_TYPE.SDL_SYSWM_UIKIT => info.info.uikit.window,
-            SDL_SYSWM_TYPE.SDL_SYSWM_WINRT => info.info.winrt.window,
-            SDL_SYSWM_TYPE.SDL_SYSWM_ANDROID => info.info.android.window,
-            SDL_SYSWM_TYPE.SDL_SYSWM_VIVANTE => info.info.vivante.window,
-            SDL_SYSWM_TYPE.SDL_SYSWM_OS2 => info.info.os2.hwnd,
-            _ => throw new NotSupportedException("Unsupported window."),
-        };
     }
 }

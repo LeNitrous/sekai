@@ -4,6 +4,7 @@
 using System;
 using System.Drawing;
 using System.Reflection;
+using Sekai.Framework.Graphics;
 using Sekai.Framework.Threading;
 
 namespace Sekai.Engine.Platform;
@@ -28,12 +29,17 @@ public class HostOptions
     /// </summary>
     public string[] Arguments { get; set; } = Array.Empty<string>();
 
-    /// <inheritdoc cref="FrameworkThreadManager.ExecutionMode"/>
+    /// <inheritdoc cref="Threading.ThreadController.ExecutionMode"/>
     public ExecutionMode ExecutionMode { get; set; } = ExecutionMode.MultiThread;
 
-    /// <inheritdoc cref="FrameworkThreadManager.UpdatePerSecond"/>
+    /// <inheritdoc cref="Threading.ThreadController.UpdatePerSecond"/>
     public double UpdatePerSecond { get; set; } = 240;
 
-    /// <inheritdoc cref="FrameworkThreadManager.FramesPerSecond"/>
+    /// <inheritdoc cref="Threading.ThreadController.FramesPerSecond"/>
     public double FramesPerSecond { get; set; } = 120;
+
+    /// <summary>
+    /// The graphics options used by the <see cref="IGraphicsContext"/>.
+    /// </summary>
+    public GraphicsContextOptions Graphics { get; set; } = new();
 }

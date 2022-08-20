@@ -7,7 +7,7 @@ using Sekai.Framework.Windowing;
 
 namespace Sekai.Headless;
 
-public class HeadlessMonitor : IMonitor
+internal class HeadlessMonitor : IMonitor
 {
     public string Name { get; } = @"Headless";
     public bool Primary { get; } = true;

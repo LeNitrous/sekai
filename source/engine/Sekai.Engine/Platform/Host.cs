@@ -47,16 +47,15 @@ public sealed partial class Host<T> : FrameworkObject
         var updateThread = new MainUpdateThread(systems);
         var renderThread = new MainRenderThread(systems);
 
-        threads = new ThreadController(this.window);
+        threads = new ThreadController(window);
         threads.Add(updateThread);
         threads.Add(renderThread);
         threads.ExecutionMode = options.ExecutionMode;
         threads.FramesPerSecond = options.FramesPerSecond;
         threads.UpdatePerSecond = options.UpdatePerSecond;
 
-        callbackThreadController?.Invoke(threads);
-
         Game.AddInternal(systems);
+
         Game.OnContainerCreated += container =>
         {
             container.Cache(this);
@@ -64,6 +63,8 @@ public sealed partial class Host<T> : FrameworkObject
             container.Cache(systems);
             container.Cache(window);
             container.Cache(window.Input);
+            container.Cache(graphics);
+            container.Cache(graphics.Factory);
         };
 
         Game.OnLoad += () =>
@@ -72,8 +73,12 @@ public sealed partial class Host<T> : FrameworkObject
             window.Visible = true;
         };
 
-        threads.Post(() => Game.Initialize(thread: updateThread));
-        threads.Run();
+        threads.Run(initialize);
+
+        void initialize()
+        {
+            Game.Initialize(thread: updateThread);
+        }
     }
 
     /// <summary>
@@ -91,5 +96,6 @@ public sealed partial class Host<T> : FrameworkObject
 
         Game.Dispose();
         threads.Dispose();
+        graphics.Dispose();
     }
 }

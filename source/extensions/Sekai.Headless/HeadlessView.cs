@@ -9,8 +9,9 @@ using Sekai.Framework.Windowing;
 
 namespace Sekai.Headless;
 
-public class HeadlessView : FrameworkObject, IView
+internal class HeadlessView : FrameworkObject, IView
 {
+    public Size Size { get; }
     public bool Active { get; } = true;
     public IInputContext Input { get; } = new HeadlessInputContext();
     public event Action OnClose = null!;
