@@ -30,6 +30,11 @@ public class Entity : ActivatableObject
     }
 
     /// <summary>
+    /// The transform of the entity
+    /// </summary>
+    public Transform? Transform { get; set; }
+
+    /// <summary>
     /// Gets or sets the components for this entity.
     /// </summary>
     public IEnumerable<Component> Components
