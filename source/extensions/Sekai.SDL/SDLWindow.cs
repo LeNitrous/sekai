@@ -10,7 +10,7 @@ using static SDL2.SDL;
 
 namespace Sekai.SDL;
 
-public class SDLWindow : SDLView, IWindow
+internal class SDLWindow : SDLView, IWindow
 {
     public bool Focused { get; private set; }
     public IMonitor Monitor => getMonitorFromSDL(SDL_GetWindowDisplayIndex(Window));
@@ -83,7 +83,7 @@ public class SDLWindow : SDLView, IWindow
         set => SDL_SetWindowPosition(Window, value.X, value.Y);
     }
 
-    public Size Size
+    public new Size Size
     {
         get
         {

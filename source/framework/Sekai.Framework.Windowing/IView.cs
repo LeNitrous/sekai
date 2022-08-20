@@ -15,6 +15,11 @@ public interface IView : IDisposable
     bool Active { get; }
 
     /// <summary>
+    /// Gets or sets the size of the view.
+    /// </summary>
+    Size Size { get; }
+
+    /// <summary>
     /// Gets the input context for this window.
     /// </summary>
     IInputContext Input { get; }

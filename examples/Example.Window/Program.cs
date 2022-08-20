@@ -4,8 +4,10 @@
 using Example.Window;
 using Sekai.Engine.Platform;
 using Sekai.SDL;
+using Sekai.Veldrid;
 
 Host
     .Setup<ExampleGame>()
-    .UseWindow<SDLWindow>()
+    .UseSDLWindow()
+    .UseVeldrid()
     .Run();

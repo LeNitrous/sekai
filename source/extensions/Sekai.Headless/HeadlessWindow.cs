@@ -8,12 +8,12 @@ using Sekai.Framework.Windowing;
 
 namespace Sekai.Headless;
 
-public class HeadlessWindow : HeadlessView, IWindow
+internal class HeadlessWindow : HeadlessView, IWindow
 {
     public string Title { get; set; } = @"Headless Window";
     public Icon Icon { get; set; }
     public Point Position { get; set; }
-    public Size Size { get; set; }
+    public new Size Size { get; set; }
     public Size MinimumSize { get; set; }
     public Size MaximumSize { get; set; }
     public WindowState State { get; set; }

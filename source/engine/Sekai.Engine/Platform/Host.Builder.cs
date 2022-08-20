@@ -2,25 +2,35 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using Sekai.Engine.Threading;
+using Sekai.Framework;
+using Sekai.Framework.Graphics;
 using Sekai.Framework.Windowing;
 
 namespace Sekai.Engine.Platform;
 
 public partial class Host<T>
 {
-    private Type typeWindow = null!;
     private IWindow window = null!;
+    private IGraphicsContext graphics = null!;
     private Action<T> callbackGameLoad = null!;
-    private Action<ThreadController> callbackThreadController = null!;
 
     /// <summary>
     /// Uses the window of a given type.
     /// </summary>
     public Host<T> UseWindow<U>()
-        where U : IWindow
+        where U : IWindow, new()
     {
-        typeWindow = typeof(U);
+        window = new U();
+        return this;
+    }
+
+    /// <summary>
+    /// Uses the graphics context of a given type.
+    /// </summary>
+    public Host<T> UseGraphics<U>()
+        where U : IGraphicsContext, new()
+    {
+        graphics = new U();
         return this;
     }
 
@@ -33,23 +43,26 @@ public partial class Host<T>
         return this;
     }
 
-    /// <summary>
-    /// Use a callback to prepare the thread controller.
-    /// </summary>
-    public Host<T> SetupThreadController(Action<ThreadController> callback)
-    {
-        callbackThreadController = callback;
-        return this;
-    }
-
     private void setupHostInstances()
     {
-        if (typeWindow == null)
-            throw new InvalidOperationException(@"Host does not have a window provided.");
-
-        window = (IWindow)Activator.CreateInstance(typeWindow)!;
         window.Size = options.Size;
         window.Title = options.Title;
         window.OnClose += Exit;
+
+        options.Graphics.Debug ??= RuntimeInfo.IsDebug;
+        options.Graphics.GraphicsAPI ??= getGraphicsAPIForPlatform();
+
+        graphics.Initialize(window, options.Graphics);
+    }
+
+    private static GraphicsAPI getGraphicsAPIForPlatform()
+    {
+        return RuntimeInfo.OS switch
+        {
+            RuntimeInfo.Platform.Windows => GraphicsAPI.Direct3D11,
+            RuntimeInfo.Platform.Android or RuntimeInfo.Platform.Linux => GraphicsAPI.Vulkan,
+            RuntimeInfo.Platform.macOS or RuntimeInfo.Platform.iOS => GraphicsAPI.Metal,
+            _ => GraphicsAPI.OpenGL,
+        };
     }
 }
