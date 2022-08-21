@@ -540,7 +540,7 @@ internal static class VeldridExtensions
             case Framework.Windowing.NativeWindowKind.Unknown:
             case Framework.Windowing.NativeWindowKind.Vivante:
             case Framework.Windowing.NativeWindowKind.Android:
-            case Framework.Windowing.NativeWindowKind.Cocoa:
+            //case Framework.Windowing.NativeWindowKind.Cocoa:
             case Framework.Windowing.NativeWindowKind.Haiku:
             case Framework.Windowing.NativeWindowKind.UIKit:
             case Framework.Windowing.NativeWindowKind.WinRT:
@@ -571,6 +571,12 @@ internal static class VeldridExtensions
 
                     return Vd.SwapchainSource.CreateXlib(source.Source.Wayland.Value.Display, source.Source.Wayland.Value.Surface);
                 }
+            case Framework.Windowing.NativeWindowKind.Cocoa:
+            {
+                if (!source.Source.Cocoa.HasValue)
+                    throw new InvalidOperationException();
+                return Vd.SwapchainSource.CreateNSWindow(source.Source.Cocoa.Value);
+            }
         }
     }
 
