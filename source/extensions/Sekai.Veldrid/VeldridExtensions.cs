@@ -540,7 +540,6 @@ internal static class VeldridExtensions
             case Framework.Windowing.NativeWindowKind.Unknown:
             case Framework.Windowing.NativeWindowKind.Vivante:
             case Framework.Windowing.NativeWindowKind.Android:
-            //case Framework.Windowing.NativeWindowKind.Cocoa:
             case Framework.Windowing.NativeWindowKind.Haiku:
             case Framework.Windowing.NativeWindowKind.UIKit:
             case Framework.Windowing.NativeWindowKind.WinRT:
