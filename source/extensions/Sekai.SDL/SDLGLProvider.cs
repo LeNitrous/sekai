@@ -16,7 +16,14 @@ internal class SDLGLProvider : IOpenGLProvider
     public SDLGLProvider(SDLView view)
     {
         this.view = view;
+
+        if (SDL_GL_SetAttribute(SDL_GLattr.SDL_GL_CONTEXT_PROFILE_MASK, SDL_GLprofile.SDL_GL_CONTEXT_PROFILE_COMPATIBILITY) > 0)
+            throw new InvalidOperationException(SDL_GetError());
+
         Handle = SDL_GL_CreateContext(view.Window);
+
+        if (Handle == IntPtr.Zero)
+            throw new InvalidOperationException(SDL_GetError());
     }
 
     public void ClearCurrentContext()

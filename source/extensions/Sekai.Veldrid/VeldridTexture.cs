@@ -6,7 +6,7 @@ using Vd = Veldrid;
 
 namespace Sekai.Veldrid;
 
-internal class VeldridNativeTexture : VeldridBindableResource<Vd.Texture>, INativeTexture
+internal class VeldridTexture : VeldridBindableResource<Vd.Texture>, ITexture
 {
     public PixelFormat Format { get; }
     public uint Width { get; }
@@ -14,11 +14,11 @@ internal class VeldridNativeTexture : VeldridBindableResource<Vd.Texture>, INati
     public uint Depth { get; }
     public uint MipLevels { get; }
     public uint ArrayLayers { get; }
-    public NativeTextureUsage Usage { get; }
-    public NativeTextureKind Kind { get; }
-    public NativeTextureSampleCount SampleCount { get; }
+    public TextureUsage Usage { get; }
+    public TextureKind Kind { get; }
+    public TextureSampleCount SampleCount { get; }
 
-    public VeldridNativeTexture(NativeTextureDescription desc, Vd.Texture resource)
+    public VeldridTexture(TextureDescription desc, Vd.Texture resource)
         : base(resource)
     {
         Format = desc.Format;

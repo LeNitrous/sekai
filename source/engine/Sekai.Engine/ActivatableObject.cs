@@ -28,14 +28,16 @@ public abstract class ActivatableObject : LoadableObject
 
             if (activated)
             {
-                Post(activate);
+                activate();
             }
             else
             {
-                Post(deactivate);
+                deactivate();
             }
         }
     }
+
+    internal override bool IsAlive => Activated && base.IsAlive;
 
     /// <summary>
     /// Invoked when this activatable object is activated.

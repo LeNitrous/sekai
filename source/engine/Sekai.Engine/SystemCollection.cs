@@ -11,14 +11,19 @@ using Sekai.Framework.Annotations;
 namespace Sekai.Engine;
 
 [Cached]
-public class GameSystemCollection : LoadableObject, IEnumerable<GameSystem>
+public class SystemCollection<T> : LoadableObject, IReadOnlyList<T>, IEnumerable<T>
+    where T : LoadableObject
 {
-    private readonly List<GameSystem> systems = new();
+    public int Count => systems.Count;
 
-    public T Get<T>()
-        where T : GameSystem, new()
+    public T this[int index] => systems[index];
+
+    private readonly List<T> systems = new();
+
+    public U Get<U>()
+        where U : T, new()
     {
-        var instances = systems.OfType<T>();
+        var instances = systems.OfType<U>();
 
         if (!instances.Any())
             throw new KeyNotFoundException($"Game system \"{typeof(T)}\" is not registered.");
@@ -26,21 +31,21 @@ public class GameSystemCollection : LoadableObject, IEnumerable<GameSystem>
         return instances.Single();
     }
 
-    public void Register<T>()
-        where T : GameSystem, new()
+    public void Register<U>()
+        where U : T, new()
     {
-        if (systems.OfType<T>().Any())
+        if (systems.OfType<U>().Any())
             throw new InvalidOperationException($"Game system \"{typeof(T)}\" is already registered.");
 
-        var instance = Activator.CreateInstance<T>();
+        var instance = new U();
         systems.Add(instance);
         AddInternal(instance);
     }
 
-    public void Unregister<T>()
-        where T : GameSystem, new()
+    public void Unregister<U>()
+        where U : T, new()
     {
-        var instances = systems.OfType<T>();
+        var instances = systems.OfType<U>();
 
         if (!instances.Any())
             throw new InvalidOperationException($"Game system \"{typeof(T)}\" is not registered.");
@@ -50,12 +55,18 @@ public class GameSystemCollection : LoadableObject, IEnumerable<GameSystem>
         RemoveInternal(instance);
     }
 
-    protected override void Unload()
+    protected sealed override void Unload()
     {
         systems.Clear();
     }
 
-    public IEnumerator<GameSystem> GetEnumerator() => systems.GetEnumerator();
+    public IEnumerator<T> GetEnumerator()
+    {
+        return systems.GetEnumerator();
+    }
 
-    IEnumerator IEnumerable.GetEnumerator() => systems.GetEnumerator();
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
 }

@@ -3,63 +3,95 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Sekai.Framework.Containers;
-using Sekai.Framework.Threading;
 
 namespace Sekai.Framework.Allocation;
 
 public partial class LoadableObject
 {
-    private protected virtual bool CanCache => true;
-    private protected virtual bool CanResolve => true;
-    internal event Action<IContainer> OnContainerCreated = null!;
-    internal IReadOnlyContainer Container { get; private set; } = null!;
-    internal LoadableObject Parent = null!;
-    private FrameworkThread thread = null!;
-    private List<LoadableObject> loadables = null!;
-    private readonly object syncLock = new();
-    private bool pendingLoad;
-    private bool pendingUnload;
-
-    private protected IReadOnlyList<LoadableObject> Loadables
-    {
-        get
-        {
-            if (loadables == null)
-                return Array.Empty<LoadableObject>();
-
-            return loadables;
-        }
-    }
+    /// <summary>
+    /// Gets whether this loadable object is alive.
+    /// </summary>
+    internal virtual bool IsAlive => IsLoaded;
 
     /// <summary>
-    /// Invokes a given action in a thread.
+    /// Invoked when this loadable object is loaded.
     /// </summary>
-    private protected void Post(Action action)
+    internal event Action OnLoad = null!;
+
+    /// <summary>
+    /// Invoked when this loadable object is being unloaded.
+    /// </summary>
+    internal event Action OnUnload = null!;
+
+    /// <summary>
+    /// The dependency container.
+    /// </summary>
+    internal readonly Container Container = new();
+
+    /// <summary>
+    /// The parent loadable object that loaded this.
+    /// </summary>
+    internal LoadableObject Parent = null!;
+
+    private List<LoadableObject> loadables = null!;
+    private readonly object syncLock = new();
+
+    private protected IReadOnlyList<LoadableObject> Loadables => loadables ?? (Array.Empty<LoadableObject>() as IReadOnlyList<LoadableObject>);
+
+    /// <summary>
+    /// Initializes the given loadable for use.
+    /// </summary>
+
+    internal void Initialize()
     {
-        if (thread != null)
-        {
-            thread.Post(action);
-        }
-        else
-        {
-            action();
-        }
+        Initialize(null!);
     }
 
     /// <summary>
     /// Initializes the given loadable for use.
     /// </summary>
-    internal void Initialize(LoadableObject parent = null!, FrameworkThread thread = null!)
+    internal void Initialize(LoadableObject parent = null!)
     {
-        if (IsLoaded || pendingLoad)
+        if (IsLoaded)
             return;
 
-        this.thread = thread;
 
-        pendingLoad = true;
+        if (parent != null)
+        {
+            if (parent.IsDisposed)
+                throw new ObjectDisposedException(nameof(parent));
 
-        Post(() => load(parent));
+            if (!parent.IsLoaded)
+                throw new InvalidOperationException(@"The owning loadable is not loaded.");
+
+            Parent = parent;
+            Container.Parent = parent.Container;
+        }
+
+        var type = GetType();
+
+        if (!metadata.TryGetValue(type, out var data))
+        {
+            data = new LoadableMetadata(type);
+            metadata.Add(type, data);
+        }
+
+        data.Load(this);
+        IsLoaded = true;
+
+        if (loadables != null)
+        {
+            lock (syncLock)
+            {
+                foreach (var loadable in loadables)
+                    loadable.Initialize(this);
+            }
+        }
+
+        Load();
+        OnLoad?.Invoke();
     }
 
     /// <summary>
@@ -67,22 +99,20 @@ public partial class LoadableObject
     /// </summary>
     internal void AddInternal(LoadableObject child)
     {
-        if (loadables == null)
-            loadables = new();
-
         if (child == null)
             throw new NullReferenceException(nameof(child));
 
-        if (Parent == child || loadables.Contains(child))
+        if (Parent == child || Loadables.Contains(child))
             throw new InvalidOperationException($"This {nameof(child)} cannot be added to this loadable.");
 
         lock (syncLock)
         {
+            loadables ??= new();
             loadables.Add(child);
         }
 
         if (IsLoaded)
-            child.Initialize(this, thread);
+            child.Initialize(this);
     }
 
     /// <summary>
@@ -96,7 +126,7 @@ public partial class LoadableObject
         if (child == null)
             throw new NullReferenceException(nameof(child));
 
-        if (Parent == child || !loadables.Contains(child))
+        if (Parent == child || !Loadables.Contains(child))
             throw new InvalidOperationException($"This {nameof(child)} cannot be removed from this loadable.");
 
         lock (syncLock)
@@ -109,68 +139,6 @@ public partial class LoadableObject
     }
 
     protected sealed override void Destroy()
-    {
-        if (pendingUnload)
-            return;
-
-        pendingUnload = true;
-
-        Post(unload);
-    }
-
-    private void load(LoadableObject parent = null!)
-    {
-        if (parent != null)
-        {
-            if (parent.IsDisposed)
-                throw new ObjectDisposedException(nameof(parent));
-
-            if (!parent.IsLoaded)
-                throw new InvalidOperationException(@"The owning loadable is not loaded.");
-
-            Parent = parent;
-            Container = new Container(parent.Container);
-        }
-        else
-        {
-            Container = new Container();
-        }
-
-        var type = GetType();
-
-        if (!metadata.TryGetValue(type, out var data))
-        {
-            data = new LoadableMetadata(type);
-            metadata.Add(type, data);
-        }
-
-        var container = Container as IContainer;
-        OnContainerCreated?.Invoke(container!);
-
-        if (container != null && CanResolve)
-            data.Resolve(this, container);
-
-        IsLoaded = true;
-
-        Load();
-        OnLoad?.Invoke();
-
-        if (container != null && CanCache)
-            data.Cache(this, container);
-
-        if (loadables != null)
-        {
-            lock (syncLock)
-            {
-                foreach (var loadable in loadables)
-                    loadable.Initialize(this, thread);
-            }
-        }
-
-        pendingLoad = false;
-    }
-
-    private void unload()
     {
         OnUnload?.Invoke();
 
@@ -194,6 +162,5 @@ public partial class LoadableObject
 
         Parent = null!;
         IsLoaded = false;
-        pendingUnload = false;
     }
 }

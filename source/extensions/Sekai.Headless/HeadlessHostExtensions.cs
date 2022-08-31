@@ -13,6 +13,6 @@ public static class HeadlessHostExtensions
     {
         return host
             .UseWindow<HeadlessWindow>()
-            .UseGraphics<HeadlessGraphicsContext>();
+            .UseGraphics<HeadlessGraphicsDevice>();
     }
 }

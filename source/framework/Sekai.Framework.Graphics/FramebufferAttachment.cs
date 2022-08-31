@@ -11,7 +11,7 @@ public struct FramebufferAttachment : IEquatable<FramebufferAttachment>
     /// <summary>
     /// The target native texture which will be rendered to.
     /// </summary>
-    public INativeTexture Target;
+    public ITexture Target;
 
     /// <summary>
     /// The target array layer of the native texture.
@@ -23,7 +23,7 @@ public struct FramebufferAttachment : IEquatable<FramebufferAttachment>
     /// </summary>
     public uint MipLevel;
 
-    public FramebufferAttachment(INativeTexture target, uint arrayLayer, uint mipLevel)
+    public FramebufferAttachment(ITexture target, uint arrayLayer, uint mipLevel)
     {
         Target = target;
         MipLevel = mipLevel;
@@ -37,7 +37,7 @@ public struct FramebufferAttachment : IEquatable<FramebufferAttachment>
 
     public bool Equals(FramebufferAttachment other)
     {
-        return EqualityComparer<INativeTexture>.Default.Equals(Target, other.Target) &&
+        return EqualityComparer<ITexture>.Default.Equals(Target, other.Target) &&
                ArrayLayer == other.ArrayLayer &&
                MipLevel == other.MipLevel;
     }

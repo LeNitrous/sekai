@@ -9,14 +9,9 @@ namespace Sekai.Framework.Containers;
 
 public class Container : FrameworkObject, IContainer, IReadOnlyContainer
 {
+    internal IReadOnlyContainer? Parent = null;
     private readonly object syncLock = new();
-    private readonly IReadOnlyContainer parent = null!;
     private readonly Dictionary<Type, Func<object>> cache = new();
-
-    public Container(IReadOnlyContainer? parent = null)
-    {
-        this.parent = parent!;
-    }
 
     public void Cache(Type type, object instance)
     {
@@ -83,16 +78,16 @@ public class Container : FrameworkObject, IContainer, IReadOnlyContainer
             }
         }
 
-        if (parent != null)
+        if (Parent != null)
         {
-            object result = parent.Resolve(type, false);
+            object result = Parent.Resolve(type, false);
 
             if (result != null)
                 return result;
         }
 
         if (required)
-            throw new KeyNotFoundException($"{type} is not registered in this contianer.");
+            throw new KeyNotFoundException($"{type} is not registered in this container.");
 
         return null!;
     }
@@ -100,5 +95,6 @@ public class Container : FrameworkObject, IContainer, IReadOnlyContainer
     protected override void Destroy()
     {
         cache.Clear();
+        Parent = null;
     }
 }

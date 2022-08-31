@@ -18,7 +18,7 @@ public struct BufferDescription : IEquatable<BufferDescription>
     public BufferUsage Usage;
 
     /// <summary>
-    /// For structured buffers, this determines the size in byes of a single structure.
+    /// For structured buffers, this determines the size in bytes of a single structure.
     /// For other buffer types, this value must be zero.
     /// </summary>
     public uint StructureByteStride;

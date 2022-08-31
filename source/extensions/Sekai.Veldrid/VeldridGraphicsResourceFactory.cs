@@ -10,9 +10,9 @@ namespace Sekai.Veldrid;
 internal class VeldridGraphicsResourceFactory : FrameworkObject, IGraphicsResourceFactory
 {
     private readonly Vd.ResourceFactory factory;
-    private readonly VeldridGraphicsContext context;
+    private readonly VeldridGraphicsDevice context;
 
-    public VeldridGraphicsResourceFactory(VeldridGraphicsContext context, Vd.ResourceFactory factory)
+    public VeldridGraphicsResourceFactory(VeldridGraphicsDevice context, Vd.ResourceFactory factory)
     {
         this.factory = factory;
         this.context = context;
@@ -56,14 +56,14 @@ internal class VeldridGraphicsResourceFactory : FrameworkObject, IGraphicsResour
         return new VeldridFramebuffer(description, factory.CreateFramebuffer(description.ToVeldrid()));
     }
 
-    public INativeTexture CreateNativeTexture(ref NativeTextureDescription description)
+    public ITexture CreateTexture(ref TextureDescription description)
     {
-        return new VeldridNativeTexture(description, factory.CreateTexture(description.ToVeldrid()));
+        return new VeldridTexture(description, factory.CreateTexture(description.ToVeldrid()));
     }
 
-    public INativeTexture CreateNativeTexture(nint pointer, ref NativeTextureDescription description)
+    public ITexture CreateTexture(nint pointer, ref TextureDescription description)
     {
-        return new VeldridNativeTexture(description, factory.CreateTexture((ulong)pointer, description.ToVeldrid()));
+        return new VeldridTexture(description, factory.CreateTexture((ulong)pointer, description.ToVeldrid()));
     }
 
     public IPipeline CreatePipeline(ref ComputePipelineDescription description)
@@ -98,6 +98,6 @@ internal class VeldridGraphicsResourceFactory : FrameworkObject, IGraphicsResour
 
     public ISwapChain CreateSwapChain(ref SwapChainDescription description)
     {
-        return new VeldridSwapChain(description, factory.CreateSwapchain(description.ToVeldrid()));
+        return new VeldridSwapChain(factory.CreateSwapchain(description.ToVeldrid()));
     }
 }

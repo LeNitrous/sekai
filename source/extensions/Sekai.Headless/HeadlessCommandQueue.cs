@@ -44,6 +44,10 @@ internal class HeadlessCommandQueue : FrameworkObject, ICommandQueue
     {
     }
 
+    public void SetFramebuffer(IFramebuffer framebuffer)
+    {
+    }
+
     public void SetIndexBuffer(IBuffer buffer, IndexBufferFormat kind)
     {
     }

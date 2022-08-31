@@ -4,7 +4,7 @@
 namespace Sekai.Framework.Graphics;
 
 /// <summary>
-/// The format of data stored in a <see cref="INativeTexture"/>.
+/// The format of data stored in a <see cref="ITexture"/>.
 /// Each name is a compound identifier, where each component denotes a name and a number of bits used to store that
 /// component. The final component identifies the storage type of each component. "Float" identifies a signed, floating-point
 /// type, UNorm identifies an unsigned integer type which is normalized, meaning it occupies the full space of the integer

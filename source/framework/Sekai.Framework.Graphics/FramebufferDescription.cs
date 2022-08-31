@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Sekai.Framework.Graphics;
 
@@ -32,7 +33,7 @@ public struct FramebufferDescription : IEquatable<FramebufferDescription>
     public bool Equals(FramebufferDescription other)
     {
         return EqualityComparer<FramebufferAttachment?>.Default.Equals(DepthTarget, other.DepthTarget) &&
-               EqualityComparer<FramebufferAttachment[]>.Default.Equals(ColorTargets, other.ColorTargets);
+               Enumerable.SequenceEqual(ColorTargets, other.ColorTargets);
     }
 
     public override int GetHashCode()

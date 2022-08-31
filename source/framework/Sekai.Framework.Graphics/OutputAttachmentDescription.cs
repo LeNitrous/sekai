@@ -8,7 +8,7 @@ namespace Sekai.Framework.Graphics;
 public struct OutputAttachmentDescription : IEquatable<OutputAttachmentDescription>
 {
     /// <summary>
-    /// The format of the <see cref="INativeTexture"/> attachment.
+    /// The format of the <see cref="ITexture"/> attachment.
     /// </summary>
     public PixelFormat Format;
 

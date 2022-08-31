@@ -15,51 +15,51 @@ public enum BufferUsage : byte
     /// Indicates that a <see cref="IBuffer"/> can be used as the source of vertex data for drawing commands.
     /// This flag enables the use of a Buffer in the <see cref="CommandList.SetVertexBuffer(uint, IBuffer)"/> method.
     /// </summary>
-    VertexBuffer = 1 << 0,
+    Vertex = 1 << 0,
 
     /// <summary>
     /// Indicates that a <see cref="IBuffer"/> can be used as the source of index data for drawing commands.
     /// This flag enables the use of a Buffer in the <see cref="CommandList.SetIndexBuffer(IBuffer, IndexFormat)" /> method.
     /// </summary>
-    IndexBuffer = 1 << 1,
+    Index = 1 << 1,
 
     /// <summary>
     /// Indicates that a <see cref="IBuffer"/> can be used as a uniform Buffer.
     /// This flag enables the use of a Buffer in a <see cref="IResourceSet"/> as a uniform Buffer.
     /// </summary>
-    UniformBuffer = 1 << 2,
+    Uniform = 1 << 2,
 
     /// <summary>
     /// Indicates that a <see cref="IBuffer"/> can be used as a read-only structured Buffer.
     /// This flag enables the use of a Buffer in a <see cref="IResourceSet"/> as a read-only structured Buffer.
     /// This flag can only be combined with <see cref="Dynamic"/>.
     /// </summary>
-    StructuredBufferReadOnly = 1 << 3,
+    StructuredReadOnly = 1 << 3,
 
     /// <summary>
     /// Indicates that a <see cref="IBuffer"/> can be used as a read-write structured Buffer.
     /// This flag enables the use of a Buffer in a <see cref="IResourceSet"/> as a read-write structured Buffer.
     /// This flag cannot be combined with any other flag.
     /// </summary>
-    StructuredBufferReadWrite = 1 << 4,
+    StructuredReadWrite = 1 << 4,
 
     /// <summary>
     /// Indicates that a <see cref="IBuffer"/> can be used as the source of indirect drawing information.
     /// This flag enables the use of a Buffer in the *Indirect methods of <see cref="CommandList"/>.
     /// This flag cannot be combined with <see cref="Dynamic"/>.
     /// </summary>
-    IndirectBuffer = 1 << 5,
+    Indirect = 1 << 5,
 
     /// <summary>
     /// Indicates that a <see cref="IBuffer"/> will be updated with new data very frequently. Dynamic Buffers can be
-    /// mapped with <see cref="MapMode.Write"/>. This flag cannot be combined with <see cref="StructuredBufferReadWrite"/>
-    /// or <see cref="IndirectBuffer"/>.
+    /// mapped with <see cref="MapMode.Write"/>. This flag cannot be combined with <see cref="StructuredReadWrite"/>
+    /// or <see cref="Indirect"/>.
     /// </summary>
     Dynamic = 1 << 6,
 
     /// <summary>
     /// Indicates that a <see cref="IBuffer"/> will be used as a staging Buffer. Staging Buffers can be used to transfer data
-    /// to-and-from the CPU using <see cref="IGraphicsContext.Map(IBuffer, MapMode)"/>. Staging Buffers can use all
+    /// to-and-from the CPU using <see cref="IGraphicsDevice.Map(IBuffer, MapMode)"/>. Staging Buffers can use all
     /// <see cref="MapMode"/> values.
     /// This flag cannot be combined with any other flag.
     /// </summary>

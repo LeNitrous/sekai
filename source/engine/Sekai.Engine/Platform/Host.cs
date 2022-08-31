@@ -2,8 +2,10 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
+using Sekai.Engine.Effects;
 using Sekai.Engine.Threading;
 using Sekai.Framework;
+using Sekai.Framework.Windowing;
 
 namespace Sekai.Engine.Platform;
 
@@ -40,12 +42,11 @@ public sealed partial class Host<T> : FrameworkObject
 
         setupHostInstances();
 
-        var systems = new GameSystemCollection();
-        systems.Register<SceneManager>();
-        systems.Register<BehaviorManager>();
+        var systems = new SystemCollection<GameSystem>();
+        systems.Register<SceneController>();
 
         var updateThread = new MainUpdateThread(systems);
-        var renderThread = new MainRenderThread(systems);
+        var renderThread = new MainRenderThread(systems, graphics);
 
         threads = new ThreadController(window);
         threads.Add(updateThread);
@@ -54,18 +55,17 @@ public sealed partial class Host<T> : FrameworkObject
         threads.FramesPerSecond = options.FramesPerSecond;
         threads.UpdatePerSecond = options.UpdatePerSecond;
 
-        Game.AddInternal(systems);
+        Game.Container.Cache(this);
+        Game.Container.Cache(threads);
+        Game.Container.Cache(systems);
+        Game.Container.Cache(storage);
+        Game.Container.Cache(window.Input);
+        Game.Container.Cache(graphics);
+        Game.Container.Cache(graphics.Factory);
+        Game.Container.Cache(new EffectCompiler());
+        Game.Container.Cache<IView>(window);
 
-        Game.OnContainerCreated += container =>
-        {
-            container.Cache(this);
-            container.Cache(threads);
-            container.Cache(systems);
-            container.Cache(window);
-            container.Cache(window.Input);
-            container.Cache(graphics);
-            container.Cache(graphics.Factory);
-        };
+        Game.AddInternal(systems);
 
         Game.OnLoad += () =>
         {
@@ -73,12 +73,7 @@ public sealed partial class Host<T> : FrameworkObject
             window.Visible = true;
         };
 
-        threads.Run(initialize);
-
-        void initialize()
-        {
-            Game.Initialize(thread: updateThread);
-        }
+        threads.Run(() => updateThread.Post(Game.Initialize));
     }
 
     /// <summary>
@@ -96,6 +91,7 @@ public sealed partial class Host<T> : FrameworkObject
 
         Game.Dispose();
         threads.Dispose();
+        storage.Dispose();
         graphics.Dispose();
     }
 }

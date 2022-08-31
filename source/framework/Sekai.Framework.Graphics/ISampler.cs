@@ -3,6 +3,6 @@
 
 namespace Sekai.Framework.Graphics;
 
-public interface ISampler : IGraphicsResource
+public interface ISampler : IGraphicsResource, IBindableResource
 {
 }

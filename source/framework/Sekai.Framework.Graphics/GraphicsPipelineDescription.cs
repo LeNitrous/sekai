@@ -2,7 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using System.Collections.Generic;
+using System.Linq;
 
 namespace Sekai.Framework.Graphics;
 
@@ -66,7 +66,7 @@ public struct GraphicsPipelineDescription : IEquatable<GraphicsPipelineDescripti
                DepthStencil.Equals(other.DepthStencil) &&
                ShaderSet.Equals(other.ShaderSet) &&
                Topology == other.Topology &&
-               EqualityComparer<IResourceLayout[]>.Default.Equals(Layouts, other.Layouts) &&
+               Enumerable.SequenceEqual(Layouts, other.Layouts) &&
                Outputs.Equals(other.Outputs);
     }
 

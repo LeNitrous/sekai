@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Sekai.Framework.Graphics;
 
@@ -16,7 +17,7 @@ public struct ComputePipelineDescription : IEquatable<ComputePipelineDescription
     /// <summary>
     /// A list of resource layouts which controls the layout of shader resources in the pipeline.
     /// </summary>
-    public IReadOnlyList<IResourceLayout> Layouts;
+    public IResourceLayout[] Layouts;
 
     /// <summary>
     /// The X dimension of the thread group size.
@@ -33,7 +34,7 @@ public struct ComputePipelineDescription : IEquatable<ComputePipelineDescription
     /// </summary>
     public uint ThreadGroupSizeZ;
 
-    public ComputePipelineDescription(IShader shader, IReadOnlyList<IResourceLayout> layouts, uint sizeX, uint sizeY, uint sizeZ)
+    public ComputePipelineDescription(IShader shader, IResourceLayout[] layouts, uint sizeX, uint sizeY, uint sizeZ)
     {
         Shader = shader;
         Layouts = layouts;
@@ -50,7 +51,7 @@ public struct ComputePipelineDescription : IEquatable<ComputePipelineDescription
     public bool Equals(ComputePipelineDescription other)
     {
         return EqualityComparer<IShader>.Default.Equals(Shader, other.Shader) &&
-               EqualityComparer<IReadOnlyList<IResourceLayout>>.Default.Equals(Layouts, other.Layouts) &&
+               Enumerable.SequenceEqual(Layouts, other.Layouts) &&
                ThreadGroupSizeX == other.ThreadGroupSizeX &&
                ThreadGroupSizeY == other.ThreadGroupSizeY &&
                ThreadGroupSizeZ == other.ThreadGroupSizeZ;

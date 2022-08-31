@@ -49,9 +49,9 @@ internal class HeadlessGraphicsResourceFactory : IGraphicsResourceFactory
         return new HeadlessFramebuffer(description);
     }
 
-    public INativeTexture CreateNativeTexture(ref NativeTextureDescription description)
+    public ITexture CreateTexture(ref TextureDescription description)
     {
-        return new HeadlessNativeTexture
+        return new HeadlessTexture
         (
             description.Format,
             description.Width,
@@ -65,9 +65,9 @@ internal class HeadlessGraphicsResourceFactory : IGraphicsResourceFactory
         );
     }
 
-    public INativeTexture CreateNativeTexture(nint pointer, ref NativeTextureDescription description)
+    public ITexture CreateTexture(nint pointer, ref TextureDescription description)
     {
-        return new HeadlessNativeTexture
+        return new HeadlessTexture
         (
             description.Format,
             description.Width,
@@ -109,7 +109,7 @@ internal class HeadlessGraphicsResourceFactory : IGraphicsResourceFactory
                 ? null
                 : new FramebufferAttachment
                 (
-                    new HeadlessNativeTexture
+                    new HeadlessTexture
                     (
                         PixelFormat.D32_Float_S8_UInt,
                         description.Width,
@@ -117,9 +117,9 @@ internal class HeadlessGraphicsResourceFactory : IGraphicsResourceFactory
                         0,
                         1,
                         1,
-                        NativeTextureUsage.DepthStencil,
-                        NativeTextureKind.Texture2D,
-                        NativeTextureSampleCount.Count16
+                        TextureUsage.DepthStencil,
+                        TextureKind.Texture2D,
+                        TextureSampleCount.Count16
                     ),
                     1,
                     1
@@ -128,7 +128,7 @@ internal class HeadlessGraphicsResourceFactory : IGraphicsResourceFactory
             {
                 new FramebufferAttachment
                 (
-                    new HeadlessNativeTexture
+                    new HeadlessTexture
                     (
                         PixelFormat.B8_G8_R8_A8_UNorm_SRgb,
                         description.Width,
@@ -136,9 +136,9 @@ internal class HeadlessGraphicsResourceFactory : IGraphicsResourceFactory
                         0,
                         1,
                         1,
-                        NativeTextureUsage.RenderTarget,
-                        NativeTextureKind.Texture2D,
-                        NativeTextureSampleCount.Count16
+                        TextureUsage.RenderTarget,
+                        TextureKind.Texture2D,
+                        TextureSampleCount.Count16
                     ),
                     1,
                     1

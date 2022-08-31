@@ -2,7 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using System.Collections.Generic;
+using System.Linq;
 
 namespace Sekai.Framework.Graphics;
 
@@ -26,9 +26,9 @@ public struct ShaderSetDescription : IEquatable<ShaderSetDescription>
 
     public bool Equals(ShaderSetDescription other)
     {
-        return EqualityComparer<VertexLayoutDescription[]>.Default.Equals(Layouts, other.Layouts) &&
-               EqualityComparer<IShader[]>.Default.Equals(Shaders, other.Shaders) &&
-               EqualityComparer<ShaderConstant[]>.Default.Equals(Constants, other.Constants);
+        return Enumerable.SequenceEqual(Layouts, other.Layouts) &&
+               Enumerable.SequenceEqual(Shaders, other.Shaders) &&
+               Enumerable.SequenceEqual(Constants, other.Constants);
     }
 
     public override int GetHashCode()

@@ -8,6 +8,7 @@ namespace Sekai.Veldrid;
 
 internal class VeldridCommandQueue : VeldridGraphicsResource<Vd.CommandList>, ICommandQueue
 {
+    private VeldridFramebuffer framebuffer = null!;
     private PipelineKind currentPipelineKind;
 
     public VeldridCommandQueue(Vd.CommandList resource)
@@ -23,7 +24,9 @@ internal class VeldridCommandQueue : VeldridGraphicsResource<Vd.CommandList>, IC
     public void Clear(uint index, ClearInfo info)
     {
         Resource.ClearColorTarget(index, info.Color.ToVeldrid());
-        Resource.ClearDepthStencil((float)info.Depth, (byte)info.Stencil);
+
+        if (framebuffer.DepthTarget != null)
+            Resource.ClearDepthStencil((float)info.Depth, (byte)info.Stencil);
     }
 
     public void Dispatch(uint x, uint y, uint z)
@@ -74,15 +77,7 @@ internal class VeldridCommandQueue : VeldridGraphicsResource<Vd.CommandList>, IC
     public void SetPipeline(IPipeline pipeline)
     {
         currentPipelineKind = pipeline.Kind;
-
-        switch (currentPipelineKind)
-        {
-            case PipelineKind.Graphics:
-                break;
-
-            case PipelineKind.Compute:
-                break;
-        }
+        Resource.SetPipeline(((VeldridPipeline)pipeline).Resource);
     }
 
     public void SetResourceSet(uint slot, IResourceSet resourceSet)
@@ -130,5 +125,11 @@ internal class VeldridCommandQueue : VeldridGraphicsResource<Vd.CommandList>, IC
     public void SetViewport(uint index, Viewport viewport)
     {
         Resource.SetViewport(index, viewport.ToVeldrid());
+    }
+
+    public void SetFramebuffer(IFramebuffer framebuffer)
+    {
+        this.framebuffer = (VeldridFramebuffer)framebuffer;
+        Resource.SetFramebuffer(this.framebuffer.Resource);
     }
 }

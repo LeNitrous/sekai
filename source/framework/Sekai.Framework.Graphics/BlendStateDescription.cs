@@ -2,7 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using System.Collections.Generic;
+using System.Linq;
 
 namespace Sekai.Framework.Graphics;
 
@@ -38,7 +38,7 @@ public struct BlendStateDescription : IEquatable<BlendStateDescription>
     public bool Equals(BlendStateDescription other)
     {
         return Factor.Equals(other.Factor) &&
-               EqualityComparer<BlendAttachmentDescription[]>.Default.Equals(Attachments, other.Attachments) &&
+               Enumerable.SequenceEqual(Attachments, other.Attachments) &&
                AlphaToConvergeEnabled == other.AlphaToConvergeEnabled;
     }
 

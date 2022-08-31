@@ -1,8 +1,6 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-using System;
-
 namespace Sekai.Framework.Allocation;
 
 /// <summary>
@@ -19,17 +17,7 @@ public abstract partial class LoadableObject : FrameworkObject
     public bool IsLoaded { get; private set; }
 
     /// <summary>
-    /// Invoked when this loadable object is loaded.
-    /// </summary>
-    public event Action OnLoad = null!;
-
-    /// <summary>
-    /// Invoked when this loadable object is being unloaded.
-    /// </summary>
-    public event Action OnUnload = null!;
-
-    /// <summary>
-    /// Loads this given loadable object after dependencies have been injected.
+    /// Loads this given loadable object after dependencies have been injected and its children have loaded.
     /// </summary>
     protected virtual void Load()
     {

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Sekai.Framework.Graphics;
 
@@ -16,9 +17,9 @@ public struct ResourceSetDescription : IEquatable<ResourceSetDescription>
     /// <summary>
     /// The resources to be used in the pipeline.
     /// </summary>
-    public IReadOnlyList<IBindableResource> Resources;
+    public IBindableResource[] Resources;
 
-    public ResourceSetDescription(IResourceLayout layout, IReadOnlyList<IBindableResource> resources)
+    public ResourceSetDescription(IResourceLayout layout, IBindableResource[] resources)
     {
         Layout = layout;
         Resources = resources;
@@ -32,7 +33,7 @@ public struct ResourceSetDescription : IEquatable<ResourceSetDescription>
     public bool Equals(ResourceSetDescription other)
     {
         return EqualityComparer<IResourceLayout>.Default.Equals(Layout, other.Layout) &&
-               EqualityComparer<IReadOnlyList<IBindableResource>>.Default.Equals(Resources, other.Resources);
+               Enumerable.SequenceEqual(Resources, other.Resources);
     }
 
     public override int GetHashCode()

@@ -1,8 +1,10 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-namespace Sekai.Engine.Rendering;
+namespace Sekai.Engine.Effects;
 
-public class RenderContextManager : GameSystem
+public enum EffectType
 {
+    Compute,
+    Graphics,
 }

@@ -12,4 +12,8 @@
     <ProjectReference Include="../../source/extensions/Sekai.Veldrid/Sekai.Veldrid.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.2.0" />
+  </ItemGroup>
+
 </Project>

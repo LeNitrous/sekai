@@ -2,7 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using System.Collections.Generic;
+using System.Linq;
 
 namespace Sekai.Framework.Graphics;
 
@@ -45,7 +45,7 @@ public struct VertexLayoutDescription : IEquatable<VertexLayoutDescription>
     public bool Equals(VertexLayoutDescription other)
     {
         return Stride == other.Stride &&
-               EqualityComparer<VertexElementDescription[]>.Default.Equals(Elements, other.Elements) &&
+               Enumerable.SequenceEqual(Elements, other.Elements) &&
                InstanceStepRate == other.InstanceStepRate;
     }
 

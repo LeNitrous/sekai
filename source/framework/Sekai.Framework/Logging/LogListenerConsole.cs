@@ -61,5 +61,6 @@ public class LogListenerConsole : LogListenerTextWriter
     private static extern bool AllocConsole();
 
     [DllImport("kernel32.dll", SetLastError=true, ExactSpelling=true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
     private static extern bool FreeConsole();
 }

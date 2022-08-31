@@ -2,6 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 
 using Sekai.Framework.Allocation;
+using Sekai.Framework.Annotations;
 
 namespace Sekai.Engine;
 
@@ -10,4 +11,6 @@ namespace Sekai.Engine;
 /// </summary>
 public abstract class Game : LoadableObject
 {
+    [Resolved]
+    public SystemCollection<GameSystem> Systems = null!;
 }

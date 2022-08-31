@@ -4,9 +4,9 @@
 namespace Sekai.Framework.Graphics;
 
 /// <summary>
-/// Determines the number of samples to use in a <see cref="INativeTexture"/>
+/// Determines the number of samples to use in a <see cref="ITexture"/>
 /// </summary>
-public enum NativeTextureSampleCount
+public enum TextureSampleCount
 {
     /// <summary>
     /// 1 sample (no multi-sampling).

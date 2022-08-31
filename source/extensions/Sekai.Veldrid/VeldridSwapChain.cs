@@ -1,3 +1,6 @@
+// Copyright (c) The Vignette Authors
+// Licensed under MIT. See LICENSE for details.
+
 using System.Linq;
 using Sekai.Framework.Graphics;
 using Vd = Veldrid;
@@ -14,7 +17,7 @@ internal class VeldridSwapChain : VeldridGraphicsResource<Vd.Swapchain>, ISwapCh
         set => Resource.SyncToVerticalBlank = value;
     }
 
-    public VeldridSwapChain(SwapChainDescription desc, Vd.Swapchain resource)
+    public VeldridSwapChain(Vd.Swapchain resource)
         : base(resource)
     {
         Framebuffer = new VeldridFramebuffer
@@ -32,9 +35,9 @@ internal class VeldridSwapChain : VeldridGraphicsResource<Vd.Swapchain>, ISwapCh
     {
         return new FramebufferAttachment
         (
-            new VeldridNativeTexture
+            new VeldridTexture
             (
-                new NativeTextureDescription
+                new TextureDescription
                 (
                     attach.Target.Width,
                     attach.Target.Height,
@@ -42,9 +45,9 @@ internal class VeldridSwapChain : VeldridGraphicsResource<Vd.Swapchain>, ISwapCh
                     attach.Target.MipLevels,
                     attach.Target.ArrayLayers,
                     (PixelFormat)attach.Target.Format,
-                    (NativeTextureKind)attach.Target.Type,
-                    (NativeTextureUsage)attach.Target.Usage,
-                    (NativeTextureSampleCount)attach.Target.SampleCount
+                    (TextureKind)attach.Target.Type,
+                    (TextureUsage)attach.Target.Usage,
+                    (TextureSampleCount)attach.Target.SampleCount
                 ),
                 attach.Target
             ),

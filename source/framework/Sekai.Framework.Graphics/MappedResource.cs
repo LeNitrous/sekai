@@ -26,17 +26,17 @@ public readonly struct MappedResource
     public readonly uint Size;
 
     /// <summary>
-    /// For mapped <see cref="INativeTexture"/>s, this is the subresource which is mapped to.
+    /// For mapped <see cref="ITexture"/>s, this is the subresource which is mapped to.
     /// </summary>
     public readonly uint Subresource;
 
     /// <summary>
-    /// For mapped <see cref="INativeTexture"/>s, this is the number of bytes between each depth slice of a 3D texture.
+    /// For mapped <see cref="ITexture"/>s, this is the number of bytes between each depth slice of a 3D texture.
     /// </summary>
     public readonly uint DepthPitch;
 
     /// <summary>
-    /// For mapped <see cref="INativeTexture"/>s, this is the number of bytes between each row of texels.
+    /// For mapped <see cref="ITexture"/>s, this is the number of bytes between each row of texels.
     /// </summary>
     public readonly uint RowPitch;
 

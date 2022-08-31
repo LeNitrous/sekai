@@ -2,7 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using System.Collections.Generic;
+using System.Linq;
 
 namespace Sekai.Framework.Graphics;
 
@@ -40,7 +40,7 @@ public struct ShaderDescription : IEquatable<ShaderDescription>
     {
         return EntryPoint == other.EntryPoint &&
                Stage == other.Stage &&
-               EqualityComparer<byte[]>.Default.Equals(Code, other.Code);
+               Enumerable.SequenceEqual(Code, other.Code);
     }
 
     public override int GetHashCode()

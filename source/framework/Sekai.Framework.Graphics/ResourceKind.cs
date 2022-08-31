@@ -21,12 +21,12 @@ public enum ResourceKind
     StructuredBufferReadWrite,
 
     /// <summary>
-    /// A read-only <see cref="INativeTexture"/>.
+    /// A read-only <see cref="ITexture"/>.
     /// /// </summary>
     TextureReadOnly,
 
     /// <summary>
-    /// A read-write <see cref="INativeTexture"/>.
+    /// A read-write <see cref="ITexture"/>.
     /// </summary>
     TextureReadWrite,
 

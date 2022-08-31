@@ -6,7 +6,7 @@ namespace Sekai.Framework.Graphics;
 /// <summary>
 /// Identifies a particular type of Texture.
 /// </summary>
-public enum NativeTextureKind
+public enum TextureKind
 {
     /// <summary>
     /// A one-dimensional Texture.

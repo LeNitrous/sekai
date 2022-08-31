@@ -39,7 +39,7 @@ public class HostOptions
     public double FramesPerSecond { get; set; } = 120;
 
     /// <summary>
-    /// The graphics options used by the <see cref="IGraphicsContext"/>.
+    /// The graphics options used by the <see cref="IGraphicsDevice"/>.
     /// </summary>
     public GraphicsContextOptions Graphics { get; set; } = new();
 }

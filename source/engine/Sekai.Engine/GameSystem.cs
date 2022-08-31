@@ -8,5 +8,5 @@ namespace Sekai.Engine;
 public abstract class GameSystem : ActivatableObject
 {
     [Resolved]
-    protected GameSystemCollection Systems = null!;
+    protected SystemCollection<GameSystem> Systems = null!;
 }

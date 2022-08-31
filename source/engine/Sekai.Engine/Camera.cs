@@ -1,6 +1,8 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
+using System.Numerics;
+
 namespace Sekai.Engine;
 
 /// <summary>
@@ -9,17 +11,34 @@ namespace Sekai.Engine;
 public class Camera : Component
 {
     /// <summary>
-    /// Z-position of the 3D Camera. Affects FOV greatly.
+    /// The field of view of the camera in degrees. Used when <see cref="CameraProjectionMode.Perspective"/> is used.
     /// </summary>
-    public float ZPosition = 2000f;
+    public float FieldOfView = 90.0f;
 
     /// <summary>
-    /// Near Clip Plane of the 3D Camera.
+    /// The near clip plane of the camera.
     /// </summary>
     public float NearClipPlane = 0.0001f;
 
     /// <summary>
-    /// Far Clip Plane of the 3D camera projection.
+    /// The far clip plane of the camera.
     /// </summary>
     public float FarClipPlane = 5000f;
+
+    /// <summary>
+    /// The projection mode of the camera.
+    /// </summary>
+    public CameraProjectionMode Projection = CameraProjectionMode.Perspective;
+
+    internal Matrix4x4 ViewMatrix = Matrix4x4.Identity;
+    internal Matrix4x4 ProjMatrix = Matrix4x4.Identity;
+}
+
+/// <summary>
+/// Camera projection mode
+/// </summary>
+public enum CameraProjectionMode
+{
+    Perspective,
+    Orthographic,
 }

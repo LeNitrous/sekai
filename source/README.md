@@ -3,6 +3,8 @@
 ### engine
 - **Sekai.Engine**
     - Core game engine functionality.
+- **Sekai.Engine.Resources**
+    - Core game engine resources.
 - **Sekai.Engine.Testing**
     - Provides extendability for headless testing.
 ### extensions

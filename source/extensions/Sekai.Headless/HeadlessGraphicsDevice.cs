@@ -8,9 +8,18 @@ using Sekai.Framework.Windowing;
 
 namespace Sekai.Headless;
 
-internal class HeadlessGraphicsContext : FrameworkObject, IGraphicsContext
+internal class HeadlessGraphicsDevice : FrameworkObject, IGraphicsDevice
 {
+    public string Name => string.Empty;
+    public GraphicsAPI GraphicsAPI => GraphicsAPI.OpenGL;
+    public ISwapChain SwapChain { get; } = null!;
+    public GraphicsDeviceFeatures Features { get; } = new GraphicsDeviceFeatures();
     public IGraphicsResourceFactory Factory { get; } = new HeadlessGraphicsResourceFactory();
+
+    public ShaderCompilationResult CompileShader(string source, ShaderStage stage, ShaderCompilationOptions? options = null)
+    {
+        return new ShaderCompilationResult();
+    }
 
     public void Initialize(IView view, GraphicsContextOptions graphicsAPI)
     {
@@ -21,7 +30,7 @@ internal class HeadlessGraphicsContext : FrameworkObject, IGraphicsContext
         return new MappedResource(buffer, mode, IntPtr.Zero, 0, 0, 0, 0);
     }
 
-    public MappedResource Map(INativeTexture texture, MapMode mode, uint subResource)
+    public MappedResource Map(ITexture texture, MapMode mode, uint subResource)
     {
         return new MappedResource(texture, mode, IntPtr.Zero, 0, 0, 0, 0);
     }
@@ -30,11 +39,19 @@ internal class HeadlessGraphicsContext : FrameworkObject, IGraphicsContext
     {
     }
 
+    public void SwapBuffers()
+    {
+    }
+
+    public void SwapBuffers(ISwapChain swapChain)
+    {
+    }
+
     public void Unmap(IBuffer buffer)
     {
     }
 
-    public void Unmap(INativeTexture texture, uint subResource)
+    public void Unmap(ITexture texture, uint subResource)
     {
     }
 
@@ -50,11 +67,11 @@ internal class HeadlessGraphicsContext : FrameworkObject, IGraphicsContext
     {
     }
 
-    public void UpdateTextureData(INativeTexture texture, nint source, uint size, uint x, uint y, uint z, uint width, uint height, uint depth, uint mipLevel, uint arrayLayer)
+    public void UpdateTextureData(ITexture texture, nint source, uint size, uint x, uint y, uint z, uint width, uint height, uint depth, uint mipLevel, uint arrayLayer)
     {
     }
 
-    public void UpdateTextureData<T>(INativeTexture texture, T[] data, uint x, uint y, uint z, uint width, uint height, uint depth, uint mipLevel, uint arrayLayer) where T : struct
+    public void UpdateTextureData<T>(ITexture texture, T[] data, uint x, uint y, uint z, uint width, uint height, uint depth, uint mipLevel, uint arrayLayer) where T : struct
     {
     }
 }

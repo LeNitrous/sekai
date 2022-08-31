@@ -9,38 +9,18 @@ using Sekai.Framework.Annotations;
 namespace Sekai.Engine;
 
 [Cached]
-public class Entity : ActivatableObject
+public class Entity : EntityCollection
 {
     /// <summary>
-    /// Gets the parent entity.
+    /// The parent entity.
     /// </summary>
-    public new Entity Parent => (base.Parent as Entity)!;
+    public new Entity? Parent => base.Parent as Entity;
 
     /// <summary>
-    /// Gets or sets the children for this entity.
+    /// The current scene.
     /// </summary>
-    public IEnumerable<Entity> Entities
-    {
-        get => Loadables.OfType<Entity>();
-        set
-        {
-            Clear();
-            AddRange(value);
-        }
-    }
-
-    /// <summary>
-    /// Gets or sets the components for this entity.
-    /// </summary>
-    public IEnumerable<Component> Components
-    {
-        get => Loadables.OfType<Component>();
-        set
-        {
-            Clear();
-            AddRange(value);
-        }
-    }
+    [Resolved]
+    public Scene Scene { get; internal set; } = null!;
 
     /// <summary>
     /// Gets or sets the only tag for this entity.
@@ -59,9 +39,9 @@ public class Entity : ActivatableObject
     /// <summary>
     /// Gets or sets the tags for this entity.
     /// </summary>
-    public IReadOnlyList<string> Tags
+    public IEnumerable<string> Tags
     {
-        get => tags ?? (Array.Empty<string>() as IReadOnlyList<string>);
+        get => tags ?? (Array.Empty<string>() as IEnumerable<string>);
         set
         {
             tags ??= new();
@@ -70,71 +50,51 @@ public class Entity : ActivatableObject
         }
     }
 
-    [Resolved]
-    private Scene scene { get; set; } = null!;
+
+    /// <summary>
+    /// Gets or sets the components of this entity.
+    /// </summary>
+    public IEnumerable<Component> Components
+    {
+        get => Loadables.OfType<Component>();
+        set
+        {
+            ClearComponents();
+            AddComponentRange(value);
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets this entity's name.
+    /// </summary>
+    public string Name { get; set; } = "unnamed";
 
     private List<string> tags = null!;
 
-    protected override void Load()
+    protected sealed override void Load()
     {
-        foreach (var entity in Entities)
-            scene.AddAliveEntity(entity);
+        Scene.OnEntityUpdate(this);
     }
 
-    protected override void Unload()
+    protected sealed override void Unload()
     {
-        foreach (var entity in Entities)
-            scene.RemoveAliveEntity(entity);
+        Scene.OnEntityUpdate(this);
     }
 
-    /// <summary>
-    /// Adds a child to this entity.
-    /// </summary>
-    public void Add(Entity entity)
+    protected sealed override void Activate()
     {
-        AddInternal(entity);
-        scene?.AddAliveEntity(entity);
+        Scene.OnEntityUpdate(this);
     }
 
-    /// <summary>
-    /// Removes a child from this entity.
-    /// </summary>
-    public void Remove(Entity entity)
+    protected sealed override void Deactivate()
     {
-        RemoveInternal(entity);
-        scene?.RemoveAliveEntity(entity);
-    }
-
-    /// <summary>
-    /// Adds a range of children to this entity.
-    /// </summary>
-    public void AddRange(IEnumerable<Entity> entities)
-    {
-        foreach (var entity in entities)
-            Add(entity);
-    }
-
-    /// <summary>
-    /// Removes a range of children from this entity.
-    /// </summary>
-    public void RemoveRange(IEnumerable<Entity> entities)
-    {
-        foreach (var entity in entities)
-            Remove(entity);
-    }
-
-    /// <summary>
-    /// Removes all children in this entity.
-    /// </summary>
-    public void Clear()
-    {
-        RemoveRange(Entities);
+        Scene.OnEntityUpdate(this);
     }
 
     /// <summary>
     /// Adds a component to this entity.
     /// </summary>
-    public void Add(Component component)
+    public void AddComponent(Component component)
     {
         AddInternal(component);
     }
@@ -142,7 +102,7 @@ public class Entity : ActivatableObject
     /// <summary>
     /// Removes a component from this entity.
     /// </summary>
-    public void Remove(Component component)
+    public void RemoveComponent(Component component)
     {
         RemoveInternal(component);
     }
@@ -150,19 +110,19 @@ public class Entity : ActivatableObject
     /// <summary>
     /// Adds a range of components to this entity.
     /// </summary>
-    public void AddRange(IEnumerable<Component> components)
+    public void AddComponentRange(IEnumerable<Component> components)
     {
         foreach (var component in components)
-            Add(component);
+            AddComponent(component);
     }
 
     /// <summary>
     /// Removes a range of components from this entity.
     /// </summary>
-    public void RemoveRange(IEnumerable<Component> components)
+    public void RemoveComponentRange(IEnumerable<Component> components)
     {
         foreach (var component in components)
-            Remove(component);
+            RemoveComponent(component);
     }
 
     /// <summary>
@@ -170,45 +130,40 @@ public class Entity : ActivatableObject
     /// </summary>
     public void ClearComponents()
     {
-        RemoveRange(Components);
+        RemoveComponentRange(Components);
     }
 
     /// <summary>
-    /// Gets components of a given type.
+    /// Gets all components of a given type.
     /// </summary>
     public IEnumerable<Component> GetComponents(Type type)
     {
-        return Components.Where(c => c.GetType().IsAssignableTo(type));
+        if (!type.IsAssignableTo(typeof(Component)) || type.IsAbstract)
+            throw new InvalidCastException(@$"Type must be a non-abstract {nameof(Component)}.");
+
+        return Components.Where(c => c.GetType().Equals(type));
     }
 
     /// <summary>
-    /// Gets a single component of a given type.
-    /// </summary>
-    public Component GetComponent(Type type)
-    {
-        return GetComponents(type).Single();
-    }
-
-    /// <summary>
-    /// Gets components of a given type.
+    /// Gets all components of a given type.
     /// </summary>
     public IEnumerable<T> GetComponents<T>()
         where T : Component
     {
-        return Loadables.OfType<T>();
+        return Components.OfType<T>();
     }
 
     /// <summary>
     /// Gets a single component of a given type.
     /// </summary>
-    public T GetComponent<T>()
+    public T? GetComponent<T>()
         where T : Component
     {
-        return GetComponents<T>().Single();
+        return GetComponents<T>().SingleOrDefault();
     }
 
     /// <summary>
-    /// Gets whether this entity has a component of a given type.
+    /// Returns whether this entity has a component of a given type.
     /// </summary>
     public bool HasComponent(Type type)
     {
@@ -216,7 +171,7 @@ public class Entity : ActivatableObject
     }
 
     /// <summary>
-    /// Gets whether this entity as a component of a given type.
+    /// Returns whether this entity has a component of a given type.
     /// </summary>
     public bool HasComponent<T>()
         where T : Component

@@ -51,7 +51,7 @@ public class ContainerTests
     public void TestResolveFromParent()
     {
         var parent = new Container();
-        var child = new Container(parent);
+        var child = new Container { Parent = parent };
         parent.Cache("Hello World");
         Assert.That(child.Resolve<string>(), Is.EqualTo("Hello World"));
     }

@@ -48,7 +48,7 @@ internal class SDLView : FrameworkObject, IView, INativeWindowSource, IOpenGLPro
         }
 
         Input = new SDLInputContext(this);
-        Window = SDL_CreateWindow("Sekai", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 100, 100, SDL_WindowFlags.SDL_WINDOW_HIDDEN);
+        Window = SDL_CreateWindow("Sekai", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WindowFlags.SDL_WINDOW_HIDDEN | SDL_WindowFlags.SDL_WINDOW_OPENGL);
         Native = new SDLNativeWindow(this);
 
         SDL_SetEventFilter(filter = handleSdlEvent, IntPtr.Zero);

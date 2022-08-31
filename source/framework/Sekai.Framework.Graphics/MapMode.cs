@@ -13,7 +13,7 @@ public enum MapMode
 
     /// <summary>
     /// A write-only resource mapping. The mapped data region is writable, and will be transferred into the graphics resource
-    /// when <see cref="IGraphicsContext.Unmap"/> is called. NOTE: upon mapping a buffer with this
+    /// when <see cref="IGraphicsDevice.Unmap"/> is called. NOTE: upon mapping a buffer with this
     /// mode, the previous contents of the resource will be erased. This mode can only be used to entirely replace the
     /// contents of a resource.
     /// </summary>

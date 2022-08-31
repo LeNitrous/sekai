@@ -4,17 +4,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Sekai.Framework.Annotations;
 
 namespace Sekai.Engine;
 
-public class SceneManager : GameSystem
+[Cached]
+public class SceneController : GameSystem, IUpdateable, IRenderable
 {
     private readonly List<Scene> scenes = new();
 
     /// <summary>
-    /// Gets or sets the scenes for this scene manager.
+    /// Gets or sets the scenes for this scene controller.
     /// </summary>
-    public IReadOnlyList<Scene> Scenes
+    public IEnumerable<Scene> Scenes
     {
         get => scenes;
         set
@@ -25,7 +27,7 @@ public class SceneManager : GameSystem
     }
 
     /// <summary>
-    /// Gets or sets the only scene for this scene manager.
+    /// Gets or sets the only scene for this scene controller.
     /// </summary>
     public Scene Scene
     {
@@ -38,7 +40,7 @@ public class SceneManager : GameSystem
     }
 
     /// <summary>
-    /// Adds a scene to this scene manager.
+    /// Adds a scene to this scene controller.
     /// </summary>
     public void Add(Scene scene)
     {
@@ -50,7 +52,7 @@ public class SceneManager : GameSystem
     }
 
     /// <summary>
-    /// Removes a scene from this scene manager.
+    /// Removes a scene from this scene controller.
     /// </summary>
     public void Remove(Scene scene)
     {
@@ -62,7 +64,7 @@ public class SceneManager : GameSystem
     }
 
     /// <summary>
-    /// Adds a range of scenes to this scene manager.
+    /// Adds a range of scenes to this scene controller.
     /// </summary>
     public void AddRange(IEnumerable<Scene> scenes)
     {
@@ -71,7 +73,7 @@ public class SceneManager : GameSystem
     }
 
     /// <summary>
-    /// Removes a range of scenes from this scene manager.
+    /// Removes a range of scenes from this scene controller.
     /// </summary>
     public void RemoveRange(IEnumerable<Scene> scenes)
     {
@@ -80,10 +82,26 @@ public class SceneManager : GameSystem
     }
 
     /// <summary>
-    /// Removes all scenes from this scene manager.
+    /// Removes all scenes from this scene controller.
     /// </summary>
     public void Clear()
     {
         RemoveRange(scenes);
+    }
+
+    public void Render()
+    {
+        var scenes = this.scenes.Where(s => s.IsAlive).ToArray();
+
+        foreach (var scene in scenes)
+            scene.Render();
+    }
+
+    public void Update(double elapsed)
+    {
+        var scenes = this.scenes.Where(s => s.IsAlive).ToArray();
+
+        foreach (var scene in scenes)
+            scene.Update(elapsed);
     }
 }

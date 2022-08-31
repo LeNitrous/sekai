@@ -3,7 +3,7 @@
 
 namespace Sekai.Framework.Graphics;
 
-public interface INativeTexture : IBindableResource
+public interface ITexture : IBindableResource
 {
     PixelFormat Format { get; }
     uint Width { get; }
@@ -11,7 +11,7 @@ public interface INativeTexture : IBindableResource
     uint Depth { get; }
     uint MipLevels { get; }
     uint ArrayLayers { get; }
-    NativeTextureUsage Usage { get; }
-    NativeTextureKind Kind { get; }
-    NativeTextureSampleCount SampleCount { get; }
+    TextureUsage Usage { get; }
+    TextureKind Kind { get; }
+    TextureSampleCount SampleCount { get; }
 }

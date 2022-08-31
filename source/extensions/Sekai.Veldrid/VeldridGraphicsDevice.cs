@@ -5,14 +5,18 @@ using System;
 using Sekai.Framework;
 using Sekai.Framework.Graphics;
 using Sekai.Framework.Windowing;
-using Sekai.Framework.Windowing.OpenGL;
 using Vd = Veldrid;
 
 namespace Sekai.Veldrid;
 
-internal class VeldridGraphicsContext : FrameworkObject, IGraphicsContext
+internal partial class VeldridGraphicsDevice : FrameworkObject, IGraphicsDevice
 {
+    public string Name { get; private set; } = string.Empty;
+    public ISwapChain SwapChain => device != null ? new VeldridSwapChain(device.MainSwapchain) : null!;
+    public GraphicsAPI GraphicsAPI { get; private set; } = GraphicsAPI.OpenGL;
+    public GraphicsDeviceFeatures Features { get; private set;} = null!;
     public IGraphicsResourceFactory Factory { get; private set; } = null!;
+
     private Vd.GraphicsDevice device = null!;
 
     public void Initialize(IView view, GraphicsContextOptions options)
@@ -46,54 +50,37 @@ internal class VeldridGraphicsContext : FrameworkObject, IGraphicsContext
         switch (options.GraphicsAPI.Value)
         {
             case GraphicsAPI.Direct3D11:
-                {
-                    device = Vd.GraphicsDevice.CreateD3D11(graphicsDeviceOptions, swapChainDescription);
-                    break;
-                }
+                initializeDirect3D11(graphicsDeviceOptions, swapChainDescription);
+                break;
 
             case GraphicsAPI.OpenGL:
-                {
-                    if (view is not IOpenGLProviderSource glSource)
-                        throw new InvalidOperationException(@"The view must be able to provide an OpenGL context.");
-
-                    var gl = glSource.GL;
-
-                    var openGLPlatformOptions = new Vd.OpenGL.OpenGLPlatformInfo
-                    (
-                        gl.Handle,
-                        gl.GetProcAddress,
-                        gl.MakeCurrent,
-                        gl.GetCurrentContext,
-                        gl.ClearCurrentContext,
-                        gl.DeleteContext,
-                        gl.SwapBuffers,
-                        gl.SetSyncToVerticalBlank
-                    );
-
-                    device = Vd.GraphicsDevice.CreateOpenGL(graphicsDeviceOptions, openGLPlatformOptions, (uint)view.Size.Width, (uint)view.Size.Height);
-                    break;
-                }
+                initializeOpenGL(view, graphicsDeviceOptions, swapChainDescription);
+                break;
 
             case GraphicsAPI.OpenGLES:
-                {
-                    device = Vd.GraphicsDevice.CreateOpenGLES(graphicsDeviceOptions, swapChainDescription);
-                    break;
-                }
+                initializeOpenGLES(graphicsDeviceOptions, swapChainDescription);
+                break;
 
             case GraphicsAPI.Vulkan:
-                {
-                    device = Vd.GraphicsDevice.CreateVulkan(graphicsDeviceOptions, swapChainDescription);
-                    break;
-                }
+                initializeVulkan(graphicsDeviceOptions, swapChainDescription);
+                break;
 
             case GraphicsAPI.Metal:
-                {
-                    device = Vd.GraphicsDevice.CreateMetal(graphicsDeviceOptions, swapChainDescription);
-                    break;
-                }
+                initializeMetal(graphicsDeviceOptions, swapChainDescription);
+                break;
         }
 
         Factory = new VeldridGraphicsResourceFactory(this, device.ResourceFactory);
+
+        Features = new GraphicsDeviceFeatures
+        {
+            ComputeShaders = device.Features.ComputeShader,
+            FillModeWireframe = device.Features.FillModeWireframe,
+            SamplerAnisotropy = device.Features.SamplerAnisotropy,
+        };
+
+        if (view is IWindow window)
+            window.OnResize += s => device.ResizeMainWindow((uint)s.Width, (uint)s.Height);
     }
 
     public MappedResource Map(IBuffer buffer, MapMode mode)
@@ -111,9 +98,9 @@ internal class VeldridGraphicsContext : FrameworkObject, IGraphicsContext
         );
     }
 
-    public MappedResource Map(INativeTexture texture, MapMode mode, uint subResource)
+    public MappedResource Map(ITexture texture, MapMode mode, uint subResource)
     {
-        var resource = device.Map(((VeldridNativeTexture)texture).Resource, mode.ToVeldrid());
+        var resource = device.Map(((VeldridTexture)texture).Resource, mode.ToVeldrid());
         return new MappedResource
         (
             texture,
@@ -136,9 +123,9 @@ internal class VeldridGraphicsContext : FrameworkObject, IGraphicsContext
         device.Unmap(((VeldridBuffer)buffer).Resource);
     }
 
-    public void Unmap(INativeTexture texture, uint subResource)
+    public void Unmap(ITexture texture, uint subResource)
     {
-         device.Unmap(((VeldridNativeTexture)texture).Resource, subResource);
+         device.Unmap(((VeldridTexture)texture).Resource, subResource);
     }
 
     public void UpdateBufferData(IBuffer buffer, nint source, uint offset, uint size)
@@ -158,14 +145,29 @@ internal class VeldridGraphicsContext : FrameworkObject, IGraphicsContext
         device.UpdateBuffer(((VeldridBuffer)buffer).Resource, offset, data);
     }
 
-    public void UpdateTextureData(INativeTexture texture, nint source, uint size, uint x, uint y, uint z, uint width, uint height, uint depth, uint mipLevel, uint arrayLayer)
+    public void UpdateTextureData(ITexture texture, nint source, uint size, uint x, uint y, uint z, uint width, uint height, uint depth, uint mipLevel, uint arrayLayer)
     {
-        device.UpdateTexture(((VeldridNativeTexture)texture).Resource, source, size, x, y, z, width, height, depth, mipLevel, arrayLayer);
+        device.UpdateTexture(((VeldridTexture)texture).Resource, source, size, x, y, z, width, height, depth, mipLevel, arrayLayer);
     }
 
-    public void UpdateTextureData<T>(INativeTexture texture, T[] data, uint x, uint y, uint z, uint width, uint height, uint depth, uint mipLevel, uint arrayLayer)
+    public void UpdateTextureData<T>(ITexture texture, T[] data, uint x, uint y, uint z, uint width, uint height, uint depth, uint mipLevel, uint arrayLayer)
         where T : struct
     {
-        device.UpdateTexture(((VeldridNativeTexture)texture).Resource, data, x, y, z, width, height, depth, mipLevel, arrayLayer);
+        device.UpdateTexture(((VeldridTexture)texture).Resource, data, x, y, z, width, height, depth, mipLevel, arrayLayer);
+    }
+
+    public void SwapBuffers()
+    {
+        device.SwapBuffers();
+    }
+
+    public void SwapBuffers(ISwapChain swapChain)
+    {
+        device.SwapBuffers(((VeldridSwapChain)swapChain).Resource);
+    }
+
+    protected sealed override void Destroy()
+    {
+        device.Dispose();
     }
 }

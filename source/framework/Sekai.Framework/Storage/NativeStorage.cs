@@ -16,6 +16,9 @@ public class NativeStorage : IStorage
     public NativeStorage(string localBasePath)
     {
         LocalBasePath = localBasePath;
+
+        if (!Directory.Exists(localBasePath))
+            Directory.CreateDirectory(localBasePath);
     }
 
     public bool CreateDirectory(string path)

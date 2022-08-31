@@ -11,6 +11,6 @@ public static class VeldridHostExtensions
     public static Host<T> UseVeldrid<T>(this Host<T> host)
         where T : Game
     {
-        return host.UseGraphics<VeldridGraphicsContext>();
+        return host.UseGraphics<VeldridGraphicsDevice>();
     }
 }

@@ -71,12 +71,12 @@ public interface IGraphicsResourceFactory
     /// <summary>
     /// Creates a native texture.
     /// </summary>
-    INativeTexture CreateNativeTexture(ref NativeTextureDescription description);
+    ITexture CreateTexture(ref TextureDescription description);
 
     /// <summary>
     /// Creates a native texture from an existing pointer.
     /// </summary>
-    INativeTexture CreateNativeTexture(nint pointer, ref NativeTextureDescription description);
+    ITexture CreateTexture(nint pointer, ref TextureDescription description);
 
     /// <summary>
     /// Creates a swap chain.

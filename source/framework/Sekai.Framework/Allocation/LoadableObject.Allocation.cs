@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using Sekai.Framework.Annotations;
-using Sekai.Framework.Containers;
 using Sekai.Framework.Extensions;
 
 namespace Sekai.Framework.Allocation;
@@ -40,24 +39,21 @@ public partial class LoadableObject
             }
         }
 
-        public void Resolve(LoadableObject target, IContainer container)
-        {
-            foreach ((var type, (bool required, var action)) in setters)
-            {
-                object? value = container.Resolve(type, required);
-                action?.Invoke(target, value!);
-            }
-        }
-
-        public void Cache(LoadableObject target, IContainer container)
+        public void Load(LoadableObject target)
         {
             if (cacheSelf)
-                container.Cache(cacheAsType, target);
+                target.Container.Cache(cacheAsType, target);
 
             foreach ((var type, (var typeOverride, var func)) in getters)
             {
                 object? value = func?.Invoke(target);
-                container.Cache(typeOverride ?? type, value!);
+                target.Container.Cache(typeOverride ?? type, value!);
+            }
+
+            foreach ((var type, (bool required, var action)) in setters)
+            {
+                object? value = target.Container.Resolve(type, required);
+                action?.Invoke(target, value!);
             }
         }
 

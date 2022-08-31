@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Sekai.Framework.Graphics;
 
@@ -21,9 +22,9 @@ public struct OutputDescription : IEquatable<OutputDescription>
     /// <summary>
     /// The nmumber of samples in each attachment.
     /// </summary>
-    public NativeTextureSampleCount SampleCount;
+    public TextureSampleCount SampleCount;
 
-    public OutputDescription(OutputAttachmentDescription? depthAttachment, OutputAttachmentDescription[] colorAttachments, NativeTextureSampleCount sampleCount)
+    public OutputDescription(OutputAttachmentDescription? depthAttachment, OutputAttachmentDescription[] colorAttachments, TextureSampleCount sampleCount)
     {
         DepthAttachment = depthAttachment;
         ColorAttachments = colorAttachments;
@@ -32,15 +33,14 @@ public struct OutputDescription : IEquatable<OutputDescription>
 
     public override bool Equals(object? obj)
     {
-        return obj is OutputDescription description &&
-               EqualityComparer<OutputAttachmentDescription?>.Default.Equals(DepthAttachment, description.DepthAttachment) &&
-               EqualityComparer<OutputAttachmentDescription[]>.Default.Equals(ColorAttachments, description.ColorAttachments) &&
-               SampleCount == description.SampleCount;
+        return obj is OutputDescription description && Equals(description);
     }
 
     public bool Equals(OutputDescription other)
     {
-        throw new NotImplementedException();
+        return EqualityComparer<OutputAttachmentDescription?>.Default.Equals(DepthAttachment, other.DepthAttachment) &&
+               Enumerable.SequenceEqual(ColorAttachments, other.ColorAttachments) &&
+               SampleCount == other.SampleCount;
     }
 
     public override int GetHashCode()

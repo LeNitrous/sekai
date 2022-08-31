@@ -1,13 +1,15 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-using System.Collections.Generic;
+using System.Linq;
+using Sekai.Engine.Processors;
+using Sekai.Engine.Rendering;
 using Sekai.Framework.Annotations;
 
 namespace Sekai.Engine;
 
 [Cached]
-public class Scene : ActivatableObject
+public class Scene : EntityCollection, IUpdateable, IRenderable
 {
     /// <summary>
     /// Gets or sets the name for this scene.
@@ -15,71 +17,41 @@ public class Scene : ActivatableObject
     public string Name { get; set; } = "Scene";
 
     /// <summary>
-    /// Gets the manager owning this scene.
+    /// The scene camera.
     /// </summary>
-    public SceneManager Manager { get; internal set; } = null!;
+    public Camera Camera { get; set; } = null!;
 
-    /// <summary>
-    /// Gets or sets the entities for this scene.
-    /// </summary>
-    public IEnumerable<Entity> Entities
-    {
-        get => root.Entities;
-        set => root.Entities = value;
-    }
-
-    /// <summary>
-    /// Gets all alive entities for this scene.
-    /// </summary>
-    internal IReadOnlyCollection<Entity> AllAliveEntities => allAliveEntities;
-
-    private readonly Entity root;
-    private readonly HashSet<Entity> allAliveEntities = new();
+    [Cached]
+    private readonly SystemCollection<SceneSystem> systems = new();
 
     public Scene()
     {
-        AddInternal(root = new());
+        AddInternal(systems);
+        systems.Register<RenderContext>();
+        systems.Register<MeshProcessor>();
+        systems.Register<CameraProcessor>();
+        systems.Register<BehaviorProcessor>();
+        systems.Register<TransformProcessor>();
     }
 
-    internal void AddAliveEntity(Entity entity)
+    public void Render()
     {
-        allAliveEntities.Add(entity);
+        foreach (var system in systems.Where(s => s.IsAlive).OfType<IRenderable>())
+            system.Render();
     }
 
-    internal void RemoveAliveEntity(Entity entity)
+    public void Update(double elapsed)
     {
-        allAliveEntities.Remove(entity);
-    }
-
-    /// <summary>
-    /// Adds an entity to this scene.
-    /// </summary>
-    public void Add(Entity entity)
-    {
-        root.Add(entity);
-    }
-
-    /// <summary>
-    /// Removes an entity from this scene.
-    /// </summary>
-    public void Remove(Entity entity)
-    {
-        root.Remove(entity);
+        foreach (var system in systems.Where(s => s.IsAlive).OfType<IUpdateable>())
+            system.Update(elapsed);
     }
 
     /// <summary>
-    /// Adds a range of entities to this scene.
+    /// Notifies processors that the entity has been added/removed, activated/deactivated or added/removed components
     /// </summary>
-    public void AddRange(IEnumerable<Entity> entities)
+    internal void OnEntityUpdate(Entity entity)
     {
-        root.AddRange(entities);
-    }
-
-    /// <summary>
-    /// Removes a range of entities from this scene.
-    /// </summary>
-    public void RemoveRange(IEnumerable<Entity> entities)
-    {
-        root.RemoveRange(entities);
+        foreach (var processor in systems.OfType<Processor>())
+            processor.OnEntityUpdate(entity);
     }
 }

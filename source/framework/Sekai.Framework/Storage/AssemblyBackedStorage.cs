@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -18,18 +19,37 @@ public class AssemblyBackedStorage : IStorage
     private static readonly char separator = '.';
     private readonly string prefix;
     private readonly Assembly assembly;
-    private readonly IEnumerable<string> entries;
+    private IEnumerable<string> entries;
+
+    public AssemblyBackedStorage(string assemblyFileName)
+    {
+        assemblyFileName = Path.HasExtension(assemblyFileName) ? assemblyFileName : Path.ChangeExtension(assemblyFileName, ".dll");
+        string filePath = Path.Combine(Path.GetDirectoryName(Assembly.GetCallingAssembly().Location) ?? string.Empty, assemblyFileName);
+        assembly = File.Exists(filePath) ? Assembly.LoadFrom(filePath) : Assembly.Load(Path.GetFileNameWithoutExtension(assemblyFileName));
+        prefix = Path.GetFileNameWithoutExtension(assemblyFileName);
+        enumerateEntries();
+    }
 
     public AssemblyBackedStorage(Assembly assembly)
     {
         this.assembly = assembly;
-
         prefix = assembly.GetName().Name ?? string.Empty;
+        enumerateEntries();
+    }
+
+    public AssemblyBackedStorage(AssemblyName name)
+        : this(Assembly.Load(name))
+    {
+    }
+
+    [MemberNotNull("entries")]
+    private void enumerateEntries()
+    {
         entries = assembly.GetManifestResourceNames().Select(name =>
         {
             char[] chars = name[(name.StartsWith(prefix, StringComparison.Ordinal) ? prefix.Length + 1 : 0)..].ToCharArray();
 
-            for (int i = name.LastIndexOf(separator) - 1; i >= 0; i--)
+            for (int i = Array.LastIndexOf(chars, separator) - 1; i >= 0; i--)
             {
                 if (chars[i] == separator)
                     chars[i] = Path.AltDirectorySeparatorChar;
@@ -37,11 +57,6 @@ public class AssemblyBackedStorage : IStorage
 
             return new string(chars);
         });
-    }
-
-    public AssemblyBackedStorage(AssemblyName name)
-        : this(Assembly.Load(name))
-    {
     }
 
     public bool CreateDirectory(string path)

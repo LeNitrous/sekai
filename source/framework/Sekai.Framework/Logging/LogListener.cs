@@ -17,6 +17,11 @@ public abstract class LogListener : FrameworkObject
     /// </summary>
     public LogLevel Level { get; set; } = RuntimeInfo.IsDebug ? LogLevel.Debug : LogLevel.Information;
 
+    /// <summary>
+    /// Gets or sets the filtering function for this listener. Return true to filter the message.
+    /// </summary>
+    public Func<LogMessage, bool> Filter = null!;
+
     private int logEveryCount = 1;
 
     /// <summary>
@@ -48,7 +53,7 @@ public abstract class LogListener : FrameworkObject
 
     private void handleNewMessage(LogMessage message)
     {
-        if (message.Level < Level)
+        if (message.Level < Level || (Filter?.Invoke(message) ?? false))
             return;
 
         OnNewMessage(GetTextFormatted(message));

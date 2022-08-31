@@ -26,12 +26,12 @@ public static class HostTestSceneExtensions
             threads.OnThreadRemoved -= setupContextForThread;
             threads.AbortOnUnobservedException = true;
 
-            var systems = game.Container.Resolve<GameSystemCollection>();
-            var sceneManager = systems.Get<SceneManager>();
-            sceneManager.Scene = new Scene
+            var systems = game.Container.Resolve<SystemCollection<GameSystem>>();
+            var sceneController = systems.Get<SceneController>();
+            sceneController.Scene = new Scene
             {
                 Name = test.GetType().Name,
-                Entities = new[]
+                Children = new[]
                 {
                     new Entity
                     {

@@ -6,7 +6,7 @@ using Sekai.Framework.Graphics;
 
 namespace Sekai.Headless;
 
-internal class HeadlessNativeTexture : FrameworkObject, INativeTexture
+internal class HeadlessTexture : FrameworkObject, ITexture
 {
     public PixelFormat Format { get; }
     public uint Width { get; }
@@ -14,11 +14,11 @@ internal class HeadlessNativeTexture : FrameworkObject, INativeTexture
     public uint Depth { get; }
     public uint MipLevels { get; }
     public uint ArrayLayers { get; }
-    public NativeTextureUsage Usage { get; }
-    public NativeTextureKind Kind { get; }
-    public NativeTextureSampleCount SampleCount { get; }
+    public TextureUsage Usage { get; }
+    public TextureKind Kind { get; }
+    public TextureSampleCount SampleCount { get; }
 
-    public HeadlessNativeTexture(PixelFormat format, uint width, uint height, uint depth, uint mipLevels, uint arrayLayers, NativeTextureUsage usage, NativeTextureKind kind, NativeTextureSampleCount sampleCount)
+    public HeadlessTexture(PixelFormat format, uint width, uint height, uint depth, uint mipLevels, uint arrayLayers, TextureUsage usage, TextureKind kind, TextureSampleCount sampleCount)
     {
         Format = format;
         Width = width;

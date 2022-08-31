@@ -115,32 +115,32 @@ internal static class VeldridExtensions
         };
     }
 
-    public static Vd.TextureType ToVeldrid(this NativeTextureKind kind)
+    public static Vd.TextureType ToVeldrid(this TextureKind kind)
     {
         return kind switch
         {
-            NativeTextureKind.Texture1D => Vd.TextureType.Texture1D,
-            NativeTextureKind.Texture2D => Vd.TextureType.Texture2D,
-            NativeTextureKind.Texture3D => Vd.TextureType.Texture3D,
+            TextureKind.Texture1D => Vd.TextureType.Texture1D,
+            TextureKind.Texture2D => Vd.TextureType.Texture2D,
+            TextureKind.Texture3D => Vd.TextureType.Texture3D,
             _ => throw new ArgumentOutOfRangeException(nameof(kind)),
         };
     }
 
-    public static Vd.TextureSampleCount ToVeldrid(this NativeTextureSampleCount sampleCount)
+    public static Vd.TextureSampleCount ToVeldrid(this TextureSampleCount sampleCount)
     {
         return sampleCount switch
         {
-            NativeTextureSampleCount.Count1 => Vd.TextureSampleCount.Count1,
-            NativeTextureSampleCount.Count2 => Vd.TextureSampleCount.Count2,
-            NativeTextureSampleCount.Count4 => Vd.TextureSampleCount.Count4,
-            NativeTextureSampleCount.Count8 => Vd.TextureSampleCount.Count8,
-            NativeTextureSampleCount.Count16 => Vd.TextureSampleCount.Count16,
-            NativeTextureSampleCount.Count32 => Vd.TextureSampleCount.Count32,
+            TextureSampleCount.Count1 => Vd.TextureSampleCount.Count1,
+            TextureSampleCount.Count2 => Vd.TextureSampleCount.Count2,
+            TextureSampleCount.Count4 => Vd.TextureSampleCount.Count4,
+            TextureSampleCount.Count8 => Vd.TextureSampleCount.Count8,
+            TextureSampleCount.Count16 => Vd.TextureSampleCount.Count16,
+            TextureSampleCount.Count32 => Vd.TextureSampleCount.Count32,
             _ => throw new ArgumentOutOfRangeException(nameof(sampleCount)),
         };
     }
 
-    public static Vd.TextureUsage ToVeldrid(this NativeTextureUsage usage)
+    public static Vd.TextureUsage ToVeldrid(this TextureUsage usage)
     {
         return (Vd.TextureUsage)(byte)usage;
     }
@@ -369,7 +369,7 @@ internal static class VeldridExtensions
     {
         return new
         (
-            ((VeldridNativeTexture)attach.Target).Resource,
+            ((VeldridTexture)attach.Target).Resource,
             attach.ArrayLayer,
             attach.MipLevel
         );
@@ -384,7 +384,7 @@ internal static class VeldridExtensions
             desc.Rasterizer.ToVeldrid(),
             desc.Topology.ToVeldrid(),
             desc.ShaderSet.ToVeldrid(),
-            desc.Layouts.Select(r => ((VeldridResourceLayout)r).Resource).ToArray(),
+            desc.Layouts.Select(r => r != null ? ((VeldridResourceLayout)r).Resource : null).ToArray(),
             desc.Outputs.ToVeldrid(),
             Vd.ResourceBindingModel.Improved
         );
@@ -421,7 +421,7 @@ internal static class VeldridExtensions
         );
     }
 
-    public static Vd.TextureDescription ToVeldrid(this NativeTextureDescription desc)
+    public static Vd.TextureDescription ToVeldrid(this TextureDescription desc)
     {
         return new
         (
@@ -453,15 +453,18 @@ internal static class VeldridExtensions
     {
         var bindables = new List<Vd.BindableResource>();
 
-        for (int i = 0; i < desc.Resources.Count; i++)
+        for (int i = 0; i < desc.Resources.Length; i++)
         {
             var resource = desc.Resources[i];
 
-            if (resource is VeldridNativeTexture texture)
+            if (resource is VeldridTexture texture)
                 bindables.Add(texture.Resource);
 
             if (resource is VeldridBuffer buffer)
                 bindables.Add(buffer.Resource);
+
+            if (resource is VeldridSampler sampler)
+                bindables.Add(sampler.Resource);
         }
 
         return new

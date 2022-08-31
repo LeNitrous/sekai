@@ -2,11 +2,10 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using System.Collections.Generic;
 
 namespace Sekai.Framework.Graphics;
 
-public struct NativeTextureDescription : IEquatable<NativeTextureDescription>
+public struct TextureDescription : IEquatable<TextureDescription>
 {
     /// <summary>
     /// The width of the native texture in texels.
@@ -14,12 +13,12 @@ public struct NativeTextureDescription : IEquatable<NativeTextureDescription>
     public uint Width;
 
     /// <summary>
-    /// The height of the native texture in texels. Only valid if <see cref="NativeTextureKind.Texture2D"/> is used.
+    /// The height of the native texture in texels. Only valid if <see cref="TextureKind.Texture2D"/> is used.
     /// </summary>
     public uint Height;
 
     /// <summary>
-    /// The height of the native texture in texels. Only valid if <see cref="NativeTextureKind.Texture3D"/> is used.
+    /// The height of the native texture in texels. Only valid if <see cref="TextureKind.Texture3D"/> is used.
     /// </summary>
     public uint Depth;
 
@@ -41,20 +40,20 @@ public struct NativeTextureDescription : IEquatable<NativeTextureDescription>
     /// <summary>
     /// The kind of the given native texture.
     /// </summary>
-    public NativeTextureKind Kind;
+    public TextureKind Kind;
 
     /// <summary>
     /// Determines how this native texture is used.
     /// </summary>
-    public NativeTextureUsage Usage;
+    public TextureUsage Usage;
 
     /// <summary>
     /// The number of samples of this native texture.
     /// </summary>
-    public NativeTextureSampleCount SampleCount;
+    public TextureSampleCount SampleCount;
 
-    public NativeTextureDescription(uint width, uint height, uint depth, uint mipLevels, uint arrayLayers,
-                                    PixelFormat format, NativeTextureKind kind, NativeTextureUsage usage, NativeTextureSampleCount sampleCount)
+    public TextureDescription(uint width, uint height, uint depth, uint mipLevels, uint arrayLayers,
+                                    PixelFormat format, TextureKind kind, TextureUsage usage, TextureSampleCount sampleCount)
     {
         Width = width;
         Height = height;
@@ -69,10 +68,10 @@ public struct NativeTextureDescription : IEquatable<NativeTextureDescription>
 
     public override bool Equals(object? obj)
     {
-        return obj is NativeTextureDescription other && Equals(other);
+        return obj is TextureDescription other && Equals(other);
     }
 
-    public bool Equals(NativeTextureDescription other)
+    public bool Equals(TextureDescription other)
     {
         return Width == other.Width &&
                Height == other.Height &&
@@ -80,7 +79,7 @@ public struct NativeTextureDescription : IEquatable<NativeTextureDescription>
                MipLevels == other.MipLevels &&
                ArrayLayers == other.ArrayLayers &&
                Format == other.Format &&
-               EqualityComparer<NativeTextureKind>.Default.Equals(Kind, other.Kind) &&
+               Kind == other.Kind &&
                Usage == other.Usage &&
                SampleCount == other.SampleCount;
     }
@@ -100,12 +99,12 @@ public struct NativeTextureDescription : IEquatable<NativeTextureDescription>
         return hash.ToHashCode();
     }
 
-    public static bool operator ==(NativeTextureDescription left, NativeTextureDescription right)
+    public static bool operator ==(TextureDescription left, TextureDescription right)
     {
         return left.Equals(right);
     }
 
-    public static bool operator !=(NativeTextureDescription left, NativeTextureDescription right)
+    public static bool operator !=(TextureDescription left, TextureDescription right)
     {
         return !(left == right);
     }
