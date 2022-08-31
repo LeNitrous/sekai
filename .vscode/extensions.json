@@ -1,6 +1,7 @@
 {
     "recommendations": [
         "ms-dotnettools.csharp",
-        "editorconfig.editorconfig"
+        "editorconfig.editorconfig",
+        "josefpihrt-vscode.roslynator"
     ]
 }

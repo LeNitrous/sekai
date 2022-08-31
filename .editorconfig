@@ -260,3 +260,9 @@ dotnet_naming_style.types_interface_style.capitaization = pascal_case
 dotnet_naming_style.types_interface_style.required_prefix = I
 dotnet_naming_symbols.types_interface_symbols.applicable_kinds = interface
 dotnet_naming_symbols.types_interface_symbols.applicable_accessibilities = *
+
+# Roslynator configuration
+dotnet_analyzer_diagnostic.category-roslynator.severity = default
+roslynator_analyzers.enabled_by_default = true
+roslynator_refactorings.enabled = true
+roslynator_compiler_diagnostic_fixes.enabled = true
