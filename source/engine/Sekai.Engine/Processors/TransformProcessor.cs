@@ -21,7 +21,7 @@ public class TransformProcessor : Processor<Transform>
         var scale = Matrix4x4.CreateScale(component.Scale);
         component.LocalMatrix =  Matrix4x4.Transform(trans * scale, component.Rotation);
 
-        var world = entity.Parent?.GetComponent<Transform>()?.WorldMatrix ?? renderContext?.WorldMatrix ?? Matrix4x4.Identity;
+        var world = entity.Parent?.GetComponent<Transform>()?.WorldMatrix ?? renderContext.WorldMatrix;
         component.WorldMatrix = Matrix4x4.Multiply(component.LocalMatrix, world);
     }
 }
