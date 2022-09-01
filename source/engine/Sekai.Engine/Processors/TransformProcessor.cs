@@ -14,14 +14,18 @@ public class TransformProcessor : Processor<Transform>
     {
         renderContext = Systems.Get<RenderContext>();
     }
-
     protected override void Update(double elapsed, Entity entity, Transform component)
     {
-        var trans = Matrix4x4.CreateTranslation(component.Position);
-        var scale = Matrix4x4.CreateScale(component.Scale);
-        component.LocalMatrix =  Matrix4x4.Transform(trans * scale, component.Rotation);
-
-        var world = entity.Parent?.GetComponent<Transform>()?.WorldMatrix ?? renderContext.WorldMatrix;
-        component.WorldMatrix = Matrix4x4.Multiply(component.LocalMatrix, world);
+        if (entity.Parent != null)
+        {
+            var parent = entity.Parent?.GetComponent<Transform>();
+            component.LocalMatrix = Matrix4x4.CreateTranslation(component.Position) * Matrix4x4.CreateScale(component.Scale) * Matrix4x4.CreateFromQuaternion(component.Rotation);
+            component.WorldMatrix = Matrix4x4.Multiply(component.LocalMatrix, parent.WorldMatrix);
+        }
+        else
+        {
+            component.LocalMatrix = Matrix4x4.CreateTranslation(component.Position) * Matrix4x4.CreateScale(component.Scale) * Matrix4x4.CreateFromQuaternion(component.Rotation);
+            component.WorldMatrix = component.LocalMatrix;
+        }
     }
 }
