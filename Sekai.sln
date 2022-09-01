@@ -48,6 +48,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sekai.Imgui", "source\exten
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Framework.UI", "source\framework\Sekai.UI\Sekai.Framework.UI.csproj", "{37468200-DFEC-4F29-928D-4D2D59A3B2B6}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sekai.Engine.Resources", "source\engine\Sekai.Engine.Resources\Sekai.Engine.Resources.csproj", "{90497192-3BEB-4AED-AFF1-DA93354966F7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -110,6 +112,10 @@ Global
 		{37468200-DFEC-4F29-928D-4D2D59A3B2B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{37468200-DFEC-4F29-928D-4D2D59A3B2B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{37468200-DFEC-4F29-928D-4D2D59A3B2B6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{90497192-3BEB-4AED-AFF1-DA93354966F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{90497192-3BEB-4AED-AFF1-DA93354966F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{90497192-3BEB-4AED-AFF1-DA93354966F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{90497192-3BEB-4AED-AFF1-DA93354966F7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -132,6 +138,7 @@ Global
 		{E7B0E36A-F8F8-4560-AAEC-8B5C5DEB5ADE} = {1FEAA352-492E-461C-B970-12C2165484F1}
 		{87DA159B-0251-457C-B7B3-6D469B3CE407} = {057546DB-E807-4869-8E67-BC68A390E03F}
 		{37468200-DFEC-4F29-928D-4D2D59A3B2B6} = {1FEAA352-492E-461C-B970-12C2165484F1}
+		{90497192-3BEB-4AED-AFF1-DA93354966F7} = {D4B811C4-32E2-47E1-9645-F7E3142F79B5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B561F441-82A5-4270-9631-D1D7C712B152}
