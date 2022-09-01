@@ -8,12 +8,8 @@ namespace Sekai.Engine.Processors;
 
 public class TransformProcessor : Processor<Transform>
 {
-    private RenderContext renderContext = null!;
-
     protected override void Load()
-    {
-        renderContext = Systems.Get<RenderContext>();
-    }
+    {}
     protected override void Update(double elapsed, Entity entity, Transform component)
     {
         if (entity.Parent != null)
