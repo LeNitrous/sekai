@@ -30,19 +30,23 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sekai.Engine.Testing", "sou
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sekai.Engine.Tests", "tests\Sekai.Engine.Tests\Sekai.Engine.Tests.csproj", "{287CA94A-DF7B-461C-9E4C-D52650F5139F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Headless", "source\extensions\Sekai.Headless\Sekai.Headless.csproj", "{B8537E78-E369-409B-8EBC-B0C3A85BC500}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sekai.Headless", "source\extensions\Sekai.Headless\Sekai.Headless.csproj", "{B8537E78-E369-409B-8EBC-B0C3A85BC500}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{3394791E-BB45-4ACE-B51C-E5E45FA41065}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.Window", "examples\Example.Window\Example.Window.csproj", "{B0A3AB64-BB36-4DD7-A721-17A810F5A45F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Example.Window", "examples\Example.Window\Example.Window.csproj", "{B0A3AB64-BB36-4DD7-A721-17A810F5A45F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Veldrid", "source\extensions\Sekai.Veldrid\Sekai.Veldrid.csproj", "{2E6DC7A1-DB99-4095-8F5F-DD1A83896F52}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sekai.Veldrid", "source\extensions\Sekai.Veldrid\Sekai.Veldrid.csproj", "{2E6DC7A1-DB99-4095-8F5F-DD1A83896F52}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Framework.Input", "source\framework\Sekai.Framework.Input\Sekai.Framework.Input.csproj", "{5D74F9D6-E9A3-4749-9E28-763FE1778417}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sekai.Framework.Input", "source\framework\Sekai.Framework.Input\Sekai.Framework.Input.csproj", "{5D74F9D6-E9A3-4749-9E28-763FE1778417}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Framework.Graphics", "source\framework\Sekai.Framework.Graphics\Sekai.Framework.Graphics.csproj", "{92A07AB8-98FD-42FC-9FA8-26A106710C94}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sekai.Framework.Graphics", "source\framework\Sekai.Framework.Graphics\Sekai.Framework.Graphics.csproj", "{92A07AB8-98FD-42FC-9FA8-26A106710C94}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Framework.Windowing", "source\framework\Sekai.Framework.Windowing\Sekai.Framework.Windowing.csproj", "{E7B0E36A-F8F8-4560-AAEC-8B5C5DEB5ADE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sekai.Framework.Windowing", "source\framework\Sekai.Framework.Windowing\Sekai.Framework.Windowing.csproj", "{E7B0E36A-F8F8-4560-AAEC-8B5C5DEB5ADE}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sekai.Imgui", "source\extensions\Sekai.Imgui\Sekai.Imgui.csproj", "{87DA159B-0251-457C-B7B3-6D469B3CE407}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Framework.UI", "source\framework\Sekai.UI\Sekai.Framework.UI.csproj", "{37468200-DFEC-4F29-928D-4D2D59A3B2B6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -98,6 +102,14 @@ Global
 		{E7B0E36A-F8F8-4560-AAEC-8B5C5DEB5ADE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E7B0E36A-F8F8-4560-AAEC-8B5C5DEB5ADE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E7B0E36A-F8F8-4560-AAEC-8B5C5DEB5ADE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{87DA159B-0251-457C-B7B3-6D469B3CE407}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87DA159B-0251-457C-B7B3-6D469B3CE407}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87DA159B-0251-457C-B7B3-6D469B3CE407}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87DA159B-0251-457C-B7B3-6D469B3CE407}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37468200-DFEC-4F29-928D-4D2D59A3B2B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37468200-DFEC-4F29-928D-4D2D59A3B2B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37468200-DFEC-4F29-928D-4D2D59A3B2B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37468200-DFEC-4F29-928D-4D2D59A3B2B6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -118,6 +130,8 @@ Global
 		{5D74F9D6-E9A3-4749-9E28-763FE1778417} = {1FEAA352-492E-461C-B970-12C2165484F1}
 		{92A07AB8-98FD-42FC-9FA8-26A106710C94} = {1FEAA352-492E-461C-B970-12C2165484F1}
 		{E7B0E36A-F8F8-4560-AAEC-8B5C5DEB5ADE} = {1FEAA352-492E-461C-B970-12C2165484F1}
+		{87DA159B-0251-457C-B7B3-6D469B3CE407} = {057546DB-E807-4869-8E67-BC68A390E03F}
+		{37468200-DFEC-4F29-928D-4D2D59A3B2B6} = {1FEAA352-492E-461C-B970-12C2165484F1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B561F441-82A5-4270-9631-D1D7C712B152}

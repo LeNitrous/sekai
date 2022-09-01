@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using Sekai.Engine.Resources;
 using Sekai.Framework;
+using Sekai.Framework.UI;
 using Sekai.Framework.Graphics;
 using Sekai.Framework.Logging;
 using Sekai.Framework.Storage;
@@ -16,6 +17,7 @@ public partial class Host<T>
 {
     private VirtualStorage storage = null!;
     private IWindow window = null!;
+    private IUserInterface ui = null;
     private IGraphicsDevice graphics = null!;
     private Action<T> callbackGameLoad = null!;
     private Action<VirtualStorage> callbackStorageSetup = null!;
@@ -46,6 +48,13 @@ public partial class Host<T>
     public Host<T> UseLoadCallback(Action<T> callback)
     {
         callbackGameLoad = callback;
+        return this;
+    }
+
+    public Host<T> UseUserInterface<U>()
+      where U: IUserInterface, new()
+    {
+        ui = new U();
         return this;
     }
 

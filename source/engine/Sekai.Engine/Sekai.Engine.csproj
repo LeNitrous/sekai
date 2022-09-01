@@ -12,6 +12,7 @@
     <ProjectReference Include="../../framework/Sekai.Framework.Input/Sekai.Framework.Input.csproj" />
     <ProjectReference Include="../../framework/Sekai.Framework.Graphics/Sekai.Framework.Graphics.csproj" />
     <ProjectReference Include="../../framework/Sekai.Framework.Windowing/Sekai.Framework.Windowing.csproj" />
+    <ProjectReference Include="..\..\framework\Sekai.UI\Sekai.Framework.UI.csproj" />
   </ItemGroup>
 
   <ItemGroup>
