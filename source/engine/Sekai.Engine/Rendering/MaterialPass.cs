@@ -3,8 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using Sekai.Engine.Effects;
+using Sekai.Engine.Effects.Compiler;
 using Sekai.Framework;
 using Sekai.Framework.Graphics;
 
@@ -16,6 +16,11 @@ public class MaterialPass : FrameworkObject
     /// Gets the effect used by this material pass.
     /// </summary>
     public Effect Effect { get; }
+
+    /// <summary>
+    /// Gets the effect pass of this material pass.
+    /// </summary>
+    public EffectPass Pass { get; }
 
     /// <summary>
     /// Gets the resources used by this material pass.
@@ -30,11 +35,6 @@ public class MaterialPass : FrameworkObject
             return resourceSet;
         }
     }
-
-    /// <summary>
-    /// Gets the resource layout for this material pass.
-    /// </summary>
-    public IResourceLayout Layout { get; }
 
     /// <summary>
     /// Gets or sets how polygons will be filled for this material pass.
@@ -53,50 +53,13 @@ public class MaterialPass : FrameworkObject
     private readonly IBindableResource[] resources;
     private readonly List<string> globalResourceNames = new();
 
-    internal MaterialPass(Effect effect)
+    internal MaterialPass(Effect effect, EffectPass pass)
     {
         Effect = effect;
+        Pass = pass;
 
         device = effect.Device;
-        resources = new IBindableResource[effect.Resources.Count];
-
-        var elements = new List<LayoutElementDescription>();
-
-        for (int i = 0; i < effect.Resources.Count; i++)
-        {
-            var member = effect.Resources[i];
-            var element = new LayoutElementDescription
-            {
-                Name = member.Name,
-                Flags = LayoutElementFlags.None,
-                Stages = ShaderStage.Vertex | ShaderStage.Fragment
-            };
-
-            if (member.Flags.HasFlag(EffectMemberFlags.Buffer))
-            {
-                element.Kind = member.Flags.HasFlag(EffectMemberFlags.ReadWrite) ? ResourceKind.StructuredBufferReadWrite : ResourceKind.StructuredBufferReadOnly;
-            }
-
-            if (member.Flags.HasFlag(EffectMemberFlags.Uniform))
-            {
-                element.Kind = ResourceKind.UniformBuffer;
-            }
-
-            if (member.Flags.HasFlag(EffectMemberFlags.Texture))
-            {
-                element.Kind = member.Flags.HasFlag(EffectMemberFlags.ReadWrite) ? ResourceKind.TextureReadWrite : ResourceKind.TextureReadOnly;
-            }
-
-            if (member.Flags.HasFlag(EffectMemberFlags.Sampler))
-            {
-                element.Kind = ResourceKind.Sampler;
-            }
-
-            elements.Add(element);
-        }
-
-        var layoutDescriptor = new LayoutDescription(elements);
-        Layout = device.Factory.CreateResourceLayout(ref layoutDescriptor);
+        resources = new IBindableResource[pass.Parameters.Count];
     }
 
     internal void Initialize(RenderContext context)
@@ -104,29 +67,29 @@ public class MaterialPass : FrameworkObject
         if (initialized)
             return;
 
-        for (int i = 0; i < Effect.Resources.Count; i++)
+        for (int i = 0; i < Pass.Parameters.Count; i++)
         {
-            var member = Effect.Resources[i];
+            var param = Pass.Parameters[i];
 
-            if (context.Parameters.TryGetValue(member.Name, out var resource))
+            if (context.Parameters.TryGetValue(param.Name, out var resource))
             {
-                globalResourceNames.Add(member.Name);
+                globalResourceNames.Add(param.Name);
                 resources[i] = resource;
                 continue;
             }
 
-            if (member.Flags.HasFlag(EffectMemberFlags.Buffer))
+            if (param.Flags.HasFlag(EffectParameterFlags.Buffer))
             {
-                var usage = member.Flags.HasFlag(EffectMemberFlags.ReadWrite) ? BufferUsage.StructuredReadWrite : BufferUsage.StructuredReadOnly;
-                var bufferDescriptor = new BufferDescription((uint)member.Size, usage);
+                var usage = BufferUsage.StructuredReadWrite;
+                var bufferDescriptor = new BufferDescription((uint)param.Size, usage);
                 var buffer = device.Factory.CreateBuffer(ref bufferDescriptor);
                 resources[i] = buffer;
                 continue;
             }
 
-            if (member.Flags.HasFlag(EffectMemberFlags.Uniform))
+            if (param.Flags.HasFlag(EffectParameterFlags.Uniform) && !param.Flags.HasFlag(EffectParameterFlags.Image) && !param.Flags.HasFlag(EffectParameterFlags.Texture) && !param.Flags.HasFlag(EffectParameterFlags.Sampler))
             {
-                var bufferDescriptor = new BufferDescription((uint)member.Size, BufferUsage.Uniform | BufferUsage.Dynamic);
+                var bufferDescriptor = new BufferDescription((uint)param.Size, BufferUsage.Uniform | BufferUsage.Dynamic);
                 var buffer = device.Factory.CreateBuffer(ref bufferDescriptor);
                 resources[i] = buffer;
                 continue;
@@ -138,12 +101,12 @@ public class MaterialPass : FrameworkObject
 
     public void SetTexture(string name, ITexture texture)
     {
-        setResource(name, EffectMemberFlags.Texture, texture, isValidTexture);
+        setResource(name, texture.Usage.HasFlag(TextureUsage.Storage) ? EffectParameterFlags.Image : EffectParameterFlags.Texture, texture, isValidTexture);
     }
 
     public void SetSampler(string name, ISampler sampler)
     {
-        setResource(name, EffectMemberFlags.Sampler, sampler, (_, _) => true);
+        setResource(name, EffectParameterFlags.Sampler, sampler, (_, _) => true);
     }
 
     public void SetBufferValue<T>(string name, T value)
@@ -155,7 +118,7 @@ public class MaterialPass : FrameworkObject
     public void SetBufferValue<T>(string name, ref T value)
         where T : struct
     {
-        updateBuffer(name, EffectMemberFlags.Buffer, ref value);
+        updateBuffer(name, EffectParameterFlags.Buffer, ref value);
     }
 
     public void SetUniformValue<T>(string name, T value)
@@ -167,10 +130,10 @@ public class MaterialPass : FrameworkObject
     public void SetUniformValue<T>(string name, ref T value)
         where T : struct
     {
-        updateBuffer(name, EffectMemberFlags.Uniform, ref value);
+        updateBuffer(name, EffectParameterFlags.Uniform, ref value);
     }
 
-    private void setResource(string name, EffectMemberFlags flag, IBindableResource resource, Func<IBindableResource, EffectMember, bool> checkValid)
+    private void setResource(string name, EffectParameterFlags flag, IBindableResource resource, Func<IBindableResource, EffectParameterInfo, bool> checkValid)
     {
         if (IsDisposed)
             throw new ObjectDisposedException(nameof(Material));
@@ -180,14 +143,14 @@ public class MaterialPass : FrameworkObject
 
         bool success = false;
 
-        for (int i = 0; i < Effect.Resources.Count; i++)
+        for (int i = 0; i < Pass.Parameters.Count; i++)
         {
-            var member = Effect.Resources[i];
+            var param = Pass.Parameters[i];
 
-            if (member.Name != name && !member.Flags.HasFlag(flag))
+            if (param.Name != name && !param.Flags.HasFlag(flag))
                 continue;
 
-            if (!checkValid(resource, member))
+            if (!checkValid(resource, param))
                 throw new InvalidOperationException();
 
             success = true;
@@ -198,7 +161,7 @@ public class MaterialPass : FrameworkObject
             throw new InvalidOperationException($"There is no resource named \"{name}\".");
     }
 
-    private unsafe void updateBuffer<T>(string name, EffectMemberFlags flag, ref T value)
+    private unsafe void updateBuffer<T>(string name, EffectParameterFlags flag, ref T value)
         where T : struct
     {
         if (IsDisposed)
@@ -209,15 +172,12 @@ public class MaterialPass : FrameworkObject
 
         bool success = false;
 
-        for (int i = 0; i < Effect.Resources.Count; i++)
+        for (int i = 0; i < Pass.Parameters.Count; i++)
         {
-            var member = Effect.Resources[i];
+            var member = Pass.Parameters[i];
 
             if (member.Name != name || !member.Flags.HasFlag(flag))
                 continue;
-
-            if (member is not EffectMember<T> || member.Size != Marshal.SizeOf<T>())
-                throw new InvalidOperationException();
 
             var resource = resources[i];
 
@@ -239,23 +199,32 @@ public class MaterialPass : FrameworkObject
 
         // TODO: replace empty texture slots with white texture
         // TODO: replace empty sampler slots with point sampler
-        var descriptor = new ResourceSetDescription(Layout, resources);
+        var descriptor = new ResourceSetDescription(Pass.Layout, resources);
         resourceSet = device.Factory.CreateResourceSet(ref descriptor);
 
         hasChanged = false;
     }
 
-    private static bool isValidTexture(IBindableResource resource, EffectMember member)
+    private static bool isValidTexture(IBindableResource resource, EffectParameterInfo param)
     {
         var texture = (ITexture)resource!;
 
-        if (texture.Usage.HasFlag(TextureUsage.Cubemap) && member.Flags.HasFlag(EffectMemberFlags.Cubemap))
+        if (texture.Usage.HasFlag(TextureUsage.Cubemap) && param.Flags.HasFlag(EffectParameterFlags.Cubemap))
             return true;
 
-        if (texture.Usage.HasFlag(TextureUsage.Sampled) && !member.Flags.HasFlag(EffectMemberFlags.ReadWrite))
+        if (texture.Usage.HasFlag(TextureUsage.Sampled) && param.Flags.HasFlag(EffectParameterFlags.Texture))
             return true;
 
-        if (texture.Usage.HasFlag(TextureUsage.Storage) && member.Flags.HasFlag(EffectMemberFlags.ReadWrite))
+        if (texture.Usage.HasFlag(TextureUsage.Storage) && param.Flags.HasFlag(EffectParameterFlags.Image))
+            return true;
+
+        if (texture.Kind == TextureKind.Texture1D && param.Flags.HasFlag(EffectParameterFlags.Texture1D))
+            return true;
+
+        if (texture.Kind == TextureKind.Texture2D && param.Flags.HasFlag(EffectParameterFlags.Texture2D))
+            return true;
+
+        if (texture.Kind == TextureKind.Texture3D && param.Flags.HasFlag(EffectParameterFlags.Texture3D))
             return true;
 
         return false;
@@ -264,13 +233,12 @@ public class MaterialPass : FrameworkObject
     protected override void Destroy()
     {
         resourceSet?.Dispose();
-        Layout.Dispose();
 
-        for (int i = 0; i < Effect.Resources.Count; i++)
+        for (int i = 0; i < Pass.Parameters.Count; i++)
         {
-            var member = Effect.Resources[i];
+            var param = Pass.Parameters[i];
 
-            if (globalResourceNames.Contains(member.Name))
+            if (globalResourceNames.Contains(param.Name))
                 continue;
 
             if (resources[i] is IBuffer buffer)

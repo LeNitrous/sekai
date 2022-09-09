@@ -2,7 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System.Numerics;
-using Sekai.Engine.Extensions;
+using Sekai.Framework.Utils;
 
 namespace Sekai.Engine;
 
@@ -22,17 +22,13 @@ public class Transform : Component
     public Quaternion Rotation
     {
         get => Quaternion.CreateFromYawPitchRoll(RotationEuler.X, RotationEuler.Y, RotationEuler.Z);
-        set => RotationEuler = value.ToEulerAngles();
+        set => RotationEuler = MathUtils.CreateEulerAnglesFromQuaternion(value);
     }
 
     /// <summary>
-    /// The rotation of the entity as euler angles.
+    /// The rotation of the entity as euler angles in radians.
     /// </summary>
-    public Vector3 RotationEuler
-    {
-        get => rotationEuler;
-        set => rotationEuler = new Vector3(((value.X % 360) + 360) % 360, ((value.Y % 360) + 360) % 360, ((value.Z % 360) + 360) % 360);
-    }
+    public Vector3 RotationEuler { get; set; }
 
     /// <summary>
     /// The scale of the entity.
@@ -42,17 +38,17 @@ public class Transform : Component
     /// <summary>
     /// The normalized forward vector of this transform.
     /// </summary>
-    public Vector3 Forward => Rotation.GetForward();
+    public Vector3 Forward => MathUtils.GetForward(Rotation);
 
     /// <summary>
     /// The normalized right vector of this transform.
     /// </summary>
-    public Vector3 Right => Rotation.GetRight();
+    public Vector3 Right => MathUtils.GetRight(Rotation);
 
     /// <summary>
     /// The normalized up vector of this transform.
     /// </summary>
-    public Vector3 Up => Rotation.GetUp();
+    public Vector3 Up => MathUtils.GetUp(Rotation);
 
     /// <summary>
     /// The local matrix of this transform.
@@ -63,6 +59,4 @@ public class Transform : Component
     /// The world matrix of this transform.
     /// </summary>
     internal Matrix4x4 WorldMatrix = Matrix4x4.Identity;
-
-    private Vector3 rotationEuler;
 }

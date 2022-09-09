@@ -1,7 +1,6 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-using System;
 using System.Collections.Generic;
 using Sekai.Engine.Effects;
 using Sekai.Framework;
@@ -13,17 +12,22 @@ public class Material : FrameworkObject
     public MaterialPass this[string name] => passes[name];
     private readonly Dictionary<string, MaterialPass> passes = new();
 
-    public void AddPass(string name, Effect effect)
-    {
-        if (passes.ContainsKey(name))
-            throw new InvalidOperationException();
+    /// <summary>
+    /// Gets the effect used by this material.
+    /// </summary>
+    public Effect Effect { get; }
 
-        passes.Add(name, new MaterialPass(effect));
+    public Material(Effect effect)
+    {
+        Effect = effect;
+
+        foreach (var pass in effect.Passes)
+            passes.Add(pass.Name, new MaterialPass(effect, pass));
     }
 
-    public void RemovePass(string name)
+    protected override void Destroy()
     {
-        if (!passes.Remove(name))
-            throw new InvalidOperationException();
+        foreach (var pass in passes.Values)
+            pass.Dispose();
     }
 }

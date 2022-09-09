@@ -2,7 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using Sekai.Engine.Effects;
+using Sekai.Engine.Effects.Compiler;
 using Sekai.Engine.Threading;
 using Sekai.Framework;
 using Sekai.Framework.Windowing;
@@ -62,7 +62,7 @@ public sealed partial class Host<T> : FrameworkObject
         Game.Container.Cache(window.Input);
         Game.Container.Cache(graphics);
         Game.Container.Cache(graphics.Factory);
-        Game.Container.Cache(new EffectCompiler());
+        Game.Container.Cache(new EffectCompiler(graphics));
         Game.Container.Cache<IView>(window);
 
         Game.AddInternal(systems);

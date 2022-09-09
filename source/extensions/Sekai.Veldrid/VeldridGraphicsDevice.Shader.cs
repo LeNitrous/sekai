@@ -61,7 +61,10 @@ internal partial class VeldridGraphicsDevice
                 exception = ex;
             }
 
-            return new ShaderCompilationResult(options.Filename, code, bytes, stage, reflection, exception);
+            if (exception != null)
+                throw exception;
+
+            return new ShaderCompilationResult(options.Filename, code, bytes, stage, reflection);
         }
 
         throw new NotSupportedException($"Compiling for {stage} is not supported.");

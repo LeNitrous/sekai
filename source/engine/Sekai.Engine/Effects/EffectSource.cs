@@ -11,18 +11,12 @@ namespace Sekai.Engine.Effects;
 public struct EffectSource : IEquatable<EffectSource>
 {
     /// <summary>
-    /// The name of this effect.
-    /// </summary>
-    public string Name { get; set; }
-
-    /// <summary>
     /// The effect source code.
     /// </summary>
     public string Code { get; set; }
 
-    public EffectSource(string name, string code)
+    public EffectSource(string code)
     {
-        Name = name;
         Code = code;
     }
 
@@ -33,13 +27,12 @@ public struct EffectSource : IEquatable<EffectSource>
 
     public bool Equals(EffectSource other)
     {
-        return Name == other.Name &&
-               Code == other.Code;
+        return Code == other.Code;
     }
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(Name, Code);
+        return HashCode.Combine(Code);
     }
 
     public static bool operator ==(EffectSource left, EffectSource right)

@@ -1,8 +1,6 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-using System;
-
 namespace Sekai.Framework.Graphics;
 
 public readonly struct ShaderCompilationResult
@@ -40,18 +38,12 @@ public readonly struct ShaderCompilationResult
     /// </summary>
     public readonly ShaderStage Stage;
 
-    /// <summary>
-    /// Exception thrown during compilation.
-    /// </summary>
-    public readonly Exception? Exception;
-
-    public ShaderCompilationResult(string filename, byte[] code, byte[] bytes, ShaderStage stage, ShaderReflectionResult reflection, Exception? exception)
+    public ShaderCompilationResult(string filename, byte[] code, byte[] bytes, ShaderStage stage, ShaderReflectionResult reflection)
     {
         Code = code;
         Bytes = bytes;
         Stage = stage;
         Filename = filename;
-        Exception = exception;
         Reflection = reflection;
     }
 }

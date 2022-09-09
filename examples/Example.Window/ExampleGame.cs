@@ -8,6 +8,7 @@ using System.Numerics;
 using Sekai.Engine;
 using Sekai.Engine.Annotations;
 using Sekai.Engine.Effects;
+using Sekai.Engine.Effects.Compiler;
 using Sekai.Engine.Graphics;
 using Sekai.Engine.Rendering;
 using Sekai.Framework.Annotations;
@@ -35,7 +36,7 @@ public class ExampleGame : Game
         using var stream = storage.Open("engine/shaders/world.sksl", FileMode.Open, FileAccess.Read);
         using var reader = new StreamReader(stream);
 
-        var effect = compiler.Compile(device, new EffectSource("world", reader.ReadToEnd()), EffectType.Graphics);
+        var effect = compiler.Compile(new EffectSource(reader.ReadToEnd()), EffectType.Graphics);
 
         var camera = new Camera();
         var sceneController = Systems.Get<SceneController>();
@@ -44,8 +45,7 @@ public class ExampleGame : Game
         var texture = Texture.Load(device, new Image<Rgba32>(1, 1, Rgba32.ParseHex("FFFFFF")), false);
         var sampler = device.Factory.CreateSampler(ref samplerDescriptor);
 
-        var material = new Material();
-        material.AddPass("Default", effect);
+        var material = new Material(effect);
         material["Default"].SetTexture("m_Albedo", texture);
         material["Default"].SetSampler("m_Sampler", sampler);
 
@@ -63,7 +63,7 @@ public class ExampleGame : Game
                     {
                         camera,
                         new CameraController(),
-                        new Transform { Position = new Vector3(0, 0, 10) },
+                        new Transform { Position = new Vector3(0, 0, 5) },
                     }
                 },
                 new Entity
@@ -71,7 +71,7 @@ public class ExampleGame : Game
                     Components = new Component[]
                     {
                         new MeshComponent { Mesh = mesh },
-                        new Transform(),
+                        new Transform { Scale = new Vector3(3) },
                     }
                 },
             },
@@ -92,28 +92,29 @@ public class CameraController : Behavior
     public override void Update(double delta)
     {
         const float speed = 100.0f;
+        float d = MathF.Round((float)delta, 4);
 
         transform ??= Entity.GetComponent<Transform>()!;
 
         keyboard ??= input.Available.OfType<IKeyboard>().Single();
 
         if (keyboard.IsKeyPressed(Key.W))
-            transform.Position -= transform.Forward * speed * (float)delta;
+            transform.Position -= transform.Forward * speed * d;
 
         if (keyboard.IsKeyPressed(Key.S))
-            transform.Position += transform.Forward * speed * (float)delta;
+            transform.Position += transform.Forward * speed * d;
 
         if (keyboard.IsKeyPressed(Key.A))
-            transform.Position -= transform.Right * speed * (float)delta;
+            transform.Position -= transform.Right * speed * d;
 
         if (keyboard.IsKeyPressed(Key.D))
-            transform.Position += transform.Right * speed * (float)delta;
+            transform.Position += transform.Right * speed * d;
 
         if (keyboard.IsKeyPressed(Key.Q))
-            transform.Position += transform.Up * speed * (float)delta;
+            transform.Position += transform.Up * speed * d;
 
         if (keyboard.IsKeyPressed(Key.E))
-            transform.Position -= transform.Up * speed * (float)delta;
+            transform.Position -= transform.Up * speed * d;
 
         mouse ??= input.Available.OfType<IMouse>().Single();
 
@@ -123,9 +124,9 @@ public class CameraController : Behavior
                 mousePressPosition = mouse.Position;
 
             var mouseDelta = mousePressPosition.Value - mouse.Position;
-            var rotation = new Vector3(mouseDelta, 0) * 1.0f * (float)delta;
-            rotation.Y = Math.Clamp(rotation.Y, -180, 90);
-            transform.RotationEuler += rotation;
+            transform.RotationEuler += new Vector3(mouseDelta, 0) * (speed / 4.0f) * d;
+
+            mousePressPosition = mouse.Position;
         }
         else
         {

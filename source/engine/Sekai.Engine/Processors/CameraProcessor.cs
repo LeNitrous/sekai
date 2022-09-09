@@ -1,9 +1,9 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-using System;
 using System.Numerics;
 using Sekai.Framework.Annotations;
+using Sekai.Framework.Utils;
 using Sekai.Framework.Windowing;
 
 namespace Sekai.Engine.Processors;
@@ -18,7 +18,7 @@ public class CameraProcessor : Processor<Camera, Transform>
         var target = Vector3.Transform(-Vector3.UnitZ, transform.Rotation);
         camera.ViewMatrix = Matrix4x4.CreateLookAt(transform.Position, transform.Position + target, Vector3.UnitY);
 
-        float fov = camera.FieldOfView * MathF.PI / 180.0f;
+        float fov = MathUtils.DegreesToRadians(camera.FieldOfView);
         float aspectRatio = (float)window.Size.Width / window.Size.Height;
 
         camera.ProjMatrix = camera.Projection == CameraProjectionMode.Perspective

@@ -77,25 +77,29 @@ public class RenderContext : SceneSystem, IRenderable
         {
             var component = meshes[i];
             var mesh = meshes[i].Mesh;
-            var pass = mesh.Material["Default"];
 
-            var transform = meshes[i].Entity.GetComponent<Transform>()!;
-            pass.SetUniformValue("m_Model", transform.WorldMatrix);
+            foreach (var effectPass in mesh.Material.Effect.Passes)
+            {
+                var pass = mesh.Material[effectPass.Name];
 
-            pipelineDescriptor.Topology = mesh.Topology;
-            pipelineDescriptor.Layouts[0] = pass.Layout;
-            pipelineDescriptor.ShaderSet.Shaders = pass.Effect.Shaders;
-            pipelineDescriptor.Rasterizer.Culling = mesh.Culling;
-            pipelineDescriptor.Rasterizer.Winding = mesh.Winding;
-            pipelineDescriptor.Rasterizer.FillMode = pass.FillMode;
-            pipelineDescriptor.Blend.Attachments[0] = pass.Blending;
-            pipelineDescriptor.ShaderSet.Layouts[0] = mesh.VertexBuffer.Layout;
+                var transform = meshes[i].Entity.GetComponent<Transform>()!;
+                pass.SetUniformValue("m_Model", transform.WorldMatrix);
 
-            queue.SetIndexBuffer(mesh.IndexBuffer);
-            queue.SetVertexBuffer(mesh.VertexBuffer);
-            queue.SetPipeline(mutablePipeline.GetPipeline(pipelineDescriptor));
-            queue.SetResourceSet(0, mesh.Material["Default"].Resources);
-            queue.DrawIndexed((uint)mesh.IndexBuffer.Count, 1, 0, 0, 0, 0);
+                pipelineDescriptor.Topology = mesh.Topology;
+                pipelineDescriptor.Layouts[0] = pass.Pass.Layout;
+                pipelineDescriptor.ShaderSet.Shaders = pass.Pass.Shaders;
+                pipelineDescriptor.Rasterizer.Culling = mesh.Culling;
+                pipelineDescriptor.Rasterizer.Winding = mesh.Winding;
+                pipelineDescriptor.Rasterizer.FillMode = pass.FillMode;
+                pipelineDescriptor.Blend.Attachments[0] = pass.Blending;
+                pipelineDescriptor.ShaderSet.Layouts[0] = mesh.VertexBuffer.Layout;
+
+                queue.SetIndexBuffer(mesh.IndexBuffer);
+                queue.SetVertexBuffer(mesh.VertexBuffer);
+                queue.SetPipeline(mutablePipeline.GetPipeline(pipelineDescriptor));
+                queue.SetResourceSet(0, pass.Resources);
+                queue.DrawIndexed((uint)mesh.IndexBuffer.Count, 1, 0, 0, 0, 0);
+            }
         }
 
         queue.End();
