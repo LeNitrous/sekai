@@ -2,34 +2,42 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using Sekai.Engine.Effects.Compiler;
 using Sekai.Engine.Threading;
 using Sekai.Framework;
-using Sekai.Framework.Windowing;
+using Sekai.Framework.Graphics;
+using Sekai.Framework.Storage;
 
 namespace Sekai.Engine.Platform;
 
 public static class Host
 {
-    public static Host<T> Setup<T>(HostOptions? options = null)
+    public static HostBuilder<T> Setup<T>(HostOptions? options = null)
         where T : Game, new()
     {
-        return new Host<T>(new T(), options);
+        return new HostBuilder<T>(options);
     }
 }
 
 public sealed partial class Host<T> : FrameworkObject
     where T : Game
 {
+    /// <summary>
+    /// Gets whether the host is currently running.
+    /// </summary>
     public bool IsRunning => threads?.IsRunning ?? false;
-    public T Game = null!;
-    private readonly HostOptions options;
+
+    /// <summary>
+    /// Gets the current game.
+    /// </summary>
+    public readonly T Game;
+
+    private VirtualStorage storage = null!;
+    private IGraphicsDevice graphics = null!;
     private ThreadController threads = null!;
 
-    internal Host(T game, HostOptions? options = null)
+    internal Host(T game)
     {
         Game = game;
-        this.options = options ?? new();
     }
 
     /// <summary>
@@ -40,40 +48,11 @@ public sealed partial class Host<T> : FrameworkObject
         if (IsRunning)
             throw new InvalidOperationException(@"This host is already running.");
 
-        setupHostInstances();
+        storage = Game.Container.Resolve<VirtualStorage>();
+        threads = Game.Container.Resolve<ThreadController>();
+        graphics = Game.Container.Resolve<IGraphicsDevice>();
 
-        var systems = new SystemCollection<GameSystem>();
-        systems.Register<SceneController>();
-
-        var updateThread = new MainUpdateThread(systems);
-        var renderThread = new MainRenderThread(systems, graphics);
-
-        threads = new ThreadController(window);
-        threads.Add(updateThread);
-        threads.Add(renderThread);
-        threads.ExecutionMode = options.ExecutionMode;
-        threads.FramesPerSecond = options.FramesPerSecond;
-        threads.UpdatePerSecond = options.UpdatePerSecond;
-
-        Game.Container.Cache(this);
-        Game.Container.Cache(threads);
-        Game.Container.Cache(systems);
-        Game.Container.Cache(storage);
-        Game.Container.Cache(window.Input);
-        Game.Container.Cache(graphics);
-        Game.Container.Cache(graphics.Factory);
-        Game.Container.Cache(new EffectCompiler(graphics));
-        Game.Container.Cache<IView>(window);
-
-        Game.AddInternal(systems);
-
-        Game.OnLoad += () =>
-        {
-            callbackGameLoad?.Invoke(Game);
-            window.Visible = true;
-        };
-
-        threads.Run(() => updateThread.Post(Game.Initialize));
+        threads.Run(Game.Initialize);
     }
 
     /// <summary>

@@ -31,7 +31,8 @@ public class HostTests
                     gameLoaded = false;
                     reset.Set();
                 };
-            });
+            })
+            .Build();
 
         var runTask = Task.Factory.StartNew(() => host.Run(), TaskCreationOptions.LongRunning);
 
@@ -64,7 +65,8 @@ public class HostTests
     {
         var host = Host
             .Setup<ExceptionThrowingGame>()
-            .UseHeadless();
+            .UseHeadless()
+            .Build();
 
         var runTask = Task.Factory.StartNew(() => host.Run(), TaskCreationOptions.LongRunning);
 
@@ -72,7 +74,7 @@ public class HostTests
 
         Assert.That(runTask.Exception?.InnerException, Is.InstanceOf<Exception>());
 
-        host.Dispose();
+        host.Exit();
     }
 
     private class ExceptionThrowingGame : TestGame

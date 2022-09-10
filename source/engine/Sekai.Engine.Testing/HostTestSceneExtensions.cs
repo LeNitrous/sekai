@@ -11,14 +11,14 @@ namespace Sekai.Engine.Testing;
 
 public static class HostTestSceneExtensions
 {
-    public static Host<T> SetupTest<T>(this Host<T> host, TestScene test)
-        where T : Game
+    public static HostBuilder<T> SetupTest<T>(this HostBuilder<T> builder, TestScene test)
+        where T : Game, new()
     {
         var context = TestExecutionContext.CurrentContext;
 
-        host.UseHeadless();
+        builder.UseHeadless();
 
-        host.UseLoadCallback(game =>
+        builder.UseLoadCallback(game =>
         {
             var threads = game.Container.Resolve<ThreadController>();
             threads.Post(setupContext);
@@ -53,6 +53,6 @@ public static class HostTestSceneExtensions
 
         void setupContextForThread(FrameworkThread thread) => thread.Post(setupContext);
 
-        return host;
+        return builder;
     }
 }

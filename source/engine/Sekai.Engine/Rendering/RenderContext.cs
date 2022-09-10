@@ -24,7 +24,7 @@ public class RenderContext : SceneSystem, IRenderable
 
     private ICommandQueue queue = null!;
     private GraphicsPipelineDescription pipelineDescriptor;
-    private MutablePipeline<GraphicsPipelineDescription> mutablePipeline = null!;
+    private MutablePipeline mutablePipeline = null!;
     private readonly List<MeshComponent> meshes = new();
     private readonly Dictionary<string, IBindableResource> parameters = new();
     internal IReadOnlyDictionary<string, IBindableResource> Parameters => parameters;
@@ -33,7 +33,7 @@ public class RenderContext : SceneSystem, IRenderable
     protected override void Load()
     {
         queue = device.Factory.CreateCommandQueue();
-        mutablePipeline = new MutablePipeline<GraphicsPipelineDescription>(device, createGraphicsPipeline);
+        mutablePipeline = new MutablePipeline(device);
 
         pipelineDescriptor = new GraphicsPipelineDescription
         {
@@ -98,7 +98,7 @@ public class RenderContext : SceneSystem, IRenderable
                 queue.SetVertexBuffer(mesh.VertexBuffer);
                 queue.SetPipeline(mutablePipeline.GetPipeline(pipelineDescriptor));
                 queue.SetResourceSet(0, pass.Resources);
-                queue.DrawIndexed((uint)mesh.IndexBuffer.Count, 1, 0, 0, 0, 0);
+                queue.DrawIndexed((uint)mesh.IndexBuffer.Count, 1, 0, 0, 0);
             }
         }
 
@@ -189,10 +189,5 @@ public class RenderContext : SceneSystem, IRenderable
             throw new InvalidOperationException();
 
         parameters.Add(name, sampler);
-    }
-
-    private static IPipeline createGraphicsPipeline(IGraphicsDevice device, GraphicsPipelineDescription description)
-    {
-        return device.Factory.CreatePipeline(ref description);
     }
 }

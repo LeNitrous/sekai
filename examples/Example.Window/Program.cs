@@ -3,6 +3,7 @@
 
 using Example.Window;
 using Sekai.Engine.Platform;
+using Sekai.ImGui;
 using Sekai.SDL;
 using Sekai.Veldrid;
 
@@ -10,4 +11,5 @@ Host
     .Setup<ExampleGame>()
     .UseSDLWindow()
     .UseVeldrid()
+    .UseImGui()
     .Run();

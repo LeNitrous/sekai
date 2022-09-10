@@ -8,10 +8,10 @@ namespace Sekai.Headless;
 
 public static class HeadlessHostExtensions
 {
-    public static Host<T> UseHeadless<T>(this Host<T> host)
-        where T : Game
+    public static HostBuilder<T> UseHeadless<T>(this HostBuilder<T> builder)
+        where T : Game, new()
     {
-        return host
+        return builder
             .UseWindow<HeadlessWindow>()
             .UseGraphics<HeadlessGraphicsDevice>();
     }

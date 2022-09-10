@@ -8,9 +8,9 @@ namespace Sekai.Veldrid;
 
 public static class VeldridHostExtensions
 {
-    public static Host<T> UseVeldrid<T>(this Host<T> host)
-        where T : Game
+    public static HostBuilder<T> UseVeldrid<T>(this HostBuilder<T> builder)
+        where T : Game, new()
     {
-        return host.UseGraphics<VeldridGraphicsDevice>();
+        return builder.UseGraphics<VeldridGraphicsDevice>();
     }
 }

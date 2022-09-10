@@ -1,6 +1,7 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
+using System.Drawing;
 using Sekai.Framework;
 using Sekai.Framework.Graphics;
 
@@ -28,7 +29,7 @@ internal class HeadlessCommandQueue : FrameworkObject, ICommandQueue
     {
     }
 
-    public void DrawIndexed(uint indexCount, uint instanceCount, uint indexStart, uint vertexStart, int vertexOffset, uint instanceStart)
+    public void DrawIndexed(uint indexCount, uint instanceCount, uint indexStart, int vertexOffset, uint instanceStart)
     {
     }
 
@@ -65,6 +66,10 @@ internal class HeadlessCommandQueue : FrameworkObject, ICommandQueue
     }
 
     public void SetResourceSet(uint slot, IResourceSet resourceSet, uint dynamicOffsetsCount, ref uint dynamicOffsets)
+    {
+    }
+
+    public void SetScissor(uint index, Rectangle rect)
     {
     }
 

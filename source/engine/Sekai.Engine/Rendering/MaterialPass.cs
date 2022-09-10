@@ -174,9 +174,9 @@ public class MaterialPass : FrameworkObject
 
         for (int i = 0; i < Pass.Parameters.Count; i++)
         {
-            var member = Pass.Parameters[i];
+            var parameter = Pass.Parameters[i];
 
-            if (member.Name != name || !member.Flags.HasFlag(flag))
+            if (parameter.Name != name || !parameter.Flags.HasFlag(flag))
                 continue;
 
             var resource = resources[i];
@@ -197,8 +197,20 @@ public class MaterialPass : FrameworkObject
         resourceSet?.Dispose();
         resourceSet = null!;
 
-        // TODO: replace empty texture slots with white texture
-        // TODO: replace empty sampler slots with point sampler
+        for (int i = 0; i < Pass.Parameters.Count; i++)
+        {
+            var parameter = Pass.Parameters[i];
+
+            if (parameter.Flags.HasFlag(EffectParameterFlags.Texture) && resources[i] == null)
+                resources[i] = device.WhitePixel;
+
+            if (parameter.Flags.HasFlag(EffectParameterFlags.Sampler) && resources[i] == null)
+                resources[i] = device.SamplerPoint;
+
+            if (parameter.Flags.HasFlag(EffectParameterFlags.Image) && resources[i] == null)
+                throw new InvalidOperationException($"Parameter \"{parameter.Name}\" must be populated with a texture that has a {nameof(TextureUsage.Storage)} flag.");
+        }
+
         var descriptor = new ResourceSetDescription(Pass.Layout, resources);
         resourceSet = device.Factory.CreateResourceSet(ref descriptor);
 

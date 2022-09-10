@@ -15,6 +15,28 @@ internal class HeadlessGraphicsDevice : FrameworkObject, IGraphicsDevice
     public ISwapChain SwapChain { get; } = null!;
     public GraphicsDeviceFeatures Features { get; } = new GraphicsDeviceFeatures();
     public IGraphicsResourceFactory Factory { get; } = new HeadlessGraphicsResourceFactory();
+    public ITexture WhitePixel { get; }
+    public ISampler SamplerPoint { get; }
+    public ISampler SamplerLinear { get; }
+    public ISampler SamplerAniso4x { get; }
+
+    public HeadlessGraphicsDevice()
+    {
+        WhitePixel = new HeadlessTexture
+        (
+            PixelFormat.R8_G8_B8_A8_UNorm,
+            1,
+            1,
+            1,
+            0,
+            0,
+            TextureUsage.Sampled,
+            TextureKind.Texture2D,
+            TextureSampleCount.Count1
+        );
+
+        SamplerPoint = SamplerLinear = SamplerAniso4x = new HeadlessSampler();
+    }
 
     public ShaderCompilationResult CompileShader(string source, ShaderStage stage, ShaderCompilationOptions? options = null)
     {

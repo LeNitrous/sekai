@@ -7,6 +7,7 @@ using System.Linq;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Sekai.Engine.Platform;
 using Sekai.Framework;
 using Sekai.Framework.Logging;
 using Sekai.Framework.Threading;
@@ -19,7 +20,7 @@ public sealed class ThreadController : FrameworkObject
     /// <summary>
     /// Whether this thread controller is currently running.
     /// </summary>
-    public bool IsRunning => mainThread.IsRunning;
+    public bool IsRunning => MainThread.IsRunning;
 
     /// <summary>
     /// Whether this thread controller should stop when an unhandled exception occurs.
@@ -46,8 +47,11 @@ public sealed class ThreadController : FrameworkObject
     private ExecutionMode executionMode;
     private bool executionModeChanged = true;
     private readonly IView view;
-    private readonly FrameworkThread mainThread;
     private readonly List<FrameworkThread> threads = new();
+
+    internal MainWindowThread MainThread { get; }
+    internal MainUpdateThread UpdateThread { get; private set; } = null!;
+    internal MainRenderThread RenderThread { get; private set; } = null!;
 
     /// <summary>
     /// Gets or sets how threads will be ran.
@@ -84,7 +88,7 @@ public sealed class ThreadController : FrameworkObject
                     t.UpdatePerSecond = updatePerSecond;
             }
 
-            mainThread.UpdatePerSecond = updatePerSecond;
+            MainThread.UpdatePerSecond = updatePerSecond;
         }
     }
 
@@ -112,8 +116,8 @@ public sealed class ThreadController : FrameworkObject
     public ThreadController(IView view)
     {
         this.view = view;
-        mainThread = new MainThread(run);
-        mainThread.OnUnhandledException += onUnhandledException;
+        MainThread = new MainWindowThread(run);
+        MainThread.OnUnhandledException += onUnhandledException;
         TaskScheduler.UnobservedTaskException += onUnobservedTaskException;
         AppDomain.CurrentDomain.UnhandledException += onUnhandledException;
     }
@@ -123,7 +127,7 @@ public sealed class ThreadController : FrameworkObject
     /// </summary>
     public void Post(Action action)
     {
-        mainThread.Post(action);
+        MainThread.Post(action);
     }
 
     /// <summary>
@@ -131,7 +135,7 @@ public sealed class ThreadController : FrameworkObject
     /// </summary>
     public void Send(Action action)
     {
-        mainThread.Send(action);
+        MainThread.Send(action);
     }
 
     /// <summary>
@@ -139,7 +143,7 @@ public sealed class ThreadController : FrameworkObject
     /// </summary>
     public void Add(FrameworkThread thread)
     {
-        if (thread == mainThread)
+        if (thread == MainThread)
             return;
 
         lock (threads)
@@ -153,6 +157,22 @@ public sealed class ThreadController : FrameworkObject
         thread.UpdatePerSecond = UpdatePerSecond;
         thread.OnUnhandledException += onUnhandledException;
 
+        if (thread is MainUpdateThread mainUpdateThread)
+        {
+            if (UpdateThread != null)
+                throw new InvalidOperationException(@"There cannot be more than one instance of the main update thread.");
+
+            UpdateThread = mainUpdateThread;
+        }
+
+        if (thread is MainRenderThread mainRenderThread)
+        {
+            if (RenderThread != null)
+                throw new InvalidOperationException(@"There cannot be more than one instance of the main render thread.");
+
+            RenderThread = mainRenderThread;
+        }
+
         if (IsRunning && ExecutionMode == ExecutionMode.MultiThread)
             thread.Start();
 
@@ -164,7 +184,7 @@ public sealed class ThreadController : FrameworkObject
     /// </summary>
     public void Remove(FrameworkThread thread)
     {
-        if (thread == mainThread)
+        if (thread == MainThread)
             return;
 
         lock (threads)
@@ -176,6 +196,9 @@ public sealed class ThreadController : FrameworkObject
         }
 
         thread.OnUnhandledException -= onUnhandledException;
+
+        if (thread == UpdateThread || thread == RenderThread)
+            throw new InvalidOperationException(@"Cannot remove the main threads.");
 
         if (IsRunning && ExecutionMode == ExecutionMode.MultiThread)
             thread.Stop();
@@ -189,21 +212,24 @@ public sealed class ThreadController : FrameworkObject
     public void Clear()
     {
         foreach (var t in threads)
+        {
+            if (t == UpdateThread || t == RenderThread)
+                continue;
+
             Remove(t);
+        }
     }
 
     /// <summary>
     /// Starts the threading manager.
     /// </summary>
-    internal void Run(Action? action = null)
+    internal void Run(Action action)
     {
         if (IsRunning)
             return;
 
-        if (action != null)
-            Post(action);
-
-        mainThread.Run();
+        UpdateThread.Post(action);
+        MainThread.Run();
     }
 
     /// <summary>
@@ -214,7 +240,7 @@ public sealed class ThreadController : FrameworkObject
         if (!IsRunning)
             return;
 
-        mainThread.Stop();
+        MainThread.Stop();
 
         lock (threads)
         {
@@ -248,7 +274,7 @@ public sealed class ThreadController : FrameworkObject
         using var reset = new ManualResetEventSlim(false);
         var exceptionInfo = ExceptionDispatchInfo.Capture(exception);
 
-        mainThread.Post(() =>
+        MainThread.Post(() =>
         {
             try
             {
@@ -260,7 +286,7 @@ public sealed class ThreadController : FrameworkObject
             }
         });
 
-        if (isTerminating || sender == mainThread || ExecutionMode == ExecutionMode.SingleThread)
+        if (isTerminating || sender == MainThread || ExecutionMode == ExecutionMode.SingleThread)
             return;
 
         reset.Wait(10000);
@@ -308,8 +334,8 @@ public sealed class ThreadController : FrameworkObject
         TaskScheduler.UnobservedTaskException -= onUnobservedTaskException;
         AppDomain.CurrentDomain.UnhandledException -= onUnhandledException;
 
-        mainThread.OnUnhandledException -= onUnhandledException;
-        mainThread.Dispose();
+        MainThread.OnUnhandledException -= onUnhandledException;
+        MainThread.Dispose();
         view.Dispose();
 
         lock (threads)
@@ -319,20 +345,5 @@ public sealed class ThreadController : FrameworkObject
         }
 
         threads.Clear();
-    }
-
-    private class MainThread : FrameworkThread
-    {
-        protected override bool PropagateExceptions => true;
-
-        private readonly Action onNewFrame;
-
-        public MainThread(Action onNewFrame)
-            : base(@"Main")
-        {
-            this.onNewFrame = onNewFrame;
-        }
-
-        protected override void OnNewFrame() => onNewFrame();
     }
 }

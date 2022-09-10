@@ -28,12 +28,12 @@ public class EffectPass : FrameworkObject
     /// <summary>
     /// The compiled shaders for this pass.
     /// </summary>
-    internal IShader[] Shaders { get; }
+    public IShader[] Shaders { get; }
 
     /// <summary>
     /// The resource layout used by the compiled shaders.
     /// </summary>
-    internal IResourceLayout Layout { get; }
+    public IResourceLayout Layout { get; }
 
     internal EffectPass(string name, IReadOnlyList<EffectStageInfo> stages, IReadOnlyList<EffectParameterInfo> parameters, IResourceLayout layout, IShader[] shaders)
     {

@@ -1,3 +1,6 @@
+// Copyright (c) The Vignette Authors
+// Licensed under MIT. See LICENSE for details.
+
 using NUnit.Framework;
 using Sekai.Engine.Effects.Compiler;
 using Sekai.Engine.Effects.Documents;
@@ -80,7 +83,7 @@ effect ""Test""
             Assert.That(analyzer.Parameters[0].Name, Is.EqualTo("Image"));
             Assert.That(analyzer.Parameters[0].Type, Is.EqualTo("image2D"));
             Assert.That(analyzer.Parameters[0].Size, Is.EqualTo(0));
-            Assert.That(analyzer.Parameters[0].Flags, Is.EqualTo(EffectParameterFlags.Uniform | EffectParameterFlags.Image));
+            Assert.That(analyzer.Parameters[0].Flags, Is.EqualTo(EffectParameterFlags.Uniform | EffectParameterFlags.Image | EffectParameterFlags.Texture2D));
         });
     }
 
@@ -132,7 +135,7 @@ effect ""Test""
             Assert.That(analyzer.Parameters[0].Name, Is.EqualTo("Texture"));
             Assert.That(analyzer.Parameters[0].Type, Is.EqualTo("texture2D"));
             Assert.That(analyzer.Parameters[0].Size, Is.EqualTo(0));
-            Assert.That(analyzer.Parameters[0].Flags, Is.EqualTo(EffectParameterFlags.Uniform | EffectParameterFlags.Texture));
+            Assert.That(analyzer.Parameters[0].Flags, Is.EqualTo(EffectParameterFlags.Uniform | EffectParameterFlags.Texture | EffectParameterFlags.Texture2D));
         });
     }
 

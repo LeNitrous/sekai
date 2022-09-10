@@ -16,7 +16,10 @@ internal partial class VeldridGraphicsDevice : FrameworkObject, IGraphicsDevice
     public GraphicsAPI GraphicsAPI { get; private set; } = GraphicsAPI.OpenGL;
     public GraphicsDeviceFeatures Features { get; private set;} = null!;
     public IGraphicsResourceFactory Factory { get; private set; } = null!;
-
+    public ITexture WhitePixel { get; private set; } = null!;
+    public ISampler SamplerPoint { get; private set; } = null!;
+    public ISampler SamplerLinear { get; private set; } = null!;
+    public ISampler SamplerAniso4x { get; private set; } = null!;
     private Vd.GraphicsDevice device = null!;
 
     public void Initialize(IView view, GraphicsContextOptions options)
@@ -81,6 +84,46 @@ internal partial class VeldridGraphicsDevice : FrameworkObject, IGraphicsDevice
 
         if (view is IWindow window)
             window.OnResize += s => device.ResizeMainWindow((uint)s.Width, (uint)s.Height);
+
+        byte[] whitePixelData = new byte[] { 255, 255, 255, 255 };
+        var whitePixelDescriptor = new TextureDescription
+        (
+            1,
+            1,
+            1,
+            1,
+            1,
+            PixelFormat.R8_G8_B8_A8_UNorm,
+            TextureKind.Texture2D,
+            TextureUsage.Sampled,
+            TextureSampleCount.Count1
+        );
+
+        WhitePixel = Factory.CreateTexture(ref whitePixelDescriptor);
+        UpdateTextureData(WhitePixel, whitePixelData, 0, 0, 0, 1, 1, 1, 0, 0);
+
+        var samplerDescriptor = new SamplerDescription
+        (
+            SamplerAddressMode.Wrap,
+            SamplerAddressMode.Wrap,
+            SamplerAddressMode.Wrap,
+            SamplerFilter.MinPoint_MagPoint_MipPoint,
+            null,
+            0,
+            0,
+            uint.MaxValue,
+            0,
+            SamplerBorderColor.TransparentBlack
+        );
+
+        SamplerPoint = Factory.CreateSampler(ref samplerDescriptor);
+
+        samplerDescriptor.Filter = SamplerFilter.MinLinear_MagLinear_MipLinear;
+        SamplerLinear = Factory.CreateSampler(ref samplerDescriptor);
+
+        samplerDescriptor.Filter = SamplerFilter.Anisotropic;
+        samplerDescriptor.MaximumAnisotropy = 4;
+        SamplerAniso4x = Factory.CreateSampler(ref samplerDescriptor);
     }
 
     public MappedResource Map(IBuffer buffer, MapMode mode)

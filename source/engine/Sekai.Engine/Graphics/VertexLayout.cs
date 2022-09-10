@@ -15,7 +15,19 @@ namespace Sekai.Engine.Graphics;
 /// </summary>
 public class VertexLayout : FrameworkObject
 {
-    public int Stride => elements.Select(e => getElementCount(e.Format)).Sum();
+    public int Stride
+    {
+        get
+        {
+            if (dirty)
+                stride = elements.Select(e => getElementCount(e.Format)).Sum();
+
+            return stride;
+        }
+    }
+
+    private int stride;
+    private bool dirty;
     private readonly List<VertexElementDescription> elements = new();
 
     /// <summary>
@@ -49,6 +61,7 @@ public class VertexLayout : FrameworkObject
             Format = format
         };
 
+        dirty = true;
         elements.Add(description);
 
         return this;
@@ -59,11 +72,12 @@ public class VertexLayout : FrameworkObject
     /// </summary>
     public VertexLayout Add(VertexLayout layout)
     {
+        dirty = true;
         elements.AddRange(layout.elements);
         return this;
     }
 
-    internal VertexLayoutDescription GetDescriptor()
+    public VertexLayoutDescription Build()
     {
         return new VertexLayoutDescription((uint)Stride, elements.ToArray());
     }

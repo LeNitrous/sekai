@@ -18,7 +18,7 @@ public class VertexBuffer : BindableBuffer
     public VertexBuffer(IGraphicsDevice device, VertexLayout layout, int count)
         : base(device, layout.Stride * count, BufferUsage.Vertex)
     {
-        Layout = layout.GetDescriptor();
+        Layout = layout.Build();
     }
 
     /// <summary>

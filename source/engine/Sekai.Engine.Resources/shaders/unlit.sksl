@@ -1,4 +1,4 @@
-effect "UnlitGeneric"
+effect "Unlit"
 {
     pass "Default"
     {
@@ -10,7 +10,7 @@ effect "UnlitGeneric"
         uniform sampler m_Sampler;
 
         stage vec3 m_Position;
-        stage vec2 m_TexturePosition;
+        stage vec2 m_TexCoord;
 
         vec4 vert()
         {
@@ -19,7 +19,7 @@ effect "UnlitGeneric"
 
         vec4 frag()
         {
-            return texture(sampler2D(m_Albedo, m_Sampler), m_TexturePosition);
+            return texture(sampler2D(m_Albedo, m_Sampler), m_TexCoord);
         }
     }
 }

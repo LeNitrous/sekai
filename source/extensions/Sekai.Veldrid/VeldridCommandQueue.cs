@@ -1,6 +1,7 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
+using System.Drawing;
 using Sekai.Framework.Graphics;
 using Vd = Veldrid;
 
@@ -44,7 +45,7 @@ internal class VeldridCommandQueue : VeldridGraphicsResource<Vd.CommandList>, IC
         Resource.Draw(vertexCount, instanceCount, vertexStart, instanceStart);
     }
 
-    public void DrawIndexed(uint indexCount, uint instanceCount, uint indexStart, uint vertexStart, int vertexOffset, uint instanceStart)
+    public void DrawIndexed(uint indexCount, uint instanceCount, uint indexStart, int vertexOffset, uint instanceStart)
     {
         Resource.DrawIndexed(indexCount, instanceCount, indexStart, vertexOffset, instanceStart);
     }
@@ -131,5 +132,10 @@ internal class VeldridCommandQueue : VeldridGraphicsResource<Vd.CommandList>, IC
     {
         this.framebuffer = (VeldridFramebuffer)framebuffer;
         Resource.SetFramebuffer(this.framebuffer.Resource);
+    }
+
+    public void SetScissor(uint index, Rectangle rect)
+    {
+        Resource.SetScissorRect(index, (uint)rect.X, (uint)rect.Y, (uint)rect.Width, (uint)rect.Height);
     }
 }

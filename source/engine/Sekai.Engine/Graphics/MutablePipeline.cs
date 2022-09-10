@@ -1,34 +1,61 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-using System;
 using System.Collections.Generic;
 using Sekai.Framework;
 using Sekai.Framework.Graphics;
 
 namespace Sekai.Engine.Graphics;
 
-public class MutablePipeline<T> : FrameworkObject
-    where T : struct
+public class MutablePipeline : FrameworkObject
 {
     private readonly IGraphicsDevice device;
-    private readonly Dictionary<T, IPipeline> pipelines = new();
-    private readonly Func<IGraphicsDevice, T, IPipeline> createPipelineFunc;
+    private Dictionary<ComputePipelineDescription, IPipeline> computePipelines = null!;
+    private Dictionary<GraphicsPipelineDescription, IPipeline> graphicsPipelines = null!;
 
-    public MutablePipeline(IGraphicsDevice device, Func<IGraphicsDevice, T, IPipeline> createPipelineFunc)
+    public MutablePipeline(IGraphicsDevice device)
     {
         this.device = device;
-        this.createPipelineFunc = createPipelineFunc;
     }
 
-    public IPipeline GetPipeline(T description)
+    public IPipeline GetPipeline(GraphicsPipelineDescription description)
     {
-        if (!pipelines.TryGetValue(description, out var pipeline))
+        graphicsPipelines ??= new();
+
+        if (!graphicsPipelines.TryGetValue(description, out var pipeline))
         {
-            pipeline = createPipelineFunc(device, description);
-            pipelines.Add(description, pipeline);
+            pipeline = device.Factory.CreatePipeline(ref description);
+            graphicsPipelines.Add(description, pipeline);
         }
 
         return pipeline;
+    }
+
+    public IPipeline GetPipeline(ComputePipelineDescription description)
+    {
+        computePipelines ??= new();
+
+        if (!computePipelines.TryGetValue(description, out var pipeline))
+        {
+            pipeline = device.Factory.CreatePipeline(ref description);
+            computePipelines.Add(description, pipeline);
+        }
+
+        return pipeline;
+    }
+
+    protected override void Destroy()
+    {
+        if (graphicsPipelines != null)
+        {
+            foreach (var pipeline in graphicsPipelines.Values)
+                pipeline.Dispose();
+        }
+
+        if (computePipelines != null)
+        {
+            foreach (var pipeline in computePipelines.Values)
+                pipeline.Dispose();
+        }
     }
 }

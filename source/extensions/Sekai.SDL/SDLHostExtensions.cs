@@ -8,9 +8,9 @@ namespace Sekai.SDL;
 
 public static class SDLHostExtensions
 {
-    public static Host<T> UseSDLWindow<T>(this Host<T> host)
-        where T : Game
+    public static HostBuilder<T> UseSDLWindow<T>(this HostBuilder<T> builder)
+        where T : Game, new()
     {
-        return host.UseWindow<SDLWindow>();
+        return builder.UseWindow<SDLWindow>();
     }
 }

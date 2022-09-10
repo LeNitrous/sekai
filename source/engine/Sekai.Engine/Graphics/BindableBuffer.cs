@@ -9,6 +9,8 @@ namespace Sekai.Engine.Graphics;
 
 public abstract class BindableBuffer : FrameworkObject
 {
+    public int Size { get; }
+
     protected readonly IBuffer Buffer;
     protected readonly IGraphicsDevice Device;
 
@@ -17,6 +19,7 @@ public abstract class BindableBuffer : FrameworkObject
         if (size <= 0)
             throw new ArgumentException($"Size must be greater than zero.");
 
+        Size = size;
         Device = device;
 
         var description = new BufferDescription((uint)size, usage);

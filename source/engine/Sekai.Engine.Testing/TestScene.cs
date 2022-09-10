@@ -24,7 +24,7 @@ public abstract class TestScene<T> : TestScene
         if (!TestUtils.IsNUnit)
             return;
 
-        host = Host.Setup<T>().SetupTest(this);
+        host = Host.Setup<T>().SetupTest(this).Build();
         runTask = Task.Factory.StartNew(() => host.Run(), TaskCreationOptions.LongRunning);
 
         while (!IsLoaded)

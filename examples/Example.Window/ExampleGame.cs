@@ -15,8 +15,6 @@ using Sekai.Framework.Annotations;
 using Sekai.Framework.Graphics;
 using Sekai.Framework.Input;
 using Sekai.Framework.Storage;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 
 namespace Example.Window;
 
@@ -33,7 +31,7 @@ public class ExampleGame : Game
 
     protected override void Load()
     {
-        using var stream = storage.Open("engine/shaders/world.sksl", FileMode.Open, FileAccess.Read);
+        using var stream = storage.Open("engine/shaders/unlit.sksl", FileMode.Open, FileAccess.Read);
         using var reader = new StreamReader(stream);
 
         var effect = compiler.Compile(new EffectSource(reader.ReadToEnd()), EffectType.Graphics);
@@ -41,14 +39,7 @@ public class ExampleGame : Game
         var camera = new Camera();
         var sceneController = Systems.Get<SceneController>();
 
-        var samplerDescriptor = new SamplerDescription(SamplerAddressMode.Wrap, SamplerAddressMode.Wrap, SamplerAddressMode.Wrap, SamplerFilter.MinPoint_MagPoint_MipPoint, ComparisonKind.Never, 0, int.MaxValue, 0, 0, SamplerBorderColor.OpaqueWhite);
-        var texture = Texture.Load(device, new Image<Rgba32>(1, 1, Rgba32.ParseHex("FFFFFF")), false);
-        var sampler = device.Factory.CreateSampler(ref samplerDescriptor);
-
         var material = new Material(effect);
-        material["Default"].SetTexture("m_Albedo", texture);
-        material["Default"].SetSampler("m_Sampler", sampler);
-
         var mesh = Cube.Generate(device, Vector3.One, Vector2.One);
         mesh.Material = material;
 

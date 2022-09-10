@@ -37,6 +37,26 @@ public interface IGraphicsDevice : IDisposable
     ISwapChain SwapChain { get; }
 
     /// <summary>
+    /// A white pixel as a texture.
+    /// </summary>
+    ITexture WhitePixel { get; }
+
+    /// <summary>
+    /// Point-filtered sampler.
+    /// </summary>
+    ISampler SamplerPoint { get; }
+
+    /// <summary>
+    /// Linear-filtered sampler.
+    /// </summary>
+    ISampler SamplerLinear { get; }
+
+    /// <summary>
+    /// 4x anisotropic-filtered sampler.
+    /// </summary>
+    ISampler SamplerAniso4x { get; }
+
+    /// <summary>
     /// Initializes this device.
     /// </summary>
     void Initialize(IView view, GraphicsContextOptions options);

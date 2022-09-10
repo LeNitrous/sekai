@@ -1,6 +1,8 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
+using System.Drawing;
+
 namespace Sekai.Framework.Graphics;
 
 public interface ICommandQueue : IGraphicsResource
@@ -51,6 +53,12 @@ public interface ICommandQueue : IGraphicsResource
     void SetResourceSet(uint slot, IResourceSet resourceSet, uint dynamicOffsetsCount, ref uint dynamicOffsets);
 
     /// <summary>
+    /// Sets the scissor rectangle.
+    /// </summary>
+    void SetScissor(uint index, Rectangle rect);
+
+
+    /// <summary>
     /// Sets the viewport.
     /// </summary>
     void SetViewport(uint index, Viewport viewport);
@@ -68,7 +76,7 @@ public interface ICommandQueue : IGraphicsResource
     /// <summary>
     /// Draws vertices to the current frame buffer.
     /// </summary>
-    void DrawIndexed(uint indexCount, uint instanceCount, uint indexStart, uint vertexStart, int vertexOffset, uint instanceStart);
+    void DrawIndexed(uint indexCount, uint instanceCount, uint indexStart, int vertexOffset, uint instanceStart);
 
     /// <summary>
     /// Draws vertices to the current frame buffer using an indirect buffer.
