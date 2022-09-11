@@ -21,6 +21,7 @@ internal readonly struct SDLNativeWindow : INativeWindow
     public SDLNativeWindow(SDLView view)
     {
         var info = new SDL_SysWMinfo();
+        SDL_VERSION(out info.version);
         SDL_GetWindowWMInfo(view.Window, ref info);
 
         switch (info.subsystem)
