@@ -11,5 +11,4 @@ Host
     .Setup<ExampleGame>()
     .UseSDLWindow()
     .UseVeldrid()
-    .UseImGui()
     .Run();

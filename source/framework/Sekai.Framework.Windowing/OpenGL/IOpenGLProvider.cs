@@ -26,7 +26,7 @@ public interface IOpenGLProvider
     nint GetCurrentContext();
 
     /// <summary>
-    ///
+    /// Clears the current OpenGL Context.
     /// </summary>
     void ClearCurrentContext();
 

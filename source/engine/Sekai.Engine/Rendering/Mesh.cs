@@ -9,7 +9,7 @@ namespace Sekai.Engine.Rendering;
 
 public class Mesh : FrameworkObject
 {
-    // <summary>
+    /// <summary>
     /// Gets or sets this mesh's material.
     /// </summary>
     public Material Material { get; set; } = null!;
