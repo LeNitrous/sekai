@@ -9,7 +9,6 @@
   <ItemGroup>
     <ProjectReference Include="../../source/engine/Sekai.Engine/Sekai.Engine.csproj" />
     <ProjectReference Include="../../source/extensions/Sekai.SDL/Sekai.SDL.csproj" />
-    <ProjectReference Include="../../source/extensions/Sekai.ImGui/Sekai.ImGui.csproj" />
     <ProjectReference Include="../../source/extensions/Sekai.Veldrid/Sekai.Veldrid.csproj" />
   </ItemGroup>
 
