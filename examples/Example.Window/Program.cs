@@ -3,7 +3,6 @@
 
 using Example.Window;
 using Sekai.Engine.Platform;
-using Sekai.ImGui;
 using Sekai.SDL;
 using Sekai.Veldrid;
 
