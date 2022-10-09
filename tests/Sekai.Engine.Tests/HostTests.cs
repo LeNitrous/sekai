@@ -12,6 +12,8 @@ namespace Sekai.Engine.Tests;
 
 public class HostTests
 {
+    private const int wait_time = 30000;
+
     [Test]
     public void TestHostLifetime()
     {
@@ -36,7 +38,7 @@ public class HostTests
 
         var runTask = Task.Factory.StartNew(() => host.Run(), TaskCreationOptions.LongRunning);
 
-        if (!reset.WaitOne(10000))
+        if (!reset.WaitOne(wait_time))
             Assert.Fail("Failed to receive signal in time.");
 
         Assert.Multiple(() =>
@@ -48,7 +50,7 @@ public class HostTests
         reset.Reset();
         host.Exit();
 
-        if (!reset.WaitOne(10000))
+        if (!reset.WaitOne(wait_time))
             Assert.Fail("Failed to receive signal in time.");
 
         Assert.Multiple(() =>
@@ -63,14 +65,18 @@ public class HostTests
     [Test]
     public void TestExceptionThrow()
     {
+        var reset = new ManualResetEvent(false);
+
         var host = Host
             .Setup<ExceptionThrowingGame>()
             .UseHeadless()
+            .UseLoadCallback(_ =>  reset.Set())
             .Build();
 
         var runTask = Task.Factory.StartNew(() => host.Run(), TaskCreationOptions.LongRunning);
 
-        Thread.Sleep(100);
+        if (!reset.WaitOne(wait_time))
+            Assert.Fail("Failed to receive signal in time.");
 
         Assert.That(runTask.Exception?.InnerException, Is.InstanceOf<Exception>());
 
