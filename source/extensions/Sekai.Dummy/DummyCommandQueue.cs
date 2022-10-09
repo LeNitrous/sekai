@@ -5,9 +5,9 @@ using System.Drawing;
 using Sekai.Framework;
 using Sekai.Framework.Graphics;
 
-namespace Sekai.Headless;
+namespace Sekai.Dummy;
 
-internal class HeadlessCommandQueue : FrameworkObject, ICommandQueue
+internal class DummyCommandQueue : FrameworkObject, ICommandQueue
 {
     public void Begin()
     {

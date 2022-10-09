@@ -5,11 +5,11 @@ using System.Collections.Generic;
 using System.Drawing;
 using Sekai.Framework.Windowing;
 
-namespace Sekai.Headless;
+namespace Sekai.Dummy;
 
-internal class HeadlessMonitor : IMonitor
+internal class DummyMonitor : IMonitor
 {
-    public string Name { get; } = @"Headless";
+    public string Name { get; } = @"Dummy";
     public bool Primary { get; } = true;
     public int Index { get; } = 0;
     public Rectangle Bounds { get; } = Rectangle.Empty;

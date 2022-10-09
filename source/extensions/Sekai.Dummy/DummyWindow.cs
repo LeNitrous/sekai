@@ -6,11 +6,11 @@ using System.Collections.Generic;
 using System.Drawing;
 using Sekai.Framework.Windowing;
 
-namespace Sekai.Headless;
+namespace Sekai.Dummy;
 
-internal class HeadlessWindow : HeadlessView, IWindow
+internal class DummyWindow : DummyView, IWindow
 {
-    public string Title { get; set; } = @"Headless Window";
+    public string Title { get; set; } = @"Dummy Window";
     public Icon Icon { get; set; }
     public Point Position { get; set; }
     public new Size Size { get; set; }
@@ -25,9 +25,9 @@ internal class HeadlessWindow : HeadlessView, IWindow
     public event Action<Point> OnMoved = null!;
     public event Action<string[]> OnDataDropped = null!;
 
-    public HeadlessWindow()
+    public DummyWindow()
     {
-        Monitor = new HeadlessMonitor();
+        Monitor = new DummyMonitor();
         Monitors = new[] { Monitor };
     }
 }

@@ -5,7 +5,7 @@ using NUnit.Framework.Internal;
 using Sekai.Engine.Platform;
 using Sekai.Engine.Threading;
 using Sekai.Framework.Threading;
-using Sekai.Headless;
+using Sekai.Dummy;
 
 namespace Sekai.Engine.Testing;
 
@@ -16,7 +16,7 @@ public static class HostTestSceneExtensions
     {
         var context = TestExecutionContext.CurrentContext;
 
-        builder.UseHeadless();
+        builder.UseDummy();
 
         builder.UseLoadCallback(game =>
         {

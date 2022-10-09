@@ -4,14 +4,14 @@
 using Sekai.Framework;
 using Sekai.Framework.Graphics;
 
-namespace Sekai.Headless;
+namespace Sekai.Dummy;
 
-internal class HeadlessBuffer : FrameworkObject, IBuffer
+internal class DummyBuffer : FrameworkObject, IBuffer
 {
     public uint Size { get; }
     public BufferUsage Usage { get; }
 
-    public HeadlessBuffer(uint size, BufferUsage usage)
+    public DummyBuffer(uint size, BufferUsage usage)
     {
         Size = size;
         Usage = usage;

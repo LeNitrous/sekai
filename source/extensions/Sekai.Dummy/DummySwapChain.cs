@@ -4,14 +4,14 @@
 using Sekai.Framework;
 using Sekai.Framework.Graphics;
 
-namespace Sekai.Headless;
+namespace Sekai.Dummy;
 
-internal class HeadlessSwapChain : FrameworkObject, ISwapChain
+internal class DummySwapChain : FrameworkObject, ISwapChain
 {
     public IFramebuffer Framebuffer { get; }
     public bool VerticalSync { get; set; }
 
-    public HeadlessSwapChain(IFramebuffer framebuffer, bool verticalSync)
+    public DummySwapChain(IFramebuffer framebuffer, bool verticalSync)
     {
         Framebuffer = framebuffer;
         VerticalSync = verticalSync;

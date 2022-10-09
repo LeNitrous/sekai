@@ -6,26 +6,26 @@ using Sekai.Framework;
 using Sekai.Framework.Graphics;
 using Sekai.Framework.Windowing;
 
-namespace Sekai.Headless;
+namespace Sekai.Dummy;
 
-internal class HeadlessGraphicsDevice : FrameworkObject, IGraphicsDevice
+internal class DummyGraphicsDevice : FrameworkObject, IGraphicsDevice
 {
     public string Name => string.Empty;
     public GraphicsAPI GraphicsAPI => GraphicsAPI.OpenGL;
     public ISwapChain SwapChain { get; } = null!;
     public GraphicsDeviceFeatures Features { get; } = new GraphicsDeviceFeatures();
-    public IGraphicsResourceFactory Factory { get; } = new HeadlessGraphicsResourceFactory();
+    public IGraphicsResourceFactory Factory { get; } = new DummyGraphicsResourceFactory();
     public ITexture WhitePixel { get; }
     public ISampler SamplerPoint { get; }
     public ISampler SamplerLinear { get; }
     public ISampler SamplerAniso4x { get; }
 
-    public HeadlessGraphicsDevice()
+    public DummyGraphicsDevice()
     {
         var descriptor = new SwapChainDescription();
         SwapChain = Factory.CreateSwapChain(ref descriptor);
 
-        WhitePixel = new HeadlessTexture
+        WhitePixel = new DummyTexture
         (
             PixelFormat.R8_G8_B8_A8_UNorm,
             1,
@@ -38,7 +38,7 @@ internal class HeadlessGraphicsDevice : FrameworkObject, IGraphicsDevice
             TextureSampleCount.Count1
         );
 
-        SamplerPoint = SamplerLinear = SamplerAniso4x = new HeadlessSampler();
+        SamplerPoint = SamplerLinear = SamplerAniso4x = new DummySampler();
     }
 
     public ShaderCompilationResult CompileShader(string source, ShaderStage stage, ShaderCompilationOptions? options = null)

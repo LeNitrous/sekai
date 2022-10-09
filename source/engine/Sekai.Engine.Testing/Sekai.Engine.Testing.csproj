@@ -11,7 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../Sekai.Engine/Sekai.Engine.csproj" />
-    <ProjectReference Include="../../extensions/Sekai.Headless/Sekai.Headless.csproj" />
+    <ProjectReference Include="..\..\extensions\Sekai.Dummy\Sekai.Dummy.csproj" />
   </ItemGroup>
 
 </Project>

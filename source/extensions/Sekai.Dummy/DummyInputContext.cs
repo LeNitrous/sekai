@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using Sekai.Framework.Input;
 
-namespace Sekai.Headless;
+namespace Sekai.Dummy;
 
-internal class HeadlessInputContext : IInputContext
+internal class DummyInputContext : IInputContext
 {
     public IReadOnlyList<IInputDevice> Available { get; } = Array.Empty<IInputDevice>();
     public event Action<IInputDevice, bool> OnConnectionChanged = null!;
