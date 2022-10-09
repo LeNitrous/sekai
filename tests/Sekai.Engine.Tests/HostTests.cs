@@ -71,7 +71,7 @@ public class HostTests
         var host = Host
             .Setup<ExceptionThrowingGame>()
             .UseHeadless()
-            .UseLoadCallback(_ =>  reset.Set())
+            .UseLoadCallback(_ => reset.Set())
             .Build();
 
         var runTask = Task.Factory.StartNew(() => host.Run(), TaskCreationOptions.LongRunning);
