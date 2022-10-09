@@ -10,6 +10,7 @@ using Sekai.Headless;
 
 namespace Sekai.Engine.Tests;
 
+[Ignore("Dodgy behavior on action containers.")]
 public class HostTests
 {
     private const int wait_time = 30000;
