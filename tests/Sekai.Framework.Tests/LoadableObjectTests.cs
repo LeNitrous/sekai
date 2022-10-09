@@ -121,16 +121,10 @@ public class LoadableObjectTests
     {
         [Cached]
         public string Value = null!;
-        private readonly string valueToLoad;
 
         public TestCachingLoadable(string value = null!)
         {
-            valueToLoad = value;
-        }
-
-        protected override void Load()
-        {
-            Value = valueToLoad;
+            Value = value;
         }
     }
 
