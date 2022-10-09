@@ -22,6 +22,9 @@ internal class HeadlessGraphicsDevice : FrameworkObject, IGraphicsDevice
 
     public HeadlessGraphicsDevice()
     {
+        var descriptor = new SwapChainDescription();
+        SwapChain = Factory.CreateSwapChain(ref descriptor);
+
         WhitePixel = new HeadlessTexture
         (
             PixelFormat.R8_G8_B8_A8_UNorm,
