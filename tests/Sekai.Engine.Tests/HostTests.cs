@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Sekai.Engine.Platform;
-using Sekai.Headless;
+using Sekai.Dummy;
 
 namespace Sekai.Engine.Tests;
 
@@ -23,7 +23,7 @@ public class HostTests
 
         var host = Host
             .Setup<TestGame>()
-            .UseHeadless()
+            .UseDummy()
             .UseLoadCallback(game =>
             {
                 gameLoaded = true;
@@ -70,7 +70,7 @@ public class HostTests
 
         var host = Host
             .Setup<ExceptionThrowingGame>()
-            .UseHeadless()
+            .UseDummy()
             .UseLoadCallback(_ => reset.Set())
             .Build();
 

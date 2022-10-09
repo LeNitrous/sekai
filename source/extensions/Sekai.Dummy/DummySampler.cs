@@ -4,8 +4,8 @@
 using Sekai.Framework;
 using Sekai.Framework.Graphics;
 
-namespace Sekai.Headless;
+namespace Sekai.Dummy;
 
-internal class HeadlessResourceSet : FrameworkObject, IResourceSet
+internal class DummySampler : FrameworkObject, ISampler
 {
 }

@@ -4,9 +4,9 @@
 using Sekai.Framework;
 using Sekai.Framework.Graphics;
 
-namespace Sekai.Headless;
+namespace Sekai.Dummy;
 
-internal class HeadlessTexture : FrameworkObject, ITexture
+internal class DummyTexture : FrameworkObject, ITexture
 {
     public PixelFormat Format { get; }
     public uint Width { get; }
@@ -18,7 +18,7 @@ internal class HeadlessTexture : FrameworkObject, ITexture
     public TextureKind Kind { get; }
     public TextureSampleCount SampleCount { get; }
 
-    public HeadlessTexture(PixelFormat format, uint width, uint height, uint depth, uint mipLevels, uint arrayLayers, TextureUsage usage, TextureKind kind, TextureSampleCount sampleCount)
+    public DummyTexture(PixelFormat format, uint width, uint height, uint depth, uint mipLevels, uint arrayLayers, TextureUsage usage, TextureKind kind, TextureSampleCount sampleCount)
     {
         Format = format;
         Width = width;

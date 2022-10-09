@@ -3,55 +3,55 @@
 
 using Sekai.Framework.Graphics;
 
-namespace Sekai.Headless;
+namespace Sekai.Dummy;
 
-internal class HeadlessGraphicsResourceFactory : IGraphicsResourceFactory
+internal class DummyGraphicsResourceFactory : IGraphicsResourceFactory
 {
     public IBuffer CreateBuffer(ref BufferDescription description)
     {
-        return new HeadlessBuffer(description.Size, description.Usage);
+        return new DummyBuffer(description.Size, description.Usage);
     }
 
     public IBuffer CreateBuffer(nint pointer, ref BufferDescription description)
     {
-        return new HeadlessBuffer(description.Size, description.Usage);
+        return new DummyBuffer(description.Size, description.Usage);
     }
 
     public IBuffer CreateBuffer<T>(ref T data, ref BufferDescription description)
         where T : struct
     {
-        return new HeadlessBuffer(description.Size, description.Usage);
+        return new DummyBuffer(description.Size, description.Usage);
     }
 
     public IBuffer CreateBuffer<T>(T[] data, ref BufferDescription description)
         where T : struct
     {
-        return new HeadlessBuffer(description.Size, description.Usage);
+        return new DummyBuffer(description.Size, description.Usage);
     }
 
     public ICommandQueue CreateCommandQueue()
     {
-        return new HeadlessCommandQueue();
+        return new DummyCommandQueue();
     }
 
     public IPipeline CreatePipeline(ref ComputePipelineDescription description)
     {
-        return new HeadlessPipeline(PipelineKind.Compute);
+        return new DummyPipeline(PipelineKind.Compute);
     }
 
     public IPipeline CreatePipeline(ref GraphicsPipelineDescription description)
     {
-        return new HeadlessPipeline(PipelineKind.Graphics);
+        return new DummyPipeline(PipelineKind.Graphics);
     }
 
     public IFramebuffer CreateFramebuffer(ref FramebufferDescription description)
     {
-        return new HeadlessFramebuffer(description);
+        return new DummyFramebuffer(description);
     }
 
     public ITexture CreateTexture(ref TextureDescription description)
     {
-        return new HeadlessTexture
+        return new DummyTexture
         (
             description.Format,
             description.Width,
@@ -67,7 +67,7 @@ internal class HeadlessGraphicsResourceFactory : IGraphicsResourceFactory
 
     public ITexture CreateTexture(nint pointer, ref TextureDescription description)
     {
-        return new HeadlessTexture
+        return new DummyTexture
         (
             description.Format,
             description.Width,
@@ -83,22 +83,22 @@ internal class HeadlessGraphicsResourceFactory : IGraphicsResourceFactory
 
     public IResourceLayout CreateResourceLayout(ref LayoutDescription description)
     {
-        return new HeadlessResourceLayout();
+        return new DummyResourceLayout();
     }
 
     public IResourceSet CreateResourceSet(ref ResourceSetDescription description)
     {
-        return new HeadlessResourceSet();
+        return new DummyResourceSet();
     }
 
     public ISampler CreateSampler(ref SamplerDescription description)
     {
-        return new HeadlessSampler();
+        return new DummySampler();
     }
 
     public IShader CreateShader(ref ShaderDescription description)
     {
-        return new HeadlessShader(description.Stage, description.EntryPoint);
+        return new DummyShader(description.Stage, description.EntryPoint);
     }
 
     public ISwapChain CreateSwapChain(ref SwapChainDescription description)
@@ -109,7 +109,7 @@ internal class HeadlessGraphicsResourceFactory : IGraphicsResourceFactory
                 ? null
                 : new FramebufferAttachment
                 (
-                    new HeadlessTexture
+                    new DummyTexture
                     (
                         PixelFormat.D32_Float_S8_UInt,
                         description.Width,
@@ -128,7 +128,7 @@ internal class HeadlessGraphicsResourceFactory : IGraphicsResourceFactory
             {
                 new FramebufferAttachment
                 (
-                    new HeadlessTexture
+                    new DummyTexture
                     (
                         PixelFormat.B8_G8_R8_A8_UNorm_SRgb,
                         description.Width,
@@ -146,6 +146,6 @@ internal class HeadlessGraphicsResourceFactory : IGraphicsResourceFactory
             }
         );
 
-        return new HeadlessSwapChain(CreateFramebuffer(ref framebufferDescription), description.VerticalSync);
+        return new DummySwapChain(CreateFramebuffer(ref framebufferDescription), description.VerticalSync);
     }
 }

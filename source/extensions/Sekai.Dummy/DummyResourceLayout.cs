@@ -4,8 +4,8 @@
 using Sekai.Framework;
 using Sekai.Framework.Graphics;
 
-namespace Sekai.Headless;
+namespace Sekai.Dummy;
 
-internal class HeadlessResourceLayout : FrameworkObject, IResourceLayout
+internal class DummyResourceLayout : FrameworkObject, IResourceLayout
 {
 }

@@ -4,14 +4,14 @@
 using Sekai.Framework;
 using Sekai.Framework.Graphics;
 
-namespace Sekai.Headless;
+namespace Sekai.Dummy;
 
-internal class HeadlessShader : FrameworkObject, IShader
+internal class DummyShader : FrameworkObject, IShader
 {
     public ShaderStage Stage { get; }
     public string EntryPoint { get; }
 
-    public HeadlessShader(ShaderStage stage, string entryPoint)
+    public DummyShader(ShaderStage stage, string entryPoint)
     {
         Stage = stage;
         EntryPoint = entryPoint;

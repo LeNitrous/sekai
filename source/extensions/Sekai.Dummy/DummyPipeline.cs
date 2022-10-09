@@ -4,13 +4,13 @@
 using Sekai.Framework;
 using Sekai.Framework.Graphics;
 
-namespace Sekai.Headless;
+namespace Sekai.Dummy;
 
-internal class HeadlessPipeline : FrameworkObject, IPipeline
+internal class DummyPipeline : FrameworkObject, IPipeline
 {
     public PipelineKind Kind { get; }
 
-    public HeadlessPipeline(PipelineKind kind)
+    public DummyPipeline(PipelineKind kind)
     {
         Kind = kind;
     }

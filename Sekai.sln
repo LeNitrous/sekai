@@ -30,7 +30,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sekai.Engine.Testing", "sou
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sekai.Engine.Tests", "tests\Sekai.Engine.Tests\Sekai.Engine.Tests.csproj", "{287CA94A-DF7B-461C-9E4C-D52650F5139F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sekai.Headless", "source\extensions\Sekai.Headless\Sekai.Headless.csproj", "{B8537E78-E369-409B-8EBC-B0C3A85BC500}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sekai.Dummy", "source\extensions\Sekai.Dummy\Sekai.Dummy.csproj", "{B8537E78-E369-409B-8EBC-B0C3A85BC500}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{3394791E-BB45-4ACE-B51C-E5E45FA41065}"
 EndProject

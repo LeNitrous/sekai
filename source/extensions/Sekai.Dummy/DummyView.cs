@@ -7,13 +7,13 @@ using Sekai.Framework;
 using Sekai.Framework.Input;
 using Sekai.Framework.Windowing;
 
-namespace Sekai.Headless;
+namespace Sekai.Dummy;
 
-internal class HeadlessView : FrameworkObject, IView
+internal class DummyView : FrameworkObject, IView
 {
     public Size Size { get; }
     public bool Active { get; } = true;
-    public IInputContext Input { get; } = new HeadlessInputContext();
+    public IInputContext Input { get; } = new DummyInputContext();
     public event Action OnClose = null!;
     public event Func<bool> OnCloseRequested = null!;
     public event Action<bool> OnFocusChanged = null!;
