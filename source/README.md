@@ -14,8 +14,8 @@ Generally, the folder structure is as follows:
 - **Sekai.Engine.Testing**
     - Provides extendability for headless testing.
 ### extensions
-- **Sekai.Headless**
-    - Provides headless windowing support.
+- **Sekai.Dummy**
+    - Provides dummy windowing support.
 - **Sekai.SDL**
     - Provides [**SDL 2**](https://www.libsdl.org/) windowing and input support.
 - **Sekai.Veldrid**
