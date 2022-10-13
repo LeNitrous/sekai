@@ -2,13 +2,12 @@
 // Licensed under MIT. See LICENSE for details.
 
 using Sekai.Engine;
-using Sekai.Engine.Platform;
 
 namespace Sekai.SDL;
 
-public static class SDLHostExtensions
+public static class SDLGameBuilderExtensions
 {
-    public static HostBuilder<T> UseSDLWindow<T>(this HostBuilder<T> builder)
+    public static GameBuilder<T> UseSDLWindow<T>(this GameBuilder<T> builder)
         where T : Game, new()
     {
         return builder.UseWindow<SDLWindow>();

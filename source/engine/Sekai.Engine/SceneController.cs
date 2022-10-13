@@ -4,11 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Sekai.Framework.Annotations;
 
 namespace Sekai.Engine;
 
-[Cached]
 public class SceneController : GameSystem, IUpdateable, IRenderable
 {
     private readonly List<Scene> scenes = new();
@@ -48,19 +46,14 @@ public class SceneController : GameSystem, IUpdateable, IRenderable
             throw new InvalidOperationException(@"This scene is already added to this manager.");
 
         scenes.Add(scene);
-        AddInternal(scene);
     }
 
     /// <summary>
     /// Removes a scene from this scene controller.
     /// </summary>
-    public void Remove(Scene scene)
+    public bool Remove(Scene scene)
     {
-        if (!scenes.Contains(scene))
-            return;
-
-        scenes.Remove(scene);
-        RemoveInternal(scene);
+        return scenes.Remove(scene);
     }
 
     /// <summary>
@@ -91,17 +84,13 @@ public class SceneController : GameSystem, IUpdateable, IRenderable
 
     public void Render()
     {
-        var scenes = this.scenes.Where(s => s.IsAlive).ToArray();
-
         foreach (var scene in scenes)
             scene.Render();
     }
 
-    public void Update(double elapsed)
+    public void Update(double delta)
     {
-        var scenes = this.scenes.Where(s => s.IsAlive).ToArray();
-
         foreach (var scene in scenes)
-            scene.Update(elapsed);
+            scene.Update(delta);
     }
 }

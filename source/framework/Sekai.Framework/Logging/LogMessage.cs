@@ -10,11 +10,11 @@ public struct LogMessage
     public readonly DateTime Timestamp;
     public readonly LogLevel Level;
     public readonly string? Channel;
-    public readonly string Message;
+    public readonly object Message;
     public readonly CallerInfo CallerInfo;
     public readonly Exception? Exception;
 
-    public LogMessage(string message, string? channel = null, LogLevel level = LogLevel.Verbose, Exception? exception = null, CallerInfo callerInfo = default)
+    public LogMessage(object message, string? channel = null, LogLevel level = LogLevel.Verbose, Exception? exception = null, CallerInfo callerInfo = default)
     {
         Level = level;
         Channel = channel;

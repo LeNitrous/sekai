@@ -2,27 +2,48 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System.Numerics;
-using Sekai.Framework.Annotations;
 using Sekai.Framework.Utils;
 using Sekai.Framework.Windowing;
 
 namespace Sekai.Engine.Processors;
 
-public class CameraProcessor : Processor<Camera, Transform>
+public sealed class CameraProcessor : Processor<Camera, Transform>
 {
-    [Resolved]
-    private IView window { get; set; } = null!;
+    private readonly IView view = Game.Current.Services.Resolve<IView>();
 
-    protected override void Update(double elapsed, Entity entity, Camera camera, Transform transform)
+    public CameraProcessor()
+    {
+        OnEntityAdded += handleEntityAdded;
+        OnEntityRemoved += handleEntityRemoved;
+    }
+
+    private void handleEntityAdded(Processor processor, Entity entity)
+    {
+        Scene.RenderContext.Add(entity.GetCommponent<Camera>()!);
+    }
+
+    private void handleEntityRemoved(Processor processor, Entity entity)
+    {
+        Scene.RenderContext.Remove(entity.GetCommponent<Camera>()!);
+    }
+
+    protected override void Update(double delta, Entity entity, Camera camera, Transform transform)
     {
         var target = Vector3.Transform(-Vector3.UnitZ, transform.Rotation);
         camera.ViewMatrix = Matrix4x4.CreateLookAt(transform.Position, transform.Position + target, Vector3.UnitY);
 
         float fov = MathUtils.DegreesToRadians(camera.FieldOfView);
-        float aspectRatio = (float)window.Size.Width / window.Size.Height;
+        float aspectRatio = (float)view.Size.Width / view.Size.Height;
 
         camera.ProjMatrix = camera.Projection == CameraProjectionMode.Perspective
             ? Matrix4x4.CreatePerspectiveFieldOfView(fov, aspectRatio, camera.NearClipPlane, camera.FarClipPlane)
-            : Matrix4x4.CreateOrthographic(window.Size.Width, window.Size.Height, camera.NearClipPlane, camera.FarClipPlane);
+            : Matrix4x4.CreateOrthographic(view.Size.Width, view.Size.Height, camera.NearClipPlane, camera.FarClipPlane);
+    }
+
+    protected override void Destroy()
+    {
+        OnEntityAdded -= handleEntityAdded;
+        OnEntityRemoved -= handleEntityRemoved;
+        base.Destroy();
     }
 }

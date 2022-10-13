@@ -5,14 +5,16 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace Sekai.Framework.Containers;
+namespace Sekai.Framework;
 
-public class Container : FrameworkObject, IContainer, IReadOnlyContainer
+public class Container : FrameworkObject
 {
-    internal IReadOnlyContainer? Parent = null;
     private readonly object syncLock = new();
     private readonly Dictionary<Type, Func<object>> cache = new();
 
+    /// <summary>
+    /// Caches a given singleton instance as the given type.
+    /// </summary>
     public void Cache(Type type, object instance)
     {
         if (instance is null)
@@ -26,6 +28,9 @@ public class Container : FrameworkObject, IContainer, IReadOnlyContainer
         Cache(type, () => instance);
     }
 
+    /// <summary>
+    /// Caches a given transient instance as the given type.
+    /// </summary>
     public void Cache(Type type, Func<object> creationFunc)
     {
         if (IsDisposed)
@@ -43,22 +48,21 @@ public class Container : FrameworkObject, IContainer, IReadOnlyContainer
         }
     }
 
+    /// <inheritdoc cref="Cache(Type, object)"/>
     public void Cache<T>(T instance)
     {
         Cache(typeof(T), instance!);
     }
 
+    /// <inheritdoc cref="Cache(Type, Func{object})"/>
     public void Cache<T>(Func<T> creationFunc)
     {
         Cache(typeof(T), () => creationFunc()!);
     }
 
-    public T Resolve<T>([DoesNotReturnIf(true)] bool required = true)
-    {
-        object? result = Resolve(typeof(T), required);
-        return result is null ? default! : (T)result;
-    }
-
+    /// <summary>
+    /// Resolves an instance of the given type.
+    /// </summary>
     public object Resolve(Type type, [DoesNotReturnIf(true)] bool required = true)
     {
         if (IsDisposed)
@@ -78,23 +82,21 @@ public class Container : FrameworkObject, IContainer, IReadOnlyContainer
             }
         }
 
-        if (Parent != null)
-        {
-            object result = Parent.Resolve(type, false);
-
-            if (result != null)
-                return result;
-        }
-
         if (required)
             throw new KeyNotFoundException($"{type} is not registered in this container.");
 
         return null!;
     }
 
+    /// <inheritdoc cref="Resolve(Type, bool)">
+    public T Resolve<T>([DoesNotReturnIf(true)] bool required = true)
+    {
+        object? result = Resolve(typeof(T), required);
+        return result is null ? default! : (T)result;
+    }
+
     protected override void Destroy()
     {
         cache.Clear();
-        Parent = null;
     }
 }

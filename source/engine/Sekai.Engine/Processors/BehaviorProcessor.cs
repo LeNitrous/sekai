@@ -3,10 +3,16 @@
 
 namespace Sekai.Engine.Processors;
 
-public class BehaviorProcessor : Processor<Behavior>
+public sealed class BehaviorProcessor : Processor<Behavior>
 {
-    protected override void Update(double elapsed, Entity entity, Behavior component)
+    protected override void Update(double delta, Entity entity, Behavior component)
     {
-        component.Update(elapsed);
+        if (!component.HasStarted)
+        {
+            component.Start();
+            component.HasStarted = true;
+        }
+
+        component.Update(delta);
     }
 }

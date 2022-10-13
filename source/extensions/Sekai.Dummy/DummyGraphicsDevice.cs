@@ -19,6 +19,7 @@ internal class DummyGraphicsDevice : FrameworkObject, IGraphicsDevice
     public ISampler SamplerPoint { get; }
     public ISampler SamplerLinear { get; }
     public ISampler SamplerAniso4x { get; }
+    public bool VerticalSync { get; set; }
 
     public DummyGraphicsDevice()
     {

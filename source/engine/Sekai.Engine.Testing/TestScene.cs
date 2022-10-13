@@ -4,7 +4,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using Sekai.Engine.Platform;
+using Sekai.Engine.Threading;
 
 namespace Sekai.Engine.Testing;
 
@@ -15,7 +15,7 @@ public abstract class TestScene : Component
 public abstract class TestScene<T> : TestScene
     where T : Game, new()
 {
-    private Host<T> host = null!;
+    private T game = null!;
     private Task runTask = null!;
 
     [OneTimeSetUp]
@@ -24,10 +24,12 @@ public abstract class TestScene<T> : TestScene
         if (!TestUtils.IsNUnit)
             return;
 
-        host = Host.Setup<T>().SetupTest(this).Build();
-        runTask = Task.Factory.StartNew(() => host.Run(), TaskCreationOptions.LongRunning);
+        game = Game.Setup<T>().SetupTest(this).Build();
+        runTask = Task.Factory.StartNew(() => game.Run(), TaskCreationOptions.LongRunning);
 
-        while (!IsLoaded)
+        var threads = game.Services.Resolve<ThreadController>();
+
+        while (!threads.IsRunning)
         {
             checkForErrors();
             Thread.Sleep(10);
@@ -51,7 +53,7 @@ public abstract class TestScene<T> : TestScene
 
         try
         {
-            host?.Exit();
+            game?.Exit();
         }
         catch
         {

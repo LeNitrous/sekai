@@ -7,8 +7,8 @@ using System.Linq;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Sekai.Engine.Platform;
 using Sekai.Framework;
+using Sekai.Framework.Graphics;
 using Sekai.Framework.Logging;
 using Sekai.Framework.Threading;
 using Sekai.Framework.Windowing;
@@ -20,7 +20,7 @@ public sealed class ThreadController : FrameworkObject
     /// <summary>
     /// Whether this thread controller is currently running.
     /// </summary>
-    public bool IsRunning => MainThread.IsRunning;
+    public bool IsRunning => Window.IsRunning;
 
     /// <summary>
     /// Whether this thread controller should stop when an unhandled exception occurs.
@@ -46,12 +46,10 @@ public sealed class ThreadController : FrameworkObject
     private double framesPerSecond = 60;
     private ExecutionMode executionMode;
     private bool executionModeChanged = true;
-    private readonly IView view;
     private readonly List<FrameworkThread> threads = new();
-
-    internal MainWindowThread MainThread { get; }
-    internal MainUpdateThread UpdateThread { get; private set; } = null!;
-    internal MainRenderThread RenderThread { get; private set; } = null!;
+    internal readonly WindowThread Window;
+    internal readonly UpdateThread Update = new MainUpdateThread();
+    internal readonly RenderThread Render = new MainRenderThread();
 
     /// <summary>
     /// Gets or sets how threads will be ran.
@@ -87,8 +85,6 @@ public sealed class ThreadController : FrameworkObject
                 foreach (var t in threads.OfType<UpdateThread>())
                     t.UpdatePerSecond = updatePerSecond;
             }
-
-            MainThread.UpdatePerSecond = updatePerSecond;
         }
     }
 
@@ -113,29 +109,16 @@ public sealed class ThreadController : FrameworkObject
         }
     }
 
-    public ThreadController(IView view)
+    public ThreadController()
     {
-        this.view = view;
-        MainThread = new MainWindowThread(run);
-        MainThread.OnUnhandledException += onUnhandledException;
-        TaskScheduler.UnobservedTaskException += onUnobservedTaskException;
         AppDomain.CurrentDomain.UnhandledException += onUnhandledException;
-    }
+        TaskScheduler.UnobservedTaskException += onUnobservedTaskException;
 
-    /// <summary>
-    /// Posts an action to the main thread.
-    /// </summary>
-    public void Post(Action action)
-    {
-        MainThread.Post(action);
-    }
+        Window = new(run);
+        Window.OnUnhandledException += onUnhandledException;
 
-    /// <summary>
-    /// Sends an action to the main thread.
-    /// </summary>
-    public void Send(Action action)
-    {
-        MainThread.Send(action);
+        Add(Render);
+        Add(Update);
     }
 
     /// <summary>
@@ -143,9 +126,6 @@ public sealed class ThreadController : FrameworkObject
     /// </summary>
     public void Add(FrameworkThread thread)
     {
-        if (thread == MainThread)
-            return;
-
         lock (threads)
         {
             if (threads.Contains(thread))
@@ -156,22 +136,6 @@ public sealed class ThreadController : FrameworkObject
 
         thread.UpdatePerSecond = UpdatePerSecond;
         thread.OnUnhandledException += onUnhandledException;
-
-        if (thread is MainUpdateThread mainUpdateThread)
-        {
-            if (UpdateThread != null)
-                throw new InvalidOperationException(@"There cannot be more than one instance of the main update thread.");
-
-            UpdateThread = mainUpdateThread;
-        }
-
-        if (thread is MainRenderThread mainRenderThread)
-        {
-            if (RenderThread != null)
-                throw new InvalidOperationException(@"There cannot be more than one instance of the main render thread.");
-
-            RenderThread = mainRenderThread;
-        }
 
         if (IsRunning && ExecutionMode == ExecutionMode.MultiThread)
             thread.Start();
@@ -184,9 +148,6 @@ public sealed class ThreadController : FrameworkObject
     /// </summary>
     public void Remove(FrameworkThread thread)
     {
-        if (thread == MainThread)
-            return;
-
         lock (threads)
         {
             if (!threads.Contains(thread))
@@ -196,9 +157,6 @@ public sealed class ThreadController : FrameworkObject
         }
 
         thread.OnUnhandledException -= onUnhandledException;
-
-        if (thread == UpdateThread || thread == RenderThread)
-            throw new InvalidOperationException(@"Cannot remove the main threads.");
 
         if (IsRunning && ExecutionMode == ExecutionMode.MultiThread)
             thread.Stop();
@@ -213,9 +171,6 @@ public sealed class ThreadController : FrameworkObject
     {
         foreach (var t in threads)
         {
-            if (t == UpdateThread || t == RenderThread)
-                continue;
-
             Remove(t);
         }
     }
@@ -223,13 +178,13 @@ public sealed class ThreadController : FrameworkObject
     /// <summary>
     /// Starts the threading manager.
     /// </summary>
-    internal void Run(Action action)
+    internal void Run()
     {
         if (IsRunning)
             return;
 
-        UpdateThread.Post(action);
-        MainThread.Run();
+        Update.Post(Game.Current.Load);
+        Window.Run();
     }
 
     /// <summary>
@@ -240,7 +195,7 @@ public sealed class ThreadController : FrameworkObject
         if (!IsRunning)
             return;
 
-        MainThread.Stop();
+        Window.Stop();
 
         lock (threads)
         {
@@ -272,13 +227,13 @@ public sealed class ThreadController : FrameworkObject
         AppDomain.CurrentDomain.UnhandledException -= onUnhandledException;
 
         using var reset = new ManualResetEventSlim(false);
-        var exceptionInfo = ExceptionDispatchInfo.Capture(exception);
+        var dispatch = ExceptionDispatchInfo.Capture(exception);
 
-        MainThread.Post(() =>
+        Window.Post(() =>
         {
             try
             {
-                exceptionInfo.Throw();
+                dispatch.Throw();
             }
             finally
             {
@@ -286,7 +241,7 @@ public sealed class ThreadController : FrameworkObject
             }
         });
 
-        if (isTerminating || sender == MainThread || ExecutionMode == ExecutionMode.SingleThread)
+        if (isTerminating || sender == Window || ExecutionMode == ExecutionMode.SingleThread)
             return;
 
         reset.Wait(10000);
@@ -295,8 +250,6 @@ public sealed class ThreadController : FrameworkObject
     private void run()
     {
         ensureExecutionMode();
-
-        view.DoEvents();
 
         if (ExecutionMode == ExecutionMode.SingleThread)
         {
@@ -331,12 +284,10 @@ public sealed class ThreadController : FrameworkObject
     {
         Stop();
 
+        Window.Dispose();
+
         TaskScheduler.UnobservedTaskException -= onUnobservedTaskException;
         AppDomain.CurrentDomain.UnhandledException -= onUnhandledException;
-
-        MainThread.OnUnhandledException -= onUnhandledException;
-        MainThread.Dispose();
-        view.Dispose();
 
         lock (threads)
         {
@@ -344,6 +295,88 @@ public sealed class ThreadController : FrameworkObject
                 t.Dispose();
         }
 
+        Game.Current.Dispose();
+
         threads.Clear();
+    }
+
+    internal class WindowThread : GameThread
+    {
+        private readonly IView view;
+        private readonly Action run;
+
+        public WindowThread(Action run)
+            : base(@"Main")
+        {
+            view = Game.Current.Services.Resolve<IView>();
+            this.run = run;
+        }
+
+        protected sealed override void OnNewFrame()
+        {
+            view.DoEvents();
+            run.Invoke();
+        }
+
+        protected sealed override void Destroy()
+        {
+            view.Dispose();
+        }
+    }
+
+    private class MainUpdateThread : UpdateThread
+    {
+        private readonly SystemCollection<GameSystem> systems;
+
+        public MainUpdateThread()
+            : base(@"Main")
+        {
+            systems = Game.Current.Services.Resolve<SystemCollection<GameSystem>>();
+        }
+
+        protected override void Update(double delta)
+        {
+            foreach (var updatable in systems.OfType<IUpdateable>().ToArray())
+                updatable.Update(delta);
+        }
+    }
+
+    private class MainRenderThread : RenderThread
+    {
+        private readonly SystemCollection<GameSystem> systems;
+        private readonly IGraphicsDevice device;
+        private readonly ICommandQueue commands;
+
+        public MainRenderThread()
+            : base(@"Main")
+        {
+            device = Game.Current.Services.Resolve<IGraphicsDevice>();
+            systems = Game.Current.Services.Resolve<SystemCollection<GameSystem>>();
+            commands = device.Factory.CreateCommandQueue();
+        }
+
+        protected override void Render()
+        {
+            try
+            {
+                commands.Begin();
+                commands.SetFramebuffer(device.SwapChain.Framebuffer);
+                commands.Clear(0, new ClearInfo(new Color4(0, 0, 0, 1f)));
+                commands.End();
+                device.Submit(commands);
+
+                foreach (var renderable in systems.OfType<IRenderable>().ToArray())
+                    renderable.Render();
+            }
+            finally
+            {
+                device.SwapBuffers();
+            }
+        }
+
+        protected override void Destroy()
+        {
+            device.Dispose();
+        }
     }
 }

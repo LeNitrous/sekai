@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using NUnit.Framework;
-using Sekai.Framework.Containers;
 
 namespace Sekai.Framework.Tests;
 
@@ -45,14 +44,5 @@ public class ContainerTests
             Assert.That(container.Resolve<Guid>(false), Is.EqualTo(Guid.Empty));
             Assert.That(() => container.Resolve<Guid>(), Throws.InstanceOf<KeyNotFoundException>());
         });
-    }
-
-    [Test]
-    public void TestResolveFromParent()
-    {
-        var parent = new Container();
-        var child = new Container { Parent = parent };
-        parent.Cache("Hello World");
-        Assert.That(child.Resolve<string>(), Is.EqualTo("Hello World"));
     }
 }

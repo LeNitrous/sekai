@@ -1,15 +1,17 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-using Sekai.Framework.Annotations;
+using Sekai.Framework;
 
 namespace Sekai.Engine;
 
-public abstract class SceneSystem : ActivatableObject
+public abstract class SceneSystem : FrameworkObject, IGameSystem
 {
-    [Resolved]
-    public Scene Scene = null!;
+    public bool Enabled { get; set; } = true;
 
-    [Resolved]
-    public SystemCollection<SceneSystem> Systems = null!;
+    public Scene Scene { get; internal set; } = null!;
+
+    public virtual void Initialize()
+    {
+    }
 }

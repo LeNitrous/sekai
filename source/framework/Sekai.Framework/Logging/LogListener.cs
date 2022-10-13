@@ -48,7 +48,7 @@ public abstract class LogListener : FrameworkObject
 
     protected virtual string GetTextFormatted(LogMessage message)
     {
-        return $"[{FormatTimestamp(message.Timestamp)}] [{FormatLogLevel(message.Level)}]{(string.IsNullOrEmpty(message.Channel) ? string.Empty : $" [{FormatChannel(message.Channel)}]")} {FormatMessage(message.Message)}{(message.Exception != null ? $"\n{FormatException(message.Exception)}" : string.Empty)}";
+        return $"[{FormatTimestamp(message.Timestamp)}] [{FormatLogLevel(message.Level)}]{(string.IsNullOrEmpty(message.Channel) ? string.Empty : $" [{FormatChannel(message.Channel)}]")} {FormatMessage(message.Message.ToString()!)}{(message.Exception != null ? $"\n{FormatException(message.Exception)}" : string.Empty)}";
     }
 
     private void handleNewMessage(LogMessage message)

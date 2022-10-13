@@ -8,10 +8,10 @@ namespace Sekai.Framework.Logging;
 public interface ILogger
 {
     event Action<LogMessage> OnMessageLogged;
-    void Log(string message, LogLevel level = LogLevel.Verbose);
-    void Debug(string message);
-    void Verbose(string message);
-    void Info(string message);
-    void Warning(string message);
-    void Error(string message, Exception? exception = null);
+    void Log(object message, LogLevel level = LogLevel.Verbose);
+    void Debug(object message);
+    void Verbose(object message);
+    void Info(object message);
+    void Warning(object message);
+    void Error(object message, Exception? exception = null);
 }

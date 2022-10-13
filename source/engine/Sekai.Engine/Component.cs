@@ -1,59 +1,50 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-using Sekai.Framework.Annotations;
+using System;
+using System.Collections.Generic;
+using Sekai.Framework;
 
 namespace Sekai.Engine;
 
-public abstract class Component : ActivatableObject
+public abstract class Component : FrameworkObject, IReference, IEquatable<Component>
 {
     /// <summary>
-    /// The owning entity.
+    /// The identifier for this component.
     /// </summary>
-    [Resolved]
+    public Guid Id { get; internal set; }
+
+    /// <summary>
+    /// The entity owning this component.
+    /// </summary>
     public Entity Entity { get; internal set; } = null!;
 
     /// <summary>
-    /// The current scene.
+    /// The scene owning this component.
     /// </summary>
-    [Resolved]
     public Scene Scene { get; internal set; } = null!;
 
-    protected sealed override void Load()
+    public bool Equals(Component? other)
     {
-        Scene.OnEntityUpdate(Entity);
-        OnComponentLoad();
+        return other is not null
+            && other.Id == Id
+            && other.Entity.Equals(Entity)
+            && other.IsDisposed == IsDisposed
+            && EqualityComparer<Scene>.Default.Equals(other.Scene, Scene);
     }
 
-    protected sealed override void Unload()
+    public override int GetHashCode()
     {
-        Scene.OnEntityUpdate(Entity);
-        OnComponentUnload();
+        return HashCode.Combine(IsDisposed, Id, Entity, Scene);
     }
 
-    protected sealed override void Activate()
+    protected sealed override void Destroy()
     {
-        OnComponentActivate();
+        Scene.RemoveComponent(this);
     }
 
-    protected sealed override void Deactivate()
+    public override bool Equals(object? obj)
     {
-        OnComponentDeactivate();
-    }
-
-    private protected virtual void OnComponentLoad()
-    {
-    }
-
-    private protected virtual void OnComponentUnload()
-    {
-    }
-
-    private protected virtual void OnComponentActivate()
-    {
-    }
-
-    private protected virtual void OnComponentDeactivate()
-    {
+        return Equals(obj as Component);
     }
 }

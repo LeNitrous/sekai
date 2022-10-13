@@ -12,32 +12,32 @@ public partial class Logger
     private static readonly Logger global = new();
     private static readonly Dictionary<string, Logger> loggers = new();
 
-    public static void Debug(string message)
+    public static void Debug(object message)
     {
         global.Debug(message);
     }
 
-    public static void Error(string message, Exception? exception = null)
+    public static void Error(object message, Exception? exception = null)
     {
         global.Error(message, exception);
     }
 
-    public static void Info(string message)
+    public static void Info(object message)
     {
         global.Info(message);
     }
 
-    public static void Log(string message, LogLevel level = LogLevel.Verbose)
+    public static void Log(object message, LogLevel level = LogLevel.Verbose)
     {
         global.Log(message, level);
     }
 
-    public static void Verbose(string message)
+    public static void Verbose(object message)
     {
         global.Verbose(message);
     }
 
-    public static void Warning(string message)
+    public static void Warning(object message)
     {
         global.Warning(message);
     }

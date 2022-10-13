@@ -2,11 +2,10 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System.Diagnostics;
-using Sekai.Framework.Threading;
 
 namespace Sekai.Engine.Threading;
 
-public abstract class UpdateThread : FrameworkThread
+public abstract class UpdateThread : GameThread
 {
     private readonly Stopwatch stopwatch = new();
 
@@ -15,12 +14,12 @@ public abstract class UpdateThread : FrameworkThread
     {
     }
 
-    protected abstract void OnUpdateFrame(double delta);
+    protected abstract void Update(double delta);
 
     protected sealed override void OnNewFrame()
     {
         stopwatch.Restart();
-        OnUpdateFrame(stopwatch.Elapsed.TotalMilliseconds);
+        Update(stopwatch.Elapsed.TotalMilliseconds);
     }
 
     protected override void Destroy() => stopwatch.Reset();

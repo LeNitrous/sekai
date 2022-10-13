@@ -1,12 +1,11 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-using Sekai.Framework.Annotations;
+using Sekai.Framework;
 
 namespace Sekai.Engine;
 
-public abstract class GameSystem : ActivatableObject
+public abstract class GameSystem : FrameworkObject, IGameSystem
 {
-    [Resolved]
-    protected SystemCollection<GameSystem> Systems = null!;
+    public bool Enabled { get; set; } = true;
 }

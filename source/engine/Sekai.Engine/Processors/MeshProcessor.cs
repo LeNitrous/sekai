@@ -1,30 +1,34 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-using Sekai.Engine.Rendering;
-
 namespace Sekai.Engine.Processors;
 
-public class MeshProcessor : Processor<MeshComponent, Transform>
+public sealed class MeshProcessor : Processor<MeshComponent, Transform>
 {
-    private RenderContext renderContext = null!;
-
-    protected override void Load()
+    public MeshProcessor()
     {
-        renderContext = Systems.Get<RenderContext>();
+        OnEntityAdded += handleEntityAdded;
+        OnEntityRemoved += handleEntityRemoved;
     }
 
-    protected override void OnEntityAdded(Entity entity, MeshComponent componentA, Transform componentB)
+    protected override void Update(double delta, Entity entity, MeshComponent componentA, Transform componentB)
     {
-        renderContext.Add(componentA);
     }
 
-    protected override void OnEntityRemoved(Entity entity, MeshComponent componentA, Transform componentB)
+    private void handleEntityAdded(Processor processor, Entity entity)
     {
-        renderContext.Remove(componentA);
+        Scene.RenderContext.Add(entity.GetCommponent<MeshComponent>()!);
     }
 
-    protected override void Update(double elapsed, Entity entity, MeshComponent componentA, Transform componentB)
+    private void handleEntityRemoved(Processor processor, Entity entity)
     {
+        Scene.RenderContext.Remove(entity.GetCommponent<MeshComponent>()!);
+    }
+
+    protected override void Destroy()
+    {
+        OnEntityAdded -= handleEntityAdded;
+        OnEntityRemoved -= handleEntityRemoved;
+        base.Destroy();
     }
 }

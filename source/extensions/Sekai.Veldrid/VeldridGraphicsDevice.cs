@@ -12,20 +12,35 @@ namespace Sekai.Veldrid;
 internal partial class VeldridGraphicsDevice : FrameworkObject, IGraphicsDevice
 {
     public string Name { get; private set; } = string.Empty;
-    public ISwapChain SwapChain => device != null ? new VeldridSwapChain(device.MainSwapchain) : null!;
+    public ISwapChain SwapChain { get; private set; } = null!;
     public GraphicsAPI GraphicsAPI { get; private set; } = GraphicsAPI.OpenGL;
-    public GraphicsDeviceFeatures Features { get; private set;} = null!;
+    public GraphicsDeviceFeatures Features { get; private set; } = null!;
     public IGraphicsResourceFactory Factory { get; private set; } = null!;
     public ITexture WhitePixel { get; private set; } = null!;
     public ISampler SamplerPoint { get; private set; } = null!;
     public ISampler SamplerLinear { get; private set; } = null!;
     public ISampler SamplerAniso4x { get; private set; } = null!;
     private Vd.GraphicsDevice device = null!;
+    private bool vsync;
+
+    public bool VerticalSync
+    {
+        get => vsync;
+        set
+        {
+            if (device != null)
+                device.SyncToVerticalBlank = value;
+
+            vsync = value;
+        }
+    }
 
     public void Initialize(IView view, GraphicsContextOptions options)
     {
         if (view is not INativeWindowSource windowSource)
             throw new InvalidOperationException(@"View must provide a native window for this graphics context to initialize.");
+
+        VerticalSync = options.VerticalSync;
 
         var swapChainDescription = new SwapChainDescription
         (
@@ -33,7 +48,7 @@ internal partial class VeldridGraphicsDevice : FrameworkObject, IGraphicsDevice
             options.DepthTargetFormat,
             (uint)view.Size.Width,
             (uint)view.Size.Height,
-            options.VerticalSync,
+            VerticalSync,
             options.ColorSRGB
         ).ToVeldrid();
 
@@ -44,7 +59,7 @@ internal partial class VeldridGraphicsDevice : FrameworkObject, IGraphicsDevice
         (
             options.Debug ?? false,
             options.DepthTargetFormat?.ToVeldrid(),
-            options.VerticalSync,
+            VerticalSync,
             Vd.ResourceBindingModel.Improved,
             true,
             true
@@ -72,6 +87,8 @@ internal partial class VeldridGraphicsDevice : FrameworkObject, IGraphicsDevice
                 initializeMetal(graphicsDeviceOptions, swapChainDescription);
                 break;
         }
+
+        SwapChain = new VeldridSwapChain(device.MainSwapchain);
 
         Factory = new VeldridGraphicsResourceFactory(this, device.ResourceFactory);
 

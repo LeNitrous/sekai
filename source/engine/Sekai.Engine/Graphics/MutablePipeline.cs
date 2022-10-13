@@ -9,14 +9,9 @@ namespace Sekai.Engine.Graphics;
 
 public class MutablePipeline : FrameworkObject
 {
-    private readonly IGraphicsDevice device;
+    private readonly IGraphicsDevice device = Game.Current.Services.Resolve<IGraphicsDevice>();
     private Dictionary<ComputePipelineDescription, IPipeline> computePipelines = null!;
     private Dictionary<GraphicsPipelineDescription, IPipeline> graphicsPipelines = null!;
-
-    public MutablePipeline(IGraphicsDevice device)
-    {
-        this.device = device;
-    }
 
     public IPipeline GetPipeline(GraphicsPipelineDescription description)
     {

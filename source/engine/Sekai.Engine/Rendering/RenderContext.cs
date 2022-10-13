@@ -7,33 +7,29 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using Sekai.Engine.Extensions;
 using Sekai.Engine.Graphics;
-using Sekai.Framework.Annotations;
 using Sekai.Framework.Graphics;
 
 namespace Sekai.Engine.Rendering;
 
 public class RenderContext : SceneSystem, IRenderable
 {
-    [Resolved]
-    private IGraphicsDevice device { get; set; } = null!;
-
     /// <summary>
     /// The world matrix for this render context.
     /// </summary>
     public Matrix4x4 WorldMatrix = Matrix4x4.Identity;
 
-    private ICommandQueue queue = null!;
+    private readonly ICommandQueue queue;
+    private readonly MutablePipeline mutablePipeline = new();
     private GraphicsPipelineDescription pipelineDescriptor;
-    private MutablePipeline mutablePipeline = null!;
     private readonly List<MeshComponent> meshes = new();
+    private readonly List<Camera> cameras = new();
     private readonly Dictionary<string, IBindableResource> parameters = new();
+    private readonly IGraphicsDevice device = Game.Current.Services.Resolve<IGraphicsDevice>();
     internal IReadOnlyDictionary<string, IBindableResource> Parameters => parameters;
-    internal override bool IsAlive => Scene?.Camera != null && queue != null && base.IsAlive;
 
-    protected override void Load()
+    public RenderContext()
     {
         queue = device.Factory.CreateCommandQueue();
-        mutablePipeline = new MutablePipeline(device);
 
         pipelineDescriptor = new GraphicsPipelineDescription
         {
@@ -67,50 +63,52 @@ public class RenderContext : SceneSystem, IRenderable
 
     public void Render()
     {
-        queue.Begin();
-        queue.SetFramebuffer(device.SwapChain.Framebuffer);
-
-        UpdateParameter("View", Scene.Camera.ViewMatrix);
-        UpdateParameter("Projection", Scene.Camera.ProjMatrix);
-
-        for (int i = 0; i < meshes.Count; i++)
+        foreach (var camera in cameras.ToArray())
         {
-            var component = meshes[i];
-            var mesh = meshes[i].Mesh;
+            queue.Begin();
 
-            foreach (var effectPass in mesh.Material.Effect.Passes)
+            queue.SetFramebuffer(device.SwapChain.Framebuffer);
+            // queue.SetViewport(0, camera.Viewport);
+
+            UpdateParameter("View", camera.ViewMatrix);
+            UpdateParameter("Projection", camera.ProjMatrix);
+
+            for (int i = 0; i < meshes.Count; i++)
             {
-                var pass = mesh.Material[effectPass.Name];
+                var comp = meshes[i];
+                var mesh = comp.Mesh;
 
-                var transform = meshes[i].Entity.GetComponent<Transform>()!;
-                pass.SetUniformValue("m_Model", transform.WorldMatrix);
+                foreach (var effectPass in mesh.Material.Effect.Passes)
+                {
+                    var pass = mesh.Material[effectPass.Name];
 
-                pipelineDescriptor.Topology = mesh.Topology;
-                pipelineDescriptor.Layouts[0] = pass.Pass.Layout;
-                pipelineDescriptor.ShaderSet.Shaders = pass.Pass.Shaders;
-                pipelineDescriptor.Rasterizer.Culling = mesh.Culling;
-                pipelineDescriptor.Rasterizer.Winding = mesh.Winding;
-                pipelineDescriptor.Rasterizer.FillMode = pass.FillMode;
-                pipelineDescriptor.Blend.Attachments[0] = pass.Blending;
-                pipelineDescriptor.ShaderSet.Layouts[0] = mesh.VertexBuffer.Layout;
+                    var transform = comp.Entity.GetCommponent<Transform>()!;
+                    pass.SetUniformValue("m_Model", transform.WorldMatrix);
 
-                queue.SetIndexBuffer(mesh.IndexBuffer);
-                queue.SetVertexBuffer(mesh.VertexBuffer);
-                queue.SetPipeline(mutablePipeline.GetPipeline(pipelineDescriptor));
-                queue.SetResourceSet(0, pass.Resources);
-                queue.DrawIndexed((uint)mesh.IndexBuffer.Count, 1, 0, 0, 0);
+                    pipelineDescriptor.Topology = mesh.Topology;
+                    pipelineDescriptor.Layouts[0] = pass.Pass.Layout;
+                    pipelineDescriptor.ShaderSet.Shaders = pass.Pass.Shaders;
+                    pipelineDescriptor.Rasterizer.Culling = mesh.Culling;
+                    pipelineDescriptor.Rasterizer.Winding = mesh.Winding;
+                    pipelineDescriptor.Rasterizer.FillMode = pass.FillMode;
+                    pipelineDescriptor.Blend.Attachments[0] = pass.Blending;
+                    pipelineDescriptor.ShaderSet.Layouts[0] = mesh.VertexBuffer.Layout;
+
+                    queue.SetIndexBuffer(mesh.IndexBuffer);
+                    queue.SetVertexBuffer(mesh.VertexBuffer);
+                    queue.SetPipeline(mutablePipeline.GetPipeline(pipelineDescriptor));
+                    queue.SetResourceSet(0, pass.Resources);
+                    queue.DrawIndexed((uint)mesh.IndexBuffer.Count, 1, 0, 0, 0);
+                }
             }
-        }
 
-        queue.End();
-        device.Submit(queue);
+            queue.End();
+            device.Submit(queue);
+        }
     }
 
     public void Add(MeshComponent mesh)
     {
-        if (!mesh.Entity?.HasComponent<Transform>() ?? false)
-            throw new InvalidOperationException(@"The entity owning the mesh component must have a transform.");
-
         if (meshes.Contains(mesh))
             return;
 
@@ -123,15 +121,22 @@ public class RenderContext : SceneSystem, IRenderable
         meshes.Remove(mesh);
     }
 
+    public void Add(Camera camera)
+    {
+        cameras.Add(camera);
+    }
+
+    public void Remove(Camera camera)
+    {
+        cameras.Remove(camera);
+    }
+
     /// <summary>
     /// Adds a global parameter to be used by materials.
     /// </summary>
     protected void AddParameter<T>(string name, bool asUniform = true)
         where T : struct, IEquatable<T>
     {
-        if (!IsLoaded)
-            throw new InvalidOperationException();
-
         name = $"g_{name}";
 
         if (parameters.ContainsKey(name))
@@ -145,9 +150,6 @@ public class RenderContext : SceneSystem, IRenderable
     protected void UpdateParameter<T>(string name, T value)
         where T : struct, IEquatable<T>
     {
-        if (!IsLoaded)
-            throw new InvalidOperationException();
-
         name = $"g_{name}";
 
         if (parameters.TryGetValue(name, out var resource))
@@ -164,9 +166,6 @@ public class RenderContext : SceneSystem, IRenderable
     /// </summary>
     protected void AddParameter(string name, ITexture texture)
     {
-        if (!IsLoaded)
-            throw new InvalidOperationException();
-
         name = $"g_{name}";
 
         if (parameters.ContainsKey(name))
@@ -180,9 +179,6 @@ public class RenderContext : SceneSystem, IRenderable
     /// </summary>
     protected void AddParameter(string name, ISampler sampler)
     {
-        if (!IsLoaded)
-            throw new InvalidOperationException();
-
         name = $"g_{name}";
 
         if (parameters.ContainsKey(name))

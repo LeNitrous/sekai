@@ -17,6 +17,11 @@ public interface IGraphicsDevice : IDisposable
     string Name { get; }
 
     /// <summary>
+    /// Gets or sets vertical syncing for this device.
+    /// </summary>
+    bool VerticalSync { get; set; }
+
+    /// <summary>
     /// The graphics API used by this device.
     /// </summary>
     GraphicsAPI GraphicsAPI { get; }

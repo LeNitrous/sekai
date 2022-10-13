@@ -11,7 +11,6 @@ using Sekai.Engine.Effects;
 using Sekai.Engine.Effects.Compiler;
 using Sekai.Engine.Graphics;
 using Sekai.Engine.Rendering;
-using Sekai.Framework.Annotations;
 using Sekai.Framework.Graphics;
 using Sekai.Framework.Input;
 using Sekai.Framework.Storage;
@@ -20,72 +19,61 @@ namespace Example.Window;
 
 public class ExampleGame : Game
 {
-    [Resolved]
-    private IGraphicsDevice device { get; set; } = null!;
-
-    [Resolved]
-    private VirtualStorage storage { get; set; } = null!;
-
-    [Resolved]
-    private EffectCompiler compiler { get; set; } = null!;
-
-    protected override void Load()
+    public override void Load()
     {
-        using var stream = storage.Open("engine/shaders/unlit.sksl", FileMode.Open, FileAccess.Read);
+        using var stream = Services.Resolve<VirtualStorage>().Open("engine/shaders/unlit.sksl", FileMode.Open, FileAccess.Read);
         using var reader = new StreamReader(stream);
 
-        var effect = compiler.Compile(new EffectSource(reader.ReadToEnd()), EffectType.Graphics);
+        var effect = Services.Resolve<EffectCompiler>().Compile(new EffectSource(reader.ReadToEnd()), EffectType.Graphics);
 
-        var camera = new Camera();
-        var sceneController = Systems.Get<SceneController>();
+        var sceneController = Services.Resolve<SceneController>();
 
-        var material = new Material(effect);
-        var mesh = Cube.Generate(device, Vector3.One, Vector2.One);
-        mesh.Material = material;
+        var device = Services.Resolve<IGraphicsDevice>();
 
-        sceneController.Scene = new Scene
+
+        var scene = new Scene();
+
+        scene.CreateEntity()
+            .AddComponent<Camera>()
+            .AddComponent<CameraController>()
+            .AddComponent<Transform>();
+
+        for (int x = 0; x < 10; x++)
         {
-            Camera = camera,
-            Children = new[]
+            for (int z = 0; z < 10; z++)
             {
-                new Entity
-                {
-                    Components = new Component[]
-                    {
-                        camera,
-                        new CameraController(),
-                        new Transform { Position = new Vector3(0, 0, 5) },
-                    }
-                },
-                new Entity
-                {
-                    Components = new Component[]
-                    {
-                        new MeshComponent { Mesh = mesh },
-                        new Transform { Scale = new Vector3(3) },
-                    }
-                },
-            },
-        };
+                var mesh = Cube.Generate(device, Vector3.One, Vector2.One);
+                mesh.Material = new Material(effect);
+
+                scene.CreateEntity()
+                    .AddComponent(new MeshComponent { Mesh = mesh })
+                    .AddComponent(new Transform { Position = new Vector3(x, 0, z) * 3, Scale = new Vector3(3) });
+            }
+        }
+
+        sceneController.Scene = scene;
     }
 }
 
 public class CameraController : Behavior
 {
-    [Resolved]
-    private IInputContext input { get; set; } = null!;
-
     private IMouse mouse = null!;
     private IKeyboard keyboard = null!;
     private Vector2? mousePressPosition;
     private Transform transform = null!;
+    private readonly IInputContext input = Game.Current.Services.Resolve<IInputContext>();
+
+    public override void Start()
+    {
+        mouse = input.Available.OfType<IMouse>().Single();
+        keyboard = input.Available.OfType<IKeyboard>().Single();
+        transform = Entity.GetCommponent<Transform>()!;
+    }
 
     public override void Update(double delta)
     {
         const float speed = 100.0f;
         float d = MathF.Round((float)delta, 4);
-
-        transform ??= Entity.GetComponent<Transform>()!;
 
         keyboard ??= input.Available.OfType<IKeyboard>().Single();
 
@@ -106,8 +94,6 @@ public class CameraController : Behavior
 
         if (keyboard.IsKeyPressed(Key.E))
             transform.Position -= transform.Up * speed * d;
-
-        mouse ??= input.Available.OfType<IMouse>().Single();
 
         if (mouse.IsButtonPressed(MouseButton.Left))
         {

@@ -2,6 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System.Numerics;
+using Sekai.Framework.Graphics;
 
 namespace Sekai.Engine;
 
@@ -30,8 +31,14 @@ public class Camera : Component
     /// </summary>
     public CameraProjectionMode Projection = CameraProjectionMode.Perspective;
 
+    /// <summary>
+    /// The viewport of the camera.
+    /// </summary>
+    public Viewport Viewport = new(0, 0, 512, 512, float.MinValue, float.MaxValue);
+
     internal Matrix4x4 ViewMatrix = Matrix4x4.Identity;
     internal Matrix4x4 ProjMatrix = Matrix4x4.Identity;
+    internal IFramebuffer Framebuffer = null!;
 }
 
 /// <summary>

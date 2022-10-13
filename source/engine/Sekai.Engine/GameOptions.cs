@@ -7,12 +7,12 @@ using System.Reflection;
 using Sekai.Framework.Graphics;
 using Sekai.Framework.Threading;
 
-namespace Sekai.Engine.Platform;
+namespace Sekai.Engine;
 
 /// <summary>
 /// Options to customize initialization of a <see cref="Host"/>.
 /// </summary>
-public class HostOptions
+public class GameOptions
 {
     /// <summary>
     /// The title of the game window.

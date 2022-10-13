@@ -2,44 +2,36 @@
 // Licensed under MIT. See LICENSE for details.
 
 using NUnit.Framework.Internal;
-using Sekai.Engine.Platform;
+using Sekai.Dummy;
 using Sekai.Engine.Threading;
 using Sekai.Framework.Threading;
-using Sekai.Dummy;
 
 namespace Sekai.Engine.Testing;
 
-public static class HostTestSceneExtensions
+public static class GameBuilderTestSceneExtensions
 {
-    public static HostBuilder<T> SetupTest<T>(this HostBuilder<T> builder, TestScene test)
+    public static GameBuilder<T> SetupTest<T>(this GameBuilder<T> builder, TestScene test)
         where T : Game, new()
     {
         var context = TestExecutionContext.CurrentContext;
 
-        builder.UseDummy();
-
-        builder.UseLoadCallback(game =>
-        {
-            var threads = game.Container.Resolve<ThreadController>();
-            threads.Post(setupContext);
-            threads.OnThreadAdded += setupContextForThread;
-            threads.OnThreadRemoved -= setupContextForThread;
-            threads.AbortOnUnobservedException = true;
-
-            var systems = game.Container.Resolve<SystemCollection<GameSystem>>();
-            var sceneController = systems.Get<SceneController>();
-            sceneController.Scene = new Scene
+        builder
+            .UseDummy()
+            .AddPostBuildAction(game =>
             {
-                Name = test.GetType().Name,
-                Children = new[]
-                {
-                    new Entity
-                    {
-                        Components = new[] { test }
-                    }
-                }
-            };
-        });
+                var threads = game.Services.Resolve<ThreadController>();
+                threads.Window.Post(setupContext);
+                threads.OnThreadAdded += setupContextForThread;
+                threads.OnThreadRemoved -= setupContextForThread;
+                threads.AbortOnUnobservedException = true;
+
+                var sceneController = game.Services.Resolve<SceneController>();
+
+                var scene = new Scene();
+                scene.CreateEntity().AddComponent(test);
+
+                sceneController.Scene = scene;
+            });
 
         void setupContext()
         {

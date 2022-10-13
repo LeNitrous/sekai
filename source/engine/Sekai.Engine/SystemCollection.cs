@@ -5,64 +5,69 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Sekai.Framework.Allocation;
-using Sekai.Framework.Annotations;
+using Sekai.Framework;
 
 namespace Sekai.Engine;
 
-[Cached]
-public class SystemCollection<T> : LoadableObject, IReadOnlyList<T>, IEnumerable<T>
-    where T : LoadableObject
+public class SystemCollection<T> : FrameworkObject, IEnumerable<T>
+    where T : FrameworkObject, IGameSystem
 {
-    public int Count => systems.Count;
+    private readonly Dictionary<Type, object> systems = new();
 
-    public T this[int index] => systems[index];
+    public object Get(Type type)
+    {
+        if (!type.IsAssignableTo(typeof(T)))
+            throw new InvalidCastException();
 
-    private readonly List<T> systems = new();
+        if (!systems.ContainsKey(type))
+            throw new KeyNotFoundException($"{type} is not registered in this collection.");
+
+        return systems[type];
+    }
 
     public U Get<U>()
-        where U : T, new()
+        where U : T
     {
-        var instances = systems.OfType<U>();
-
-        if (!instances.Any())
-            throw new KeyNotFoundException($"Game system \"{typeof(T)}\" is not registered.");
-
-        return instances.Single();
+        return (U)Get(typeof(U));
     }
 
-    public void Register<U>()
-        where U : T, new()
+    public object Register(Type type)
     {
-        if (systems.OfType<U>().Any())
-            throw new InvalidOperationException($"Game system \"{typeof(T)}\" is already registered.");
+        if (!type.IsAssignableTo(typeof(T)))
+            throw new InvalidOperationException();
 
-        var instance = new U();
-        systems.Add(instance);
-        AddInternal(instance);
+        if (systems.ContainsKey(typeof(T)))
+            throw new InvalidOperationException();
+
+        object? instance = Activator.CreateInstance(type);
+        systems.Add(type, instance!);
+
+        return instance!;
     }
 
-    public void Unregister<U>()
-        where U : T, new()
+    public U Register<U>()
+        where U : T
     {
-        var instances = systems.OfType<U>();
-
-        if (!instances.Any())
-            throw new InvalidOperationException($"Game system \"{typeof(T)}\" is not registered.");
-
-        var instance = instances.Single();
-        systems.Remove(instance);
-        RemoveInternal(instance);
+        return (U)Register(typeof(U));
     }
 
-    protected sealed override void Unload()
+    public bool Unregister(Type type)
     {
-        systems.Clear();
+        if (!type.IsAssignableTo(typeof(T)))
+            throw new InvalidOperationException();
+
+        return systems.Remove(type);
+    }
+
+    public bool Unregister<U>()
+        where U : T
+    {
+        return Unregister(typeof(U));
     }
 
     public IEnumerator<T> GetEnumerator()
     {
-        return systems.GetEnumerator();
+        return systems.Values.OfType<T>().Where(s => s.Enabled && !s.IsDisposed).GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator()

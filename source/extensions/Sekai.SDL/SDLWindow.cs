@@ -85,11 +85,7 @@ internal class SDLWindow : SDLView, IWindow
 
     public new Size Size
     {
-        get
-        {
-            SDL_GetWindowSize(Window, out int w, out int h);
-            return new Size(w, h);
-        }
+        get => base.Size;
         set => SDL_SetWindowSize(Window, value.Width, value.Height);
     }
 

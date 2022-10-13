@@ -1,135 +1,88 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Sekai.Engine.Processors;
 
 public abstract class Processor : SceneSystem, IUpdateable
 {
+    public event Action<Processor, Entity> OnEntityAdded = null!;
+    public event Action<Processor, Entity> OnEntityRemoved = null!;
+
+    protected abstract Type[] Types { get; }
     private readonly List<Entity> entities = new();
 
-    /// <summary>
-    /// Determines whether the given entity should still be eligible for processing.
-    /// </summary>
-    public void OnEntityUpdate(Entity entity)
+    public sealed override void Initialize()
     {
-        if (entity.IsAlive && !entities.Contains(entity) && IsEntityValid(entity))
+        Scene.OnComponentAdded += handleComponentAdded;
+        Scene.OnComponentRemoved += handleComponentRemoved;
+    }
+
+    protected abstract void Update(double delta, Entity entity);
+
+    public void Update(double delta)
+    {
+        foreach (var entity in entities.ToArray())
+            Update(delta, entity);
+    }
+
+    private void handleComponentAdded(Scene scene, Entity entity, Component component)
+    {
+        var componentTypes = entity.GetComponents().Select(c => c.GetType());
+
+        if (!entities.Contains(entity, EqualityComparer<Entity>.Default) && Types.All(t => componentTypes.Any(c => c.IsAssignableTo(t))))
         {
             entities.Add(entity);
-            OnEntityAdded(entity);
-            return;
-        }
-
-
-        if (entity.IsAlive && entities.Contains(entity) && !IsEntityValid(entity))
-        {
-            entities.Remove(entity);
-            OnEntityRemoved(entity);
-            return;
+            OnEntityAdded?.Invoke(this, entity);
         }
     }
 
-    /// <summary>
-    /// Determines whether the entity whether it is eligible for processing.
-    /// </summary>
-    protected virtual bool IsEntityValid(Entity entity) => entity.IsAlive;
-
-    /// <summary>
-    /// Called when an entity has been added for processing.
-    /// </summary>
-    protected abstract void OnEntityAdded(Entity entity);
-
-    /// <summary>
-    /// Called when an entity has been removed from processing.
-    /// </summary>
-    protected abstract void OnEntityRemoved(Entity entity);
-
-    protected abstract void Update(double elapsed, Entity entity);
-
-    public void Update(double elapsed)
+    private void handleComponentRemoved(Scene scene, Entity entity, Component component)
     {
-        foreach (var entity in entities.ToArray())
-            Update(elapsed, entity);
+        var componentTypes = entity.GetComponents().Select(c => c.GetType());
+
+        if (entities.Contains(entity, EqualityComparer<Entity>.Default) && !Types.All(t => componentTypes.Any(c => c.IsAssignableTo(t))))
+        {
+            entities.Remove(entity);
+            OnEntityRemoved?.Invoke(this, entity);
+        }
+    }
+
+    protected override void Destroy()
+    {
+        Scene.OnComponentAdded -= handleComponentAdded;
+        Scene.OnComponentRemoved -= handleComponentRemoved;
     }
 }
 
 public abstract class Processor<T> : Processor
     where T : Component
 {
-    protected abstract void Update(double elapsed, Entity entity, T component);
+    protected sealed override Type[] Types { get; } = new[] { typeof(T) };
 
-    protected virtual void OnEntityAdded(Entity entity, T component)
+    protected sealed override void Update(double delta, Entity entity)
     {
+        Update(delta, entity, entity.GetCommponent<T>()!);
     }
 
-    protected virtual void OnEntityRemoved(Entity entity, T component)
-    {
-    }
-
-    protected sealed override void OnEntityAdded(Entity entity)
-    {
-        var component = entity.GetComponent<T>()!;
-        OnEntityAdded(entity, component);
-    }
-
-    protected sealed override void OnEntityRemoved(Entity entity)
-    {
-        var component = entity.GetComponent<T>()!;
-        OnEntityRemoved(entity, component);
-    }
-
-    protected sealed override bool IsEntityValid(Entity entity)
-    {
-        return base.IsEntityValid(entity) && entity.HasComponent<T>();
-    }
-
-    protected sealed override void Update(double elapsed, Entity entity)
-    {
-        var component = entity.GetComponent<T>()!;
-        Update(elapsed, entity, component);
-    }
+    protected abstract void Update(double delta, Entity entity, T component);
 }
 
 public abstract class Processor<T1, T2> : Processor
     where T1 : Component
     where T2 : Component
 {
-    protected abstract void Update(double elapsed, Entity entity, T1 componentA, T2 componentB);
+    protected sealed override Type[] Types { get; } = new[] { typeof(T1), typeof(T2) };
 
-    protected virtual void OnEntityAdded(Entity entity, T1 componentA, T2 componentB)
+    protected sealed override void Update(double delta, Entity entity)
     {
+        Update(delta, entity, entity.GetCommponent<T1>()!, entity.GetCommponent<T2>()!);
     }
 
-    protected virtual void OnEntityRemoved(Entity entity, T1 componentA, T2 componentB)
-    {
-    }
-
-    protected sealed override void OnEntityAdded(Entity entity)
-    {
-        var componentA = entity.GetComponent<T1>()!;
-        var componentB = entity.GetComponent<T2>()!;
-        OnEntityAdded(entity, componentA, componentB);
-    }
-
-    protected sealed override void OnEntityRemoved(Entity entity)
-    {
-        var componentA = entity.GetComponent<T1>()!;
-        var componentB = entity.GetComponent<T2>()!;
-        OnEntityRemoved(entity, componentA, componentB);
-    }
-
-    protected sealed override bool IsEntityValid(Entity entity)
-    {
-        return base.IsEntityValid(entity) && entity.HasComponent<T1>() && entity.HasComponent<T2>();
-    }
-
-    protected sealed override void Update(double elapsed, Entity entity)
-    {
-        var componentA = entity.GetComponent<T1>()!;
-        var componentB = entity.GetComponent<T2>()!;
-        Update(elapsed, entity, componentA, componentB);
-    }
+    protected abstract void Update(double delta, Entity entity, T1 componentA, T2 componentB);
 }
 
 public abstract class Processor<T1, T2, T3> : Processor
@@ -137,42 +90,13 @@ public abstract class Processor<T1, T2, T3> : Processor
     where T2 : Component
     where T3 : Component
 {
-    protected abstract void Update(double elapsed, Entity entity, T1 componentA, T2 componentB, T3 componentC);
+    protected sealed override Type[] Types { get; } = new[] { typeof(T1), typeof(T2), typeof(T3) };
 
-    protected virtual void OnEntityAdded(Entity entity, T1 componentA, T2 componentB, T3 componentC)
+    protected sealed override void Update(double delta, Entity entity)
     {
+        Update(delta, entity, entity.GetCommponent<T1>()!, entity.GetCommponent<T2>()!, entity.GetCommponent<T3>()!);
     }
 
-    protected virtual void OnEntityRemoved(Entity entity, T1 componentA, T2 componentB, T3 componentC)
-    {
-    }
-
-    protected sealed override void OnEntityAdded(Entity entity)
-    {
-        var componentA = entity.GetComponent<T1>()!;
-        var componentB = entity.GetComponent<T2>()!;
-        var componentC = entity.GetComponent<T3>()!;
-        OnEntityAdded(entity, componentA, componentB, componentC);
-    }
-
-    protected sealed override void OnEntityRemoved(Entity entity)
-    {
-        var componentA = entity.GetComponent<T1>()!;
-        var componentB = entity.GetComponent<T2>()!;
-        var componentC = entity.GetComponent<T3>()!;
-        OnEntityRemoved(entity, componentA, componentB, componentC);
-    }
-
-    protected sealed override bool IsEntityValid(Entity entity)
-    {
-        return base.IsEntityValid(entity) && entity.HasComponent<T1>() && entity.HasComponent<T2>() && entity.HasComponent<T3>();
-    }
-
-    protected sealed override void Update(double elapsed, Entity entity)
-    {
-        var componentA = entity.GetComponent<T1>()!;
-        var componentB = entity.GetComponent<T2>()!;
-        var componentC = entity.GetComponent<T3>()!;
-        Update(elapsed, entity, componentA, componentB, componentC);
-    }
+    protected abstract void Update(double delta, Entity entity, T1 componentA, T2 componentB, T3 componentC);
 }
+

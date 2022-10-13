@@ -87,7 +87,7 @@ public static class MathUtils
     public static float Wrap(float value, float min, float max)
     {
         return value < min
-            ? max - (min - value) % (max - min)
-            : min + (value - min) % (max - min);
+            ? max - ((min - value) % (max - min))
+            : min + ((value - min) % (max - min));
     }
 }

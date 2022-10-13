@@ -3,179 +3,127 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Sekai.Framework.Annotations;
+using Sekai.Framework;
 
 namespace Sekai.Engine;
 
-[Cached]
-public class Entity : EntityCollection
+public class Entity : FrameworkObject, IReference, IEquatable<Entity>
 {
     /// <summary>
-    /// The parent entity.
+    /// The identifier for this entity.
     /// </summary>
-    public new Entity? Parent => base.Parent as Entity;
+    public Guid Id { get; internal set; }
 
     /// <summary>
-    /// The current scene.
+    /// The identifier of the parent entity for this entity.
     /// </summary>
-    [Resolved]
+    public Entity? Parent { get; internal set; }
+
+    /// <summary>
+    /// The scene owning this entity.
+    /// </summary>
     public Scene Scene { get; internal set; } = null!;
 
     /// <summary>
-    /// Gets or sets the only tag for this entity.
+    /// Creates a new child entity.
     /// </summary>
-    public string Tag
+    public Entity CreateEntity()
     {
-        get => tags?.FirstOrDefault() ?? string.Empty;
-        set
-        {
-            tags ??= new();
-            tags.Clear();
-            tags.Add(value);
-        }
+        return Scene.CreateEntity(this);
     }
 
     /// <summary>
-    /// Gets or sets the tags for this entity.
+    /// Gets this entity's children.
     /// </summary>
-    public IEnumerable<string> Tags
+    public IEnumerable<Entity> GetChildren()
     {
-        get => tags ?? (Array.Empty<string>() as IEnumerable<string>);
-        set
-        {
-            tags ??= new();
-            tags.Clear();
-            tags.AddRange(value);
-        }
-    }
-
-
-    /// <summary>
-    /// Gets or sets the components of this entity.
-    /// </summary>
-    public IEnumerable<Component> Components
-    {
-        get => Loadables.OfType<Component>();
-        set
-        {
-            ClearComponents();
-            AddComponentRange(value);
-        }
+        return Scene.GetChildren(this);
     }
 
     /// <summary>
-    /// Gets or sets this entity's name.
+    /// Removes all of this entity's children.
     /// </summary>
-    public string Name { get; set; } = "unnamed";
-
-    private List<string> tags = null!;
-
-    protected sealed override void Load()
+    public void Clear()
     {
-        Scene.OnEntityUpdate(this);
-    }
-
-    protected sealed override void Unload()
-    {
-        Scene.OnEntityUpdate(this);
-    }
-
-    protected sealed override void Activate()
-    {
-        Scene.OnEntityUpdate(this);
-    }
-
-    protected sealed override void Deactivate()
-    {
-        Scene.OnEntityUpdate(this);
+        Scene.ClearChildren(this);
     }
 
     /// <summary>
     /// Adds a component to this entity.
     /// </summary>
-    public void AddComponent(Component component)
+    public Entity AddComponent<T>()
+        where T : Component
     {
-        AddInternal(component);
+        Scene.AddComponent(this, Activator.CreateInstance<T>());
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a component to this entity.
+    /// </summary>
+    public Entity AddComponent<T>(T component)
+        where T : Component
+    {
+        Scene.AddComponent(this, component);
+        return this;
     }
 
     /// <summary>
     /// Removes a component from this entity.
     /// </summary>
-    public void RemoveComponent(Component component)
+    public Entity RemoveComponent<T>()
+        where T : Component
     {
-        RemoveInternal(component);
+        Scene.RemoveComponent<T>(this);
+        return this;
     }
 
     /// <summary>
-    /// Adds a range of components to this entity.
+    /// Gets all the components owned by this entity.
     /// </summary>
-    public void AddComponentRange(IEnumerable<Component> components)
+    public IEnumerable<Component> GetComponents()
     {
-        foreach (var component in components)
-            AddComponent(component);
+        return Scene.GetComponents(this);
     }
 
     /// <summary>
-    /// Removes a range of components from this entity.
+    /// Gets a component of a certain type owned by this entity.
     /// </summary>
-    public void RemoveComponentRange(IEnumerable<Component> components)
+    public T? GetCommponent<T>()
+        where T : Component
     {
-        foreach (var component in components)
-            RemoveComponent(component);
+        return Scene.GetComponent<T>(this);
     }
 
     /// <summary>
-    /// Removes all components from this entity.
+    /// Removes all of this entity's components.
     /// </summary>
     public void ClearComponents()
     {
-        RemoveComponentRange(Components);
+        Scene.RemoveComponents(this);
     }
 
-    /// <summary>
-    /// Gets all components of a given type.
-    /// </summary>
-    public IEnumerable<Component> GetComponents(Type type)
+    protected override void Destroy()
     {
-        if (!type.IsAssignableTo(typeof(Component)) || type.IsAbstract)
-            throw new InvalidCastException(@$"Type must be a non-abstract {nameof(Component)}.");
-
-        return Components.Where(c => c.GetType().Equals(type));
+        Scene.RemoveEntity(this);
     }
 
-    /// <summary>
-    /// Gets all components of a given type.
-    /// </summary>
-    public IEnumerable<T> GetComponents<T>()
-        where T : Component
+    public bool Equals(Entity? other)
     {
-        return Components.OfType<T>();
+        return other is not null
+            && other.Id == Id
+            && other.IsDisposed == IsDisposed
+            && (other.Parent?.Equals(this) ?? false)
+            && EqualityComparer<Scene>.Default.Equals(other.Scene, Scene);
     }
 
-    /// <summary>
-    /// Gets a single component of a given type.
-    /// </summary>
-    public T? GetComponent<T>()
-        where T : Component
+    public override int GetHashCode()
     {
-        return GetComponents<T>().SingleOrDefault();
+        return HashCode.Combine(IsDisposed, Id, Parent, Scene);
     }
 
-    /// <summary>
-    /// Returns whether this entity has a component of a given type.
-    /// </summary>
-    public bool HasComponent(Type type)
+    public override bool Equals(object? obj)
     {
-        return GetComponents(type).Any();
-    }
-
-    /// <summary>
-    /// Returns whether this entity has a component of a given type.
-    /// </summary>
-    public bool HasComponent<T>()
-        where T : Component
-    {
-        return GetComponents<T>().Any();
+        return Equals(obj as Entity);
     }
 }

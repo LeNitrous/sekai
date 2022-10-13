@@ -2,13 +2,12 @@
 // Licensed under MIT. See LICENSE for details.
 
 using Sekai.Engine;
-using Sekai.Engine.Platform;
 
 namespace Sekai.Dummy;
 
-public static class DummyHostExtensions
+public static class GameBuilderDummyExtensions
 {
-    public static HostBuilder<T> UseDummy<T>(this HostBuilder<T> builder)
+    public static GameBuilder<T> UseDummy<T>(this GameBuilder<T> builder)
         where T : Game, new()
     {
         return builder
