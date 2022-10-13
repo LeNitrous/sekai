@@ -185,7 +185,7 @@ internal partial class VeldridGraphicsDevice : FrameworkObject, IGraphicsDevice
 
     public void Unmap(ITexture texture, uint subResource)
     {
-         device.Unmap(((VeldridTexture)texture).Resource, subResource);
+        device.Unmap(((VeldridTexture)texture).Resource, subResource);
     }
 
     public void UpdateBufferData(IBuffer buffer, nint source, uint offset, uint size)
