@@ -2,6 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
+using System.Numerics;
 
 namespace Sekai.Framework.Graphics;
 
@@ -94,4 +95,6 @@ public struct Color4 : IEquatable<Color4>
     {
         return !(left == right);
     }
+
+    public static implicit operator Vector4(Color4 color) => new(color.R, color.G, color.B, color.A);
 }

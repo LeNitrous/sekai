@@ -47,31 +47,24 @@ public class MaterialPass : FrameworkObject
     public BlendAttachmentDescription Blending { get; set; }
 
     private bool hasChanged = true;
-    private bool initialized = false;
     private IResourceSet resourceSet = null!;
     private readonly IGraphicsDevice device;
     private readonly IBindableResource[] resources;
     private readonly List<string> globalResourceNames = new();
 
-    internal MaterialPass(Effect effect, EffectPass pass)
+    internal MaterialPass(RenderContext context, Effect effect, EffectPass pass)
     {
         Effect = effect;
         Pass = pass;
 
         device = effect.Device;
         resources = new IBindableResource[pass.Parameters.Count];
-    }
-
-    internal void Initialize(RenderContext context)
-    {
-        if (initialized)
-            return;
 
         for (int i = 0; i < Pass.Parameters.Count; i++)
         {
             var param = Pass.Parameters[i];
 
-            if (context.Parameters.TryGetValue(param.Name, out var resource))
+            if (context.GetParameter(param.Name, out var resource))
             {
                 globalResourceNames.Add(param.Name);
                 resources[i] = resource;
@@ -95,8 +88,6 @@ public class MaterialPass : FrameworkObject
                 continue;
             }
         }
-
-        initialized = true;
     }
 
     public void SetTexture(string name, ITexture texture)
@@ -106,7 +97,7 @@ public class MaterialPass : FrameworkObject
 
     public void SetSampler(string name, ISampler sampler)
     {
-        setResource(name, EffectParameterFlags.Sampler, sampler, (_, _) => true);
+        setResource(name, EffectParameterFlags.Sampler, sampler);
     }
 
     public void SetBufferValue<T>(string name, T value)
@@ -133,7 +124,7 @@ public class MaterialPass : FrameworkObject
         updateBuffer(name, EffectParameterFlags.Uniform, ref value);
     }
 
-    private void setResource(string name, EffectParameterFlags flag, IBindableResource resource, Func<IBindableResource, EffectParameterInfo, bool> checkValid)
+    private void setResource(string name, EffectParameterFlags flag, IBindableResource resource, Func<IBindableResource, EffectParameterInfo, bool>? checkValid = null)
     {
         if (IsDisposed)
             throw new ObjectDisposedException(nameof(Material));
@@ -150,7 +141,7 @@ public class MaterialPass : FrameworkObject
             if (param.Name != name && !param.Flags.HasFlag(flag))
                 continue;
 
-            if (!checkValid(resource, param))
+            if (!checkValid?.Invoke(resource, param) ?? false)
                 throw new InvalidOperationException();
 
             success = true;
@@ -159,6 +150,8 @@ public class MaterialPass : FrameworkObject
 
         if (!success)
             throw new InvalidOperationException($"There is no resource named \"{name}\".");
+
+        hasChanged = true;
     }
 
     private unsafe void updateBuffer<T>(string name, EffectParameterFlags flag, ref T value)

@@ -4,7 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Sekai.Engine.Effects.Compiler;
+using Sekai.Engine.Assets;
+using Sekai.Engine.Effects;
+using Sekai.Engine.Graphics;
 using Sekai.Engine.Resources;
 using Sekai.Engine.Threading;
 using Sekai.Framework;
@@ -88,9 +90,14 @@ public sealed class GameBuilder<T>
         game.Services.Cache(storage);
         game.Services.Cache(graphics);
         game.Services.Cache(graphics.Factory);
-        game.Services.Cache(new EffectCompiler(graphics));
         game.Services.Cache(systems);
         game.Services.Cache(systems.Get<SceneController>());
+
+        var loader = new AssetLoader();
+        loader.Register<Effect, EffectLoader>();
+        loader.Register<ITexture, TextureLoader>();
+
+        game.Services.Cache(loader);
 
         threads = new()
         {

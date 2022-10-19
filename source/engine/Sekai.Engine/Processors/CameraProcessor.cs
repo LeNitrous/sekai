@@ -1,49 +1,43 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
+using System.Collections.Generic;
 using System.Numerics;
+using Sekai.Engine.Rendering;
 using Sekai.Framework.Utils;
-using Sekai.Framework.Windowing;
 
 namespace Sekai.Engine.Processors;
 
 public sealed class CameraProcessor : Processor<Camera, Transform>
 {
-    private readonly IView view = Game.Current.Services.Resolve<IView>();
+    private readonly Dictionary<Camera, CameraInfo> cameras = new();
 
-    public CameraProcessor()
+    protected override void OnEntityAdded(Entity entity, Camera camera, Transform transform)
     {
-        OnEntityAdded += handleEntityAdded;
-        OnEntityRemoved += handleEntityRemoved;
+        if (cameras.ContainsKey(camera))
+            return;
+
+        var info = new CameraInfo();
+        cameras.Add(camera, info);
+        Scene.RenderContext.AddCamera(info);
     }
 
-    private void handleEntityAdded(Processor processor, Entity entity)
+    protected override void OnEntityRemoved(Entity entity, Camera camera, Transform transform)
     {
-        Scene.RenderContext.Add(entity.GetCommponent<Camera>()!);
-    }
-
-    private void handleEntityRemoved(Processor processor, Entity entity)
-    {
-        Scene.RenderContext.Remove(entity.GetCommponent<Camera>()!);
+        if (cameras.Remove(camera, out var info))
+            Scene.RenderContext.RemoveCamera(info);
     }
 
     protected override void Update(double delta, Entity entity, Camera camera, Transform transform)
     {
+        if (!cameras.TryGetValue(camera, out var info))
+            return;
+
         var target = Vector3.Transform(-Vector3.UnitZ, transform.Rotation);
-        camera.ViewMatrix = Matrix4x4.CreateLookAt(transform.Position, transform.Position + target, Vector3.UnitY);
+        info.ViewMatrix = Matrix4x4.CreateLookAt(transform.Position, transform.Position + target, Vector3.UnitY);
 
-        float fov = MathUtils.DegreesToRadians(camera.FieldOfView);
-        float aspectRatio = (float)view.Size.Width / view.Size.Height;
-
-        camera.ProjMatrix = camera.Projection == CameraProjectionMode.Perspective
-            ? Matrix4x4.CreatePerspectiveFieldOfView(fov, aspectRatio, camera.NearClipPlane, camera.FarClipPlane)
-            : Matrix4x4.CreateOrthographic(view.Size.Width, view.Size.Height, camera.NearClipPlane, camera.FarClipPlane);
-    }
-
-    protected override void Destroy()
-    {
-        OnEntityAdded -= handleEntityAdded;
-        OnEntityRemoved -= handleEntityRemoved;
-        base.Destroy();
+        info.ProjMatrix = camera.Projection == CameraProjectionMode.Perspective
+            ? Matrix4x4.CreatePerspectiveFieldOfView(MathUtils.DegreesToRadians(camera.FieldOfView), (float)camera.Width / camera.Height, camera.NearClipPlane, camera.FarClipPlane)
+            : Matrix4x4.CreateOrthographicOffCenter(0, camera.Width, camera.Height, 0, -1, 1);
     }
 }

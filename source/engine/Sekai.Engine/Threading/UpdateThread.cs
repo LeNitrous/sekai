@@ -21,6 +21,4 @@ public abstract class UpdateThread : GameThread
         stopwatch.Restart();
         Update(stopwatch.Elapsed.TotalMilliseconds);
     }
-
-    protected override void Destroy() => stopwatch.Reset();
 }

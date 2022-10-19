@@ -1,34 +1,33 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
+using System.Collections.Generic;
+using Sekai.Engine.Rendering;
+
 namespace Sekai.Engine.Processors;
 
 public sealed class MeshProcessor : Processor<MeshComponent, Transform>
 {
-    public MeshProcessor()
+    private readonly Dictionary<MeshComponent, MeshRenderObject> renderables = new();
+
+    protected override void OnEntityAdded(Entity entity, MeshComponent mesh, Transform transform)
     {
-        OnEntityAdded += handleEntityAdded;
-        OnEntityRemoved += handleEntityRemoved;
+        if (renderables.ContainsKey(mesh))
+            return;
+
+        var renderable = new MeshRenderObject { Mesh = mesh.Mesh };
+        renderables.Add(mesh, renderable);
+        Scene.RenderContext.Add(renderable);
     }
 
-    protected override void Update(double delta, Entity entity, MeshComponent componentA, Transform componentB)
+    protected override void OnEntityRemoved(Entity entity, MeshComponent mesh, Transform transform)
     {
+        if (renderables.Remove(mesh, out var renderable))
+            Scene.RenderContext.Remove(renderable);
     }
 
-    private void handleEntityAdded(Processor processor, Entity entity)
+    protected override void Update(double delta, Entity entity, MeshComponent mesh, Transform transform)
     {
-        Scene.RenderContext.Add(entity.GetCommponent<MeshComponent>()!);
-    }
-
-    private void handleEntityRemoved(Processor processor, Entity entity)
-    {
-        Scene.RenderContext.Remove(entity.GetCommponent<MeshComponent>()!);
-    }
-
-    protected override void Destroy()
-    {
-        OnEntityAdded -= handleEntityAdded;
-        OnEntityRemoved -= handleEntityRemoved;
-        base.Destroy();
+        renderables[mesh].WorldMatrix = transform.WorldMatrix;
     }
 }

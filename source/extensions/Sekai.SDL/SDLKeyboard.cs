@@ -15,7 +15,7 @@ internal class SDLKeyboard : IKeyboard
     public bool IsConnected { get; } = true;
     public event Action<IKeyboard, Key, int?> OnKeyDown = null!;
     public event Action<IKeyboard, Key, int?> OnKeyUp = null!;
-    private readonly HashSet<SDL2.SDL.SDL_Scancode> pressedKeys = new();
+    private readonly List<SDL2.SDL.SDL_Scancode> pressedKeys = new();
 
     public void HandleEvent(SDL2.SDL.SDL_KeyboardEvent keyboardEvent)
     {
@@ -23,8 +23,11 @@ internal class SDLKeyboard : IKeyboard
         {
             case SDL2.SDL.SDL_EventType.SDL_KEYDOWN:
                 {
-                    if (pressedKeys.Add(keyboardEvent.keysym.scancode))
+                    if (!contains(keyboardEvent.keysym.scancode))
+                    {
+                        pressedKeys.Add(keyboardEvent.keysym.scancode);
                         OnKeyDown?.Invoke(this, keyboardEvent.keysym.ToKey(), (int)keyboardEvent.keysym.scancode);
+                    }
                     break;
                 }
 
@@ -40,5 +43,16 @@ internal class SDLKeyboard : IKeyboard
         }
     }
 
-    public bool IsKeyPressed(Key key) => pressedKeys.Contains(key.ToScancode());
+    public bool IsKeyPressed(Key key) => contains(key.ToScancode());
+
+    private bool contains(SDL2.SDL.SDL_Scancode scancode)
+    {
+        for (int i = 0; i < pressedKeys.Count; i++)
+        {
+            if (pressedKeys[i] == scancode)
+                return true;
+        }
+
+        return false;
+    }
 }

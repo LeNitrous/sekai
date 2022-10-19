@@ -1,19 +1,16 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-using System;
-using System.IO;
 using System.Linq;
 using System.Numerics;
 using Sekai.Engine;
 using Sekai.Engine.Annotations;
+using Sekai.Engine.Assets;
 using Sekai.Engine.Effects;
-using Sekai.Engine.Effects.Compiler;
 using Sekai.Engine.Graphics;
 using Sekai.Engine.Rendering;
 using Sekai.Framework.Graphics;
 using Sekai.Framework.Input;
-using Sekai.Framework.Storage;
 
 namespace Example.Window;
 
@@ -21,37 +18,28 @@ public class ExampleGame : Game
 {
     public override void Load()
     {
-        using var stream = Services.Resolve<VirtualStorage>().Open("engine/shaders/unlit.sksl", FileMode.Open, FileAccess.Read);
-        using var reader = new StreamReader(stream);
-
-        var effect = Services.Resolve<EffectCompiler>().Compile(new EffectSource(reader.ReadToEnd()), EffectType.Graphics);
-
-        var sceneController = Services.Resolve<SceneController>();
-
+        var assets = Services.Resolve<AssetLoader>();
+        var scenes = Services.Resolve<SceneController>();
         var device = Services.Resolve<IGraphicsDevice>();
-
+        var effect = assets.Load<Effect>("engine/shaders/unlit.sksl");
 
         var scene = new Scene();
 
-        scene.CreateEntity()
-            .AddComponent<Camera>()
-            .AddComponent<CameraController>()
-            .AddComponent<Transform>();
+        scene
+            .CreateEntity()
+            .AddComponent(new Camera { Width = 1280, Height = 720 })
+            .AddComponent<Transform>()
+            .AddComponent<CameraController>();
 
-        for (int x = 0; x < 10; x++)
-        {
-            for (int z = 0; z < 10; z++)
-            {
-                var mesh = Cube.Generate(device, Vector3.One, Vector2.One);
-                mesh.Material = new Material(effect);
+        var mesh1 = Cube.Generate(device, Vector3.One, Vector2.One);
+        mesh1.Material = scene.RenderContext.CreateMaterial(effect);
 
-                scene.CreateEntity()
-                    .AddComponent(new MeshComponent { Mesh = mesh })
-                    .AddComponent(new Transform { Position = new Vector3(x, 0, z) * 3, Scale = new Vector3(3) });
-            }
-        }
+        scene
+            .CreateEntity()
+            .AddComponent(new Transform { Position = new Vector3(0, 0, -5) })
+            .AddComponent(new MeshComponent { Mesh = mesh1 });
 
-        sceneController.Scene = scene;
+        scenes.Scene = scene;
     }
 }
 
@@ -73,7 +61,7 @@ public class CameraController : Behavior
     public override void Update(double delta)
     {
         const float speed = 100.0f;
-        float d = MathF.Round((float)delta, 4);
+        float d = (float)delta;
 
         keyboard ??= input.Available.OfType<IKeyboard>().Single();
 

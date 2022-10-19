@@ -2,7 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using System.IO;
+using Sekai.Engine.Assets;
 using Sekai.Framework.Graphics;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
@@ -10,22 +10,14 @@ using SixLabors.ImageSharp.Processing;
 
 namespace Sekai.Engine.Graphics;
 
-public static class Texture
+public sealed class TextureLoader : IAssetLoader<ITexture>
 {
-    /// <summary>
-    /// Load a texture using an image stream.
-    /// </summary>
-    public static ITexture Load(IGraphicsDevice graphics, Stream stream, bool mipmap = true, bool srgb = true)
-    {
-        return Load(graphics, Image.Load<Rgba32>(stream), mipmap, srgb);
-    }
+    private readonly IGraphicsDevice device = Game.Current.Services.Resolve<IGraphicsDevice>();
 
-    /// <summary>
-    /// Load a texture using image data.
-    /// </summary>
-    public static unsafe ITexture Load(IGraphicsDevice graphics, Image<Rgba32> image, bool mipmap = true, bool srgb = true)
+    public ITexture Load(ReadOnlySpan<byte> data)
     {
-        var images = mipmap ? generateMipmaps(image) : new[] { image };
+        var image = Image.Load<Rgba32>(data);
+        var images = generateMipmaps(image);
 
         var description = new TextureDescription
         {
@@ -34,25 +26,25 @@ public static class Texture
             Depth = 1,
             Width = (uint)image.Width,
             Height = (uint)image.Height,
-            Format = srgb ? PixelFormat.R8_G8_B8_A8_UNorm_SRgb : PixelFormat.R8_G8_B8_A8_UNorm,
+            Format = PixelFormat.R8_G8_B8_A8_UNorm_SRgb,
             MipLevels = (uint)images.Length,
             ArrayLayers = 1,
             SampleCount = TextureSampleCount.Count1
         };
 
-        var texture = graphics.Factory.CreateTexture(ref description);
+        var texture = device.Factory.CreateTexture(ref description);
 
         for (uint i = 0; i < images.Length; i++)
         {
             var img = images[i];
 
-            Span<byte> data = new byte[4 * img.Width * img.Height];
-            img.CopyPixelDataTo(data);
+            Span<byte> pixels = new byte[4 * img.Width * img.Height];
+            img.CopyPixelDataTo(pixels);
 
-            graphics.UpdateTextureData
+            device.UpdateTextureData
             (
                 texture,
-                data,
+                pixels,
                 0,
                 0,
                 0,

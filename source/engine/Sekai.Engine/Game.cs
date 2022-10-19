@@ -51,20 +51,16 @@ public abstract class Game : FrameworkObject
     public Container Services { get; } = new Container();
 
     /// <summary>
-    /// Called when the game is loaded.
+    /// Called when the game has loaded.
     /// </summary>
-    public event Action OnLoad = null!;
+    public event Action OnLoaded = null!;
 
     /// <summary>
-    /// Called as the game is being unloaded.
+    /// Called as the game is being closed.
     /// </summary>
-    public event Action OnUnload = null!;
+    public event Action OnExiting = null!;
 
-    public Game()
-    {
-        OnLoad += Load;
-        OnUnload += Unload;
-    }
+    private bool hasStarted;
 
     /// <summary>
     /// Called as the game starts.
@@ -96,12 +92,24 @@ public abstract class Game : FrameworkObject
         Services.Resolve<ThreadController>().Dispose();
     }
 
+    internal void Start()
+    {
+        if (hasStarted)
+            return;
+
+        hasStarted = true;
+
+        Load();
+        OnLoaded?.Invoke();
+    }
+
     protected sealed override void Destroy()
     {
         if (Services.Resolve<ThreadController>().IsRunning)
             throw new InvalidOperationException($"Cannot dispose the game instance. Use {nameof(Game.Exit)} to close the game.");
 
         Unload();
+        OnExiting?.Invoke();
         Services.Resolve<VirtualStorage>().Dispose();
     }
 }

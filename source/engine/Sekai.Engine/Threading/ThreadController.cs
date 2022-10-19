@@ -183,7 +183,7 @@ public sealed class ThreadController : FrameworkObject
         if (IsRunning)
             return;
 
-        Update.Post(Game.Current.Load);
+        Update.Post(Game.Current.Start);
         Window.Run();
     }
 
@@ -336,8 +336,15 @@ public sealed class ThreadController : FrameworkObject
 
         protected override void Update(double delta)
         {
-            foreach (var updatable in systems.OfType<IUpdateable>().ToArray())
-                updatable.Update(delta);
+            for (int i = 0; i < systems.Count; i++)
+            {
+                var system = systems[i];
+
+                if (!system.Enabled || system.IsDisposed || system is not IUpdateable updateable)
+                    continue;
+
+                updateable.Update(delta);
+            }
         }
     }
 
@@ -365,8 +372,15 @@ public sealed class ThreadController : FrameworkObject
                 commands.End();
                 device.Submit(commands);
 
-                foreach (var renderable in systems.OfType<IRenderable>().ToArray())
+                for (int i = 0; i < systems.Count; i++)
+                {
+                    var system = systems[i];
+
+                    if (!system.Enabled || system.IsDisposed || system is not IRenderable renderable)
+                        continue;
+
                     renderable.Render();
+                }
             }
             finally
             {

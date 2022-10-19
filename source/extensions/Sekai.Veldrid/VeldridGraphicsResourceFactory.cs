@@ -42,7 +42,7 @@ internal class VeldridGraphicsResourceFactory : FrameworkObject, IGraphicsResour
         where T : struct
     {
         var buffer = CreateBuffer(ref description);
-        context.UpdateBufferData(buffer, data, 0);
+        context.UpdateBufferData(buffer, data);
         return buffer;
     }
 

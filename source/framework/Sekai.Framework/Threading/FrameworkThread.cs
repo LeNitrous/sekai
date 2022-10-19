@@ -37,6 +37,8 @@ public abstract class FrameworkThread : FrameworkObject
     /// </summary>
     public event UnhandledExceptionEventHandler? OnUnhandledException;
 
+    public double Delta { get; private set; }
+
     /// <summary>
     /// Gets or sets how frequent this thread should update in seconds.
     /// </summary>

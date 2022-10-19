@@ -9,20 +9,24 @@ namespace Sekai.Engine.Rendering;
 
 public class Material : FrameworkObject
 {
+    /// <summary>
+    /// Retrieves a material pass of the given name.
+    /// </summary>
     public MaterialPass this[string name] => passes[name];
-    private readonly Dictionary<string, MaterialPass> passes = new();
 
     /// <summary>
     /// Gets the effect used by this material.
     /// </summary>
     public Effect Effect { get; }
 
-    public Material(Effect effect)
+    private readonly Dictionary<string, MaterialPass> passes = new();
+
+    internal Material(RenderContext context, Effect effect)
     {
         Effect = effect;
 
         foreach (var pass in effect.Passes)
-            passes.Add(pass.Name, new MaterialPass(effect, pass));
+            passes.Add(pass.Name, new MaterialPass(context, effect, pass));
     }
 
     protected override void Destroy()

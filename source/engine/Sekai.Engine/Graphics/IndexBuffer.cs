@@ -42,6 +42,18 @@ public class IndexBuffer<T> : IndexBuffer
     {
     }
 
+    public IndexBuffer(IGraphicsDevice device, T[] data)
+        : this(device, data.Length)
+    {
+        SetData(data);
+    }
+
+    public IndexBuffer(IGraphicsDevice device, Span<T> data)
+        : this(device, data.Length)
+    {
+        SetData(data);
+    }
+
     /// <summary>
     /// Sets the data for this index buffer.
     /// </summary>
@@ -61,9 +73,17 @@ public class IndexBuffer<T> : IndexBuffer
     /// <summary>
     /// Sets the data for this index buffer.
     /// </summary>
-    public void SetData(T[] data, int offset = 0)
+    public void SetData(T[] data)
     {
-        Device.UpdateBufferData(Buffer, data, (uint)offset);
+        Device.UpdateBufferData(Buffer, data);
+    }
+
+    /// <summary>
+    /// Sets the data for this index buffer.
+    /// </summary>
+    public void SetData(Span<T> data)
+    {
+        Device.UpdateBufferData(Buffer, data);
     }
 
     private static IndexBufferFormat getIndexFormat(Type type)

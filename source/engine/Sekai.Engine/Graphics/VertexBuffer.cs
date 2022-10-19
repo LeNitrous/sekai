@@ -13,7 +13,7 @@ namespace Sekai.Engine.Graphics;
 /// </summary>
 public class VertexBuffer : BindableBuffer
 {
-    internal VertexLayoutDescription Layout { get; private set; }
+    public VertexLayoutDescription Layout { get; private set; }
 
     public VertexBuffer(IGraphicsDevice device, VertexLayout layout, int count)
         : base(device, layout.Stride * count, BufferUsage.Vertex)
@@ -40,6 +40,18 @@ public class VertexBuffer<T> : VertexBuffer
     {
     }
 
+    public VertexBuffer(IGraphicsDevice device, T[] data)
+        : this(device, data.Length)
+    {
+        SetData(data);
+    }
+
+    public VertexBuffer(IGraphicsDevice device, Span<T> data)
+        : this(device, data.Length)
+    {
+        SetData(data);
+    }
+
     /// <summary>
     /// Sets the data for this vertex buffer.
     /// </summary>
@@ -59,9 +71,17 @@ public class VertexBuffer<T> : VertexBuffer
     /// <summary>
     /// Sets the data for this vertex buffer.
     /// </summary>
-    public void SetData(T[] data, int offset = 0)
+    public void SetData(T[] data)
     {
-        Device.UpdateBufferData(Buffer, data, (uint)offset);
+        Device.UpdateBufferData(Buffer, data);
+    }
+
+    /// <summary>
+    /// Sets the data for this vertex buffer.
+    /// </summary>
+    public void SetData(Span<T> data)
+    {
+        Device.UpdateBufferData(Buffer, data);
     }
 
     private static VertexLayout createLayout(Type type)

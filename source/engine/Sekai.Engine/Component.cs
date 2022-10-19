@@ -28,7 +28,7 @@ public abstract class Component : FrameworkObject, IReference, IEquatable<Compon
     {
         return other is not null
             && other.Id == Id
-            && other.Entity.Equals(Entity)
+            && other.Entity == Entity
             && other.IsDisposed == IsDisposed
             && EqualityComparer<Scene>.Default.Equals(other.Scene, Scene);
     }

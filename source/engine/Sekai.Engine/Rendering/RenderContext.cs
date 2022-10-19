@@ -3,132 +3,146 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Sekai.Engine.Extensions;
-using Sekai.Engine.Graphics;
+using Sekai.Engine.Effects;
 using Sekai.Framework.Graphics;
 
 namespace Sekai.Engine.Rendering;
 
 public class RenderContext : SceneSystem, IRenderable
 {
-    /// <summary>
-    /// The world matrix for this render context.
-    /// </summary>
-    public Matrix4x4 WorldMatrix = Matrix4x4.Identity;
-
-    private readonly ICommandQueue queue;
-    private readonly MutablePipeline mutablePipeline = new();
-    private GraphicsPipelineDescription pipelineDescriptor;
-    private readonly List<MeshComponent> meshes = new();
-    private readonly List<Camera> cameras = new();
-    private readonly Dictionary<string, IBindableResource> parameters = new();
+    private readonly List<CameraInfo> cameras = new();
+    private readonly List<RenderObject> renderables = new();
+    private readonly List<Type> rendererKeys = new();
+    private readonly List<string> stages = new();
+    private readonly Dictionary<Type, RenderFeature> renderers = new();
+    private readonly Dictionary<string, RenderParameter> parameters = new();
     private readonly IGraphicsDevice device = Game.Current.Services.Resolve<IGraphicsDevice>();
-    internal IReadOnlyDictionary<string, IBindableResource> Parameters => parameters;
 
     public RenderContext()
     {
-        queue = device.Factory.CreateCommandQueue();
-
-        pipelineDescriptor = new GraphicsPipelineDescription
-        {
-            DepthStencil = new DepthStencilStateDescription
-            {
-                DepthTest = true,
-                DepthWrite = true,
-                DepthComparison = ComparisonKind.LessThanOrEqual,
-            },
-            Rasterizer = new RasterizerStateDescription
-            {
-                DepthClip = true,
-                ScissorTest = false,
-            },
-            ShaderSet = new ShaderSetDescription
-            {
-                Layouts = new VertexLayoutDescription[1],
-                Constants = Array.Empty<ShaderConstant>(),
-            },
-            Blend = new BlendStateDescription
-            {
-                Attachments = new BlendAttachmentDescription[1],
-            },
-            Layouts = new IResourceLayout[1],
-            Outputs = device.SwapChain.Framebuffer.OutputDescription,
-        };
-
+        AddRenderStage("Default");
         AddParameter<Matrix4x4>("View");
         AddParameter<Matrix4x4>("Projection");
+        AddRenderFeature<MeshRenderObject, MeshRenderPipeline>();
     }
 
     public void Render()
     {
-        foreach (var camera in cameras.ToArray())
+        for (int x = 0; x < cameras.Count; x++)
         {
-            queue.Begin();
-
-            queue.SetFramebuffer(device.SwapChain.Framebuffer);
-            // queue.SetViewport(0, camera.Viewport);
+            var camera = cameras[x];
 
             UpdateParameter("View", camera.ViewMatrix);
             UpdateParameter("Projection", camera.ProjMatrix);
 
-            for (int i = 0; i < meshes.Count; i++)
+            for (int i = 0; i < rendererKeys.Count; i++)
             {
-                var comp = meshes[i];
-                var mesh = comp.Mesh;
+                var key = rendererKeys[i];
+                var renderer = renderers[key];
 
-                foreach (var effectPass in mesh.Material.Effect.Passes)
+                for (int j = 0; j < renderables.Count; j++)
                 {
-                    var pass = mesh.Material[effectPass.Name];
+                    var renderable = renderables[j];
 
-                    var transform = comp.Entity.GetCommponent<Transform>()!;
-                    pass.SetUniformValue("m_Model", transform.WorldMatrix);
+                    if (renderable.GetType() != key)
+                        continue;
 
-                    pipelineDescriptor.Topology = mesh.Topology;
-                    pipelineDescriptor.Layouts[0] = pass.Pass.Layout;
-                    pipelineDescriptor.ShaderSet.Shaders = pass.Pass.Shaders;
-                    pipelineDescriptor.Rasterizer.Culling = mesh.Culling;
-                    pipelineDescriptor.Rasterizer.Winding = mesh.Winding;
-                    pipelineDescriptor.Rasterizer.FillMode = pass.FillMode;
-                    pipelineDescriptor.Blend.Attachments[0] = pass.Blending;
-                    pipelineDescriptor.ShaderSet.Layouts[0] = mesh.VertexBuffer.Layout;
-
-                    queue.SetIndexBuffer(mesh.IndexBuffer);
-                    queue.SetVertexBuffer(mesh.VertexBuffer);
-                    queue.SetPipeline(mutablePipeline.GetPipeline(pipelineDescriptor));
-                    queue.SetResourceSet(0, pass.Resources);
-                    queue.DrawIndexed((uint)mesh.IndexBuffer.Count, 1, 0, 0, 0);
+                    for (int k = 0; k < stages.Count; k++)
+                    {
+                        string stage = stages[k];
+                        renderer.Render(this, stage, renderable);
+                    }
                 }
             }
-
-            queue.End();
-            device.Submit(queue);
         }
     }
 
-    public void Add(MeshComponent mesh)
+    /// <summary>
+    /// Adds a render feature for this render context.
+    /// </summary>
+    public void AddRenderFeature<TObject, TPipeline>()
+        where TObject : RenderObject, new()
+        where TPipeline : RenderFeature<TObject>, new()
     {
-        if (meshes.Contains(mesh))
+        var key = typeof(TObject);
+
+        if (renderers.ContainsKey(key))
             return;
 
-        mesh.Mesh.Material["Default"].Initialize(this);
-        meshes.Add(mesh);
+        rendererKeys.Add(key);
+        renderers.Add(key, Activator.CreateInstance<TPipeline>());
     }
 
-    public void Remove(MeshComponent mesh)
+    /// <summary>
+    /// Adds a render stage for this render context.
+    /// </summary>
+    public void AddRenderStage(string name)
     {
-        meshes.Remove(mesh);
+        if (stages.Contains(name))
+            return;
+
+        stages.Add(name);
     }
 
-    public void Add(Camera camera)
+    /// <summary>
+    /// Creates a material owned by this render context.
+    /// </summary>
+    public Material CreateMaterial(Effect effect)
+    {
+        return new Material(this, effect);
+    }
+
+    /// <summary>
+    /// Adds a renderable object to the scene.
+    /// </summary>
+    public void Add(RenderObject renderable)
+    {
+        if (renderables.Contains(renderable))
+            return;
+
+        renderables.Add(renderable);
+    }
+
+    /// <summary>
+    /// Removes a renderable object from the scene.
+    /// </summary>
+    public void Remove(RenderObject renderable)
+    {
+        renderables.Remove(renderable);
+    }
+
+    /// <summary>
+    /// Adds a camera to the scene.
+    /// </summary>
+    internal void AddCamera(CameraInfo camera)
     {
         cameras.Add(camera);
     }
 
-    public void Remove(Camera camera)
+    /// <summary>
+    /// Removes a camera from the scene.
+    /// </summary>
+    internal void RemoveCamera(CameraInfo camera)
     {
         cameras.Remove(camera);
+    }
+
+    /// <summary>
+    /// Retrieves the device resource of a given global parameter.
+    /// </summary>
+    internal bool GetParameter(string name, [NotNullWhen(true)] out IBindableResource? resource)
+    {
+        if (!parameters.ContainsKey(name))
+        {
+            resource = null;
+            return false;
+        }
+
+        resource = parameters[name].Resource;
+        return true;
     }
 
     /// <summary>
@@ -144,9 +158,12 @@ public class RenderContext : SceneSystem, IRenderable
 
         int size = Marshal.SizeOf<T>();
         var desc = new BufferDescription((uint)size, asUniform ? BufferUsage.Uniform | BufferUsage.Dynamic : BufferUsage.StructuredReadOnly);
-        parameters.Add(name, device.Factory.CreateBuffer(ref desc));
+        parameters.Add(name, new RenderParameter<T>(name, device, device.Factory.CreateBuffer(ref desc)));
     }
 
+    /// <summary>
+    /// Updates the value of a given global parameter.
+    /// </summary>
     protected void UpdateParameter<T>(string name, T value)
         where T : struct, IEquatable<T>
     {
@@ -154,10 +171,10 @@ public class RenderContext : SceneSystem, IRenderable
 
         if (parameters.TryGetValue(name, out var resource))
         {
-            if (resource is not IBuffer buffer)
-                throw new InvalidOperationException();
+            if (resource is not RenderParameter<T> param)
+                throw new InvalidOperationException("The parameter is read-only and cannot be updated.");
 
-            device.UpdateBufferData(buffer, ref value, 0);
+            param.Value = value;
         }
     }
 
@@ -171,7 +188,7 @@ public class RenderContext : SceneSystem, IRenderable
         if (parameters.ContainsKey(name))
             throw new InvalidOperationException();
 
-        parameters.Add(name, texture);
+        parameters.Add(name, new RenderParameter(name, texture));
     }
 
     /// <summary>
@@ -184,6 +201,12 @@ public class RenderContext : SceneSystem, IRenderable
         if (parameters.ContainsKey(name))
             throw new InvalidOperationException();
 
-        parameters.Add(name, sampler);
+        parameters.Add(name, new RenderParameter(name, sampler));
+    }
+
+    protected override void Destroy()
+    {
+        foreach ((string name, RenderParameter param) in parameters)
+            param.Dispose();
     }
 }

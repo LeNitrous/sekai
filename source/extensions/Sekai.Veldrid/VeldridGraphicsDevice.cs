@@ -2,6 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
+using System.Runtime.InteropServices;
 using Sekai.Framework;
 using Sekai.Framework.Graphics;
 using Sekai.Framework.Windowing;
@@ -9,7 +10,7 @@ using Vd = Veldrid;
 
 namespace Sekai.Veldrid;
 
-internal partial class VeldridGraphicsDevice : FrameworkObject, IGraphicsDevice
+internal unsafe partial class VeldridGraphicsDevice : FrameworkObject, IGraphicsDevice
 {
     public string Name { get; private set; } = string.Empty;
     public ISwapChain SwapChain { get; private set; } = null!;
@@ -199,10 +200,17 @@ internal partial class VeldridGraphicsDevice : FrameworkObject, IGraphicsDevice
         device.UpdateBuffer(((VeldridBuffer)buffer).Resource, offset, ref data);
     }
 
-    public void UpdateBufferData<T>(IBuffer buffer, T[] data, uint offset)
+    public void UpdateBufferData<T>(IBuffer buffer, T[] data)
         where T : struct
     {
-        device.UpdateBuffer(((VeldridBuffer)buffer).Resource, offset, data);
+        device.UpdateBuffer(((VeldridBuffer)buffer).Resource, 0, data);
+    }
+
+    public void UpdateBufferData<T>(IBuffer buffer, Span<T> data)
+        where T : unmanaged
+    {
+        fixed (void* ptr = &MemoryMarshal.GetReference(data))
+            UpdateBufferData(buffer, (nint)ptr, 0, (uint)(data.Length * sizeof(T)));
     }
 
     public void UpdateTextureData(ITexture texture, nint source, uint size, uint x, uint y, uint z, uint width, uint height, uint depth, uint mipLevel, uint arrayLayer)
@@ -214,6 +222,13 @@ internal partial class VeldridGraphicsDevice : FrameworkObject, IGraphicsDevice
         where T : struct
     {
         device.UpdateTexture(((VeldridTexture)texture).Resource, data, x, y, z, width, height, depth, mipLevel, arrayLayer);
+    }
+
+    public void UpdateTextureData<T>(ITexture texture, Span<T> data, uint x, uint y, uint z, uint width, uint height, uint depth, uint mipLevel, uint arrayLayer)
+        where T : unmanaged
+    {
+        fixed (void* ptr = &MemoryMarshal.GetReference(data))
+            UpdateTextureData(texture, (nint)ptr, (uint)(data.Length * sizeof(T)), x, y, z, width, height, depth, mipLevel, arrayLayer);
     }
 
     public void SwapBuffers()

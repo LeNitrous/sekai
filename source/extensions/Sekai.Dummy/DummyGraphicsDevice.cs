@@ -89,7 +89,11 @@ internal class DummyGraphicsDevice : FrameworkObject, IGraphicsDevice
     {
     }
 
-    public void UpdateBufferData<T>(IBuffer buffer, T[] data, uint offset) where T : struct
+    public void UpdateBufferData<T>(IBuffer buffer, T[] data) where T : struct
+    {
+    }
+
+    public void UpdateBufferData<T>(IBuffer buffer, Span<T> data) where T : unmanaged
     {
     }
 
@@ -98,6 +102,10 @@ internal class DummyGraphicsDevice : FrameworkObject, IGraphicsDevice
     }
 
     public void UpdateTextureData<T>(ITexture texture, T[] data, uint x, uint y, uint z, uint width, uint height, uint depth, uint mipLevel, uint arrayLayer) where T : struct
+    {
+    }
+
+    public void UpdateTextureData<T>(ITexture texture, Span<T> data, uint x, uint y, uint z, uint width, uint height, uint depth, uint mipLevel, uint arrayLayer) where T : unmanaged
     {
     }
 }

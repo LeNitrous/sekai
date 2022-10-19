@@ -53,10 +53,10 @@ public class Transform : Component
     /// <summary>
     /// The local matrix of this transform.
     /// </summary>
-    internal Matrix4x4 LocalMatrix = Matrix4x4.Identity;
+    public Matrix4x4 LocalMatrix = Matrix4x4.Identity;
 
     /// <summary>
     /// The world matrix of this transform.
     /// </summary>
-    internal Matrix4x4 WorldMatrix = Matrix4x4.Identity;
+    public Matrix4x4 WorldMatrix = Matrix4x4.Identity;
 }

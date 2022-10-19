@@ -99,7 +99,12 @@ public interface IGraphicsDevice : IDisposable
     /// <summary>
     /// Updates buffer data with typed data.
     /// </summary>
-    void UpdateBufferData<T>(IBuffer buffer, T[] data, uint offset) where T : struct;
+    void UpdateBufferData<T>(IBuffer buffer, T[] data) where T : struct;
+
+    /// <summary>
+    /// Updates buffer data with typed data.
+    /// </summary>
+    void UpdateBufferData<T>(IBuffer buffer, Span<T> data) where T : unmanaged;
 
     /// <summary>
     /// Updates a texture region using a pointer.
@@ -110,6 +115,11 @@ public interface IGraphicsDevice : IDisposable
     /// Updates a texture region with typed data.
     /// </summary>
     void UpdateTextureData<T>(ITexture texture, T[] data, uint x, uint y, uint z, uint width, uint height, uint depth, uint mipLevel, uint arrayLayer) where T : struct;
+
+    /// <summary>
+    /// Updates a texture region with typed data.
+    /// </summary>
+    void UpdateTextureData<T>(ITexture texture, Span<T> data, uint x, uint y, uint z, uint width, uint height, uint depth, uint mipLevel, uint arrayLayer) where T : unmanaged;
 
     /// <summary>
     /// Submits a command queue.

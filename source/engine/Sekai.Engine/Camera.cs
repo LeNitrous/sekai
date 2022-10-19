@@ -1,8 +1,7 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-using System.Numerics;
-using Sekai.Framework.Graphics;
+using System.Drawing;
 
 namespace Sekai.Engine;
 
@@ -32,13 +31,27 @@ public class Camera : Component
     public CameraProjectionMode Projection = CameraProjectionMode.Perspective;
 
     /// <summary>
-    /// The viewport of the camera.
+    /// Gets or sets the camera's view width.
     /// </summary>
-    public Viewport Viewport = new(0, 0, 512, 512, float.MinValue, float.MaxValue);
+    public float Width
+    {
+        get => Size.Width;
+        set => Size = new SizeF(value, Size.Height);
+    }
 
-    internal Matrix4x4 ViewMatrix = Matrix4x4.Identity;
-    internal Matrix4x4 ProjMatrix = Matrix4x4.Identity;
-    internal IFramebuffer Framebuffer = null!;
+    /// <summary>
+    /// Gets or sets the camera's view height.
+    /// </summary>
+    public float Height
+    {
+        get => Size.Height;
+        set => Size = new SizeF(Size.Width, value);
+    }
+
+    /// <summary>
+    /// Gets or sets the camera's view size.
+    /// </summary>
+    public SizeF Size = new(512f, 512f);
 }
 
 /// <summary>

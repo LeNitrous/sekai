@@ -9,9 +9,6 @@ namespace Sekai.Engine.Processors;
 
 public abstract class Processor : SceneSystem, IUpdateable
 {
-    public event Action<Processor, Entity> OnEntityAdded = null!;
-    public event Action<Processor, Entity> OnEntityRemoved = null!;
-
     protected abstract Type[] Types { get; }
     private readonly List<Entity> entities = new();
 
@@ -22,6 +19,10 @@ public abstract class Processor : SceneSystem, IUpdateable
     }
 
     protected abstract void Update(double delta, Entity entity);
+
+    protected abstract void OnEntityAdded(Entity entity);
+
+    protected abstract void OnEntityRemoved(Entity entity);
 
     public void Update(double delta)
     {
@@ -36,7 +37,7 @@ public abstract class Processor : SceneSystem, IUpdateable
         if (!entities.Contains(entity, EqualityComparer<Entity>.Default) && Types.All(t => componentTypes.Any(c => c.IsAssignableTo(t))))
         {
             entities.Add(entity);
-            OnEntityAdded?.Invoke(this, entity);
+            OnEntityAdded(entity);
         }
     }
 
@@ -47,7 +48,7 @@ public abstract class Processor : SceneSystem, IUpdateable
         if (entities.Contains(entity, EqualityComparer<Entity>.Default) && !Types.All(t => componentTypes.Any(c => c.IsAssignableTo(t))))
         {
             entities.Remove(entity);
-            OnEntityRemoved?.Invoke(this, entity);
+            OnEntityRemoved(entity);
         }
     }
 
@@ -68,7 +69,21 @@ public abstract class Processor<T> : Processor
         Update(delta, entity, entity.GetCommponent<T>()!);
     }
 
+    protected sealed override void OnEntityAdded(Entity entity)
+    {
+        OnEntityAdded(entity, entity.GetCommponent<T>()!);
+    }
+
+    protected sealed override void OnEntityRemoved(Entity entity)
+    {
+        OnEntityRemoved(entity, entity.GetCommponent<T>()!);
+    }
+
     protected abstract void Update(double delta, Entity entity, T component);
+
+    protected abstract void OnEntityAdded(Entity entity, T component);
+
+    protected abstract void OnEntityRemoved(Entity entity, T component);
 }
 
 public abstract class Processor<T1, T2> : Processor
@@ -82,7 +97,21 @@ public abstract class Processor<T1, T2> : Processor
         Update(delta, entity, entity.GetCommponent<T1>()!, entity.GetCommponent<T2>()!);
     }
 
+    protected sealed override void OnEntityAdded(Entity entity)
+    {
+        OnEntityAdded(entity, entity.GetCommponent<T1>()!, entity.GetCommponent<T2>()!);
+    }
+
+    protected sealed override void OnEntityRemoved(Entity entity)
+    {
+        OnEntityRemoved(entity, entity.GetCommponent<T1>()!, entity.GetCommponent<T2>()!);
+    }
+
     protected abstract void Update(double delta, Entity entity, T1 componentA, T2 componentB);
+
+    protected abstract void OnEntityAdded(Entity entity, T1 componentA, T2 componentB);
+
+    protected abstract void OnEntityRemoved(Entity entity, T1 componentA, T2 componentB);
 }
 
 public abstract class Processor<T1, T2, T3> : Processor
@@ -97,6 +126,20 @@ public abstract class Processor<T1, T2, T3> : Processor
         Update(delta, entity, entity.GetCommponent<T1>()!, entity.GetCommponent<T2>()!, entity.GetCommponent<T3>()!);
     }
 
+    protected sealed override void OnEntityAdded(Entity entity)
+    {
+        OnEntityAdded(entity, entity.GetCommponent<T1>()!, entity.GetCommponent<T2>()!, entity.GetCommponent<T3>()!);
+    }
+
+    protected sealed override void OnEntityRemoved(Entity entity)
+    {
+        OnEntityRemoved(entity, entity.GetCommponent<T1>()!, entity.GetCommponent<T2>()!, entity.GetCommponent<T3>()!);
+    }
+
     protected abstract void Update(double delta, Entity entity, T1 componentA, T2 componentB, T3 componentC);
+
+    protected abstract void OnEntityAdded(Entity entity, T1 componentA, T2 componentB, T3 componentC);
+
+    protected abstract void OnEntityRemoved(Entity entity, T1 componentA, T2 componentB, T3 componentC);
 }
 

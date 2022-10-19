@@ -39,8 +39,8 @@ public class Scene : FrameworkObject, IUpdateable, IRenderable
 
     public readonly RenderContext RenderContext;
 
-    private readonly HashSet<Entity> entities = new();
-    private readonly HashSet<Component> components = new();
+    private readonly List<Entity> entities = new();
+    private readonly List<Component> components = new();
     private readonly SystemCollection<SceneSystem> systems = new();
 
     public Scene()
@@ -209,26 +209,70 @@ public class Scene : FrameworkObject, IUpdateable, IRenderable
     /// </summary>
     internal IEnumerable<Component> GetComponents(Entity target)
     {
-        return components.Where(c => c.Entity.Id == target.Id);
+        for (int i = 0; i < components.Count; i++)
+        {
+            var component = components[i];
+
+            if (component.Entity.Id == target.Id)
+                yield return component;
+        }
+    }
+
+    /// <summary>
+    /// Retrieves the components of a certain type for the given entity.
+    /// </summary>
+    internal IEnumerable<T> GetComponents<T>(Entity target)
+        where T : Component
+    {
+        for (int i = 0; i < components.Count; i++)
+        {
+            var component = components[i];
+
+            if (component.Entity.Id == target.Id && component.GetType().IsAssignableTo(typeof(T)))
+                yield return (T)component;
+        }
     }
 
     /// <summary>
     /// Retrieves the component of a certain type for the given entity.
     /// </summary>
     internal T? GetComponent<T>(Entity target)
+        where T : Component
     {
-        return GetComponents(target).OfType<T>().SingleOrDefault();
+        for (int i = 0; i < components.Count; i++)
+        {
+            var component = components[i];
+
+            if (component.Entity.Id == target.Id && component.GetType().IsAssignableTo(typeof(T)))
+                return (T)component;
+        }
+
+        return null;
     }
 
     public void Render()
     {
-        foreach (var system in systems.OfType<IRenderable>().ToArray())
-            system.Render();
+        for (int i = 0; i < systems.Count; i++)
+        {
+            var system = systems[i];
+
+            if (!system.Enabled || system.IsDisposed || system is not IRenderable renderable)
+                continue;
+
+            renderable.Render();
+        }
     }
 
     public void Update(double delta)
     {
-        foreach (var system in systems.OfType<IUpdateable>().ToArray())
-            system.Update(delta);
+        for (int i = 0; i < systems.Count; i++)
+        {
+            var system = systems[i];
+
+            if (!system.Enabled || system.IsDisposed || system is not IUpdateable updateable)
+                continue;
+
+            updateable.Update(delta);
+        }
     }
 }

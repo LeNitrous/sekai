@@ -23,7 +23,7 @@ internal class SDLMouse : IMouse
     public event Action<IPointer, Vector2> OnMove = null!;
     private readonly SDLView view;
     private readonly ScrollWheel[] scrollWheels = new[] { new ScrollWheel() };
-    private readonly HashSet<MouseButton> pressedButtons = new();
+    private readonly List<MouseButton> pressedButtons = new();
 
     private Vector2 position;
 
@@ -53,8 +53,11 @@ internal class SDLMouse : IMouse
         {
             case SDL_EventType.SDL_MOUSEBUTTONDOWN:
                 {
-                    if (pressedButtons.Add(button))
+                    if (!contains(button))
+                    {
+                        pressedButtons.Add(button);
                         OnMouseDown?.Invoke(this, button);
+                    }
                     break;
                 }
 
@@ -79,7 +82,18 @@ internal class SDLMouse : IMouse
         OnScroll?.Invoke(this, scrollWheels[0]);
     }
 
-    public bool IsButtonPressed(MouseButton button) => pressedButtons.Contains(button);
+    public bool IsButtonPressed(MouseButton button) => contains(button);
+
+    private bool contains(MouseButton button)
+    {
+        for (int i = 0; i < pressedButtons.Count; i++)
+        {
+            if (pressedButtons[i] == button)
+                return true;
+        }
+
+        return false;
+    }
 
     private static MouseButton toMouseButton(uint button)
     {

@@ -4,25 +4,28 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using Sekai.Framework;
 
 namespace Sekai.Engine;
 
-public class SystemCollection<T> : FrameworkObject, IEnumerable<T>
+public class SystemCollection<T> : FrameworkObject, IEnumerable<T>, IReadOnlyList<T>
     where T : FrameworkObject, IGameSystem
 {
-    private readonly Dictionary<Type, object> systems = new();
+    private readonly List<T> systems = new();
+    private readonly Dictionary<Type, T> registry = new();
 
-    public object Get(Type type)
+    public int Count => systems.Count;
+    public T this[int index] => systems[index];
+
+    public IGameSystem Get(Type type)
     {
         if (!type.IsAssignableTo(typeof(T)))
             throw new InvalidCastException();
 
-        if (!systems.ContainsKey(type))
+        if (!registry.ContainsKey(type))
             throw new KeyNotFoundException($"{type} is not registered in this collection.");
 
-        return systems[type];
+        return registry[type];
     }
 
     public U Get<U>()
@@ -31,16 +34,17 @@ public class SystemCollection<T> : FrameworkObject, IEnumerable<T>
         return (U)Get(typeof(U));
     }
 
-    public object Register(Type type)
+    public T Register(Type type)
     {
         if (!type.IsAssignableTo(typeof(T)))
             throw new InvalidOperationException();
 
-        if (systems.ContainsKey(typeof(T)))
+        if (registry.ContainsKey(typeof(T)))
             throw new InvalidOperationException();
 
-        object? instance = Activator.CreateInstance(type);
-        systems.Add(type, instance!);
+        var instance = Activator.CreateInstance(type) as T;
+        systems.Add(instance!);
+        registry.Add(type, instance!);
 
         return instance!;
     }
@@ -56,7 +60,10 @@ public class SystemCollection<T> : FrameworkObject, IEnumerable<T>
         if (!type.IsAssignableTo(typeof(T)))
             throw new InvalidOperationException();
 
-        return systems.Remove(type);
+        if (!registry.Remove(type, out var system))
+            return false;
+
+        return systems.Remove(system);
     }
 
     public bool Unregister<U>()
@@ -67,7 +74,7 @@ public class SystemCollection<T> : FrameworkObject, IEnumerable<T>
 
     public IEnumerator<T> GetEnumerator()
     {
-        return systems.Values.OfType<T>().Where(s => s.Enabled && !s.IsDisposed).GetEnumerator();
+        return systems.GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator()

@@ -26,8 +26,8 @@ public class GameTests
             .UseDummy()
             .Build();
 
-        game.OnLoad += () => reset.Set();
-        game.OnUnload += () => reset.Set();
+        game.OnLoaded += () => reset.Set();
+        game.OnExiting += () => reset.Set();
 
         var threads = game.Services.Resolve<ThreadController>();
         var runTask = Task.Factory.StartNew(() => game.Run(), TaskCreationOptions.LongRunning);
@@ -64,7 +64,7 @@ public class GameTests
             .UseDummy()
             .Build();
 
-        game.OnLoad += () => reset.Set();
+        game.OnLoaded += () => reset.Set();
 
         var runTask = Task.Factory.StartNew(() => game.Run(), TaskCreationOptions.LongRunning);
 
