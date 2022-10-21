@@ -2,6 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System.Numerics;
+using Sekai.Framework.Extensions;
 using Sekai.Framework.Utils;
 
 namespace Sekai.Engine;
@@ -21,14 +22,32 @@ public class Transform : Component
     /// </summary>
     public Quaternion Rotation
     {
-        get => Quaternion.CreateFromYawPitchRoll(RotationEuler.X, RotationEuler.Y, RotationEuler.Z);
-        set => RotationEuler = MathUtils.CreateEulerAnglesFromQuaternion(value);
+        get => rotation;
+        set
+        {
+            if (rotation == value)
+                return;
+
+            rotation = value;
+            rotationEuler = value.ToEulerAngles();
+        }
     }
 
     /// <summary>
     /// The rotation of the entity as euler angles in radians.
     /// </summary>
-    public Vector3 RotationEuler { get; set; }
+    public Vector3 RotationEuler
+    {
+        get => rotationEuler;
+        set
+        {
+            if (rotationEuler == value)
+                return;
+
+            rotation = Quaternion.CreateFromYawPitchRoll(value.X, value.Y, value.Z);
+            rotationEuler = value;
+        }
+    }
 
     /// <summary>
     /// The scale of the entity.
@@ -59,4 +78,7 @@ public class Transform : Component
     /// The world matrix of this transform.
     /// </summary>
     public Matrix4x4 WorldMatrix = Matrix4x4.Identity;
+
+    private Quaternion rotation;
+    private Vector3 rotationEuler;
 }

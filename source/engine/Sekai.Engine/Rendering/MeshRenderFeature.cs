@@ -2,8 +2,6 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using Sekai.Engine.Extensions;
-using Sekai.Engine.Graphics;
 using Sekai.Framework.Graphics;
 
 namespace Sekai.Engine.Rendering;
@@ -11,7 +9,7 @@ namespace Sekai.Engine.Rendering;
 public sealed class MeshRenderPipeline : RenderFeature<MeshRenderObject>
 {
     private GraphicsPipelineDescription descriptor;
-    private readonly MutablePipeline pipeline = new();
+    private readonly MutablePipeline<GraphicsPipelineDescription> pipeline;
 
     public MeshRenderPipeline()
     {
@@ -40,6 +38,8 @@ public sealed class MeshRenderPipeline : RenderFeature<MeshRenderObject>
             Layouts = new IResourceLayout[1],
             Outputs = Device.SwapChain.Framebuffer.OutputDescription,
         };
+
+        pipeline = new(Game.Resolve<IGraphicsDevice>());
     }
 
     public override void Render(RenderContext context, string stage, ICommandQueue commands, MeshRenderObject renderable)

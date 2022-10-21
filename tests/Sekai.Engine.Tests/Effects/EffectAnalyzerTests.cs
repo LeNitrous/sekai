@@ -2,7 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 
 using NUnit.Framework;
-using Sekai.Engine.Effects.Compiler;
+using Sekai.Engine.Effects.Analysis;
 using Sekai.Engine.Effects.Documents;
 
 namespace Sekai.Engine.Tests.Effects;

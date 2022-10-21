@@ -4,7 +4,6 @@
 using System;
 using System.Drawing;
 using Sekai.Framework;
-using Sekai.Framework.Input;
 using Sekai.Framework.Windowing;
 
 namespace Sekai.Dummy;
@@ -13,7 +12,6 @@ internal class DummyView : FrameworkObject, IView
 {
     public Size Size { get; }
     public bool Active { get; } = true;
-    public IInputContext Input { get; } = new DummyInputContext();
     public event Action OnClose = null!;
     public event Func<bool> OnCloseRequested = null!;
     public event Action<bool> OnFocusChanged = null!;

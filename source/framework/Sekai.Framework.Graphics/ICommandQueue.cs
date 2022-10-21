@@ -98,3 +98,16 @@ public interface ICommandQueue : IGraphicsResource
     /// </summary>
     void DispatchIndirect(IBuffer buffer, uint offset);
 }
+
+public static class CommandQueueExtensions
+{
+    public static void SetVertexBuffer(this ICommandQueue queue, VertexBuffer buffer)
+    {
+        buffer.Bind(queue);
+    }
+
+    public static void SetIndexBuffer(this ICommandQueue queue, IndexBuffer buffer)
+    {
+        buffer.Bind(queue);
+    }
+}

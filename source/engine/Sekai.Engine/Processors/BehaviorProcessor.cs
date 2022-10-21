@@ -13,7 +13,7 @@ public sealed class BehaviorProcessor : Processor<Behavior>
     {
     }
 
-    protected override void Update(double delta, Entity entity, Behavior component)
+    protected override void Update(Entity entity, Behavior component)
     {
         if (!component.HasStarted)
         {
@@ -21,6 +21,6 @@ public sealed class BehaviorProcessor : Processor<Behavior>
             component.HasStarted = true;
         }
 
-        component.Update(delta);
+        component.Update();
     }
 }

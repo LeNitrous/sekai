@@ -11,13 +11,13 @@ namespace Sekai.Engine.Assets;
 
 public class AssetLoader : FrameworkObject
 {
-    private readonly VirtualStorage storage = Game.Current.Services.Resolve<VirtualStorage>();
+    private readonly VirtualStorage storage = Game.Resolve<VirtualStorage>();
     private readonly Dictionary<Type, IAssetLoader> loaders = new();
 
     /// <summary>
     /// Registers a loader for a given asset type.
     /// </summary>
-    public AssetLoader Register<T, U>()
+    public void Register<T, U>()
         where U : IAssetLoader<T>
     {
         var instance = Activator.CreateInstance<U>();
@@ -26,8 +26,6 @@ public class AssetLoader : FrameworkObject
             throw new InvalidOperationException();
 
         loaders.Add(typeof(T), instance);
-
-        return this;
     }
 
     /// <summary>

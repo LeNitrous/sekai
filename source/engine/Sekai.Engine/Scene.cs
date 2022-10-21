@@ -263,7 +263,7 @@ public class Scene : FrameworkObject, IUpdateable, IRenderable
         }
     }
 
-    public void Update(double delta)
+    public void Update()
     {
         for (int i = 0; i < systems.Count; i++)
         {
@@ -272,7 +272,7 @@ public class Scene : FrameworkObject, IUpdateable, IRenderable
             if (!system.Enabled || system.IsDisposed || system is not IUpdateable updateable)
                 continue;
 
-            updateable.Update(delta);
+            updateable.Update();
         }
     }
 }

@@ -46,6 +46,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sekai.Framework.Windowing",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sekai.Engine.Resources", "source\engine\Sekai.Engine.Resources\Sekai.Engine.Resources.csproj", "{90497192-3BEB-4AED-AFF1-DA93354966F7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Framework.Audio", "source\framework\Sekai.Framework.Audio\Sekai.Framework.Audio.csproj", "{D70CE7A3-1D50-4C06-9C74-555EECE026FA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -104,6 +106,10 @@ Global
 		{90497192-3BEB-4AED-AFF1-DA93354966F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{90497192-3BEB-4AED-AFF1-DA93354966F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{90497192-3BEB-4AED-AFF1-DA93354966F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D70CE7A3-1D50-4C06-9C74-555EECE026FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D70CE7A3-1D50-4C06-9C74-555EECE026FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D70CE7A3-1D50-4C06-9C74-555EECE026FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D70CE7A3-1D50-4C06-9C74-555EECE026FA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -125,6 +131,7 @@ Global
 		{92A07AB8-98FD-42FC-9FA8-26A106710C94} = {1FEAA352-492E-461C-B970-12C2165484F1}
 		{E7B0E36A-F8F8-4560-AAEC-8B5C5DEB5ADE} = {1FEAA352-492E-461C-B970-12C2165484F1}
 		{90497192-3BEB-4AED-AFF1-DA93354966F7} = {D4B811C4-32E2-47E1-9645-F7E3142F79B5}
+		{D70CE7A3-1D50-4C06-9C74-555EECE026FA} = {1FEAA352-492E-461C-B970-12C2165484F1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B561F441-82A5-4270-9631-D1D7C712B152}

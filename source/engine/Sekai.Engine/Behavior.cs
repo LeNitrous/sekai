@@ -11,5 +11,5 @@ public abstract class Behavior : Component, IUpdateable
     {
     }
 
-    public abstract void Update(double elapsed);
+    public abstract void Update();
 }

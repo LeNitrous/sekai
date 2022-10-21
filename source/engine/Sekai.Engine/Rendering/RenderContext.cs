@@ -19,7 +19,7 @@ public class RenderContext : SceneSystem, IRenderable
     private readonly List<string> stages = new();
     private readonly Dictionary<Type, RenderFeature> renderers = new();
     private readonly Dictionary<string, RenderParameter> parameters = new();
-    private readonly IGraphicsDevice device = Game.Current.Services.Resolve<IGraphicsDevice>();
+    private readonly IGraphicsDevice device = Game.Resolve<IGraphicsDevice>();
 
     public RenderContext()
     {

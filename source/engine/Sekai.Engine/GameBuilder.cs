@@ -3,14 +3,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Reflection;
 using Sekai.Engine.Assets;
 using Sekai.Engine.Effects;
-using Sekai.Engine.Graphics;
 using Sekai.Engine.Resources;
-using Sekai.Engine.Threading;
 using Sekai.Framework;
+using Sekai.Framework.Audio;
 using Sekai.Framework.Graphics;
+using Sekai.Framework.Input;
 using Sekai.Framework.Logging;
 using Sekai.Framework.Storage;
 using Sekai.Framework.Windowing;
@@ -22,16 +22,33 @@ public sealed class GameBuilder<T>
 {
     private readonly T game;
     private readonly GameOptions options;
-    private IWindow window = null!;
-    private IGraphicsDevice graphics = null!;
-    private ThreadController threads = null!;
-    private readonly VirtualStorage storage = new();
+    private IWindow? window;
+    private IAudioContext? audio;
+    private IInputContext? input;
+    private IGraphicsDevice? graphics;
     private readonly List<Action<T>> postBuildActions = new();
 
     internal GameBuilder(T game, GameOptions? options = null)
     {
         this.game = game;
         this.options = options ?? new();
+    }
+
+    public GameBuilder<T> UseAudio<U>()
+        where U : IAudioContext, new()
+    {
+        audio = new U();
+        return this;
+    }
+
+    /// <summary>
+    /// Uses the input context of a given type.
+    /// </summary>
+    public GameBuilder<T> UseInput<U>()
+        where U : IInputContext, new()
+    {
+        input = new U();
+        return this;
     }
 
     /// <summary>
@@ -45,7 +62,7 @@ public sealed class GameBuilder<T>
     }
 
     /// <summary>
-    /// Uses the graphics context of a given type.
+    /// Uses the graphics device of a given type.
     /// </summary>
     public GameBuilder<T> UseGraphics<U>()
         where U : IGraphicsDevice, new()
@@ -54,59 +71,84 @@ public sealed class GameBuilder<T>
         return this;
     }
 
-    public GameBuilder<T> AddPostBuildAction(Action<T> action)
+    /// <summary>
+    /// Adds a build action.
+    /// </summary>
+    public GameBuilder<T> AddBuildAction(Action<T> action)
     {
         postBuildActions.Add(action);
         return this;
     }
 
+    /// <summary>
+    /// Builds the game.
+    /// </summary>
     public T Build()
     {
         if (RuntimeInfo.IsDebug)
             Logger.OnMessageLogged += new LogListenerConsole();
 
+        if (window == null)
+            throw new InvalidOperationException();
+
+        var storage = new VirtualStorage();
+
+        storage.Mount("/engine", new AssemblyBackedStorage(ResourceAssembly.Assembly));
+        storage.Mount("/game", new NativeStorage(AppDomain.CurrentDomain.BaseDirectory));
+
+        var stream = storage.Open("/game/runtime.log");
+        var writer = new LogListenerTextWriter(stream);
+        Logger.OnMessageLogged += writer;
+
+        game.OnExiting += writer.Dispose;
+
+        game.Services.Cache(storage);
+
+        var entry = Assembly.GetEntryAssembly()?.GetName();
+
+        Logger.Log("----------------------------------------------------------");
+        Logger.Log($"Logging for {Environment.UserName}");
+        Logger.Log($"Running {entry?.Name ?? "Unknown"} {entry?.Version} on .NET {Environment.Version}");
+        Logger.Log($"Environment: {RuntimeInfo.OS} ({Environment.OSVersion.VersionString})");
+        Logger.Log("----------------------------------------------------------");
+
         window.Size = options.Size;
         window.Title = options.Title;
         window.Border = WindowBorder.Resizable;
-        window.Visible = true;
+        window.Visible = false;
         window.OnClose += game.Exit;
 
+        game.Services.Cache<IView>(window);
+
+        if (audio != null)
+            game.Services.Cache(audio);
+
+        if (input != null)
+            game.Services.Cache(input);
+
         options.Graphics.Debug ??= RuntimeInfo.IsDebug;
-        options.Graphics.GraphicsAPI ??= getGraphicsAPIForPlatform();
+        options.Graphics.GraphicsAPI ??= RuntimeInfo.OS.GetGraphicsAPI();
+
+        if (graphics == null)
+            throw new InvalidOperationException();
 
         graphics.Initialize(window, options.Graphics);
         Logger.Log($"{graphics.GraphicsAPI} Initialized");
         Logger.Log($"{graphics.GraphicsAPI} Device: {graphics.Name}");
 
-        storage.Mount("/engine", new AssemblyBackedStorage(ResourceAssembly.Assembly));
-        storage.Mount("/engine/logs", new NativeStorage(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "logs")));
-        storage.Mount("/engine/cache", new NativeStorage(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "cache")));
+        game.Services.Cache(graphics);
 
         var systems = new SystemCollection<GameSystem>();
-        systems.Register<SceneController>();
 
-        game.Services.Cache<IView>(window);
-        game.Services.Cache(window.Input);
-        game.Services.Cache(storage);
-        game.Services.Cache(graphics);
-        game.Services.Cache(graphics.Factory);
         game.Services.Cache(systems);
-        game.Services.Cache(systems.Get<SceneController>());
+        game.Services.Cache(systems.Register<SceneController>());
 
         var loader = new AssetLoader();
         loader.Register<Effect, EffectLoader>();
         loader.Register<ITexture, TextureLoader>();
 
         game.Services.Cache(loader);
-
-        threads = new()
-        {
-            ExecutionMode = options.ExecutionMode,
-            FramesPerSecond = options.FramesPerSecond,
-            UpdatePerSecond = options.UpdatePerSecond,
-        };
-
-        game.Services.Cache(threads);
+        game.Services.Cache(options);
 
         foreach (var action in postBuildActions)
             action.Invoke(game);
@@ -114,19 +156,11 @@ public sealed class GameBuilder<T>
         return game;
     }
 
+    /// <summary>
+    /// Builds then runs the game.
+    /// </summary>
     public void Run()
     {
         Build().Run();
-    }
-
-    private static GraphicsAPI getGraphicsAPIForPlatform()
-    {
-        return RuntimeInfo.OS switch
-        {
-            RuntimeInfo.Platform.Windows => GraphicsAPI.Direct3D11,
-            RuntimeInfo.Platform.Android or RuntimeInfo.Platform.Linux => GraphicsAPI.Vulkan,
-            RuntimeInfo.Platform.macOS or RuntimeInfo.Platform.iOS => GraphicsAPI.Metal,
-            _ => RuntimeInfo.IsMobile ? GraphicsAPI.OpenGLES : GraphicsAPI.OpenGL,
-        };
     }
 }

@@ -15,7 +15,7 @@ public abstract class RenderFeature<T> : RenderFeature
     where T : RenderObject
 {
     private readonly ICommandQueue commands;
-    protected readonly IGraphicsDevice Device = Game.Current.Services.Resolve<IGraphicsDevice>();
+    protected readonly IGraphicsDevice Device = Game.Resolve<IGraphicsDevice>();
 
     public RenderFeature()
     {

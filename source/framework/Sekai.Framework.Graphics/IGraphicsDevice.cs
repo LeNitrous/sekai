@@ -137,6 +137,11 @@ public interface IGraphicsDevice : IDisposable
     void SwapBuffers(ISwapChain swapChain);
 
     /// <summary>
+    /// Waits for all <see cref="ICommandQueue"/>s to be submitted.
+    /// </summary>
+    void WaitForIdle();
+
+    /// <summary>
     /// Compiles a given GLSL shader source.
     /// </summary>
     ShaderCompilationResult CompileShader(string source, ShaderStage stage, ShaderCompilationOptions? options = null);

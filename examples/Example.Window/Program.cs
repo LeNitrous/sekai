@@ -9,7 +9,7 @@ using Sekai.SDL;
 using Sekai.Veldrid;
 
 Game
-    .Setup<ExampleGame>(new GameOptions { Graphics = { GraphicsAPI = GraphicsAPI.Vulkan, VerticalSync = true }, ExecutionMode = ExecutionMode.SingleThread })
-    .UseSDLWindow()
+    .Setup<ExampleGame>(new GameOptions { Graphics = { GraphicsAPI = GraphicsAPI.Vulkan }, ExecutionMode = ExecutionMode.MultiThread })
+    .UseSDL()
     .UseVeldrid()
     .Run();

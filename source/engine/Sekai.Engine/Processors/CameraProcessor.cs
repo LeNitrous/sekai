@@ -28,7 +28,7 @@ public sealed class CameraProcessor : Processor<Camera, Transform>
             Scene.RenderContext.RemoveCamera(info);
     }
 
-    protected override void Update(double delta, Entity entity, Camera camera, Transform transform)
+    protected override void Update(Entity entity, Camera camera, Transform transform)
     {
         if (!cameras.TryGetValue(camera, out var info))
             return;

@@ -4,10 +4,7 @@
 using System.Linq;
 using System.Numerics;
 using Sekai.Engine;
-using Sekai.Engine.Annotations;
-using Sekai.Engine.Assets;
 using Sekai.Engine.Effects;
-using Sekai.Engine.Graphics;
 using Sekai.Engine.Rendering;
 using Sekai.Framework.Graphics;
 using Sekai.Framework.Input;
@@ -16,12 +13,9 @@ namespace Example.Window;
 
 public class ExampleGame : Game
 {
-    public override void Load()
+    protected override void Load()
     {
-        var assets = Services.Resolve<AssetLoader>();
-        var scenes = Services.Resolve<SceneController>();
-        var device = Services.Resolve<IGraphicsDevice>();
-        var effect = assets.Load<Effect>("engine/shaders/unlit.sksl");
+        var effect = Assets.Load<Effect>("engine/shaders/unlit.sksl");
 
         var scene = new Scene();
 
@@ -31,15 +25,15 @@ public class ExampleGame : Game
             .AddComponent<Transform>()
             .AddComponent<CameraController>();
 
-        var mesh1 = Cube.Generate(device, Vector3.One, Vector2.One);
-        mesh1.Material = scene.RenderContext.CreateMaterial(effect);
+        var mesh = Cube.Generate(Graphics, Vector3.One, Vector2.One);
+        mesh.Material = scene.RenderContext.CreateMaterial(effect);
 
         scene
             .CreateEntity()
-            .AddComponent(new Transform { Position = new Vector3(0, 0, -5) })
-            .AddComponent(new MeshComponent { Mesh = mesh1 });
+            .AddComponent(new Transform { Position = new Vector3(0, 0, -3) })
+            .AddComponent(new MeshComponent { Mesh = mesh });
 
-        scenes.Scene = scene;
+        Scenes.Scene = scene;
     }
 }
 
@@ -49,7 +43,7 @@ public class CameraController : Behavior
     private IKeyboard keyboard = null!;
     private Vector2? mousePressPosition;
     private Transform transform = null!;
-    private readonly IInputContext input = Game.Current.Services.Resolve<IInputContext>();
+    private readonly IInputContext input = Game.Resolve<IInputContext>();
 
     public override void Start()
     {
@@ -58,30 +52,29 @@ public class CameraController : Behavior
         transform = Entity.GetCommponent<Transform>()!;
     }
 
-    public override void Update(double delta)
+    public override void Update()
     {
-        const float speed = 100.0f;
-        float d = (float)delta;
+        const float speed = 0.25f;
 
         keyboard ??= input.Available.OfType<IKeyboard>().Single();
 
         if (keyboard.IsKeyPressed(Key.W))
-            transform.Position -= transform.Forward * speed * d;
+            transform.Position -= transform.Forward * speed;
 
         if (keyboard.IsKeyPressed(Key.S))
-            transform.Position += transform.Forward * speed * d;
+            transform.Position += transform.Forward * speed;
 
         if (keyboard.IsKeyPressed(Key.A))
-            transform.Position -= transform.Right * speed * d;
+            transform.Position -= transform.Right * speed;
 
         if (keyboard.IsKeyPressed(Key.D))
-            transform.Position += transform.Right * speed * d;
+            transform.Position += transform.Right * speed;
 
         if (keyboard.IsKeyPressed(Key.Q))
-            transform.Position += transform.Up * speed * d;
+            transform.Position += transform.Up * speed;
 
         if (keyboard.IsKeyPressed(Key.E))
-            transform.Position -= transform.Up * speed * d;
+            transform.Position -= transform.Up * speed;
 
         if (mouse.IsButtonPressed(MouseButton.Left))
         {
@@ -89,7 +82,7 @@ public class CameraController : Behavior
                 mousePressPosition = mouse.Position;
 
             var mouseDelta = mousePressPosition.Value - mouse.Position;
-            transform.RotationEuler += new Vector3(mouseDelta, 0) * (speed / 4.0f) * d;
+            transform.RotationEuler += new Vector3(mouseDelta, 0) * (speed * 0.25f);
 
             mousePressPosition = mouse.Position;
         }

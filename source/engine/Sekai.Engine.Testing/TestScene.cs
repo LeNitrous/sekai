@@ -4,7 +4,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using Sekai.Engine.Threading;
+using Sekai.Framework.Threading;
 
 namespace Sekai.Engine.Testing;
 

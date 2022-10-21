@@ -33,3 +33,17 @@ public enum GraphicsAPI
     /// </summary>
     OpenGLES,
 }
+
+public static class RuntimeInfoPlatformExtensions
+{
+    public static GraphicsAPI GetGraphicsAPI(this RuntimeInfo.Platform platform)
+    {
+        return platform switch
+        {
+            RuntimeInfo.Platform.Windows => GraphicsAPI.Direct3D11,
+            RuntimeInfo.Platform.Android or RuntimeInfo.Platform.Linux => GraphicsAPI.Vulkan,
+            RuntimeInfo.Platform.macOS or RuntimeInfo.Platform.iOS => GraphicsAPI.Metal,
+            _ => RuntimeInfo.IsMobile ? GraphicsAPI.OpenGLES : GraphicsAPI.OpenGL,
+        };
+    }
+}

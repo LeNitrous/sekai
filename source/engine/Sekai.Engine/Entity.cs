@@ -113,8 +113,7 @@ public class Entity : FrameworkObject, IReference, IEquatable<Entity>
         return other is not null
             && other.Id == Id
             && other.IsDisposed == IsDisposed
-            && (other.Parent?.Equals(this) ?? false)
-            && EqualityComparer<Scene>.Default.Equals(other.Scene, Scene);
+            && (other.Parent?.Equals(this) ?? false);
     }
 
     public override int GetHashCode()

@@ -88,9 +88,9 @@ public class SceneController : GameSystem, IUpdateable, IRenderable
             scene.Render();
     }
 
-    public void Update(double delta)
+    public void Update()
     {
         foreach (var scene in scenes)
-            scene.Update(delta);
+            scene.Update();
     }
 }

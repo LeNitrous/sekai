@@ -26,7 +26,7 @@ public sealed class MeshProcessor : Processor<MeshComponent, Transform>
             Scene.RenderContext.Remove(renderable);
     }
 
-    protected override void Update(double delta, Entity entity, MeshComponent mesh, Transform transform)
+    protected override void Update(Entity entity, MeshComponent mesh, Transform transform)
     {
         renderables[mesh].WorldMatrix = transform.WorldMatrix;
     }

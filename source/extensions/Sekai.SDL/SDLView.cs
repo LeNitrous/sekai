@@ -5,7 +5,6 @@ using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using Sekai.Framework;
-using Sekai.Framework.Input;
 using Sekai.Framework.Windowing;
 using Sekai.Framework.Windowing.OpenGL;
 using static SDL2.SDL;
@@ -16,11 +15,12 @@ internal class SDLView : FrameworkObject, IView, INativeWindowSource, IOpenGLPro
 {
     public INativeWindow Native { get; }
     public bool Active { get; private set; } = true;
-    public IInputContext Input { get; }
 
     public event Action OnClose = null!;
     public event Func<bool> OnCloseRequested = null!;
     public event Action<bool> OnStateChanged = null!;
+
+    internal event Action<SDL_Event> OnProcessEvent = null!;
 
 #pragma warning disable IDE0052
 
@@ -47,7 +47,6 @@ internal class SDLView : FrameworkObject, IView, INativeWindowSource, IOpenGLPro
             throw new InvalidOperationException($"Failed to initialize SDL: {SDL_GetError()}");
         }
 
-        Input = new SDLInputContext(this);
         Window = SDL_CreateWindow("Sekai", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WindowFlags.SDL_WINDOW_HIDDEN | SDL_WindowFlags.SDL_WINDOW_OPENGL);
         Native = new SDLNativeWindow(this);
 
@@ -95,61 +94,9 @@ internal class SDLView : FrameworkObject, IView, INativeWindowSource, IOpenGLPro
             case SDL_EventType.SDL_APP_TERMINATING:
                 handleQuitEvent();
                 break;
-
-            case SDL_EventType.SDL_MOUSEMOTION:
-                {
-                    for (int i = 0; i < Input.Available.Count; i++)
-                    {
-                        var device = Input.Available[i];
-
-                        if (device is SDLMouse mouse)
-                            mouse.HandleEvent(evt.motion);
-                    }
-
-                    break;
-                }
-
-            case SDL_EventType.SDL_MOUSEWHEEL:
-                {
-                    for (int i = 0; i < Input.Available.Count; i++)
-                    {
-                        var device = Input.Available[i];
-
-                        if (device is SDLMouse mouse)
-                            mouse.HandleEvent(evt.wheel);
-                    }
-
-                    break;
-                }
-
-            case SDL_EventType.SDL_MOUSEBUTTONUP:
-            case SDL_EventType.SDL_MOUSEBUTTONDOWN:
-                {
-                    for (int i = 0; i < Input.Available.Count; i++)
-                    {
-                        var device = Input.Available[i];
-
-                        if (device is SDLMouse mouse)
-                            mouse.HandleEvent(evt.button);
-                    }
-
-                    break;
-                }
-
-            case SDL_EventType.SDL_KEYUP:
-            case SDL_EventType.SDL_KEYDOWN:
-                {
-                    for (int i = 0; i < Input.Available.Count; i++)
-                    {
-                        var device = Input.Available[i];
-
-                        if (device is SDLKeyboard keyboard)
-                            keyboard.HandleEvent(evt.key);
-                    }
-
-                    break;
-                }
         }
+
+        OnProcessEvent?.Invoke(evt);
     }
 
     private void handleQuitEvent()

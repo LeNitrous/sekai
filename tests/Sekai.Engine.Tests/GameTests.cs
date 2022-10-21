@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Sekai.Dummy;
-using Sekai.Engine.Threading;
+using Sekai.Framework.Threading;
 
 namespace Sekai.Engine.Tests;
 
@@ -78,7 +78,7 @@ public class GameTests
 
     private class ExceptionThrowingGame : TestGame
     {
-        public override void Load()
+        protected override void Load()
         {
             throw new Exception();
         }

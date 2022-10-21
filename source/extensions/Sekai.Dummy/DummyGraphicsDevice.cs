@@ -108,4 +108,8 @@ internal class DummyGraphicsDevice : FrameworkObject, IGraphicsDevice
     public void UpdateTextureData<T>(ITexture texture, Span<T> data, uint x, uint y, uint z, uint width, uint height, uint depth, uint mipLevel, uint arrayLayer) where T : unmanaged
     {
     }
+
+    public void WaitForIdle()
+    {
+    }
 }

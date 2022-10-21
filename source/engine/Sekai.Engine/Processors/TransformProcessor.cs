@@ -15,7 +15,7 @@ public sealed class TransformProcessor : Processor<Transform>
     {
     }
 
-    protected override void Update(double delta, Entity entity, Transform component)
+    protected override void Update(Entity entity, Transform component)
     {
         component.LocalMatrix = Matrix4x4.CreateScale(component.Scale) * Matrix4x4.CreateFromQuaternion(component.Rotation) * Matrix4x4.CreateTranslation(component.Position);
 

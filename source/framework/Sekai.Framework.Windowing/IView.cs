@@ -3,7 +3,6 @@
 
 using System;
 using System.Drawing;
-using Sekai.Framework.Input;
 
 namespace Sekai.Framework.Windowing;
 
@@ -18,11 +17,6 @@ public interface IView : IDisposable
     /// Gets or sets the size of the view.
     /// </summary>
     Size Size { get; }
-
-    /// <summary>
-    /// Gets the input context for this window.
-    /// </summary>
-    IInputContext Input { get; }
 
     /// <summary>
     /// Called when the active state of this view changes.

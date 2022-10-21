@@ -4,7 +4,7 @@
 namespace Sekai.Framework.Threading;
 
 /// <summary>
-/// Tells how the threading manager should execute threads.
+/// Determines how the thread controller should execute threads.
 /// </summary>
 public enum ExecutionMode
 {

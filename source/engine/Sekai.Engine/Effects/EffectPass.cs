@@ -2,7 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System.Collections.Generic;
-using Sekai.Engine.Effects.Compiler;
+using Sekai.Engine.Effects.Analysis;
 using Sekai.Framework;
 using Sekai.Framework.Graphics;
 

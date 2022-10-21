@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="../Sekai.Framework/Sekai.Framework.csproj" />
     <ProjectReference Include="../Sekai.Framework.Windowing/Sekai.Framework.Windowing.csproj" />
   </ItemGroup>
 

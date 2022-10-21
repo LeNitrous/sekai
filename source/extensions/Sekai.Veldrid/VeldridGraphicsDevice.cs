@@ -241,6 +241,11 @@ internal unsafe partial class VeldridGraphicsDevice : FrameworkObject, IGraphics
         device.SwapBuffers(((VeldridSwapChain)swapChain).Resource);
     }
 
+    public void WaitForIdle()
+    {
+        device.WaitForIdle();
+    }
+
     protected sealed override void Destroy()
     {
         device.Dispose();

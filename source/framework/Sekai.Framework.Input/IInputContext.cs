@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Sekai.Framework.Input;
 
-public interface IInputContext
+public interface IInputContext : IDisposable
 {
     /// <summary>
     /// A list of all available input devices.

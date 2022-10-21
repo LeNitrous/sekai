@@ -23,6 +23,8 @@ Generally, the folder structure is as follows:
 ### framework
 - **Sekai.Framework**
     - Implements various systems for core functionality such as dependency injection, logging, threading, and storage management.
+- **Sekai.Framework.Audio**
+    - Implements audio abstractions.
 - **Sekai.Framework.Input**
     - Implements input abstractions.
 - **Sekai.Framework.Graphics**

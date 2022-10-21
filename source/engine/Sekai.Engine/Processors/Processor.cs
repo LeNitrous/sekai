@@ -18,16 +18,16 @@ public abstract class Processor : SceneSystem, IUpdateable
         Scene.OnComponentRemoved += handleComponentRemoved;
     }
 
-    protected abstract void Update(double delta, Entity entity);
+    protected abstract void Update(Entity entity);
 
     protected abstract void OnEntityAdded(Entity entity);
 
     protected abstract void OnEntityRemoved(Entity entity);
 
-    public void Update(double delta)
+    public void Update()
     {
         foreach (var entity in entities.ToArray())
-            Update(delta, entity);
+            Update(entity);
     }
 
     private void handleComponentAdded(Scene scene, Entity entity, Component component)
@@ -63,23 +63,32 @@ public abstract class Processor<T> : Processor
     where T : Component
 {
     protected sealed override Type[] Types { get; } = new[] { typeof(T) };
+    private readonly Dictionary<Guid, T> map = new();
 
-    protected sealed override void Update(double delta, Entity entity)
+    protected sealed override void Update(Entity entity)
     {
-        Update(delta, entity, entity.GetCommponent<T>()!);
+        if (map.TryGetValue(entity.Id, out var component))
+            Update(entity, component);
     }
 
     protected sealed override void OnEntityAdded(Entity entity)
     {
-        OnEntityAdded(entity, entity.GetCommponent<T>()!);
+        if (!map.TryGetValue(entity.Id, out var component))
+        {
+            component = entity.GetCommponent<T>()!;
+            map.Add(entity.Id, component);
+        }
+
+        OnEntityAdded(entity, component);
     }
 
     protected sealed override void OnEntityRemoved(Entity entity)
     {
-        OnEntityRemoved(entity, entity.GetCommponent<T>()!);
+        if (map.Remove(entity.Id, out var component))
+            OnEntityRemoved(entity, component);
     }
 
-    protected abstract void Update(double delta, Entity entity, T component);
+    protected abstract void Update(Entity entity, T component);
 
     protected abstract void OnEntityAdded(Entity entity, T component);
 
@@ -91,23 +100,32 @@ public abstract class Processor<T1, T2> : Processor
     where T2 : Component
 {
     protected sealed override Type[] Types { get; } = new[] { typeof(T1), typeof(T2) };
+    private readonly Dictionary<Guid, (T1, T2)> map = new();
 
-    protected sealed override void Update(double delta, Entity entity)
+    protected sealed override void Update(Entity entity)
     {
-        Update(delta, entity, entity.GetCommponent<T1>()!, entity.GetCommponent<T2>()!);
+        if (map.TryGetValue(entity.Id, out var components))
+            Update(entity, components.Item1, components.Item2);
     }
 
     protected sealed override void OnEntityAdded(Entity entity)
     {
-        OnEntityAdded(entity, entity.GetCommponent<T1>()!, entity.GetCommponent<T2>()!);
+        if (!map.TryGetValue(entity.Id, out var components))
+        {
+            components = (entity.GetCommponent<T1>()!, entity.GetCommponent<T2>()!);
+            map.Add(entity.Id, components);
+        }
+
+        OnEntityAdded(entity, components.Item1, components.Item2);
     }
 
     protected sealed override void OnEntityRemoved(Entity entity)
     {
-        OnEntityRemoved(entity, entity.GetCommponent<T1>()!, entity.GetCommponent<T2>()!);
+        if (map.Remove(entity.Id, out var components))
+            OnEntityRemoved(entity, components.Item1, components.Item2);
     }
 
-    protected abstract void Update(double delta, Entity entity, T1 componentA, T2 componentB);
+    protected abstract void Update(Entity entity, T1 componentA, T2 componentB);
 
     protected abstract void OnEntityAdded(Entity entity, T1 componentA, T2 componentB);
 
@@ -120,23 +138,32 @@ public abstract class Processor<T1, T2, T3> : Processor
     where T3 : Component
 {
     protected sealed override Type[] Types { get; } = new[] { typeof(T1), typeof(T2), typeof(T3) };
+    private readonly Dictionary<Guid, (T1, T2, T3)> map = new();
 
-    protected sealed override void Update(double delta, Entity entity)
+    protected sealed override void Update(Entity entity)
     {
-        Update(delta, entity, entity.GetCommponent<T1>()!, entity.GetCommponent<T2>()!, entity.GetCommponent<T3>()!);
+        if (map.TryGetValue(entity.Id, out var components))
+            Update(entity, components.Item1, components.Item2, components.Item3);
     }
 
     protected sealed override void OnEntityAdded(Entity entity)
     {
-        OnEntityAdded(entity, entity.GetCommponent<T1>()!, entity.GetCommponent<T2>()!, entity.GetCommponent<T3>()!);
+        if (!map.TryGetValue(entity.Id, out var components))
+        {
+            components = (entity.GetCommponent<T1>()!, entity.GetCommponent<T2>()!, entity.GetCommponent<T3>()!);
+            map.Add(entity.Id, components);
+        }
+
+        OnEntityAdded(entity, components.Item1, components.Item2, components.Item3);
     }
 
     protected sealed override void OnEntityRemoved(Entity entity)
     {
-        OnEntityRemoved(entity, entity.GetCommponent<T1>()!, entity.GetCommponent<T2>()!, entity.GetCommponent<T3>()!);
+        if (map.Remove(entity.Id, out var components))
+            OnEntityRemoved(entity, components.Item1, components.Item2, components.Item3!);
     }
 
-    protected abstract void Update(double delta, Entity entity, T1 componentA, T2 componentB, T3 componentC);
+    protected abstract void Update(Entity entity, T1 componentA, T2 componentB, T3 componentC);
 
     protected abstract void OnEntityAdded(Entity entity, T1 componentA, T2 componentB, T3 componentC);
 

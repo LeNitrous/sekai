@@ -2,6 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
+using System.Collections;
 using System.Drawing;
 using System.Reflection;
 using Sekai.Framework.Graphics;
@@ -27,16 +28,18 @@ public class GameOptions
     /// <summary>
     /// Arguments obtained from launching the process.
     /// </summary>
-    public string[] Arguments { get; set; } = Array.Empty<string>();
+    public string[] Arguments { get; } = Environment.GetCommandLineArgs();
 
-    /// <inheritdoc cref="Threading.ThreadController.ExecutionMode"/>
+    /// <summary>
+    /// Environment variables obtained from launching the process.
+    /// </summary>
+    public IDictionary EnvironmentVariables { get; } = Environment.GetEnvironmentVariables();
+
+    /// <inheritdoc cref="ThreadController.ExecutionMode"/>
     public ExecutionMode ExecutionMode { get; set; } = ExecutionMode.MultiThread;
 
-    /// <inheritdoc cref="Threading.ThreadController.UpdatePerSecond"/>
+    /// <inheritdoc cref="ThreadController.UpdatePerSecond"/>
     public double UpdatePerSecond { get; set; } = 240;
-
-    /// <inheritdoc cref="Threading.ThreadController.FramesPerSecond"/>
-    public double FramesPerSecond { get; set; } = 120;
 
     /// <summary>
     /// The graphics options used by the <see cref="IGraphicsDevice"/>.
