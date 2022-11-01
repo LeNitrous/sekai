@@ -5,6 +5,3 @@ using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("Sekai.Framework.Testing")]
 [assembly: InternalsVisibleTo("Sekai.Framework.Tests")]
-[assembly: InternalsVisibleTo("Sekai.Engine")]
-[assembly: InternalsVisibleTo("Sekai.Engine.Testing")]
-[assembly: InternalsVisibleTo("Sekai.Engine.Tests")]

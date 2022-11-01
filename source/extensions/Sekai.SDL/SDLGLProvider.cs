@@ -2,12 +2,13 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
+using Sekai.Framework;
 using Sekai.Framework.Windowing.OpenGL;
 using static SDL2.SDL;
 
 namespace Sekai.SDL;
 
-internal class SDLGLProvider : IOpenGLProvider
+internal class SDLGLProvider : FrameworkObject, IOpenGLProvider
 {
     public nint Handle { get; }
 
@@ -20,16 +21,25 @@ internal class SDLGLProvider : IOpenGLProvider
         if (SDL_GL_SetAttribute(SDL_GLattr.SDL_GL_CONTEXT_PROFILE_MASK, SDL_GLprofile.SDL_GL_CONTEXT_PROFILE_COMPATIBILITY) > 0)
             throw new InvalidOperationException(SDL_GetError());
 
-        Handle = SDL_GL_CreateContext(view.Window);
+        Handle = CreateContext();
 
-        if (Handle == IntPtr.Zero)
-            throw new InvalidOperationException(SDL_GetError());
+        ClearCurrentContext();
     }
 
     public void ClearCurrentContext()
     {
-        if (SDL_GL_MakeCurrent(IntPtr.Zero, IntPtr.Zero) > 0)
+        if (SDL_GL_MakeCurrent(IntPtr.Zero, IntPtr.Zero) != 0)
             throw new InvalidOperationException(SDL_GetError());
+    }
+
+    public nint CreateContext()
+    {
+        nint context = SDL_GL_CreateContext(view.Window);
+
+        if (context == IntPtr.Zero)
+            throw new InvalidOperationException(SDL_GetError());
+
+        return context;
     }
 
     public void DeleteContext(nint context)
@@ -49,18 +59,28 @@ internal class SDLGLProvider : IOpenGLProvider
 
     public void MakeCurrent(nint context)
     {
-        if (SDL_GL_MakeCurrent(view.Window, context) > 0)
+        if (SDL_GL_MakeCurrent(view.Window, context) != 0)
             throw new InvalidOperationException(SDL_GetError());
+    }
+
+    public void MakeCurrent()
+    {
+        MakeCurrent(Handle);
     }
 
     public void SetSyncToVerticalBlank(bool sync)
     {
-        if (SDL_GL_SetSwapInterval(sync ? 1 : 0) > 0)
+        if (SDL_GL_SetSwapInterval(sync ? 1 : 0) != 0)
             throw new InvalidOperationException(SDL_GetError());
     }
 
     public void SwapBuffers()
     {
         SDL_GL_SwapWindow(view.Window);
+    }
+
+    protected override void Destroy()
+    {
+        DeleteContext(Handle);
     }
 }

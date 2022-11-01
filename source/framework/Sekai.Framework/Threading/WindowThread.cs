@@ -3,10 +3,7 @@
 
 namespace Sekai.Framework.Threading;
 
-public abstract class WindowThread : FrameworkThread
+public abstract class WindowThread
 {
-    protected WindowThread()
-        : base("Main")
-    {
-    }
+    public abstract void Process();
 }

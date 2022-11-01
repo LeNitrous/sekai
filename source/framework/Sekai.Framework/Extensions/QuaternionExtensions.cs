@@ -9,9 +9,9 @@ namespace Sekai.Framework.Extensions;
 public static class QuaternionExtensions
 {
     /// <summary>
-    /// Convert this quaternion to euler angles (roll, pitch, yaw).
+    /// Convert this quaternion to euler angles.
     /// </summary>
-    public static Vector3 ToEulerAngles(this Quaternion q)
+    public static void ToEulerAngles(this Quaternion q, out Vector3 euler)
     {
         float sinR = 2 * ((q.W * q.X) + (q.Y * q.Z));
         float cosR = 1 - (2 * ((q.X * q.X) + (q.Y * q.Y)));
@@ -26,42 +26,38 @@ public static class QuaternionExtensions
         float cosY = 1 - (2 * ((q.Y * q.Y) + (q.Z * q.Z)));
         float yaw = MathF.Atan2(sinY, cosY);
 
-        return new Vector3(roll, pitch, yaw);
+        euler.X = yaw;
+        euler.Y = pitch;
+        euler.Z = roll;
     }
 
     /// <summary>
     /// Gets this quaternion's forward vector.
     /// </summary>
-    public static Vector3 GetForward(this Quaternion q)
+    public static void GetForward(this Quaternion q, out Vector3 vector)
     {
-        float x = 2 * ((q.X * q.Z) + (q.W * q.Y));
-        float y = 2 * ((q.Y * q.Z) - (q.W * q.X));
-        float z = 1 - (2 * ((q.X * q.X) + (q.Y * q.Y)));
-
-        return new Vector3(x, y, z);
+        vector.X = 2 * ((q.X * q.Z) + (q.W * q.Y));
+        vector.Y = 2 * ((q.Y * q.Z) - (q.W * q.X));
+        vector.Z = 1 - (2 * ((q.X * q.X) + (q.Y * q.Y)));
     }
 
     /// <summary>
     /// Gets this quaternion's up vector.
     /// </summary>
-    public static Vector3 GetUp(this Quaternion q)
+    public static void GetUp(this Quaternion q, out Vector3 vector)
     {
-        float x = 2 * ((q.X * q.Y) - (q.W * q.Z));
-        float y = 1 - (2 * ((q.X * q.X) + (q.Z * q.Z)));
-        float z = 2 * ((q.Y * q.Z) + (q.W * q.X));
-
-        return new Vector3(x, y, z);
+        vector.X = 2 * ((q.X * q.Y) - (q.W * q.Z));
+        vector.Y = 1 - (2 * ((q.X * q.X) + (q.Z * q.Z)));
+        vector.Z = 2 * ((q.Y * q.Z) + (q.W * q.X));
     }
 
     /// <summary>
     /// Gets this quaternion's right vector.
     /// </summary>
-    public static Vector3 GetRight(this Quaternion q)
+    public static void GetRight(this Quaternion q, out Vector3 vector)
     {
-        float x = 1 - (2 * ((q.Y * q.Y) + (q.Z * q.Z)));
-        float y = 2 * ((q.X * q.Y) + (q.W * q.Z));
-        float z = 2 * ((q.X * q.Z) - (q.W * q.Y));
-
-        return new Vector3(x, y, z);
+        vector.X = 1 - (2 * ((q.Y * q.Y) + (q.Z * q.Z)));
+        vector.Y = 2 * ((q.X * q.Y) + (q.W * q.Z));
+        vector.Z = 2 * ((q.X * q.Z) - (q.W * q.Y));
     }
 }

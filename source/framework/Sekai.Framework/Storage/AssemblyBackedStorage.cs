@@ -21,24 +21,24 @@ public class AssemblyBackedStorage : IStorage
     private readonly Assembly assembly;
     private IEnumerable<string> entries;
 
-    public AssemblyBackedStorage(string assemblyFileName)
+    public AssemblyBackedStorage(string assemblyFileName, string? ns = null)
     {
         assemblyFileName = Path.HasExtension(assemblyFileName) ? assemblyFileName : Path.ChangeExtension(assemblyFileName, ".dll");
         string filePath = Path.Combine(Path.GetDirectoryName(Assembly.GetCallingAssembly().Location) ?? string.Empty, assemblyFileName);
         assembly = File.Exists(filePath) ? Assembly.LoadFrom(filePath) : Assembly.Load(Path.GetFileNameWithoutExtension(assemblyFileName));
-        prefix = Path.GetFileNameWithoutExtension(assemblyFileName);
+        prefix = Path.GetFileNameWithoutExtension(assemblyFileName) + (string.IsNullOrEmpty(ns) ? string.Empty : separator + ns);
         enumerateEntries();
     }
 
-    public AssemblyBackedStorage(Assembly assembly)
+    public AssemblyBackedStorage(Assembly assembly, string? ns = null)
     {
         this.assembly = assembly;
-        prefix = assembly.GetName().Name ?? string.Empty;
+        prefix = assembly.GetName().Name + (string.IsNullOrEmpty(ns) ? string.Empty : separator + ns) ?? string.Empty;
         enumerateEntries();
     }
 
-    public AssemblyBackedStorage(AssemblyName name)
-        : this(Assembly.Load(name))
+    public AssemblyBackedStorage(AssemblyName name, string? ns = null)
+        : this(Assembly.Load(name), ns)
     {
     }
 

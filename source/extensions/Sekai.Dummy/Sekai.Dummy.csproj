@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../engine/Sekai.Engine/Sekai.Engine.csproj" />
+    <ProjectReference Include="../../framework/Sekai.Framework/Sekai.Framework.csproj" />
   </ItemGroup>
 
 </Project>

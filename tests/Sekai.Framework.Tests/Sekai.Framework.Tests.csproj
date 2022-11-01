@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../../source/framework/Sekai.Framework/Sekai.Framework.csproj" />
+    <ProjectReference Include="../../source/framework/Sekai.Framework.Testing/Sekai.Framework.Testing.csproj" />
   </ItemGroup>
 
 </Project>

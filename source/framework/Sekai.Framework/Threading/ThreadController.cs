@@ -43,8 +43,8 @@ public sealed class ThreadController : FrameworkObject
     private CancellationTokenSource? cts;
     private readonly WindowThread window;
     private readonly Queue<Action> queue = new();
-    private readonly List<UpdateThread> update = new();
     private readonly List<RenderThread> render = new();
+    private readonly List<UpdateThread> update = new();
 
     internal ThreadController(WindowThread window)
     {
@@ -102,7 +102,7 @@ public sealed class ThreadController : FrameworkObject
 
         IsRunning = true;
 
-        cts ??= new CancellationTokenSource();
+        cts = new CancellationTokenSource();
 
         var stopwatch = new Stopwatch();
         stopwatch.Start();
@@ -114,8 +114,6 @@ public sealed class ThreadController : FrameworkObject
         double lag = 0;
 
         var mode = ExecutionMode - 1;
-        var updateTasks = new Task[update.Count];
-        var renderTasks = new Task[render.Count];
 
         while (!cts.Token.IsCancellationRequested)
         {
@@ -133,46 +131,95 @@ public sealed class ThreadController : FrameworkObject
             lag += elapsed;
 
             while (queue.TryDequeue(out var action))
+            {
+                if (cts.Token.IsCancellationRequested)
+                    break;
+
                 action.Invoke();
+            }
 
             window.Process();
 
             if (ExecutionMode == ExecutionMode.SingleThread)
             {
-                while (lag >= msPerUpdate)
-                {
-                    for (int i = 0; i < update.Count; i++)
-                    {
-                        update[i].Process();
-                    }
+                performFixedUpdate();
 
-                    lag -= msPerUpdate;
+                for (int i = 0; i < update.Count; i++)
+                {
+                    if (cts.Token.IsCancellationRequested)
+                        break;
+
+                    update[i].Update(elapsed);
                 }
 
                 for (int i = 0; i < render.Count; i++)
                 {
-                    render[i].Process();
+                    if (cts.Token.IsCancellationRequested)
+                        break;
+
+                    render[i].Render();
                 }
             }
 
             if (ExecutionMode == ExecutionMode.MultiThread)
             {
+                var updateFixed = new[]
+                {
+                    Task.Factory.StartNew(performFixedUpdate, cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default)
+                };
+
+                var updateTasks = new Task[update.Count];
+
                 for (int i = 0; i < update.Count; i++)
                 {
-                    updateTasks[i] = Task.Factory.StartNew(update[i].Process, cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+                    if (cts.Token.IsCancellationRequested)
+                        break;
+
+                    if (update[i] is null)
+                        continue;
+
+                    var thread = update[i];
+                    updateTasks[i] = Task.Factory.StartNew(() => thread.Update(elapsed), cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
                 }
 
-                Task.WaitAll(updateTasks);
+                var renderTasks = new Task[render.Count];
 
                 for (int i = 0; i < render.Count; i++)
                 {
-                    renderTasks[i] = Task.Factory.StartNew(render[i].Process, cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+                    if (cts.Token.IsCancellationRequested)
+                        break;
+
+                    if (render[i] is null)
+                        continue;
+
+                    renderTasks[i] = Task.Factory.StartNew(render[i].Render, cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
                 }
 
-                Task.WaitAll(renderTasks);
+                Task.WaitAll(updateFixed, cts.Token);
+                Task.WaitAll(updateTasks, cts.Token);
+                Task.WaitAll(renderTasks, cts.Token);
             }
 
             OnTick?.Invoke();
+        }
+
+        void performFixedUpdate()
+        {
+            while (lag >= msPerUpdate)
+            {
+                if (cts != null && cts.Token.IsCancellationRequested)
+                    break;
+
+                for (int i = 0; i < update.Count; i++)
+                {
+                    if (cts != null && cts.Token.IsCancellationRequested)
+                        break;
+
+                    update[i].FixedUpdate();
+                }
+
+                lag -= msPerUpdate;
+            }
         }
     }
 
@@ -196,7 +243,7 @@ public sealed class ThreadController : FrameworkObject
 
     private void abortFromException(object? sender, Exception exception, bool isTerminating)
     {
-        if (OnException?.Invoke(exception) ?? true)
+        if (!(OnException?.Invoke(exception) ?? false))
             return;
 
         TaskScheduler.UnobservedTaskException -= onUnobservedTaskException;

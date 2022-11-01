@@ -3,10 +3,7 @@
 
 namespace Sekai.Framework.Threading;
 
-public abstract class RenderThread : FrameworkThread
+public abstract class RenderThread
 {
-    protected RenderThread(string name)
-        : base($"Render ({name})")
-    {
-    }
+    public abstract void Render();
 }

@@ -2,14 +2,13 @@
 // Licensed under MIT. See LICENSE for details.
 
 using Example.Window;
-using Sekai.Engine;
-using Sekai.Framework.Graphics;
+using Sekai.Framework;
 using Sekai.Framework.Threading;
+using Sekai.OpenGL;
 using Sekai.SDL;
-using Sekai.Veldrid;
 
 Game
-    .Setup<ExampleGame>(new GameOptions { Graphics = { GraphicsAPI = GraphicsAPI.Vulkan }, ExecutionMode = ExecutionMode.MultiThread })
+    .Setup<ExampleGame>(new GameOptions { ExecutionMode = ExecutionMode.MultiThread })
     .UseSDL()
-    .UseVeldrid()
+    .UseGL()
     .Run();

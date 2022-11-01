@@ -142,6 +142,9 @@ internal class SDLView : FrameworkObject, IView, INativeWindowSource, IOpenGLPro
         if (Window != IntPtr.Zero)
             SDL_DestroyWindow(Window);
 
+        if (gl is not null)
+            gl.Dispose();
+
         SDL_Quit();
     }
 }

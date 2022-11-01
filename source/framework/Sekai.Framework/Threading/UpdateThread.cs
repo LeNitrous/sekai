@@ -3,10 +3,8 @@
 
 namespace Sekai.Framework.Threading;
 
-public abstract class UpdateThread : FrameworkThread
+public abstract class UpdateThread
 {
-    protected UpdateThread(string name)
-        : base($"Update ({name})")
-    {
-    }
+    public abstract void Update(double time);
+    public abstract void FixedUpdate();
 }

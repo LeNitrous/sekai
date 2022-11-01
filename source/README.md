@@ -6,28 +6,18 @@ Sekai's source has been split into multiple folders and C# projects (.csproj), e
 
 Generally, the folder structure is as follows:
 
-### engine
-- **Sekai.Engine**
-    - Core game engine functionality.
-- **Sekai.Engine.Resources**
-    - Core game engine resources.
-- **Sekai.Engine.Testing**
-    - Provides extendability for headless testing.
-### extensions
-- **Sekai.Dummy**
-    - Provides dummy windowing support.
-- **Sekai.SDL**
-    - Provides [**SDL 2**](https://www.libsdl.org/) windowing and input support.
-- **Sekai.Veldrid**
-    - Provides [**Veldrid**](https://github.com/mellinoe/veldrid) graphics support.
 ### framework
 - **Sekai.Framework**
-    - Implements various systems for core functionality such as dependency injection, logging, threading, and storage management.
-- **Sekai.Framework.Audio**
-    - Implements audio abstractions.
-- **Sekai.Framework.Input**
-    - Implements input abstractions.
-- **Sekai.Framework.Graphics**
-    - Implements graphics abstractions.
-- **Sekai.Framework.Windowing**
-    - Implements windowing abstractions.
+    - Implements core functionality.
+- **Sekai.Framework.Testing**
+    - Implements testing functionality.
+
+### extensions
+- **Sekai.Dummy**
+    - Provides dummy windowing and graphics support.
+- **Sekai.OpenAL**
+    - Provides [**OpenAL**](https://github.com/dotnet/Silk.NET) audio support.
+- **Sekai.OpenGL**
+    - Provides [**OpenGL**](https://github.com/dotnet/Silk.NET) graphics support.
+- **Sekai.SDL**
+    - Provides [**SDL 2**](https://www.libsdl.org/) windowing and input support.

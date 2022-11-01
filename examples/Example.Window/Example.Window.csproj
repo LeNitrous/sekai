@@ -7,13 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../source/engine/Sekai.Engine/Sekai.Engine.csproj" />
     <ProjectReference Include="../../source/extensions/Sekai.SDL/Sekai.SDL.csproj" />
-    <ProjectReference Include="../../source/extensions/Sekai.Veldrid/Sekai.Veldrid.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Superpower" Version="3.0.0" />
+    <ProjectReference Include="../../source/extensions/Sekai.OpenGL/Sekai.OpenGL.csproj" />
+    <ProjectReference Include="../../source/framework/Sekai.Framework/Sekai.Framework.csproj" />
   </ItemGroup>
 
 </Project>
