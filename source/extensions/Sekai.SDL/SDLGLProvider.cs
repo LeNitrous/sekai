@@ -18,9 +18,6 @@ internal class SDLGLProvider : FrameworkObject, IOpenGLProvider
     {
         this.view = view;
 
-        if (SDL_GL_SetAttribute(SDL_GLattr.SDL_GL_CONTEXT_PROFILE_MASK, SDL_GLprofile.SDL_GL_CONTEXT_PROFILE_COMPATIBILITY) > 0)
-            throw new InvalidOperationException(SDL_GetError());
-
         Handle = CreateContext();
 
         ClearCurrentContext();

@@ -47,6 +47,15 @@ internal class SDLView : FrameworkObject, IView, INativeWindowSource, IOpenGLPro
             throw new InvalidOperationException($"Failed to initialize SDL: {SDL_GetError()}");
         }
 
+        if (SDL_GL_SetAttribute(SDL_GLattr.SDL_GL_CONTEXT_PROFILE_MASK, SDL_GLprofile.SDL_GL_CONTEXT_PROFILE_CORE) != 0)
+            throw new InvalidOperationException(SDL_GetError());
+
+        if (SDL_GL_SetAttribute(SDL_GLattr.SDL_GL_CONTEXT_MAJOR_VERSION, 3) != 0)
+            throw new InvalidOperationException(SDL_GetError());
+
+        if (SDL_GL_SetAttribute(SDL_GLattr.SDL_GL_CONTEXT_MINOR_VERSION, 3) != 0)
+            throw new InvalidOperationException(SDL_GetError());
+
         Window = SDL_CreateWindow("Sekai", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, SDL_WindowFlags.SDL_WINDOW_HIDDEN | SDL_WindowFlags.SDL_WINDOW_OPENGL);
         Native = new SDLNativeWindow(this);
 
