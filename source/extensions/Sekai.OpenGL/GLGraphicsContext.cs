@@ -14,6 +14,7 @@ internal class GLGraphicsContext : GraphicsContext
 {
     internal GL GL { get; private set; } = null!;
     private IOpenGLProvider provider = null!;
+    private bool? lastBlendingState;
 
     protected override void InitializeImpl(IView view)
     {
@@ -111,6 +112,34 @@ internal class GLGraphicsContext : GraphicsContext
 
     protected override void SetBlendImpl(BlendingParameters parameters)
     {
+        if (parameters.IsDisabled)
+        {
+            if (!lastBlendingState.HasValue || lastBlendingState.Value)
+                GL.Disable(EnableCap.Blend);
+
+            lastBlendingState = false;
+        }
+        else
+        {
+            if (!lastBlendingState.HasValue || !lastBlendingState.Value)
+                GL.Enable(EnableCap.Blend);
+
+            lastBlendingState = true;
+
+            GL.BlendEquationSeparate
+            (
+                GLUtils.ToBlendEquationModeEXT(parameters.ColorEquation),
+                GLUtils.ToBlendEquationModeEXT(parameters.AlphaEquation)
+            );
+
+            GL.BlendFuncSeparate
+            (
+                GLUtils.ToBlendingFactor(parameters.SourceColor),
+                GLUtils.ToBlendingFactor(parameters.DestinationColor),
+                GLUtils.ToBlendingFactor(parameters.SourceAlpha),
+                GLUtils.ToBlendingFactor(parameters.DestinationAlpha)
+            );
+        }
     }
 
     protected override void SetBlendMaskImpl(BlendingMask mask)
