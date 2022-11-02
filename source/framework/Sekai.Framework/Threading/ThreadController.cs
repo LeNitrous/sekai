@@ -195,9 +195,15 @@ public sealed class ThreadController : FrameworkObject
                     renderTasks[i] = Task.Factory.StartNew(render[i].Render, cts.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
                 }
 
-                Task.WaitAll(updateFixed, cts.Token);
-                Task.WaitAll(updateTasks, cts.Token);
-                Task.WaitAll(renderTasks, cts.Token);
+                try
+                {
+                    Task.WaitAll(updateFixed, cts.Token);
+                    Task.WaitAll(updateTasks, cts.Token);
+                    Task.WaitAll(renderTasks, cts.Token);
+                }
+                catch (OperationCanceledException)
+                {
+                }
             }
 
             OnTick?.Invoke();
