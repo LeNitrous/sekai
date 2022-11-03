@@ -557,7 +557,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// to the other. If the value is greater than zero, the current instance is
     /// greater than the other.
     /// </returns>
-    public int CompareTo(object other)
+    public int CompareTo(object? other)
     {
         if (other == null)
             return 1;
