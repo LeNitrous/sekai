@@ -49,22 +49,22 @@ public struct Int2 : IEquatable<Int2>, IFormattable
     /// <summary>
     /// A <see cref="Stride.Core.Mathematics.Int2"/> with all of its components set to zero.
     /// </summary>
-    public static readonly Int2 Zero = new Int2();
+    public static readonly Int2 Zero = new();
 
     /// <summary>
     /// The X unit <see cref="Stride.Core.Mathematics.Int2"/> (1, 0, 0).
     /// </summary>
-    public static readonly Int2 UnitX = new Int2(1, 0);
+    public static readonly Int2 UnitX = new(1, 0);
 
     /// <summary>
     /// The Y unit <see cref="Stride.Core.Mathematics.Int2"/> (0, 1, 0).
     /// </summary>
-    public static readonly Int2 UnitY = new Int2(0, 1);
+    public static readonly Int2 UnitY = new(0, 1);
 
     /// <summary>
     /// A <see cref="Stride.Core.Mathematics.Int2"/> with all of its components set to one.
     /// </summary>
-    public static readonly Int2 One = new Int2(1, 1);
+    public static readonly Int2 One = new(1, 1);
 
     /// <summary>
     /// The X component of the vector.

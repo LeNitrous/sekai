@@ -21,7 +21,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System.Drawing;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
@@ -128,7 +127,7 @@ public struct RectangleF : IEquatable<RectangleF>
     /// </value>
     public Vector2 Location
     {
-        get => new Vector2(X, Y);
+        get => new(X, Y);
         set
         {
             X = value.X;
@@ -142,7 +141,7 @@ public struct RectangleF : IEquatable<RectangleF>
     /// <value>
     /// The center.
     /// </value>
-    public Vector2 Center => new Vector2(X + (Width / 2), Y + (Height / 2));
+    public Vector2 Center => new(X + (Width / 2), Y + (Height / 2));
 
     /// <summary>
     /// Gets a value that indicates whether the rectangle is empty.
@@ -158,7 +157,7 @@ public struct RectangleF : IEquatable<RectangleF>
     /// <value>The size of the rectangle.</value>
     public Size2F Size
     {
-        get => new Size2F(Width, Height);
+        get => new(Width, Height);
         set
         {
             Width = value.Width;
@@ -170,25 +169,25 @@ public struct RectangleF : IEquatable<RectangleF>
     /// Gets the position of the top-left corner of the rectangle.
     /// </summary>
     /// <value>The top-left corner of the rectangle.</value>
-    public Vector2 TopLeft => new Vector2(X, Y);
+    public Vector2 TopLeft => new(X, Y);
 
     /// <summary>
     /// Gets the position of the top-right corner of the rectangle.
     /// </summary>
     /// <value>The top-right corner of the rectangle.</value>
-    public Vector2 TopRight => new Vector2(Right, Y);
+    public Vector2 TopRight => new(Right, Y);
 
     /// <summary>
     /// Gets the position of the bottom-left corner of the rectangle.
     /// </summary>
     /// <value>The bottom-left corner of the rectangle.</value>
-    public Vector2 BottomLeft => new Vector2(X, Bottom);
+    public Vector2 BottomLeft => new(X, Bottom);
 
     /// <summary>
     /// Gets the position of the bottom-right corner of the rectangle.
     /// </summary>
     /// <value>The bottom-right corner of the rectangle.</value>
-    public Vector2 BottomRight => new Vector2(Right, Bottom);
+    public Vector2 BottomRight => new(Right, Bottom);
 
     /// <summary>Changes the position of the rectangle.</summary>
     /// <param name="amount">The values to adjust the position of the rectangle by.</param>

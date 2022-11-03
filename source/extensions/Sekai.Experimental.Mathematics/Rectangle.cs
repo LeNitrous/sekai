@@ -21,7 +21,6 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System.Drawing;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
@@ -137,7 +136,7 @@ public struct Rectangle : IEquatable<Rectangle>
     /// <value>
     /// The center.
     /// </value>
-    public Point Center => new Point(X + (Width / 2), Y + (Height / 2));
+    public Point Center => new(X + (Width / 2), Y + (Height / 2));
 
     /// <summary>
     /// Gets a value that indicates whether the rectangle is empty.
@@ -153,7 +152,7 @@ public struct Rectangle : IEquatable<Rectangle>
     /// <value>The size of the rectangle.</value>
     public Size2 Size
     {
-        get => new Size2(Width, Height);
+        get => new(Width, Height);
         set
         {
             Width = value.Width;
@@ -165,25 +164,25 @@ public struct Rectangle : IEquatable<Rectangle>
     /// Gets the position of the top-left corner of the rectangle.
     /// </summary>
     /// <value>The top-left corner of the rectangle.</value>
-    public Point TopLeft => new Point(Left, Top);
+    public Point TopLeft => new(Left, Top);
 
     /// <summary>
     /// Gets the position of the top-right corner of the rectangle.
     /// </summary>
     /// <value>The top-right corner of the rectangle.</value>
-    public Point TopRight => new Point(Right, Top);
+    public Point TopRight => new(Right, Top);
 
     /// <summary>
     /// Gets the position of the bottom-left corner of the rectangle.
     /// </summary>
     /// <value>The bottom-left corner of the rectangle.</value>
-    public Point BottomLeft => new Point(Left, Bottom);
+    public Point BottomLeft => new(Left, Bottom);
 
     /// <summary>
     /// Gets the position of the bottom-right corner of the rectangle.
     /// </summary>
     /// <value>The bottom-right corner of the rectangle.</value>
-    public Point BottomRight => new Point(Right, Bottom);
+    public Point BottomRight => new(Right, Bottom);
 
     /// <summary>Changes the position of the rectangle.</summary>
     /// <param name="amount">The values to adjust the position of the rectangle by.</param>

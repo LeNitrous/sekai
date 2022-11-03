@@ -28,7 +28,6 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-using System;
 using System.Globalization;
 
 namespace Sekai.Experimental.Mathematics;
@@ -66,11 +65,6 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     public const float Gradian = 0.0025f;
 
     /// <summary>
-    /// The internal representation of the angle.
-    /// </summary>
-    private float radians;
-
-    /// <summary>
     /// Initializes a new instance of the <see cref="AngleSingle"/> struct with the
     /// given unit dependant angle and unit type.
     /// </summary>
@@ -78,28 +72,14 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// <param name="type">The type of unit the angle argument is.</param>
     public AngleSingle(float angle, AngleType type)
     {
-        switch (type)
+        Radians = type switch
         {
-            case AngleType.Revolution:
-                radians = MathUtil.RevolutionsToRadians(angle);
-                break;
-
-            case AngleType.Degree:
-                radians = MathUtil.DegreesToRadians(angle);
-                break;
-
-            case AngleType.Radian:
-                radians = angle;
-                break;
-
-            case AngleType.Gradian:
-                radians = MathUtil.GradiansToRadians(angle);
-                break;
-
-            default:
-                radians = 0.0f;
-                break;
-        }
+            AngleType.Revolution => MathUtil.RevolutionsToRadians(angle),
+            AngleType.Degree => MathUtil.DegreesToRadians(angle),
+            AngleType.Radian => angle,
+            AngleType.Gradian => MathUtil.GradiansToRadians(angle),
+            _ => 0.0f,
+        };
     }
 
     /// <summary>
@@ -110,7 +90,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// <param name="radius">The radius of the circle.</param>
     public AngleSingle(float arcLength, float radius)
     {
-        radians = arcLength / radius;
+        Radians = arcLength / radius;
     }
 
     /// <summary>
@@ -118,14 +98,14 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// </summary>
     public void Wrap()
     {
-        float newangle = MathF.IEEERemainder(radians, MathUtil.TWO_PI);
+        float newangle = MathF.IEEERemainder(Radians, MathUtil.TWO_PI);
 
         if (newangle <= -MathUtil.PI)
             newangle += MathUtil.TWO_PI;
         else if (newangle > MathUtil.PI)
             newangle -= MathUtil.TWO_PI;
 
-        radians = newangle;
+        Radians = newangle;
     }
 
     /// <summary>
@@ -133,12 +113,12 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// </summary>
     public void WrapPositive()
     {
-        float newangle = radians % MathUtil.TWO_PI;
+        float newangle = Radians % MathUtil.TWO_PI;
 
         if (newangle < 0.0)
             newangle += MathUtil.TWO_PI;
 
-        radians = newangle;
+        Radians = newangle;
     }
 
     /// <summary>
@@ -146,8 +126,8 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// </summary>
     public float Revolutions
     {
-        get { return MathUtil.RadiansToRevolutions(radians); }
-        set { radians = MathUtil.RevolutionsToRadians(value); }
+        get => MathUtil.RadiansToRevolutions(Radians);
+        set => Radians = MathUtil.RevolutionsToRadians(value);
     }
 
     /// <summary>
@@ -155,8 +135,8 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// </summary>
     public float Degrees
     {
-        get { return MathUtil.RadiansToDegrees(radians); }
-        set { radians = MathUtil.DegreesToRadians(value); }
+        get => MathUtil.RadiansToDegrees(Radians);
+        set => Radians = MathUtil.DegreesToRadians(value);
     }
 
     /// <summary>
@@ -169,7 +149,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     {
         get
         {
-            float degrees = MathUtil.RadiansToDegrees(radians);
+            float degrees = MathUtil.RadiansToDegrees(Radians);
 
             if (degrees < 0)
             {
@@ -184,11 +164,11 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
         }
         set
         {
-            float degrees = MathUtil.RadiansToDegrees(radians);
+            float degrees = MathUtil.RadiansToDegrees(Radians);
             float degreesfloor = MathF.Floor(degrees);
 
             degreesfloor += value / 60.0f;
-            radians = MathUtil.DegreesToRadians(degreesfloor);
+            Radians = MathUtil.DegreesToRadians(degreesfloor);
         }
     }
 
@@ -202,7 +182,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     {
         get
         {
-            float degrees = MathUtil.RadiansToDegrees(radians);
+            float degrees = MathUtil.RadiansToDegrees(Radians);
 
             if (degrees < 0)
             {
@@ -225,7 +205,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
         }
         set
         {
-            float degrees = MathUtil.RadiansToDegrees(radians);
+            float degrees = MathUtil.RadiansToDegrees(Radians);
             float degreesfloor = MathF.Floor(degrees);
 
             float minutes = (degrees - degreesfloor) * 60.0f;
@@ -233,18 +213,14 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
 
             minutesfloor += value / 60.0f;
             degreesfloor += minutesfloor / 60.0f;
-            radians = MathUtil.DegreesToRadians(degreesfloor);
+            Radians = MathUtil.DegreesToRadians(degreesfloor);
         }
     }
 
     /// <summary>
     /// Gets or sets the total number of radians this Stride.Core.Mathematics.AngleSingle represents.
     /// </summary>
-    public float Radians
-    {
-        get { return radians; }
-        set { radians = value; }
-    }
+    public float Radians { get; set; }
 
     /// <summary>
     /// Gets or sets the total number of milliradians this Stride.Core.Mathematics.AngleSingle represents.
@@ -252,8 +228,8 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// </summary>
     public float Milliradians
     {
-        get { return radians / (Milliradian * MathUtil.TWO_PI); }
-        set { radians = value * (Milliradian * MathUtil.TWO_PI); }
+        get => Radians / (Milliradian * MathUtil.TWO_PI);
+        set => Radians = value * (Milliradian * MathUtil.TWO_PI);
     }
 
     /// <summary>
@@ -261,88 +237,61 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// </summary>
     public float Gradians
     {
-        get { return MathUtil.RadiansToGradians(radians); }
-        set { radians = MathUtil.GradiansToRadians(value); }
+        get => MathUtil.RadiansToGradians(Radians);
+        set => Radians = MathUtil.GradiansToRadians(value);
     }
 
     /// <summary>
     /// Gets a System.Boolean that determines whether this Stride.Core.Mathematics.Angle
     /// is a right angle (i.e. 90° or π/2).
     /// </summary>
-    public bool IsRight
-    {
-        get { return radians == MathUtil.PI_OVER_TWO; }
-    }
+    public bool IsRight => Radians == MathUtil.PI_OVER_TWO;
 
     /// <summary>
     /// Gets a System.Boolean that determines whether this Stride.Core.Mathematics.Angle
     /// is a straight angle (i.e. 180° or π).
     /// </summary>
-    public bool IsStraight
-    {
-        get { return radians == MathUtil.PI; }
-    }
+    public bool IsStraight => Radians == MathUtil.PI;
 
     /// <summary>
     /// Gets a System.Boolean that determines whether this Stride.Core.Mathematics.Angle
     /// is a full rotation angle (i.e. 360° or 2π).
     /// </summary>
-    public bool IsFullRotation
-    {
-        get { return radians == MathUtil.TWO_PI; }
-    }
+    public bool IsFullRotation => Radians == MathUtil.TWO_PI;
 
     /// <summary>
     /// Gets a System.Boolean that determines whether this Stride.Core.Mathematics.Angle
     /// is an oblique angle (i.e. is not 90° or a multiple of 90°).
     /// </summary>
-    public bool IsOblique
-    {
-        get { return WrapPositive(this).radians != MathUtil.PI_OVER_TWO; }
-    }
+    public bool IsOblique => WrapPositive(this).Radians != MathUtil.PI_OVER_TWO;
 
     /// <summary>
     /// Gets a System.Boolean that determines whether this Stride.Core.Mathematics.Angle
     /// is an acute angle (i.e. less than 90° but greater than 0°).
     /// </summary>
-    public bool IsAcute
-    {
-        get { return radians > 0.0 && radians < MathUtil.PI_OVER_TWO; }
-    }
+    public bool IsAcute => Radians is > (float)0.0 and < MathUtil.PI_OVER_TWO;
 
     /// <summary>
     /// Gets a System.Boolean that determines whether this Stride.Core.Mathematics.Angle
     /// is an obtuse angle (i.e. greater than 90° but less than 180°).
     /// </summary>
-    public bool IsObtuse
-    {
-        get { return radians > MathUtil.PI_OVER_TWO && radians < MathUtil.PI; }
-    }
+    public bool IsObtuse => Radians is > MathUtil.PI_OVER_TWO and < MathUtil.PI;
 
     /// <summary>
     /// Gets a System.Boolean that determines whether this Stride.Core.Mathematics.Angle
     /// is a reflex angle (i.e. greater than 180° but less than 360°).
     /// </summary>
-    public bool IsReflex
-    {
-        get { return radians > MathUtil.PI && radians < MathUtil.TWO_PI; }
-    }
+    public bool IsReflex => Radians is > MathUtil.PI and < MathUtil.TWO_PI;
 
     /// <summary>
     /// Gets a Stride.Core.Mathematics.AngleSingle instance that complements this angle (i.e. the two angles add to 90°).
     /// </summary>
-    public AngleSingle Complement
-    {
-        get { return new AngleSingle(MathUtil.PI_OVER_TWO - radians, AngleType.Radian); }
-    }
+    public AngleSingle Complement => new(MathUtil.PI_OVER_TWO - Radians, AngleType.Radian);
 
     /// <summary>
     /// Gets a Stride.Core.Mathematics.AngleSingle instance that supplements this angle (i.e. the two angles add to 180°).
     /// </summary>
-    public AngleSingle Supplement
-    {
-        get { return new AngleSingle(MathUtil.PI - radians, AngleType.Radian); }
-    }
+    public AngleSingle Supplement => new(MathUtil.PI - Radians, AngleType.Radian);
 
     /// <summary>
     /// Wraps the Stride.Core.Mathematics.AngleSingle given in the value argument to be in the range [π, -π].
@@ -374,7 +323,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// <returns>The smaller of the two given Stride.Core.Mathematics.AngleSingle instances.</returns>
     public static AngleSingle Min(AngleSingle left, AngleSingle right)
     {
-        if (left.radians < right.radians)
+        if (left.Radians < right.Radians)
             return left;
 
         return right;
@@ -388,7 +337,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// <returns>The greater of the two given Stride.Core.Mathematics.AngleSingle instances.</returns>
     public static AngleSingle Max(AngleSingle left, AngleSingle right)
     {
-        if (left.radians > right.radians)
+        if (left.Radians > right.Radians)
             return left;
 
         return right;
@@ -402,7 +351,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// <returns>The value of the two objects added together.</returns>
     public static AngleSingle Add(AngleSingle left, AngleSingle right)
     {
-        return new AngleSingle(left.radians + right.radians, AngleType.Radian);
+        return new AngleSingle(left.Radians + right.Radians, AngleType.Radian);
     }
 
     /// <summary>
@@ -413,7 +362,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// <returns>The value of the two objects subtracted.</returns>
     public static AngleSingle Subtract(AngleSingle left, AngleSingle right)
     {
-        return new AngleSingle(left.radians - right.radians, AngleType.Radian);
+        return new AngleSingle(left.Radians - right.Radians, AngleType.Radian);
     }
 
     /// <summary>
@@ -424,7 +373,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// <returns>The value of the two objects multiplied together.</returns>
     public static AngleSingle Multiply(AngleSingle left, AngleSingle right)
     {
-        return new AngleSingle(left.radians * right.radians, AngleType.Radian);
+        return new AngleSingle(left.Radians * right.Radians, AngleType.Radian);
     }
 
     /// <summary>
@@ -435,40 +384,28 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// <returns>The value of the two objects divided.</returns>
     public static AngleSingle Divide(AngleSingle left, AngleSingle right)
     {
-        return new AngleSingle(left.radians / right.radians, AngleType.Radian);
+        return new AngleSingle(left.Radians / right.Radians, AngleType.Radian);
     }
 
     /// <summary>
     /// Gets a new Stride.Core.Mathematics.AngleSingle instance that represents the zero angle (i.e. 0°).
     /// </summary>
-    public static AngleSingle ZeroAngle
-    {
-        get { return new AngleSingle(0.0f, AngleType.Radian); }
-    }
+    public static AngleSingle ZeroAngle => new(0.0f, AngleType.Radian);
 
     /// <summary>
     /// Gets a new Stride.Core.Mathematics.AngleSingle instance that represents the right angle (i.e. 90° or π/2).
     /// </summary>
-    public static AngleSingle RightAngle
-    {
-        get { return new AngleSingle(MathUtil.PI_OVER_TWO, AngleType.Radian); }
-    }
+    public static AngleSingle RightAngle => new(MathUtil.PI_OVER_TWO, AngleType.Radian);
 
     /// <summary>
     /// Gets a new Stride.Core.Mathematics.AngleSingle instance that represents the straight angle (i.e. 180° or π).
     /// </summary>
-    public static AngleSingle StraightAngle
-    {
-        get { return new AngleSingle(MathUtil.PI, AngleType.Radian); }
-    }
+    public static AngleSingle StraightAngle => new(MathUtil.PI, AngleType.Radian);
 
     /// <summary>
     /// Gets a new Stride.Core.Mathematics.AngleSingle instance that represents the full rotation angle (i.e. 360° or 2π).
     /// </summary>
-    public static AngleSingle FullRotationAngle
-    {
-        get { return new AngleSingle(MathUtil.TWO_PI, AngleType.Radian); }
-    }
+    public static AngleSingle FullRotationAngle => new(MathUtil.TWO_PI, AngleType.Radian);
 
     /// <summary>
     /// Returns a System.Boolean that indicates whether the values of two Stride.Core.Mathematics.Angle
@@ -479,7 +416,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// <returns>True if the left and right parameters have the same value; otherwise, false.</returns>
     public static bool operator ==(AngleSingle left, AngleSingle right)
     {
-        return left.radians == right.radians;
+        return left.Radians == right.Radians;
     }
 
     /// <summary>
@@ -491,7 +428,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// <returns>True if the left and right parameters do not have the same value; otherwise, false.</returns>
     public static bool operator !=(AngleSingle left, AngleSingle right)
     {
-        return left.radians != right.radians;
+        return left.Radians != right.Radians;
     }
 
     /// <summary>
@@ -503,7 +440,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// <returns>True if left is less than right; otherwise, false.</returns>
     public static bool operator <(AngleSingle left, AngleSingle right)
     {
-        return left.radians < right.radians;
+        return left.Radians < right.Radians;
     }
 
     /// <summary>
@@ -515,7 +452,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// <returns>True if left is greater than right; otherwise, false.</returns>
     public static bool operator >(AngleSingle left, AngleSingle right)
     {
-        return left.radians > right.radians;
+        return left.Radians > right.Radians;
     }
 
     /// <summary>
@@ -527,7 +464,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// <returns>True if left is less than or equal to right; otherwise, false.</returns>
     public static bool operator <=(AngleSingle left, AngleSingle right)
     {
-        return left.radians <= right.radians;
+        return left.Radians <= right.Radians;
     }
 
     /// <summary>
@@ -539,7 +476,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// <returns>True if left is greater than or equal to right; otherwise, false.</returns>
     public static bool operator >=(AngleSingle left, AngleSingle right)
     {
-        return left.radians >= right.radians;
+        return left.Radians >= right.Radians;
     }
 
     /// <summary>
@@ -560,7 +497,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// <returns>The negated value of the value parameter.</returns>
     public static AngleSingle operator -(AngleSingle value)
     {
-        return new AngleSingle(-value.radians, AngleType.Radian);
+        return new AngleSingle(-value.Radians, AngleType.Radian);
     }
 
     /// <summary>
@@ -571,7 +508,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// <returns>The value of the two objects added together.</returns>
     public static AngleSingle operator +(AngleSingle left, AngleSingle right)
     {
-        return new AngleSingle(left.radians + right.radians, AngleType.Radian);
+        return new AngleSingle(left.Radians + right.Radians, AngleType.Radian);
     }
 
     /// <summary>
@@ -582,7 +519,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// <returns>The value of the two objects subtracted.</returns>
     public static AngleSingle operator -(AngleSingle left, AngleSingle right)
     {
-        return new AngleSingle(left.radians - right.radians, AngleType.Radian);
+        return new AngleSingle(left.Radians - right.Radians, AngleType.Radian);
     }
 
     /// <summary>
@@ -593,7 +530,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// <returns>The value of the two objects multiplied together.</returns>
     public static AngleSingle operator *(AngleSingle left, AngleSingle right)
     {
-        return new AngleSingle(left.radians * right.radians, AngleType.Radian);
+        return new AngleSingle(left.Radians * right.Radians, AngleType.Radian);
     }
 
     /// <summary>
@@ -604,7 +541,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// <returns>The value of the two objects divided.</returns>
     public static AngleSingle operator /(AngleSingle left, AngleSingle right)
     {
-        return new AngleSingle(left.radians / right.radians, AngleType.Radian);
+        return new AngleSingle(left.Radians / right.Radians, AngleType.Radian);
     }
 
     /// <summary>
@@ -625,15 +562,15 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
         if (other == null)
             return 1;
 
-        if (!(other is AngleSingle))
+        if (other is not AngleSingle)
             throw new ArgumentException("Argument must be of type Angle.", "other");
 
-        float radians = ((AngleSingle)other).radians;
+        float radians = ((AngleSingle)other).Radians;
 
-        if (this.radians > radians)
+        if (this.Radians > radians)
             return 1;
 
-        if (this.radians < radians)
+        if (this.Radians < radians)
             return -1;
 
         return 0;
@@ -654,10 +591,10 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// </returns>
     public int CompareTo(AngleSingle other)
     {
-        if (this.radians > other.radians)
+        if (this.Radians > other.Radians)
             return 1;
 
-        if (this.radians < other.radians)
+        if (this.Radians < other.Radians)
             return -1;
 
         return 0;
@@ -685,7 +622,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// </returns>
     public override string ToString()
     {
-        return string.Format(CultureInfo.CurrentCulture, MathUtil.RadiansToDegrees(radians).ToString("0.##°"));
+        return string.Format(CultureInfo.CurrentCulture, MathUtil.RadiansToDegrees(Radians).ToString("0.##°"));
     }
 
     /// <summary>
@@ -700,7 +637,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
         if (format == null)
             return ToString();
 
-        return string.Format(CultureInfo.CurrentCulture, "{0}°", MathUtil.RadiansToDegrees(radians).ToString(format, CultureInfo.CurrentCulture));
+        return string.Format(CultureInfo.CurrentCulture, "{0}°", MathUtil.RadiansToDegrees(Radians).ToString(format, CultureInfo.CurrentCulture));
     }
 
     /// <summary>
@@ -712,7 +649,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// </returns>
     public string ToString(IFormatProvider formatProvider)
     {
-        return string.Format(formatProvider, MathUtil.RadiansToDegrees(radians).ToString("0.##°"));
+        return string.Format(formatProvider, MathUtil.RadiansToDegrees(Radians).ToString("0.##°"));
     }
 
     /// <summary>
@@ -728,7 +665,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
         if (format == null)
             return ToString(formatProvider);
 
-        return string.Format(formatProvider, "{0}°", MathUtil.RadiansToDegrees(radians).ToString(format, CultureInfo.CurrentCulture));
+        return string.Format(formatProvider, "{0}°", MathUtil.RadiansToDegrees(Radians).ToString(format, CultureInfo.CurrentCulture));
     }
 
     /// <summary>
@@ -737,7 +674,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// <returns>A 32-bit signed integer hash code.</returns>
     public override int GetHashCode()
     {
-        return (int)(BitConverter.DoubleToInt64Bits(radians) % int.MaxValue);
+        return (int)(BitConverter.DoubleToInt64Bits(Radians) % int.MaxValue);
     }
 
     /// <summary>

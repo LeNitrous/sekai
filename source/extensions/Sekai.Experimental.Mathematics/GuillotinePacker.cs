@@ -190,7 +190,7 @@ public class GuillotinePacker
 
         // Remove previously selected freeRectangle
         if (freeRectangleIndex != freeRectanglesList.Count - 1)
-            freeRectanglesList[freeRectangleIndex] = freeRectanglesList[freeRectanglesList.Count - 1];
+            freeRectanglesList[freeRectangleIndex] = freeRectanglesList[^1];
         freeRectanglesList.RemoveAt(freeRectanglesList.Count - 1);
 
         return true;

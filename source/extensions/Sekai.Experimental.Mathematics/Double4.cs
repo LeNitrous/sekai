@@ -189,7 +189,7 @@ public struct Double4 : IEquatable<Double4>, IFormattable
     /// <value>The value of the X, Y, Z, or W component, depending on the index.</value>
     /// <param name="index">The index of the component to access. Use 0 for the X component, 1 for the Y component, 2 for the Z component, and 3 for the W component.</param>
     /// <returns>The value of the component at the specified index.</returns>
-    /// <exception cref="System.ArgumentOutOfRangeException">Thrown when the <paramref name="index"/> is out of the range [0, 3].</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when the <paramref name="index"/> is out of the range [0, 3].</exception>
     public double this[int index]
     {
         get

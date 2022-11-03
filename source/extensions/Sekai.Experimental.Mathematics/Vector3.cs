@@ -29,7 +29,6 @@
 * THE SOFTWARE.
 */
 using System.Globalization;
-using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
@@ -154,19 +153,18 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
     /// <value>The value of the X, Y, or Z component, depending on the index.</value>
     /// <param name="index">The index of the component to access. Use 0 for the X component, 1 for the Y component, and 2 for the Z component.</param>
     /// <returns>The value of the component at the specified index.</returns>
-    /// <exception cref="System.ArgumentOutOfRangeException">Thrown when the <paramref name="index"/> is out of the range [0, 2].</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when the <paramref name="index"/> is out of the range [0, 2].</exception>
     public float this[int index]
     {
         get
         {
-            switch (index)
+            return index switch
             {
-                case 0: return X;
-                case 1: return Y;
-                case 2: return Z;
-            }
-
-            throw new ArgumentOutOfRangeException("index", "Indices for Vector3 run from 0 to 2, inclusive.");
+                0 => X,
+                1 => Y,
+                2 => Z,
+                _ => throw new ArgumentOutOfRangeException("index", "Indices for Vector3 run from 0 to 2, inclusive."),
+            };
         }
 
         set

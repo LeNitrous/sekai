@@ -28,12 +28,6 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Sekai.Experimental.Mathematics;
 /*
@@ -431,7 +425,7 @@ public static class CollisionHelper
             }
         }
 
-        denominator = denominator * denominator;
+        denominator *= denominator;
 
         //3x3 matrix for the first ray.
         float m11 = ray2.Position.X - ray1.Position.X;
@@ -713,7 +707,7 @@ public static class CollisionHelper
 
         var rectanglePosition = new Vector3(rectangleWorldMatrix.M41, rectangleWorldMatrix.M42, rectangleWorldMatrix.M43);
 
-        var normalRowStart = normalAxis << 2;
+        int normalRowStart = normalAxis << 2;
         var plane = new Plane(rectanglePosition, new Vector3(rectangleWorldMatrix[normalRowStart], rectangleWorldMatrix[normalRowStart + 1], rectangleWorldMatrix[normalRowStart + 2]));
 
         // early exist the planes were parallels 
@@ -728,8 +722,8 @@ public static class CollisionHelper
             rectangleWorldMatrix.M21 == 0 && rectangleWorldMatrix.M23 == 0 &&
             rectangleWorldMatrix.M31 == 0 && rectangleWorldMatrix.M32 == 0)
         {
-            var halfSize1 = MathF.Abs(rectangleWorldMatrix[(testAxis1 << 2) + testAxis1] * rectangleSize[testAxis1] / 2f);
-            var halfSize2 = MathF.Abs(rectangleWorldMatrix[(testAxis2 << 2) + testAxis2] * rectangleSize[testAxis2] / 2f);
+            float halfSize1 = MathF.Abs(rectangleWorldMatrix[(testAxis1 << 2) + testAxis1] * rectangleSize[testAxis1] / 2f);
+            float halfSize2 = MathF.Abs(rectangleWorldMatrix[(testAxis2 << 2) + testAxis2] * rectangleSize[testAxis2] / 2f);
 
             intersects = -halfSize1 <= intersectionInRectangle[testAxis1] && intersectionInRectangle[testAxis1] <= halfSize1 &&
                          -halfSize2 <= intersectionInRectangle[testAxis2] && intersectionInRectangle[testAxis2] <= halfSize2;
@@ -738,13 +732,13 @@ public static class CollisionHelper
         else
         {
             // find the most significant component of the plane normal
-            var normalTestIndex = 0;
+            int normalTestIndex = 0;
             for (int i = 1; i < 3; i++)
             {
                 if (MathF.Abs(plane.Normal[i]) > MathF.Abs(plane.Normal[normalTestIndex]))
                     normalTestIndex = i;
             }
-            var normalSign = MathF.Sign(plane.Normal[normalTestIndex]);
+            int normalSign = MathF.Sign(plane.Normal[normalTestIndex]);
 
             // the base vector
             var base1 = rectangleSize[testAxis1] * new Vector3(rectangleWorldMatrix[(testAxis1 << 2)], rectangleWorldMatrix[(testAxis1 << 2) + 1], rectangleWorldMatrix[(testAxis1 << 2) + 2]) / 2;

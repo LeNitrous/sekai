@@ -49,17 +49,17 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     /// <summary>
     /// A <see cref="Stride.Core.Mathematics.Vector2"/> with all of its components set to zero.
     /// </summary>
-    public static readonly Vector2 Zero = new Vector2();
+    public static readonly Vector2 Zero = new();
 
     /// <summary>
     /// The X unit <see cref="Stride.Core.Mathematics.Vector2"/> (1, 0).
     /// </summary>
-    public static readonly Vector2 UnitX = new Vector2(1.0f, 0.0f);
+    public static readonly Vector2 UnitX = new(1.0f, 0.0f);
 
     /// <summary>
     /// The Y unit <see cref="Stride.Core.Mathematics.Vector2"/> (0, 1).
     /// </summary>
-    public static readonly Vector2 UnitY = new Vector2(0.0f, 1.0f);
+    public static readonly Vector2 UnitY = new(0.0f, 1.0f);
 
     /// <summary>
     /// A <see cref="Stride.Core.Mathematics.Vector2"/> with all of its components set to one.
@@ -127,7 +127,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     /// <value>The value of the X or Y component, depending on the index.</value>
     /// <param name="index">The index of the component to access. Use 0 for the X component and 1 for the Y component.</param>
     /// <returns>The value of the component at the specified index.</returns>
-    /// <exception cref="System.ArgumentOutOfRangeException">Thrown when the <paramref name="index"/> is out of the range [0, 1].</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when the <paramref name="index"/> is out of the range [0, 1].</exception>
     public float this[int index]
     {
         get
@@ -414,8 +414,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     /// <returns>A new <see cref="Stride.Core.Mathematics.Vector2"/> containing the 2D Cartesian coordinates of the specified point.</returns>
     public static Vector2 Barycentric(Vector2 value1, Vector2 value2, Vector2 value3, float amount1, float amount2)
     {
-        Vector2 result;
-        Barycentric(ref value1, ref value2, ref value3, amount1, amount2, out result);
+        Barycentric(ref value1, ref value2, ref value3, amount1, amount2, out var result);
         return result;
     }
 
@@ -448,8 +447,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     /// <returns>The clamped value.</returns>
     public static Vector2 Clamp(Vector2 value, Vector2 min, Vector2 max)
     {
-        Vector2 result;
-        Clamp(ref value, ref min, ref max, out result);
+        Clamp(ref value, ref min, ref max, out var result);
         return result;
     }
 
@@ -611,8 +609,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     /// </remarks>
     public static Vector2 Lerp(Vector2 start, Vector2 end, float amount)
     {
-        Vector2 result;
-        Lerp(ref start, ref end, amount, out result);
+        Lerp(ref start, ref end, amount, out var result);
         return result;
     }
 
@@ -641,8 +638,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     /// <returns>The cubic interpolation of the two vectors.</returns>
     public static Vector2 SmoothStep(Vector2 start, Vector2 end, float amount)
     {
-        Vector2 result;
-        SmoothStep(ref start, ref end, amount, out result);
+        SmoothStep(ref start, ref end, amount, out var result);
         return result;
     }
 
@@ -679,8 +675,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     /// <returns>The result of the Hermite spline interpolation.</returns>
     public static Vector2 Hermite(Vector2 value1, Vector2 tangent1, Vector2 value2, Vector2 tangent2, float amount)
     {
-        Vector2 result;
-        Hermite(ref value1, ref tangent1, ref value2, ref tangent2, amount, out result);
+        Hermite(ref value1, ref tangent1, ref value2, ref tangent2, amount, out var result);
         return result;
     }
 
@@ -718,8 +713,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     /// <returns>A vector that is the result of the Catmull-Rom interpolation.</returns>
     public static Vector2 CatmullRom(Vector2 value1, Vector2 value2, Vector2 value3, Vector2 value4, float amount)
     {
-        Vector2 result;
-        CatmullRom(ref value1, ref value2, ref value3, ref value4, amount, out result);
+        CatmullRom(ref value1, ref value2, ref value3, ref value4, amount, out var result);
         return result;
     }
 
@@ -745,8 +739,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2 Max(Vector2 left, Vector2 right)
     {
-        Vector2 result;
-        Max(ref left, ref right, out result);
+        Max(ref left, ref right, out var result);
         return result;
     }
 
@@ -772,8 +765,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector2 Min(Vector2 left, Vector2 right)
     {
-        Vector2 result;
-        Min(ref left, ref right, out result);
+        Min(ref left, ref right, out var result);
         return result;
     }
 
@@ -803,8 +795,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     /// whether the original vector was close enough to the surface to hit it.</remarks>
     public static Vector2 Reflect(Vector2 vector, Vector2 normal)
     {
-        Vector2 result;
-        Reflect(ref vector, ref normal, out result);
+        Reflect(ref vector, ref normal, out var result);
         return result;
     }
 
@@ -846,7 +837,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
 
             for (int r = 0; r < i; ++r)
             {
-                newvector -= (Vector2.Dot(destination[r], newvector) / Vector2.Dot(destination[r], destination[r])) * destination[r];
+                newvector -= (Dot(destination[r], newvector) / Dot(destination[r], destination[r])) * destination[r];
             }
 
             destination[i] = newvector;
@@ -893,7 +884,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
 
             for (int r = 0; r < i; ++r)
             {
-                newvector -= Vector2.Dot(destination[r], newvector) * destination[r];
+                newvector -= Dot(destination[r], newvector) * destination[r];
             }
 
             newvector.Normalize();
@@ -929,8 +920,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     /// <returns>The transformed <see cref="Stride.Core.Mathematics.Vector4"/>.</returns>
     public static Vector2 Transform(Vector2 vector, Quaternion rotation)
     {
-        Vector2 result;
-        Transform(ref vector, ref rotation, out result);
+        Transform(ref vector, ref rotation, out var result);
         return result;
     }
 
@@ -997,8 +987,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     /// <returns>The transformed <see cref="Stride.Core.Mathematics.Vector4"/>.</returns>
     public static Vector4 Transform(Vector2 vector, Matrix transform)
     {
-        Vector4 result;
-        Transform(ref vector, ref transform, out result);
+        Transform(ref vector, ref transform, out var result);
         return result;
     }
 
@@ -1064,8 +1053,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     /// </remarks>
     public static Vector2 TransformCoordinate(Vector2 coordinate, Matrix transform)
     {
-        Vector2 result;
-        TransformCoordinate(ref coordinate, ref transform, out result);
+        TransformCoordinate(ref coordinate, ref transform, out var result);
         return result;
     }
 
@@ -1135,8 +1123,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     /// </remarks>
     public static Vector2 TransformNormal(Vector2 normal, Matrix transform)
     {
-        Vector2 result;
-        TransformNormal(ref normal, ref transform, out result);
+        TransformNormal(ref normal, ref transform, out var result);
         return result;
     }
 
