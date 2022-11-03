@@ -79,7 +79,7 @@ public partial struct Color : IEquatable<Color>
     /// Initializes a new instance of the <see cref="Color"/> struct.
     /// </summary>
     /// <param name="value">The value that will be assigned to all components.</param>
-    public Color(float value) : this(ToByte(value))
+    public Color(float value) : this(toByte(value))
     {
     }
 
@@ -121,10 +121,10 @@ public partial struct Color : IEquatable<Color>
     /// <param name="alpha">The alpha component of the color.</param>
     public Color(float red, float green, float blue, float alpha)
     {
-        R = ToByte(red);
-        G = ToByte(green);
-        B = ToByte(blue);
-        A = ToByte(alpha);
+        R = toByte(red);
+        G = toByte(green);
+        B = toByte(blue);
+        A = toByte(alpha);
     }
 
     /// <summary>
@@ -135,9 +135,9 @@ public partial struct Color : IEquatable<Color>
     /// <param name="blue">The blue component of the color.</param>
     public Color(float red, float green, float blue)
     {
-        R = ToByte(red);
-        G = ToByte(green);
-        B = ToByte(blue);
+        R = toByte(red);
+        G = toByte(green);
+        B = toByte(blue);
         A = 255;
     }
 
@@ -147,10 +147,10 @@ public partial struct Color : IEquatable<Color>
     /// <param name="value">The red, green, blue, and alpha components of the color.</param>
     public Color(Vector4 value)
     {
-        R = ToByte(value.X);
-        G = ToByte(value.Y);
-        B = ToByte(value.Z);
-        A = ToByte(value.W);
+        R = toByte(value.X);
+        G = toByte(value.Y);
+        B = toByte(value.Z);
+        A = toByte(value.W);
     }
 
     /// <summary>
@@ -160,10 +160,10 @@ public partial struct Color : IEquatable<Color>
     /// <param name="alpha">The alpha component of the color.</param>
     public Color(Vector3 value, float alpha)
     {
-        R = ToByte(value.X);
-        G = ToByte(value.Y);
-        B = ToByte(value.Z);
-        A = ToByte(alpha);
+        R = toByte(value.X);
+        G = toByte(value.Y);
+        B = toByte(value.Z);
+        A = toByte(alpha);
     }
 
     /// <summary>
@@ -172,9 +172,9 @@ public partial struct Color : IEquatable<Color>
     /// <param name="value">The red, green, and blue components of the color.</param>
     public Color(Vector3 value)
     {
-        R = ToByte(value.X);
-        G = ToByte(value.Y);
-        B = ToByte(value.Z);
+        R = toByte(value.X);
+        G = toByte(value.Y);
+        B = toByte(value.Z);
         A = 255;
     }
 
@@ -215,10 +215,10 @@ public partial struct Color : IEquatable<Color>
         if (values.Length != 4)
             throw new ArgumentOutOfRangeException(nameof(values), "There must be four and only four input values for Color.");
 
-        R = ToByte(values[0]);
-        G = ToByte(values[1]);
-        B = ToByte(values[2]);
-        A = ToByte(values[3]);
+        R = toByte(values[0]);
+        G = toByte(values[1]);
+        B = toByte(values[2]);
+        A = toByte(values[3]);
     }
 
     /// <summary>
@@ -824,9 +824,9 @@ public partial struct Color : IEquatable<Color>
     public static void AdjustContrast(ref Color value, float contrast, out Color result)
     {
         result.A = value.A;
-        result.R = ToByte(0.5f + contrast * (value.R / 255.0f - 0.5f));
-        result.G = ToByte(0.5f + contrast * (value.G / 255.0f - 0.5f));
-        result.B = ToByte(0.5f + contrast * (value.B / 255.0f - 0.5f));
+        result.R = toByte(0.5f + contrast * (value.R / 255.0f - 0.5f));
+        result.G = toByte(0.5f + contrast * (value.G / 255.0f - 0.5f));
+        result.B = toByte(0.5f + contrast * (value.B / 255.0f - 0.5f));
     }
 
     /// <summary>
@@ -838,9 +838,9 @@ public partial struct Color : IEquatable<Color>
     public static Color AdjustContrast(Color value, float contrast)
     {
         return new Color(
-            ToByte(0.5f + contrast * (value.R / 255.0f - 0.5f)),
-            ToByte(0.5f + contrast * (value.G / 255.0f - 0.5f)),
-            ToByte(0.5f + contrast * (value.B / 255.0f - 0.5f)),
+            toByte(0.5f + contrast * (value.R / 255.0f - 0.5f)),
+            toByte(0.5f + contrast * (value.G / 255.0f - 0.5f)),
+            toByte(0.5f + contrast * (value.B / 255.0f - 0.5f)),
             value.A);
     }
 
@@ -855,9 +855,9 @@ public partial struct Color : IEquatable<Color>
         float grey = value.R / 255.0f * 0.2125f + value.G / 255.0f * 0.7154f + value.B / 255.0f * 0.0721f;
 
         result.A = value.A;
-        result.R = ToByte(grey + saturation * (value.R / 255.0f - grey));
-        result.G = ToByte(grey + saturation * (value.G / 255.0f - grey));
-        result.B = ToByte(grey + saturation * (value.B / 255.0f - grey));
+        result.R = toByte(grey + saturation * (value.R / 255.0f - grey));
+        result.G = toByte(grey + saturation * (value.G / 255.0f - grey));
+        result.B = toByte(grey + saturation * (value.B / 255.0f - grey));
     }
 
     /// <summary>
@@ -871,9 +871,9 @@ public partial struct Color : IEquatable<Color>
         float grey = value.R / 255.0f * 0.2125f + value.G / 255.0f * 0.7154f + value.B / 255.0f * 0.0721f;
 
         return new Color(
-            ToByte(grey + saturation * (value.R / 255.0f - grey)),
-            ToByte(grey + saturation * (value.G / 255.0f - grey)),
-            ToByte(grey + saturation * (value.B / 255.0f - grey)),
+            toByte(grey + saturation * (value.R / 255.0f - grey)),
+            toByte(grey + saturation * (value.G / 255.0f - grey)),
+            toByte(grey + saturation * (value.B / 255.0f - grey)),
             value.A);
     }
 
@@ -1128,7 +1128,7 @@ public partial struct Color : IEquatable<Color>
     /// <returns>
     /// <c>true</c> if the specified <see cref="object"/> is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
-    public override bool Equals(object value)
+    public override bool Equals(object? value)
     {
         if (value == null)
             return false;
@@ -1139,7 +1139,7 @@ public partial struct Color : IEquatable<Color>
         return Equals((Color)value);
     }
 
-    private static byte ToByte(float component)
+    private static byte toByte(float component)
     {
         int value = (int)(component * 255.0f);
         return (byte)(value < 0 ? 0 : value > 255 ? 255 : value);

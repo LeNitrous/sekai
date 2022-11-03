@@ -37,32 +37,32 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// <summary>
     /// A value that specifies the size of a single degree.
     /// </summary>
-    public const float Degree = 0.002777777777777778f;
+    public const float DEGREE = 0.002777777777777778f;
 
     /// <summary>
     /// A value that specifies the size of a single minute.
     /// </summary>
-    public const float Minute = 0.000046296296296296f;
+    public const float MINUTE = 0.000046296296296296f;
 
     /// <summary>
     /// A value that specifies the size of a single second.
     /// </summary>
-    public const float Second = 0.000000771604938272f;
+    public const float SECOND = 0.000000771604938272f;
 
     /// <summary>
     /// A value that specifies the size of a single radian.
     /// </summary>
-    public const float Radian = 0.159154943091895336f;
+    public const float RADIAN = 0.159154943091895336f;
 
     /// <summary>
     /// A value that specifies the size of a single milliradian.
     /// </summary>
-    public const float Milliradian = 0.0001591549431f;
+    public const float MILLIRADIAN = 0.0001591549431f;
 
     /// <summary>
     /// A value that specifies the size of a single gradian.
     /// </summary>
-    public const float Gradian = 0.0025f;
+    public const float GRADIAN = 0.0025f;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AngleSingle"/> struct with the
@@ -228,8 +228,8 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// </summary>
     public float Milliradians
     {
-        get => Radians / (Milliradian * MathUtil.TWO_PI);
-        set => Radians = value * (Milliradian * MathUtil.TWO_PI);
+        get => Radians / (MILLIRADIAN * MathUtil.TWO_PI);
+        set => Radians = value * (MILLIRADIAN * MathUtil.TWO_PI);
     }
 
     /// <summary>
@@ -563,7 +563,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
             return 1;
 
         if (other is not AngleSingle)
-            throw new ArgumentException("Argument must be of type Angle.", "other");
+            throw new ArgumentException("Argument must be of type Angle.", nameof(other));
 
         float radians = ((AngleSingle)other).Radians;
 
@@ -660,10 +660,10 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// <returns>
     /// A <see cref="string"/> that represents this instance.
     /// </returns>
-    public string ToString(string format, IFormatProvider formatProvider)
+    public string ToString(string? format, IFormatProvider? formatProvider)
     {
         if (format == null)
-            return ToString(formatProvider);
+            return ToString(formatProvider ?? CultureInfo.CurrentCulture);
 
         return string.Format(formatProvider, "{0}°", MathUtil.RadiansToDegrees(Radians).ToString(format, CultureInfo.CurrentCulture));
     }
@@ -690,6 +690,6 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// </returns>
     public override bool Equals(object obj)
     {
-        return (obj is AngleSingle) && (this == (AngleSingle)obj);
+        return (obj is AngleSingle single) && (this == single);
     }
 }

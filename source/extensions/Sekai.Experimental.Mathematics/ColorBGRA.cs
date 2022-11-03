@@ -74,7 +74,7 @@ public partial struct ColorBGRA : IEquatable<ColorBGRA>, IFormattable
     /// Initializes a new instance of the <see cref="ColorBGRA"/> struct.
     /// </summary>
     /// <param name="value">The value that will be assigned to all components.</param>
-    public ColorBGRA(float value) : this(ToByte(value))
+    public ColorBGRA(float value) : this(toByte(value))
     {
     }
 
@@ -102,10 +102,10 @@ public partial struct ColorBGRA : IEquatable<ColorBGRA>, IFormattable
     /// <param name="alpha">The alpha component of the color.</param>
     public ColorBGRA(float red, float green, float blue, float alpha)
     {
-        R = ToByte(red);
-        G = ToByte(green);
-        B = ToByte(blue);
-        A = ToByte(alpha);
+        R = toByte(red);
+        G = toByte(green);
+        B = toByte(blue);
+        A = toByte(alpha);
     }
 
     /// <summary>
@@ -114,10 +114,10 @@ public partial struct ColorBGRA : IEquatable<ColorBGRA>, IFormattable
     /// <param name="value">The red, green, blue, and alpha components of the color.</param>
     public ColorBGRA(Vector4 value)
     {
-        R = ToByte(value.X);
-        G = ToByte(value.Y);
-        B = ToByte(value.Z);
-        A = ToByte(value.W);
+        R = toByte(value.X);
+        G = toByte(value.Y);
+        B = toByte(value.Z);
+        A = toByte(value.W);
     }
 
     /// <summary>
@@ -127,10 +127,10 @@ public partial struct ColorBGRA : IEquatable<ColorBGRA>, IFormattable
     /// <param name="alpha">The alpha component of the color.</param>
     public ColorBGRA(Vector3 value, float alpha)
     {
-        R = ToByte(value.X);
-        G = ToByte(value.Y);
-        B = ToByte(value.Z);
-        A = ToByte(alpha);
+        R = toByte(value.X);
+        G = toByte(value.Y);
+        B = toByte(value.Z);
+        A = toByte(alpha);
     }
 
     /// <summary>
@@ -170,10 +170,10 @@ public partial struct ColorBGRA : IEquatable<ColorBGRA>, IFormattable
         if (values.Length != 4)
             throw new ArgumentOutOfRangeException(nameof(values), "There must be four and only four input values for ColorBGRA.");
 
-        B = ToByte(values[0]);
-        G = ToByte(values[1]);
-        R = ToByte(values[2]);
-        A = ToByte(values[3]);
+        B = toByte(values[0]);
+        G = toByte(values[1]);
+        R = toByte(values[2]);
+        A = toByte(values[3]);
     }
 
     /// <summary>
@@ -731,9 +731,9 @@ public partial struct ColorBGRA : IEquatable<ColorBGRA>, IFormattable
     public static void AdjustContrast(ref ColorBGRA value, float contrast, out ColorBGRA result)
     {
         result.A = value.A;
-        result.R = ToByte(0.5f + contrast * (value.R / 255.0f - 0.5f));
-        result.G = ToByte(0.5f + contrast * (value.G / 255.0f - 0.5f));
-        result.B = ToByte(0.5f + contrast * (value.B / 255.0f - 0.5f));
+        result.R = toByte(0.5f + contrast * (value.R / 255.0f - 0.5f));
+        result.G = toByte(0.5f + contrast * (value.G / 255.0f - 0.5f));
+        result.B = toByte(0.5f + contrast * (value.B / 255.0f - 0.5f));
     }
 
     /// <summary>
@@ -745,9 +745,9 @@ public partial struct ColorBGRA : IEquatable<ColorBGRA>, IFormattable
     public static ColorBGRA AdjustContrast(ColorBGRA value, float contrast)
     {
         return new ColorBGRA(
-            ToByte(0.5f + contrast * (value.R / 255.0f - 0.5f)),
-            ToByte(0.5f + contrast * (value.G / 255.0f - 0.5f)),
-            ToByte(0.5f + contrast * (value.B / 255.0f - 0.5f)),
+            toByte(0.5f + contrast * (value.R / 255.0f - 0.5f)),
+            toByte(0.5f + contrast * (value.G / 255.0f - 0.5f)),
+            toByte(0.5f + contrast * (value.B / 255.0f - 0.5f)),
             value.A);
     }
 
@@ -762,9 +762,9 @@ public partial struct ColorBGRA : IEquatable<ColorBGRA>, IFormattable
         float grey = value.R / 255.0f * 0.2125f + value.G / 255.0f * 0.7154f + value.B / 255.0f * 0.0721f;
 
         result.A = value.A;
-        result.R = ToByte(grey + saturation * (value.R / 255.0f - grey));
-        result.G = ToByte(grey + saturation * (value.G / 255.0f - grey));
-        result.B = ToByte(grey + saturation * (value.B / 255.0f - grey));
+        result.R = toByte(grey + saturation * (value.R / 255.0f - grey));
+        result.G = toByte(grey + saturation * (value.G / 255.0f - grey));
+        result.B = toByte(grey + saturation * (value.B / 255.0f - grey));
     }
 
     /// <summary>
@@ -778,9 +778,9 @@ public partial struct ColorBGRA : IEquatable<ColorBGRA>, IFormattable
         float grey = value.R / 255.0f * 0.2125f + value.G / 255.0f * 0.7154f + value.B / 255.0f * 0.0721f;
 
         return new ColorBGRA(
-            ToByte(grey + saturation * (value.R / 255.0f - grey)),
-            ToByte(grey + saturation * (value.G / 255.0f - grey)),
-            ToByte(grey + saturation * (value.B / 255.0f - grey)),
+            toByte(grey + saturation * (value.R / 255.0f - grey)),
+            toByte(grey + saturation * (value.G / 255.0f - grey)),
+            toByte(grey + saturation * (value.B / 255.0f - grey)),
             value.A);
     }
 
@@ -1101,7 +1101,7 @@ public partial struct ColorBGRA : IEquatable<ColorBGRA>, IFormattable
         return Equals((ColorBGRA)value);
     }
 
-    private static byte ToByte(float component)
+    private static byte toByte(float component)
     {
         int value = (int)(component * 255.0f);
         return (byte)(value < 0 ? 0 : value > 255 ? 255 : value);
