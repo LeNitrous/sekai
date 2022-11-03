@@ -3,17 +3,17 @@
 
 // Copyright (c) .NET Foundation and Contributors (https://dotnetfoundation.org/ & https://stride3d.net) and Silicon Studio Corp. (https://www.siliconstudio.co.jp)
 // Copyright (c) 2010-2011 SharpDX - Alexandre Mutel
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -37,7 +37,6 @@ public struct Half2 : IEquatable<Half2>
     /// The size of the <see cref="Stride.Core.Mathematics.Half2"/> type, in bytes.
     /// </summary>
     public static readonly int SizeInBytes = Unsafe.SizeOf<Half2>();
-
 
     /// <summary>
     /// A <see cref="Stride.Core.Mathematics.Half2"/> with all of its components set to zero.
@@ -101,9 +100,9 @@ public struct Half2 : IEquatable<Half2>
     public Half2(Half[] values)
     {
         if (values == null)
-            throw new ArgumentNullException("values");
+            throw new ArgumentNullException(nameof(values));
         if (values.Length != 2)
-            throw new ArgumentOutOfRangeException("values", "There must be two and only two input values for Half2.");
+            throw new ArgumentOutOfRangeException(nameof(values), "There must be two and only two input values for Half2.");
 
         X = values[0];
         Y = values[1];
@@ -161,40 +160,40 @@ public struct Half2 : IEquatable<Half2>
     /// <returns>A 32-bit signed integer hash code.</returns>
     public override int GetHashCode()
     {
-        return (this.Y.GetHashCode() + this.X.GetHashCode());
+        return Y.GetHashCode() + X.GetHashCode();
     }
 
     /// <summary>
-    /// Determines whether the specified object instances are considered equal. 
+    /// Determines whether the specified object instances are considered equal.
     /// </summary>
     /// <param name="value1">The first value.</param>
     /// <param name="value2">The second value.</param>
     /// <returns>
-    /// <c>true</c> if <paramref name="value1" /> is the same instance as <paramref name="value2" /> or 
+    /// <c>true</c> if <paramref name="value1" /> is the same instance as <paramref name="value2" /> or
     /// if both are <c>null</c> references or if <c>value1.Equals(value2)</c> returns <c>true</c>; otherwise, <c>false</c>.</returns>
     public static bool Equals(ref Half2 value1, ref Half2 value2)
     {
-        return ((value1.X == value2.X) && (value1.Y == value2.Y));
+        return (value1.X == value2.X) && (value1.Y == value2.Y);
     }
 
     /// <summary>
-    /// Returns a value that indicates whether the current instance is equal to the specified object. 
+    /// Returns a value that indicates whether the current instance is equal to the specified object.
     /// </summary>
     /// <param name="other">Object to make the comparison with.</param>
     /// <returns>
     /// <c>true</c> if the current instance is equal to the specified object; <c>false</c> otherwise.</returns>
     public bool Equals(Half2 other)
     {
-        return ((this.X == other.X) && (this.Y == other.Y));
+        return (X == other.X) && (Y == other.Y);
     }
 
     /// <summary>
-    /// Returns a value that indicates whether the current instance is equal to a specified object. 
+    /// Returns a value that indicates whether the current instance is equal to a specified object.
     /// </summary>
     /// <param name="obj">Object to make the comparison with.</param>
     /// <returns>
     /// <c>true</c> if the current instance is equal to the specified object; <c>false</c> otherwise.</returns>
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         if (obj == null)
         {
@@ -204,7 +203,7 @@ public struct Half2 : IEquatable<Half2>
         {
             return false;
         }
-        return this.Equals((Half2)obj);
+        return Equals((Half2)obj);
     }
 
     /// <summary>

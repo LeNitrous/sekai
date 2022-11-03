@@ -301,17 +301,17 @@ public struct Ray : IEquatable<Ray>, IFormattable
     /// <returns>
     /// A <see cref="string"/> that represents this instance.
     /// </returns>
-    public string ToString(string format, IFormatProvider formatProvider)
+    public string ToString(string? format, IFormatProvider? formatProvider)
     {
-        return string.Format(formatProvider, "Position:{0} Direction:{1}", Position.ToString(format, formatProvider),
-            Direction.ToString(format, formatProvider));
+        return string.Format(formatProvider, "Position:{0} Direction:{1}", Position.ToString(format ?? string.Empty, formatProvider ?? CultureInfo.CurrentCulture),
+            Direction.ToString(format ?? string.Empty, formatProvider ?? CultureInfo.CurrentCulture));
     }
 
     /// <summary>
     /// Returns a hash code for this instance.
     /// </summary>
     /// <returns>
-    /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table. 
+    /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
     /// </returns>
     public override int GetHashCode()
     {
@@ -337,7 +337,7 @@ public struct Ray : IEquatable<Ray>, IFormattable
     /// <returns>
     /// <c>true</c> if the specified <see cref="object"/> is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
-    public override bool Equals(object value)
+    public override bool Equals(object? value)
     {
         if (value == null)
             return false;

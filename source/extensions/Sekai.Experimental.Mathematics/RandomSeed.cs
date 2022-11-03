@@ -33,7 +33,7 @@ public struct RandomSeed
     /// <param name="seed">The seed value to initialize the deterministic random generator.</param>
     public RandomSeed(uint seed)
     {
-        this.seed = (seed & underflow_guard);
+        this.seed = seed & underflow_guard;
     }
 
     /// <summary>
@@ -44,11 +44,11 @@ public struct RandomSeed
     {
         double dRand = unchecked(seed + offset); // We want it to overflow
 
-        double dotProduct = Math.Cos(dRand) * gelfond_const + Math.Sin(dRand) * gelfond_schneider_const;
-        double denominator = 1e-7 + 256 * dotProduct;
+        double dotProduct = (Math.Cos(dRand) * gelfond_const) + (Math.Sin(dRand) * gelfond_schneider_const);
+        double denominator = 1e-7 + (256 * dotProduct);
         double remainder = numerator % denominator;
 
-        return (remainder - Math.Floor(remainder));
+        return remainder - Math.Floor(remainder);
     }
 
     /// <summary>

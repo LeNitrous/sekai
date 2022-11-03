@@ -156,31 +156,31 @@ public struct Matrix : IEquatable<Matrix>, IFormattable
     /// <summary>
     /// Initializes a new instance of the <see cref="Stride.Core.Mathematics.Matrix"/> struct.
     /// </summary>
-    /// <param name="M11">The value to assign at row 1 column 1 of the matrix.</param>
-    /// <param name="M12">The value to assign at row 1 column 2 of the matrix.</param>
-    /// <param name="M13">The value to assign at row 1 column 3 of the matrix.</param>
-    /// <param name="M14">The value to assign at row 1 column 4 of the matrix.</param>
-    /// <param name="M21">The value to assign at row 2 column 1 of the matrix.</param>
-    /// <param name="M22">The value to assign at row 2 column 2 of the matrix.</param>
-    /// <param name="M23">The value to assign at row 2 column 3 of the matrix.</param>
-    /// <param name="M24">The value to assign at row 2 column 4 of the matrix.</param>
-    /// <param name="M31">The value to assign at row 3 column 1 of the matrix.</param>
-    /// <param name="M32">The value to assign at row 3 column 2 of the matrix.</param>
-    /// <param name="M33">The value to assign at row 3 column 3 of the matrix.</param>
-    /// <param name="M34">The value to assign at row 3 column 4 of the matrix.</param>
-    /// <param name="M41">The value to assign at row 4 column 1 of the matrix.</param>
-    /// <param name="M42">The value to assign at row 4 column 2 of the matrix.</param>
-    /// <param name="M43">The value to assign at row 4 column 3 of the matrix.</param>
-    /// <param name="M44">The value to assign at row 4 column 4 of the matrix.</param>
-    public Matrix(float M11, float M12, float M13, float M14,
-        float M21, float M22, float M23, float M24,
-        float M31, float M32, float M33, float M34,
-        float M41, float M42, float M43, float M44)
+    /// <param name="m11">The value to assign at row 1 column 1 of the matrix.</param>
+    /// <param name="m12">The value to assign at row 1 column 2 of the matrix.</param>
+    /// <param name="m13">The value to assign at row 1 column 3 of the matrix.</param>
+    /// <param name="m14">The value to assign at row 1 column 4 of the matrix.</param>
+    /// <param name="m21">The value to assign at row 2 column 1 of the matrix.</param>
+    /// <param name="m22">The value to assign at row 2 column 2 of the matrix.</param>
+    /// <param name="m23">The value to assign at row 2 column 3 of the matrix.</param>
+    /// <param name="m24">The value to assign at row 2 column 4 of the matrix.</param>
+    /// <param name="m31">The value to assign at row 3 column 1 of the matrix.</param>
+    /// <param name="m32">The value to assign at row 3 column 2 of the matrix.</param>
+    /// <param name="m33">The value to assign at row 3 column 3 of the matrix.</param>
+    /// <param name="m34">The value to assign at row 3 column 4 of the matrix.</param>
+    /// <param name="m41">The value to assign at row 4 column 1 of the matrix.</param>
+    /// <param name="m42">The value to assign at row 4 column 2 of the matrix.</param>
+    /// <param name="m43">The value to assign at row 4 column 3 of the matrix.</param>
+    /// <param name="m44">The value to assign at row 4 column 4 of the matrix.</param>
+    public Matrix(float m11, float m12, float m13, float m14,
+        float m21, float m22, float m23, float m24,
+        float m31, float m32, float m33, float m34,
+        float m41, float m42, float m43, float m44)
     {
-        this.M11 = M11; this.M12 = M12; this.M13 = M13; this.M14 = M14;
-        this.M21 = M21; this.M22 = M22; this.M23 = M23; this.M24 = M24;
-        this.M31 = M31; this.M32 = M32; this.M33 = M33; this.M34 = M34;
-        this.M41 = M41; this.M42 = M42; this.M43 = M43; this.M44 = M44;
+        this.M11 = m11; this.M12 = m12; this.M13 = m13; this.M14 = m14;
+        this.M21 = m21; this.M22 = m22; this.M23 = m23; this.M24 = m24;
+        this.M31 = m31; this.M32 = m32; this.M33 = m33; this.M34 = m34;
+        this.M41 = m41; this.M42 = m42; this.M43 = m43; this.M44 = m44;
     }
 
     /// <summary>
@@ -192,9 +192,9 @@ public struct Matrix : IEquatable<Matrix>, IFormattable
     public Matrix(float[] values)
     {
         if (values == null)
-            throw new ArgumentNullException("values");
+            throw new ArgumentNullException(nameof(values));
         if (values.Length != 16)
-            throw new ArgumentOutOfRangeException("values", "There must be sixteen and only sixteen input values for Matrix.");
+            throw new ArgumentOutOfRangeException(nameof(values), "There must be sixteen and only sixteen input values for Matrix.");
 
         M11 = values[0];
         M12 = values[1];
@@ -399,7 +399,7 @@ public struct Matrix : IEquatable<Matrix>, IFormattable
                 13 => M42,
                 14 => M43,
                 15 => M44,
-                _ => throw new ArgumentOutOfRangeException("index", "Indices for Matrix run from 0 to 15, inclusive."),
+                _ => throw new ArgumentOutOfRangeException(nameof(index), "Indices for Matrix run from 0 to 15, inclusive."),
             };
         }
 
@@ -423,7 +423,7 @@ public struct Matrix : IEquatable<Matrix>, IFormattable
                 case 13: M42 = value; break;
                 case 14: M43 = value; break;
                 case 15: M44 = value; break;
-                default: throw new ArgumentOutOfRangeException("index", "Indices for Matrix run from 0 to 15, inclusive.");
+                default: throw new ArgumentOutOfRangeException(nameof(index), "Indices for Matrix run from 0 to 15, inclusive.");
             }
         }
     }
@@ -441,9 +441,9 @@ public struct Matrix : IEquatable<Matrix>, IFormattable
         get
         {
             if (row is < 0 or > 3)
-                throw new ArgumentOutOfRangeException("row", "Rows and columns for matrices run from 0 to 3, inclusive.");
+                throw new ArgumentOutOfRangeException(nameof(row), "Rows and columns for matrices run from 0 to 3, inclusive.");
             if (column is < 0 or > 3)
-                throw new ArgumentOutOfRangeException("column", "Rows and columns for matrices run from 0 to 3, inclusive.");
+                throw new ArgumentOutOfRangeException(nameof(column), "Rows and columns for matrices run from 0 to 3, inclusive.");
 
             return this[(row * 4) + column];
         }
@@ -451,9 +451,9 @@ public struct Matrix : IEquatable<Matrix>, IFormattable
         set
         {
             if (row is < 0 or > 3)
-                throw new ArgumentOutOfRangeException("row", "Rows and columns for matrices run from 0 to 3, inclusive.");
+                throw new ArgumentOutOfRangeException(nameof(row), "Rows and columns for matrices run from 0 to 3, inclusive.");
             if (column is < 0 or > 3)
-                throw new ArgumentOutOfRangeException("column", "Rows and columns for matrices run from 0 to 3, inclusive.");
+                throw new ArgumentOutOfRangeException(nameof(column), "Rows and columns for matrices run from 0 to 3, inclusive.");
 
             this[(row * 4) + column] = value;
         }
@@ -472,9 +472,9 @@ public struct Matrix : IEquatable<Matrix>, IFormattable
         float temp5 = (M31 * M43) - (M33 * M41);
         float temp6 = (M31 * M42) - (M32 * M41);
 
-        return ((((M11 * (((M22 * temp1) - (M23 * temp2)) + (M24 * temp3))) - (M12 * (((M21 * temp1) -
-            (M23 * temp4)) + (M24 * temp5)))) + (M13 * (((M21 * temp2) - (M22 * temp4)) + (M24 * temp6)))) -
-            (M14 * (((M21 * temp3) - (M22 * temp5)) + (M23 * temp6))));
+        return (M11 * ((M22 * temp1) - (M23 * temp2) + (M24 * temp3))) - (M12 * (((M21 * temp1) -
+            (M23 * temp4)) + (M24 * temp5))) + (M13 * ((M21 * temp2) - (M22 * temp4) + (M24 * temp6))) -
+            (M14 * ((M21 * temp3) - (M22 * temp5) + (M23 * temp6)));
     }
 
     /// <summary>
@@ -546,54 +546,54 @@ public struct Matrix : IEquatable<Matrix>, IFormattable
     /// <summary>
     /// Decomposes a matrix into an orthonormalized matrix Q and a right traingular matrix R.
     /// </summary>
-    /// <param name="Q">When the method completes, contains the orthonormalized matrix of the decomposition.</param>
-    /// <param name="R">When the method completes, contains the right triangular matrix of the decomposition.</param>
-    public void DecomposeQR(out Matrix Q, out Matrix R)
+    /// <param name="q">When the method completes, contains the orthonormalized matrix of the decomposition.</param>
+    /// <param name="r">When the method completes, contains the right triangular matrix of the decomposition.</param>
+    public void DecomposeQR(out Matrix q, out Matrix r)
     {
         Matrix temp = this;
         temp.Transpose();
-        Orthonormalize(ref temp, out Q);
-        Q.Transpose();
+        Orthonormalize(ref temp, out q);
+        q.Transpose();
 
-        R = new Matrix();
-        R.M11 = Vector4.Dot(Q.Column1, Column1);
-        R.M12 = Vector4.Dot(Q.Column1, Column2);
-        R.M13 = Vector4.Dot(Q.Column1, Column3);
-        R.M14 = Vector4.Dot(Q.Column1, Column4);
+        r = new Matrix();
+        r.M11 = Vector4.Dot(q.Column1, Column1);
+        r.M12 = Vector4.Dot(q.Column1, Column2);
+        r.M13 = Vector4.Dot(q.Column1, Column3);
+        r.M14 = Vector4.Dot(q.Column1, Column4);
 
-        R.M22 = Vector4.Dot(Q.Column2, Column2);
-        R.M23 = Vector4.Dot(Q.Column2, Column3);
-        R.M24 = Vector4.Dot(Q.Column2, Column4);
+        r.M22 = Vector4.Dot(q.Column2, Column2);
+        r.M23 = Vector4.Dot(q.Column2, Column3);
+        r.M24 = Vector4.Dot(q.Column2, Column4);
 
-        R.M33 = Vector4.Dot(Q.Column3, Column3);
-        R.M34 = Vector4.Dot(Q.Column3, Column4);
+        r.M33 = Vector4.Dot(q.Column3, Column3);
+        r.M34 = Vector4.Dot(q.Column3, Column4);
 
-        R.M44 = Vector4.Dot(Q.Column4, Column4);
+        r.M44 = Vector4.Dot(q.Column4, Column4);
     }
 
     /// <summary>
     /// Decomposes a matrix into a lower triangular matrix L and an orthonormalized matrix Q.
     /// </summary>
-    /// <param name="L">When the method completes, contains the lower triangular matrix of the decomposition.</param>
-    /// <param name="Q">When the method completes, contains the orthonormalized matrix of the decomposition.</param>
-    public void DecomposeLQ(out Matrix L, out Matrix Q)
+    /// <param name="l">When the method completes, contains the lower triangular matrix of the decomposition.</param>
+    /// <param name="q">When the method completes, contains the orthonormalized matrix of the decomposition.</param>
+    public void DecomposeLQ(out Matrix l, out Matrix q)
     {
-        Orthonormalize(ref this, out Q);
+        Orthonormalize(ref this, out q);
 
-        L = new Matrix();
-        L.M11 = Vector4.Dot(Q.Row1, Row1);
+        l = new();
+        l.M11 = Vector4.Dot(q.Row1, Row1);
 
-        L.M21 = Vector4.Dot(Q.Row1, Row2);
-        L.M22 = Vector4.Dot(Q.Row2, Row2);
+        l.M21 = Vector4.Dot(q.Row1, Row2);
+        l.M22 = Vector4.Dot(q.Row2, Row2);
 
-        L.M31 = Vector4.Dot(Q.Row1, Row3);
-        L.M32 = Vector4.Dot(Q.Row2, Row3);
-        L.M33 = Vector4.Dot(Q.Row3, Row3);
+        l.M31 = Vector4.Dot(q.Row1, Row3);
+        l.M32 = Vector4.Dot(q.Row2, Row3);
+        l.M33 = Vector4.Dot(q.Row3, Row3);
 
-        L.M41 = Vector4.Dot(Q.Row1, Row4);
-        L.M42 = Vector4.Dot(Q.Row2, Row4);
-        L.M43 = Vector4.Dot(Q.Row3, Row4);
-        L.M44 = Vector4.Dot(Q.Row4, Row4);
+        l.M41 = Vector4.Dot(q.Row1, Row4);
+        l.M42 = Vector4.Dot(q.Row2, Row4);
+        l.M43 = Vector4.Dot(q.Row3, Row4);
+        l.M44 = Vector4.Dot(q.Row4, Row4);
     }
 
     /// <summary>
@@ -3062,8 +3062,8 @@ public struct Matrix : IEquatable<Matrix>, IFormattable
     /// <summary>
     /// Scales a matrix by a given value.
     /// </summary>
-    /// <param name="right">The matrix to scale.</param>
     /// <param name="left">The amount by which to scale.</param>
+    /// <param name="right">The matrix to scale.</param>
     /// <returns>The scaled matrix.</returns>
     public static Matrix operator *(float left, Matrix right)
     {
@@ -3197,10 +3197,10 @@ public struct Matrix : IEquatable<Matrix>, IFormattable
     /// <returns>
     /// A <see cref="string"/> that represents this instance.
     /// </returns>
-    public string ToString(string format, IFormatProvider formatProvider)
+    public string ToString(string? format, IFormatProvider? formatProvider)
     {
         if (format == null)
-            return ToString(formatProvider);
+            return ToString(formatProvider ?? CultureInfo.CurrentCulture);
 
         return string.Format(format, formatProvider, "[M11:{0} M12:{1} M13:{2} M14:{3}] [M21:{4} M22:{5} M23:{6} M24:{7}] [M31:{8} M32:{9} M33:{10} M34:{11}] [M41:{12} M42:{13} M43:{14} M44:{15}]",
             M11.ToString(format, formatProvider), M12.ToString(format, formatProvider), M13.ToString(format, formatProvider), M14.ToString(format, formatProvider),
@@ -3260,7 +3260,7 @@ public struct Matrix : IEquatable<Matrix>, IFormattable
     /// <returns>
     /// <c>true</c> if the specified <see cref="object"/> is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
-    public override bool Equals(object value)
+    public override bool Equals(object? value)
     {
         if (value == null)
             return false;
@@ -3270,106 +3270,4 @@ public struct Matrix : IEquatable<Matrix>, IFormattable
 
         return Equals((Matrix)value);
     }
-
-#if SlimDX1xInterop
-        /// <summary>
-        /// Performs an implicit conversion from <see cref="Stride.Core.Mathematics.Matrix"/> to <see cref="SlimDX.Matrix"/>.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>The result of the conversion.</returns>
-        public static implicit operator SlimDX.Matrix(Matrix value)
-        {
-            return new SlimDX.Matrix()
-            {
-                M11 = value.M11, M12 = value.M12, M13 = value.M13, M14 = value.M14,
-                M21 = value.M21, M22 = value.M22, M23 = value.M23, M24 = value.M24,
-                M31 = value.M31, M32 = value.M32, M33 = value.M33, M34 = value.M34,
-                M41 = value.M41, M42 = value.M42, M43 = value.M43, M44 = value.M44
-            };
-        }
-
-        /// <summary>
-        /// Performs an implicit conversion from <see cref="SlimDX.Matrix"/> to <see cref="Stride.Core.Mathematics.Matrix"/>.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>The result of the conversion.</returns>
-        public static implicit operator Matrix(SlimDX.Matrix value)
-        {
-            return new Matrix()
-            {
-                M11 = value.M11, M12 = value.M12, M13 = value.M13, M14 = value.M14,
-                M21 = value.M21, M22 = value.M22, M23 = value.M23, M24 = value.M24,
-                M31 = value.M31, M32 = value.M32, M33 = value.M33, M34 = value.M34,
-                M41 = value.M41, M42 = value.M42, M43 = value.M43, M44 = value.M44
-            };
-        }
-#endif
-
-#if WPFInterop
-        /// <summary>
-        /// Performs an implicit conversion from <see cref="Stride.Core.Mathematics.Matrix"/> to <see cref="System.Windows.Media.Media3D.Matrix3D"/>.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>The result of the conversion.</returns>
-        public static implicit operator System.Windows.Media.Media3D.Matrix3D(Matrix value)
-        {
-            return new System.Windows.Media.Media3D.Matrix3D()
-            {
-                M11 = value.M11, M12 = value.M12, M13 = value.M13, M14 = value.M14,
-                M21 = value.M21, M22 = value.M22, M23 = value.M23, M24 = value.M24,
-                M31 = value.M31, M32 = value.M32, M33 = value.M33, M34 = value.M34,
-                OffsetX = value.M41, OffsetY = value.M42, OffsetZ = value.M43, M44 = value.M44
-            };
-        }
-
-        /// <summary>
-        /// Performs an explicit conversion from <see cref="System.Windows.Media.Media3D.Matrix3D"/> to <see cref="Stride.Core.Mathematics.Matrix"/>.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>The result of the conversion.</returns>
-        public static explicit operator Matrix(System.Windows.Media.Media3D.Matrix3D value)
-        {
-            return new Matrix()
-            {
-                M11 = (float)value.M11, M12 = (float)value.M12, M13 = (float)value.M13, M14 = (float)value.M14,
-                M21 = (float)value.M21, M22 = (float)value.M22, M23 = (float)value.M23, M24 = (float)value.M24,
-                M31 = (float)value.M31, M32 = (float)value.M32, M33 = (float)value.M33, M34 = (float)value.M34,
-                M41 = (float)value.OffsetX, M42 = (float)value.OffsetY, M43 = (float)value.OffsetZ, M44 = (float)value.M44
-            };
-        }
-#endif
-
-#if XnaInterop
-        /// <summary>
-        /// Performs an implicit conversion from <see cref="Stride.Core.Mathematics.Matrix"/> to <see cref="Microsoft.Xna.Framework.Matrix"/>.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>The result of the conversion.</returns>
-        public static implicit operator Microsoft.Xna.Framework.Matrix(Matrix value)
-        {
-            return new Microsoft.Xna.Framework.Matrix()
-            {
-                M11 = value.M11, M12 = value.M12, M13 = value.M13, M14 = value.M14,
-                M21 = value.M21, M22 = value.M22, M23 = value.M23, M24 = value.M24,
-                M31 = value.M31, M32 = value.M32, M33 = value.M33, M34 = value.M34,
-                M41 = value.M41, M42 = value.M42, M43 = value.M43, M44 = value.M44
-            };
-        }
-
-                /// <summary>
-        /// Performs an implicit conversion from <see cref="Microsoft.Xna.Framework.Matrix"/> to <see cref="Stride.Core.Mathematics.Matrix"/>.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>The result of the conversion.</returns>
-        public static implicit operator Matrix(Microsoft.Xna.Framework.Matrix value)
-        {
-            return new Matrix()
-            {
-                M11 = value.M11, M12 = value.M12, M13 = value.M13, M14 = value.M14,
-                M21 = value.M21, M22 = value.M22, M23 = value.M23, M24 = value.M24,
-                M31 = value.M31, M32 = value.M32, M33 = value.M33, M34 = value.M34,
-                M41 = value.M41, M42 = value.M42, M43 = value.M43, M44 = value.M44
-            };
-        }
-#endif
 }
