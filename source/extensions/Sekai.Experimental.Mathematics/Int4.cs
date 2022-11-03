@@ -33,68 +33,72 @@ namespace Sekai.Experimental.Mathematics;
 /// </summary>
 [DataContract]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct UInt4 : IEquatable<UInt4>, IFormattable
+public struct Int4 : IEquatable<Int4>, IFormattable
 {
     /// <summary>
-    ///   The size of the <see cref = "UInt4" /> type, in bytes.
+    ///   The size of the <see cref = "Int4" /> type, in bytes.
     /// </summary>
-    public static readonly int SizeInBytes = Unsafe.SizeOf<UInt4>();
+    public static readonly int SizeInBytes = Unsafe.SizeOf<Int4>();
 
     /// <summary>
-    ///   A <see cref = "UInt4" /> with all of its components set to zero.
+    ///   A <see cref = "Int4" /> with all of its components set to zero.
     /// </summary>
-    public static readonly UInt4 Zero = new();
+    public static readonly Int4 Zero = new();
 
     /// <summary>
-    ///   The X unit <see cref = "UInt4" /> (1, 0, 0, 0).
+    ///   The X unit <see cref = "Int4" /> (1, 0, 0, 0).
     /// </summary>
-    public static readonly UInt4 UnitX = new(1, 0, 0, 0);
+    public static readonly Int4 UnitX = new(1, 0, 0, 0);
 
     /// <summary>
-    ///   The Y unit <see cref = "UInt4" /> (0, 1, 0, 0).
+    ///   The Y unit <see cref = "Int4" /> (0, 1, 0, 0).
     /// </summary>
-    public static readonly UInt4 UnitY = new(0, 1, 0, 0);
+    public static readonly Int4 UnitY = new(0, 1, 0, 0);
 
     /// <summary>
-    ///   The Z unit <see cref = "UInt4" /> (0, 0, 1, 0).
+    ///   The Z unit <see cref = "Int4" /> (0, 0, 1, 0).
     /// </summary>
-    public static readonly UInt4 UnitZ = new(0, 0, 1, 0);
+    public static readonly Int4 UnitZ = new(0, 0, 1, 0);
 
     /// <summary>
-    ///   The W unit <see cref = "UInt4" /> (0, 0, 0, 1).
+    ///   The W unit <see cref = "Int4" /> (0, 0, 0, 1).
     /// </summary>
-    public static readonly UInt4 UnitW = new(0, 0, 0, 1);
+    public static readonly Int4 UnitW = new(0, 0, 0, 1);
 
     /// <summary>
-    ///   A <see cref = "UInt4" /> with all of its components set to one.
+    ///   A <see cref = "Int4" /> with all of its components set to one.
     /// </summary>
-    public static readonly UInt4 One = new(1, 1, 1, 1);
+    public static readonly Int4 One = new(1, 1, 1, 1);
 
     /// <summary>
     ///   The X component of the vector.
     /// </summary>
-    public uint X;
+    [DataMember]
+    public int X;
 
     /// <summary>
     ///   The Y component of the vector.
     /// </summary>
-    public uint Y;
+    [DataMember]
+    public int Y;
 
     /// <summary>
     ///   The Z component of the vector.
     /// </summary>
-    public uint Z;
+    [DataMember]
+    public int Z;
 
     /// <summary>
     ///   The W component of the vector.
     /// </summary>
-    public uint W;
+    [DataMember]
+    public int W;
 
     /// <summary>
-    ///   Initializes a new instance of the <see cref = "UInt4" /> struct.
+    ///   Initializes a new instance of the <see cref = "Int4" /> struct.
     /// </summary>
     /// <param name = "value">The value that will be assigned to all components.</param>
-    public UInt4(uint value)
+    public Int4(int value)
     {
         X = value;
         Y = value;
@@ -103,13 +107,13 @@ public struct UInt4 : IEquatable<UInt4>, IFormattable
     }
 
     /// <summary>
-    ///   Initializes a new instance of the <see cref = "UInt4" /> struct.
+    ///   Initializes a new instance of the <see cref = "Int4" /> struct.
     /// </summary>
     /// <param name = "x">Initial value for the X component of the vector.</param>
     /// <param name = "y">Initial value for the Y component of the vector.</param>
     /// <param name = "z">Initial value for the Z component of the vector.</param>
     /// <param name = "w">Initial value for the W component of the vector.</param>
-    public UInt4(uint x, uint y, uint z, uint w)
+    public Int4(int x, int y, int z, int w)
     {
         X = x;
         Y = y;
@@ -118,17 +122,17 @@ public struct UInt4 : IEquatable<UInt4>, IFormattable
     }
 
     /// <summary>
-    ///   Initializes a new instance of the <see cref = "UInt4" /> struct.
+    ///   Initializes a new instance of the <see cref = "Int4" /> struct.
     /// </summary>
     /// <param name = "values">The values to assign to the X, Y, Z, and W components of the vector. This must be an array with four elements.</param>
     /// <exception cref = "ArgumentNullException">Thrown when <paramref name = "values" /> is <c>null</c>.</exception>
     /// <exception cref = "ArgumentOutOfRangeException">Thrown when <paramref name = "values" /> contains more or less than four elements.</exception>
-    public UInt4(uint[] values)
+    public Int4(int[] values)
     {
         if (values == null)
             throw new ArgumentNullException("values");
         if (values.Length != 4)
-            throw new ArgumentOutOfRangeException("values", "There must be four and only four input values for UInt4.");
+            throw new ArgumentOutOfRangeException("values", "There must be four and only four input values for Int4.");
 
         X = values[0];
         Y = values[1];
@@ -143,23 +147,18 @@ public struct UInt4 : IEquatable<UInt4>, IFormattable
     /// <param name = "index">The index of the component to access. Use 0 for the X component, 1 for the Y component, 2 for the Z component, and 3 for the W component.</param>
     /// <returns>The value of the component at the specified index.</returns>
     /// <exception cref = "ArgumentOutOfRangeException">Thrown when the <paramref name = "index" /> is out of the range [0, 3].</exception>
-    public uint this[uint index]
+    public int this[int index]
     {
         get
         {
-            switch (index)
+            return index switch
             {
-                case 0:
-                    return X;
-                case 1:
-                    return Y;
-                case 2:
-                    return Z;
-                case 3:
-                    return W;
-            }
-
-            throw new ArgumentOutOfRangeException("index", "Indices for UInt4 run from 0 to 3, inclusive.");
+                0 => X,
+                1 => Y,
+                2 => Z,
+                3 => W,
+                _ => throw new ArgumentOutOfRangeException("index", "Indices for Int4 run from 0 to 3, inclusive."),
+            };
         }
 
         set
@@ -179,18 +178,44 @@ public struct UInt4 : IEquatable<UInt4>, IFormattable
                     W = value;
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("index", "Indices for UInt4 run from 0 to 3, inclusive.");
+                    throw new ArgumentOutOfRangeException("index", "Indices for Int4 run from 0 to 3, inclusive.");
             }
         }
+    }
+
+    /// <summary>
+    /// Calculates the length of the vector.
+    /// </summary>
+    /// <returns>The length of the vector.</returns>
+    /// <remarks>
+    /// <see cref="LengthSquared"/> may be preferred when only the relative length is needed
+    /// and speed is of the essence.
+    /// </remarks>
+    public int Length()
+    {
+        return (int)Math.Sqrt((X * X) + (Y * Y) + (Z * Z) + (W * W));
+    }
+
+    /// <summary>
+    /// Calculates the squared length of the vector.
+    /// </summary>
+    /// <returns>The squared length of the vector.</returns>
+    /// <remarks>
+    /// This method may be preferred to <see cref="Length"/> when only a relative length is needed
+    /// and speed is of the essence.
+    /// </remarks>
+    public int LengthSquared()
+    {
+        return (X * X) + (Y * Y) + (Z * Z) + (W * W);
     }
 
     /// <summary>
     ///   Creates an array containing the elements of the vector.
     /// </summary>
     /// <returns>A four-element array containing the components of the vector.</returns>
-    public uint[] ToArray()
+    public int[] ToArray()
     {
-        return new uint[] { X, Y, Z, W };
+        return new int[] { X, Y, Z, W };
     }
 
     /// <summary>
@@ -199,9 +224,9 @@ public struct UInt4 : IEquatable<UInt4>, IFormattable
     /// <param name = "left">The first vector to add.</param>
     /// <param name = "right">The second vector to add.</param>
     /// <param name = "result">When the method completes, contains the sum of the two vectors.</param>
-    public static void Add(ref UInt4 left, ref UInt4 right, out UInt4 result)
+    public static void Add(ref Int4 left, ref Int4 right, out Int4 result)
     {
-        result = new UInt4(left.X + right.X, left.Y + right.Y, left.Z + right.Z, left.W + right.W);
+        result = new Int4(left.X + right.X, left.Y + right.Y, left.Z + right.Z, left.W + right.W);
     }
 
     /// <summary>
@@ -210,9 +235,9 @@ public struct UInt4 : IEquatable<UInt4>, IFormattable
     /// <param name = "left">The first vector to add.</param>
     /// <param name = "right">The second vector to add.</param>
     /// <returns>The sum of the two vectors.</returns>
-    public static UInt4 Add(UInt4 left, UInt4 right)
+    public static Int4 Add(Int4 left, Int4 right)
     {
-        return new UInt4(left.X + right.X, left.Y + right.Y, left.Z + right.Z, left.W + right.W);
+        return new Int4(left.X + right.X, left.Y + right.Y, left.Z + right.Z, left.W + right.W);
     }
 
     /// <summary>
@@ -221,9 +246,9 @@ public struct UInt4 : IEquatable<UInt4>, IFormattable
     /// <param name = "left">The first vector to subtract.</param>
     /// <param name = "right">The second vector to subtract.</param>
     /// <param name = "result">When the method completes, contains the difference of the two vectors.</param>
-    public static void Subtract(ref UInt4 left, ref UInt4 right, out UInt4 result)
+    public static void Subtract(ref Int4 left, ref Int4 right, out Int4 result)
     {
-        result = new UInt4(left.X - right.X, left.Y - right.Y, left.Z - right.Z, left.W - right.W);
+        result = new Int4(left.X - right.X, left.Y - right.Y, left.Z - right.Z, left.W - right.W);
     }
 
     /// <summary>
@@ -232,9 +257,9 @@ public struct UInt4 : IEquatable<UInt4>, IFormattable
     /// <param name = "left">The first vector to subtract.</param>
     /// <param name = "right">The second vector to subtract.</param>
     /// <returns>The difference of the two vectors.</returns>
-    public static UInt4 Subtract(UInt4 left, UInt4 right)
+    public static Int4 Subtract(Int4 left, Int4 right)
     {
-        return new UInt4(left.X - right.X, left.Y - right.Y, left.Z - right.Z, left.W - right.W);
+        return new Int4(left.X - right.X, left.Y - right.Y, left.Z - right.Z, left.W - right.W);
     }
 
     /// <summary>
@@ -243,9 +268,9 @@ public struct UInt4 : IEquatable<UInt4>, IFormattable
     /// <param name = "value">The vector to scale.</param>
     /// <param name = "scale">The amount by which to scale the vector.</param>
     /// <param name = "result">When the method completes, contains the scaled vector.</param>
-    public static void Multiply(ref UInt4 value, uint scale, out UInt4 result)
+    public static void Multiply(ref Int4 value, int scale, out Int4 result)
     {
-        result = new UInt4(value.X * scale, value.Y * scale, value.Z * scale, value.W * scale);
+        result = new Int4(value.X * scale, value.Y * scale, value.Z * scale, value.W * scale);
     }
 
     /// <summary>
@@ -254,9 +279,9 @@ public struct UInt4 : IEquatable<UInt4>, IFormattable
     /// <param name = "value">The vector to scale.</param>
     /// <param name = "scale">The amount by which to scale the vector.</param>
     /// <returns>The scaled vector.</returns>
-    public static UInt4 Multiply(UInt4 value, uint scale)
+    public static Int4 Multiply(Int4 value, int scale)
     {
-        return new UInt4(value.X * scale, value.Y * scale, value.Z * scale, value.W * scale);
+        return new Int4(value.X * scale, value.Y * scale, value.Z * scale, value.W * scale);
     }
 
     /// <summary>
@@ -265,9 +290,9 @@ public struct UInt4 : IEquatable<UInt4>, IFormattable
     /// <param name = "left">The first vector to modulate.</param>
     /// <param name = "right">The second vector to modulate.</param>
     /// <param name = "result">When the method completes, contains the modulated vector.</param>
-    public static void Modulate(ref UInt4 left, ref UInt4 right, out UInt4 result)
+    public static void Modulate(ref Int4 left, ref Int4 right, out Int4 result)
     {
-        result = new UInt4(left.X * right.X, left.Y * right.Y, left.Z * right.Z, left.W * right.W);
+        result = new Int4(left.X * right.X, left.Y * right.Y, left.Z * right.Z, left.W * right.W);
     }
 
     /// <summary>
@@ -276,9 +301,9 @@ public struct UInt4 : IEquatable<UInt4>, IFormattable
     /// <param name = "left">The first vector to modulate.</param>
     /// <param name = "right">The second vector to modulate.</param>
     /// <returns>The modulated vector.</returns>
-    public static UInt4 Modulate(UInt4 left, UInt4 right)
+    public static Int4 Modulate(Int4 left, Int4 right)
     {
-        return new UInt4(left.X * right.X, left.Y * right.Y, left.Z * right.Z, left.W * right.W);
+        return new Int4(left.X * right.X, left.Y * right.Y, left.Z * right.Z, left.W * right.W);
     }
 
     /// <summary>
@@ -287,9 +312,9 @@ public struct UInt4 : IEquatable<UInt4>, IFormattable
     /// <param name = "value">The vector to scale.</param>
     /// <param name = "scale">The amount by which to scale the vector.</param>
     /// <param name = "result">When the method completes, contains the scaled vector.</param>
-    public static void Divide(ref UInt4 value, uint scale, out UInt4 result)
+    public static void Divide(ref Int4 value, int scale, out Int4 result)
     {
-        result = new UInt4(value.X / scale, value.Y / scale, value.Z / scale, value.W / scale);
+        result = new Int4(value.X / scale, value.Y / scale, value.Z / scale, value.W / scale);
     }
 
     /// <summary>
@@ -298,9 +323,29 @@ public struct UInt4 : IEquatable<UInt4>, IFormattable
     /// <param name = "value">The vector to scale.</param>
     /// <param name = "scale">The amount by which to scale the vector.</param>
     /// <returns>The scaled vector.</returns>
-    public static UInt4 Divide(UInt4 value, uint scale)
+    public static Int4 Divide(Int4 value, int scale)
     {
-        return new UInt4(value.X / scale, value.Y / scale, value.Z / scale, value.W / scale);
+        return new Int4(value.X / scale, value.Y / scale, value.Z / scale, value.W / scale);
+    }
+
+    /// <summary>
+    ///   Reverses the direction of a given vector.
+    /// </summary>
+    /// <param name = "value">The vector to negate.</param>
+    /// <param name = "result">When the method completes, contains a vector facing in the opposite direction.</param>
+    public static void Negate(ref Int4 value, out Int4 result)
+    {
+        result = new Int4(-value.X, -value.Y, -value.Z, -value.W);
+    }
+
+    /// <summary>
+    ///   Reverses the direction of a given vector.
+    /// </summary>
+    /// <param name = "value">The vector to negate.</param>
+    /// <returns>A vector facing in the opposite direction.</returns>
+    public static Int4 Negate(Int4 value)
+    {
+        return new Int4(-value.X, -value.Y, -value.Z, -value.W);
     }
 
     /// <summary>
@@ -310,25 +355,25 @@ public struct UInt4 : IEquatable<UInt4>, IFormattable
     /// <param name = "min">The minimum value.</param>
     /// <param name = "max">The maximum value.</param>
     /// <param name = "result">When the method completes, contains the clamped value.</param>
-    public static void Clamp(ref UInt4 value, ref UInt4 min, ref UInt4 max, out UInt4 result)
+    public static void Clamp(ref Int4 value, ref Int4 min, ref Int4 max, out Int4 result)
     {
-        uint x = value.X;
+        int x = value.X;
         x = (x > max.X) ? max.X : x;
         x = (x < min.X) ? min.X : x;
 
-        uint y = value.Y;
+        int y = value.Y;
         y = (y > max.Y) ? max.Y : y;
         y = (y < min.Y) ? min.Y : y;
 
-        uint z = value.Z;
+        int z = value.Z;
         z = (z > max.Z) ? max.Z : z;
         z = (z < min.Z) ? min.Z : z;
 
-        uint w = value.W;
+        int w = value.W;
         w = (w > max.W) ? max.W : w;
         w = (w < min.W) ? min.W : w;
 
-        result = new UInt4(x, y, z, w);
+        result = new Int4(x, y, z, w);
     }
 
     /// <summary>
@@ -338,10 +383,9 @@ public struct UInt4 : IEquatable<UInt4>, IFormattable
     /// <param name = "min">The minimum value.</param>
     /// <param name = "max">The maximum value.</param>
     /// <returns>The clamped value.</returns>
-    public static UInt4 Clamp(UInt4 value, UInt4 min, UInt4 max)
+    public static Int4 Clamp(Int4 value, Int4 min, Int4 max)
     {
-        UInt4 result;
-        Clamp(ref value, ref min, ref max, out result);
+        Clamp(ref value, ref min, ref max, out var result);
         return result;
     }
 
@@ -351,7 +395,7 @@ public struct UInt4 : IEquatable<UInt4>, IFormattable
     /// <param name = "left">The first source vector.</param>
     /// <param name = "right">The second source vector.</param>
     /// <param name = "result">When the method completes, contains an new vector composed of the largest components of the source vectors.</param>
-    public static void Max(ref UInt4 left, ref UInt4 right, out UInt4 result)
+    public static void Max(ref Int4 left, ref Int4 right, out Int4 result)
     {
         result.X = (left.X > right.X) ? left.X : right.X;
         result.Y = (left.Y > right.Y) ? left.Y : right.Y;
@@ -365,10 +409,9 @@ public struct UInt4 : IEquatable<UInt4>, IFormattable
     /// <param name = "left">The first source vector.</param>
     /// <param name = "right">The second source vector.</param>
     /// <returns>A vector containing the largest components of the source vectors.</returns>
-    public static UInt4 Max(UInt4 left, UInt4 right)
+    public static Int4 Max(Int4 left, Int4 right)
     {
-        UInt4 result;
-        Max(ref left, ref right, out result);
+        Max(ref left, ref right, out var result);
         return result;
     }
 
@@ -378,7 +421,7 @@ public struct UInt4 : IEquatable<UInt4>, IFormattable
     /// <param name = "left">The first source vector.</param>
     /// <param name = "right">The second source vector.</param>
     /// <param name = "result">When the method completes, contains an new vector composed of the smallest components of the source vectors.</param>
-    public static void Min(ref UInt4 left, ref UInt4 right, out UInt4 result)
+    public static void Min(ref Int4 left, ref Int4 right, out Int4 result)
     {
         result.X = (left.X < right.X) ? left.X : right.X;
         result.Y = (left.Y < right.Y) ? left.Y : right.Y;
@@ -392,10 +435,9 @@ public struct UInt4 : IEquatable<UInt4>, IFormattable
     /// <param name = "left">The first source vector.</param>
     /// <param name = "right">The second source vector.</param>
     /// <returns>A vector containing the smallest components of the source vectors.</returns>
-    public static UInt4 Min(UInt4 left, UInt4 right)
+    public static Int4 Min(Int4 left, Int4 right)
     {
-        UInt4 result;
-        Min(ref left, ref right, out result);
+        Min(ref left, ref right, out var result);
         return result;
     }
 
@@ -405,9 +447,9 @@ public struct UInt4 : IEquatable<UInt4>, IFormattable
     /// <param name = "left">The first vector to add.</param>
     /// <param name = "right">The second vector to add.</param>
     /// <returns>The sum of the two vectors.</returns>
-    public static UInt4 operator +(UInt4 left, UInt4 right)
+    public static Int4 operator +(Int4 left, Int4 right)
     {
-        return new UInt4(left.X + right.X, left.Y + right.Y, left.Z + right.Z, left.W + right.W);
+        return new Int4(left.X + right.X, left.Y + right.Y, left.Z + right.Z, left.W + right.W);
     }
 
     /// <summary>
@@ -415,7 +457,7 @@ public struct UInt4 : IEquatable<UInt4>, IFormattable
     /// </summary>
     /// <param name = "value">The vector to assert (unchange).</param>
     /// <returns>The asserted (unchanged) vector.</returns>
-    public static UInt4 operator +(UInt4 value)
+    public static Int4 operator +(Int4 value)
     {
         return value;
     }
@@ -426,9 +468,19 @@ public struct UInt4 : IEquatable<UInt4>, IFormattable
     /// <param name = "left">The first vector to subtract.</param>
     /// <param name = "right">The second vector to subtract.</param>
     /// <returns>The difference of the two vectors.</returns>
-    public static UInt4 operator -(UInt4 left, UInt4 right)
+    public static Int4 operator -(Int4 left, Int4 right)
     {
-        return new UInt4(left.X - right.X, left.Y - right.Y, left.Z - right.Z, left.W - right.W);
+        return new Int4(left.X - right.X, left.Y - right.Y, left.Z - right.Z, left.W - right.W);
+    }
+
+    /// <summary>
+    ///   Reverses the direction of a given vector.
+    /// </summary>
+    /// <param name = "value">The vector to negate.</param>
+    /// <returns>A vector facing in the opposite direction.</returns>
+    public static Int4 operator -(Int4 value)
+    {
+        return new Int4(-value.X, -value.Y, -value.Z, -value.W);
     }
 
     /// <summary>
@@ -437,9 +489,9 @@ public struct UInt4 : IEquatable<UInt4>, IFormattable
     /// <param name = "value">The vector to scale.</param>
     /// <param name = "scale">The amount by which to scale the vector.</param>
     /// <returns>The scaled vector.</returns>
-    public static UInt4 operator *(uint scale, UInt4 value)
+    public static Int4 operator *(int scale, Int4 value)
     {
-        return new UInt4(value.X * scale, value.Y * scale, value.Z * scale, value.W * scale);
+        return new Int4(value.X * scale, value.Y * scale, value.Z * scale, value.W * scale);
     }
 
     /// <summary>
@@ -448,9 +500,9 @@ public struct UInt4 : IEquatable<UInt4>, IFormattable
     /// <param name = "value">The vector to scale.</param>
     /// <param name = "scale">The amount by which to scale the vector.</param>
     /// <returns>The scaled vector.</returns>
-    public static UInt4 operator *(UInt4 value, uint scale)
+    public static Int4 operator *(Int4 value, int scale)
     {
-        return new UInt4(value.X * scale, value.Y * scale, value.Z * scale, value.W * scale);
+        return new Int4(value.X * scale, value.Y * scale, value.Z * scale, value.W * scale);
     }
 
     /// <summary>
@@ -459,9 +511,9 @@ public struct UInt4 : IEquatable<UInt4>, IFormattable
     /// <param name = "value">The vector to scale.</param>
     /// <param name = "scale">The amount by which to scale the vector.</param>
     /// <returns>The scaled vector.</returns>
-    public static UInt4 operator /(UInt4 value, uint scale)
+    public static Int4 operator /(Int4 value, int scale)
     {
-        return new UInt4(value.X / scale, value.Y / scale, value.Z / scale, value.W / scale);
+        return new Int4(value.X / scale, value.Y / scale, value.Z / scale, value.W / scale);
     }
 
     /// <summary>
@@ -470,7 +522,7 @@ public struct UInt4 : IEquatable<UInt4>, IFormattable
     /// <param name = "left">The first value to compare.</param>
     /// <param name = "right">The second value to compare.</param>
     /// <returns><c>true</c> if <paramref name = "left" /> has the same value as <paramref name = "right" />; otherwise, <c>false</c>.</returns>
-    public static bool operator ==(UInt4 left, UInt4 right)
+    public static bool operator ==(Int4 left, Int4 right)
     {
         return left.Equals(right);
     }
@@ -481,37 +533,37 @@ public struct UInt4 : IEquatable<UInt4>, IFormattable
     /// <param name = "left">The first value to compare.</param>
     /// <param name = "right">The second value to compare.</param>
     /// <returns><c>true</c> if <paramref name = "left" /> has a different value than <paramref name = "right" />; otherwise, <c>false</c>.</returns>
-    public static bool operator !=(UInt4 left, UInt4 right)
+    public static bool operator !=(Int4 left, Int4 right)
     {
         return !left.Equals(right);
     }
 
     /// <summary>
-    ///   Performs an explicit conversion from <see cref = "UInt4" /> to <see cref = "Vector2" />.
+    ///   Performs an explicit conversion from <see cref = "Int4" /> to <see cref = "Vector2" />.
     /// </summary>
     /// <param name = "value">The value.</param>
     /// <returns>The result of the conversion.</returns>
-    public static explicit operator Vector2(UInt4 value)
+    public static explicit operator Vector2(Int4 value)
     {
         return new Vector2(value.X, value.Y);
     }
 
     /// <summary>
-    ///   Performs an explicit conversion from <see cref = "UInt4" /> to <see cref = "Vector3" />.
+    ///   Performs an explicit conversion from <see cref = "Int4" /> to <see cref = "Vector3" />.
     /// </summary>
     /// <param name = "value">The value.</param>
     /// <returns>The result of the conversion.</returns>
-    public static explicit operator Vector3(UInt4 value)
+    public static explicit operator Vector3(Int4 value)
     {
         return new Vector3(value.X, value.Y, value.Z);
     }
 
     /// <summary>
-    ///   Performs an explicit conversion from <see cref = "UInt4" /> to <see cref = "Vector4" />.
+    ///   Performs an explicit conversion from <see cref = "Int4" /> to <see cref = "Vector4" />.
     /// </summary>
     /// <param name = "value">The value.</param>
     /// <returns>The result of the conversion.</returns>
-    public static explicit operator Vector4(UInt4 value)
+    public static explicit operator Vector4(Int4 value)
     {
         return new Vector4(value.X, value.Y, value.Z, value.W);
     }
@@ -588,13 +640,13 @@ public struct UInt4 : IEquatable<UInt4>, IFormattable
     }
 
     /// <summary>
-    ///   Determines whether the specified <see cref = "UInt4" /> is equal to this instance.
+    ///   Determines whether the specified <see cref = "Int4" /> is equal to this instance.
     /// </summary>
-    /// <param name = "other">The <see cref = "UInt4" /> to compare with this instance.</param>
+    /// <param name = "other">The <see cref = "Int4" /> to compare with this instance.</param>
     /// <returns>
-    ///   <c>true</c> if the specified <see cref = "UInt4" /> is equal to this instance; otherwise, <c>false</c>.
+    ///   <c>true</c> if the specified <see cref = "Int4" /> is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
-    public bool Equals(UInt4 other)
+    public bool Equals(Int4 other)
     {
         return other.X == X && other.Y == Y && other.Z == Z && other.W == W;
     }
@@ -614,25 +666,25 @@ public struct UInt4 : IEquatable<UInt4>, IFormattable
         if (value.GetType() != GetType())
             return false;
 
-        return Equals((UInt4)value);
+        return Equals((Int4)value);
     }
 
     /// <summary>
-    /// Performs an implicit conversion from <see cref="uint"/> array to <see cref="Stride.Core.Mathematics.UInt4"/>.
+    /// Performs an implicit conversion from <see cref="int"/> array to <see cref="Stride.Core.Mathematics.Int4"/>.
     /// </summary>
     /// <param name="input">The input.</param>
     /// <returns>The result of the conversion.</returns>
-    public static implicit operator UInt4(uint[] input)
+    public static implicit operator Int4(int[] input)
     {
-        return new UInt4(input);
+        return new Int4(input);
     }
 
     /// <summary>
-    /// Performs an implicit conversion from <see cref="Stride.Core.Mathematics.UInt4"/> to <see cref="int"/> array.
+    /// Performs an implicit conversion from <see cref="Stride.Core.Mathematics.Int4"/> to <see cref="int"/> array.
     /// </summary>
     /// <param name="input">The input.</param>
     /// <returns>The result of the conversion.</returns>
-    public static implicit operator uint[](UInt4 input)
+    public static implicit operator int[](Int4 input)
     {
         return input.ToArray();
     }

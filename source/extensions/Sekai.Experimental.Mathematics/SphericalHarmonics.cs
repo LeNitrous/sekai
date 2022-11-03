@@ -3,6 +3,7 @@
 
 // Copyright (c) .NET Foundation and Contributors (https://dotnetfoundation.org/ & https://stride3d.net) and Silicon Studio Corp. (https://www.siliconstudio.co.jp)
 // Distributed under the MIT license. See the LICENSE.md file in the project root for more information.
+using System.Runtime.Serialization;
 
 namespace Sekai.Experimental.Mathematics;
 
@@ -10,6 +11,7 @@ namespace Sekai.Experimental.Mathematics;
 /// A representation of a sphere of values via Spherical Harmonics (SH).
 /// </summary>
 /// <typeparam name="TDataType">The type of data contained by the sphere</typeparam>
+[DataContract]
 public abstract class SphericalHarmonics<TDataType>
 {
     /// <summary>
