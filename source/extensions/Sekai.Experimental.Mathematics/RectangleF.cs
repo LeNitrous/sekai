@@ -3,17 +3,17 @@
 
 // Copyright (c) .NET Foundation and Contributors (https://dotnetfoundation.org/ & https://stride3d.net) and Silicon Studio Corp. (https://www.siliconstudio.co.jp)
 // Copyright (c) 2010-2011 SharpDX - Alexandre Mutel
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -371,7 +371,7 @@ public struct RectangleF : IEquatable<RectangleF>
     /// <returns>
     /// <c>true</c> if the specified <see cref="object"/> is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         if (obj is null) return false;
         if (obj.GetType() != typeof(RectangleF)) return false;
@@ -395,14 +395,7 @@ public struct RectangleF : IEquatable<RectangleF>
     /// </returns>
     public override int GetHashCode()
     {
-        unchecked
-        {
-            int result = X.GetHashCode();
-            result = (result * 397) ^ Y.GetHashCode();
-            result = (result * 397) ^ Width.GetHashCode();
-            result = (result * 397) ^ Height.GetHashCode();
-            return result;
-        }
+        return HashCode.Combine(X, Y, Width, Height);
     }
 
     /// <summary>

@@ -131,9 +131,9 @@ public struct Plane : IEquatable<Plane>, IFormattable, IIntersectableWithRay
     public Plane(float[] values)
     {
         if (values == null)
-            throw new ArgumentNullException("values");
+            throw new ArgumentNullException(nameof(values));
         if (values.Length != 4)
-            throw new ArgumentOutOfRangeException("values", "There must be four and only four input values for Plane.");
+            throw new ArgumentOutOfRangeException(nameof(values), "There must be four and only four input values for Plane.");
 
         Normal.X = values[0];
         Normal.Y = values[1];
@@ -158,7 +158,7 @@ public struct Plane : IEquatable<Plane>, IFormattable, IIntersectableWithRay
                 1 => Normal.Y,
                 2 => Normal.Z,
                 3 => D,
-                _ => throw new ArgumentOutOfRangeException("index", "Indices for Plane run from 0 to 3, inclusive."),
+                _ => throw new ArgumentOutOfRangeException(nameof(index), "Indices for Plane run from 0 to 3, inclusive."),
             };
         }
 
@@ -170,7 +170,7 @@ public struct Plane : IEquatable<Plane>, IFormattable, IIntersectableWithRay
                 case 1: Normal.Y = value; break;
                 case 2: Normal.Z = value; break;
                 case 3: D = value; break;
-                default: throw new ArgumentOutOfRangeException("index", "Indices for Plane run from 0 to 3, inclusive.");
+                default: throw new ArgumentOutOfRangeException(nameof(index), "Indices for Plane run from 0 to 3, inclusive.");
             }
         }
     }
@@ -517,9 +517,9 @@ public struct Plane : IEquatable<Plane>, IFormattable, IIntersectableWithRay
         float y = plane.Normal.Y;
         float z = plane.Normal.Z;
 
-        result.Normal.X = ((x * ((1.0f - yy) - zz)) + (y * (xy - wz))) + (z * (xz + wy));
-        result.Normal.Y = ((x * (xy + wz)) + (y * ((1.0f - xx) - zz))) + (z * (yz - wx));
-        result.Normal.Z = ((x * (xz - wy)) + (y * (yz + wx))) + (z * ((1.0f - xx) - yy));
+        result.Normal.X = (x * (1.0f - yy - zz)) + (y * (xy - wz)) + (z * (xz + wy));
+        result.Normal.Y = (x * (xy + wz)) + (y * (1.0f - xx - zz)) + (z * (yz - wx));
+        result.Normal.Z = (x * (xz - wy)) + (y * (yz + wx)) + (z * (1.0f - xx - yy));
         result.D = plane.D;
     }
 
@@ -549,9 +549,9 @@ public struct Plane : IEquatable<Plane>, IFormattable, IIntersectableWithRay
         float y = plane.Normal.Y;
         float z = plane.Normal.Z;
 
-        result.Normal.X = ((x * ((1.0f - yy) - zz)) + (y * (xy - wz))) + (z * (xz + wy));
-        result.Normal.Y = ((x * (xy + wz)) + (y * ((1.0f - xx) - zz))) + (z * (yz - wx));
-        result.Normal.Z = ((x * (xz - wy)) + (y * (yz + wx))) + (z * ((1.0f - xx) - yy));
+        result.Normal.X = (x * (1.0f - yy - zz)) + (y * (xy - wz)) + (z * (xz + wy));
+        result.Normal.Y = (x * (xy + wz)) + (y * (1.0f - xx - zz)) + (z * (yz - wx));
+        result.Normal.Z = (x * (xz - wy)) + (y * (yz + wx)) + (z * (1.0f - xx - yy));
         result.D = plane.D;
 
         return result;
@@ -566,7 +566,7 @@ public struct Plane : IEquatable<Plane>, IFormattable, IIntersectableWithRay
     public static void Transform(Plane[] planes, ref Quaternion rotation)
     {
         if (planes == null)
-            throw new ArgumentNullException("planes");
+            throw new ArgumentNullException(nameof(planes));
 
         float x2 = rotation.X + rotation.X;
         float y2 = rotation.Y + rotation.Y;
@@ -591,9 +591,9 @@ public struct Plane : IEquatable<Plane>, IFormattable, IIntersectableWithRay
              * Note:
              * Factor common arithmetic out of loop.
             */
-            planes[i].Normal.X = ((x * ((1.0f - yy) - zz)) + (y * (xy - wz))) + (z * (xz + wy));
-            planes[i].Normal.Y = ((x * (xy + wz)) + (y * ((1.0f - xx) - zz))) + (z * (yz - wx));
-            planes[i].Normal.Z = ((x * (xz - wy)) + (y * (yz + wx))) + (z * ((1.0f - xx) - yy));
+            planes[i].Normal.X = (x * (1.0f - yy - zz)) + (y * (xy - wz)) + (z * (xz + wy));
+            planes[i].Normal.Y = (x * (xy + wz)) + (y * (1.0f - xx - zz)) + (z * (yz - wx));
+            planes[i].Normal.Z = (x * (xz - wy)) + (y * (yz + wx)) + (z * (1.0f - xx - yy));
         }
     }
 
@@ -612,10 +612,10 @@ public struct Plane : IEquatable<Plane>, IFormattable, IIntersectableWithRay
 
         Matrix.Invert(ref transformation, out var inverse);
 
-        result.Normal.X = (((x * inverse.M11) + (y * inverse.M12)) + (z * inverse.M13)) + (d * inverse.M14);
-        result.Normal.Y = (((x * inverse.M21) + (y * inverse.M22)) + (z * inverse.M23)) + (d * inverse.M24);
-        result.Normal.Z = (((x * inverse.M31) + (y * inverse.M32)) + (z * inverse.M33)) + (d * inverse.M34);
-        result.D = (((x * inverse.M41) + (y * inverse.M42)) + (z * inverse.M43)) + (d * inverse.M44);
+        result.Normal.X = (x * inverse.M11) + (y * inverse.M12) + (z * inverse.M13) + (d * inverse.M14);
+        result.Normal.Y = (x * inverse.M21) + (y * inverse.M22) + (z * inverse.M23) + (d * inverse.M24);
+        result.Normal.Z = (x * inverse.M31) + (y * inverse.M32) + (z * inverse.M33) + (d * inverse.M34);
+        result.D = (x * inverse.M41) + (y * inverse.M42) + (z * inverse.M43) + (d * inverse.M44);
     }
 
     /// <summary>
@@ -633,10 +633,10 @@ public struct Plane : IEquatable<Plane>, IFormattable, IIntersectableWithRay
         float d = plane.D;
 
         transformation.Invert();
-        result.Normal.X = (((x * transformation.M11) + (y * transformation.M12)) + (z * transformation.M13)) + (d * transformation.M14);
-        result.Normal.Y = (((x * transformation.M21) + (y * transformation.M22)) + (z * transformation.M23)) + (d * transformation.M24);
-        result.Normal.Z = (((x * transformation.M31) + (y * transformation.M32)) + (z * transformation.M33)) + (d * transformation.M34);
-        result.D = (((x * transformation.M41) + (y * transformation.M42)) + (z * transformation.M43)) + (d * transformation.M44);
+        result.Normal.X = (x * transformation.M11) + (y * transformation.M12) + (z * transformation.M13) + (d * transformation.M14);
+        result.Normal.Y = (x * transformation.M21) + (y * transformation.M22) + (z * transformation.M23) + (d * transformation.M24);
+        result.Normal.Z = (x * transformation.M31) + (y * transformation.M32) + (z * transformation.M33) + (d * transformation.M34);
+        result.D = (x * transformation.M41) + (y * transformation.M42) + (z * transformation.M43) + (d * transformation.M44);
 
         return result;
     }
@@ -650,7 +650,7 @@ public struct Plane : IEquatable<Plane>, IFormattable, IIntersectableWithRay
     public static void Transform(Plane[] planes, ref Matrix transformation)
     {
         if (planes == null)
-            throw new ArgumentNullException("planes");
+            throw new ArgumentNullException(nameof(planes));
 
         Matrix.Invert(ref transformation, out var inverse);
 
@@ -757,7 +757,7 @@ public struct Plane : IEquatable<Plane>, IFormattable, IIntersectableWithRay
     /// <returns>
     /// A <see cref="string"/> that represents this instance.
     /// </returns>
-    public string ToString(string format, IFormatProvider formatProvider)
+    public string ToString(string? format, IFormatProvider? formatProvider)
     {
         return string.Format(formatProvider, "A:{0} B:{1} C:{2} D:{3}", Normal.X.ToString(format, formatProvider),
             Normal.Y.ToString(format, formatProvider), Normal.Z.ToString(format, formatProvider), D.ToString(format, formatProvider));
@@ -793,7 +793,7 @@ public struct Plane : IEquatable<Plane>, IFormattable, IIntersectableWithRay
     /// <returns>
     /// <c>true</c> if the specified <see cref="object"/> is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
-    public override bool Equals(object value)
+    public override bool Equals(object? value)
     {
         if (value == null)
             return false;

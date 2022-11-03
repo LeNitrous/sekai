@@ -3,17 +3,17 @@
 
 // Copyright (c) .NET Foundation and Contributors (https://dotnetfoundation.org/ & https://stride3d.net) and Silicon Studio Corp. (https://www.siliconstudio.co.jp)
 // Copyright (c) 2010-2011 SharpDX - Alexandre Mutel
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -29,7 +29,7 @@ namespace Sekai.Experimental.Mathematics;
 /// Helper class to perform Half/Float conversion.
 /// Code extract from paper : www.fox-toolkit.org/ftp/fasthalffloatconversion.pdf by Jeroen van der Zijp
 /// </summary>
-internal class HalfUtils
+internal static class HalfUtils
 {
     [StructLayout(LayoutKind.Explicit, Pack = 4)]
     private struct FloatToUint
@@ -47,8 +47,10 @@ internal class HalfUtils
     /// <returns>The float representation of the packed value.</returns>
     public static float Unpack(ushort h)
     {
-        var conv = new FloatToUint();
-        conv.UIntValue = halfToFloatMantissaTable[halfToFloatOffsetTable[h >> 10] + (((uint)h) & 0x3ff)] + halfToFloatExponentTable[h >> 10];
+        var conv = new FloatToUint
+        {
+            UIntValue = halfToFloatMantissaTable[halfToFloatOffsetTable[h >> 10] + (((uint)h) & 0x3ff)] + halfToFloatExponentTable[h >> 10]
+        };
         return conv.FloatValue;
     }
 
@@ -143,14 +145,14 @@ internal class HalfUtils
             }
             else if (e < -14)
             { // Small numbers map to denorms
-                floatToHalfBaseTable[i | 0x000] = (ushort)((0x0400 >> (-e - 14)));
+                floatToHalfBaseTable[i | 0x000] = (ushort)(0x0400 >> (-e - 14));
                 floatToHalfBaseTable[i | 0x100] = (ushort)((0x0400 >> (-e - 14)) | 0x8000);
                 floatToHalfShiftTable[i | 0x000] = (byte)(-e - 1);
                 floatToHalfShiftTable[i | 0x100] = (byte)(-e - 1);
             }
             else if (e <= 15)
             { // Normal numbers just lose precision
-                floatToHalfBaseTable[i | 0x000] = (ushort)(((e + 15) << 10));
+                floatToHalfBaseTable[i | 0x000] = (ushort)((e + 15) << 10);
                 floatToHalfBaseTable[i | 0x100] = (ushort)(((e + 15) << 10) | 0x8000);
                 floatToHalfShiftTable[i | 0x000] = 13;
                 floatToHalfShiftTable[i | 0x100] = 13;
