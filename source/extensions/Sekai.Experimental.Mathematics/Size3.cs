@@ -91,7 +91,7 @@ public struct Size3 : IEquatable<Size3>, IComparable<Size3>
     }
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         if (obj is null) return false;
         return obj is Size3 size && Equals(size);

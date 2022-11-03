@@ -30,6 +30,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sekai.OpenGL", "source\exte
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sekai.Experimental.Mathematics", "source\extensions\Sekai.Experimental.Mathematics\Sekai.Experimental.Mathematics.csproj", "{4035AAAE-A73F-442F-90C4-9243001401EA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Experimental.Mathematics.Tests", "tests\Sekai.Experimental.Mathematics.Tests\Sekai.Experimental.Mathematics.Tests.csproj", "{C5D4F87C-BC04-4D02-9818-1779C3D5407F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -68,6 +70,10 @@ Global
 		{4035AAAE-A73F-442F-90C4-9243001401EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4035AAAE-A73F-442F-90C4-9243001401EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4035AAAE-A73F-442F-90C4-9243001401EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C5D4F87C-BC04-4D02-9818-1779C3D5407F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5D4F87C-BC04-4D02-9818-1779C3D5407F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C5D4F87C-BC04-4D02-9818-1779C3D5407F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C5D4F87C-BC04-4D02-9818-1779C3D5407F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -81,6 +87,7 @@ Global
 		{E8A47B2F-A402-42F2-AA8E-049A6460B1C8} = {463413EF-A16A-4403-8797-4BBEE5D39781}
 		{F605B699-C4CE-4C1F-BC44-1F259AFFBC9E} = {463413EF-A16A-4403-8797-4BBEE5D39781}
 		{4035AAAE-A73F-442F-90C4-9243001401EA} = {463413EF-A16A-4403-8797-4BBEE5D39781}
+		{C5D4F87C-BC04-4D02-9818-1779C3D5407F} = {95FF42D1-ACB0-470A-B45D-0A5CF8C6FE4D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B561F441-82A5-4270-9631-D1D7C712B152}
