@@ -28,7 +28,6 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
-using System.Drawing;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
@@ -163,7 +162,7 @@ public struct Color4 : IEquatable<Color4>, IFormattable
     {
         if (values == null)
             throw new ArgumentNullException(nameof(values));
-        if (values.Length != 3 && values.Length != 4)
+        if (values.Length is not 3 and not 4)
             throw new ArgumentOutOfRangeException(nameof(values), "There must be 3 or 4 float[] values for Color4.");
 
         R = values[0];

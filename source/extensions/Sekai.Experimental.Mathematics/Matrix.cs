@@ -29,7 +29,6 @@
 * THE SOFTWARE.
 */
 using System.Globalization;
-using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MatrixDotnet = System.Numerics.Matrix4x4;
@@ -716,7 +715,7 @@ public struct Matrix : IEquatable<Matrix>, IFormattable
             MathF.Abs(scale.Y) < MathUtil.ZERO_TOLERANCE ||
             MathF.Abs(scale.Z) < MathUtil.ZERO_TOLERANCE)
         {
-            rotation = Matrix.Identity;
+            rotation = Identity;
             return false;
         }
 
@@ -1109,7 +1108,7 @@ public struct Matrix : IEquatable<Matrix>, IFormattable
 
         if (exponent == 0)
         {
-            result = Matrix.Identity;
+            result = Identity;
             return;
         }
 
@@ -1119,13 +1118,13 @@ public struct Matrix : IEquatable<Matrix>, IFormattable
             return;
         }
 
-        Matrix identity = Matrix.Identity;
+        Matrix identity = Identity;
         Matrix temp = value;
 
         while (true)
         {
             if ((exponent & 1) != 0)
-                identity = identity * temp;
+                identity *= temp;
 
             exponent /= 2;
 
@@ -1377,14 +1376,14 @@ public struct Matrix : IEquatable<Matrix>, IFormattable
         var row3 = result.Row3;
         var row4 = result.Row4;
 
-        row2 = row2 - (Vector4.Dot(row1, row2) / Vector4.Dot(row1, row1)) * row1;
+        row2 -= (Vector4.Dot(row1, row2) / Vector4.Dot(row1, row1)) * row1;
 
-        row3 = row3 - (Vector4.Dot(row1, row3) / Vector4.Dot(row1, row1)) * row1;
-        row3 = row3 - (Vector4.Dot(row2, row3) / Vector4.Dot(row2, row2)) * row2;
+        row3 -= (Vector4.Dot(row1, row3) / Vector4.Dot(row1, row1)) * row1;
+        row3 -= (Vector4.Dot(row2, row3) / Vector4.Dot(row2, row2)) * row2;
 
-        row4 = row4 - (Vector4.Dot(row1, row4) / Vector4.Dot(row1, row1)) * row1;
-        row4 = row4 - (Vector4.Dot(row2, row4) / Vector4.Dot(row2, row2)) * row2;
-        row4 = row4 - (Vector4.Dot(row3, row4) / Vector4.Dot(row3, row3)) * row3;
+        row4 -= (Vector4.Dot(row1, row4) / Vector4.Dot(row1, row1)) * row1;
+        row4 -= (Vector4.Dot(row2, row4) / Vector4.Dot(row2, row2)) * row2;
+        row4 -= (Vector4.Dot(row3, row4) / Vector4.Dot(row3, row3)) * row3;
 
         result.Row2 = row2;
         result.Row3 = row3;
@@ -1449,16 +1448,16 @@ public struct Matrix : IEquatable<Matrix>, IFormattable
 
         row1.Normalize();
 
-        row2 = row2 - Vector4.Dot(row1, row2) * row1;
+        row2 -= Vector4.Dot(row1, row2) * row1;
         row2.Normalize();
 
-        row3 = row3 - Vector4.Dot(row1, row3) * row1;
-        row3 = row3 - Vector4.Dot(row2, row3) * row2;
+        row3 -= Vector4.Dot(row1, row3) * row1;
+        row3 -= Vector4.Dot(row2, row3) * row2;
         row3.Normalize();
 
-        row4 = row4 - Vector4.Dot(row1, row4) * row1;
-        row4 = row4 - Vector4.Dot(row2, row4) * row2;
-        row4 = row4 - Vector4.Dot(row3, row4) * row3;
+        row4 -= Vector4.Dot(row1, row4) * row1;
+        row4 -= Vector4.Dot(row2, row4) * row2;
+        row4 -= Vector4.Dot(row3, row4) * row3;
         row4.Normalize();
 
         result = default;
@@ -1586,7 +1585,7 @@ public struct Matrix : IEquatable<Matrix>, IFormattable
     {
         //Adapted from the row echelon code.
         Matrix temp = value;
-        Matrix.Transpose(ref temp, out result);
+        Transpose(ref temp, out result);
 
         int lead = 0;
         int rowcount = 4;
@@ -1634,7 +1633,7 @@ public struct Matrix : IEquatable<Matrix>, IFormattable
             lead++;
         }
 
-        Matrix.Transpose(ref result, out result);
+        Transpose(ref result, out result);
     }
 
     /// <summary>
@@ -1919,7 +1918,7 @@ public struct Matrix : IEquatable<Matrix>, IFormattable
         Vector3.Cross(ref up, ref zaxis, out var xaxis); xaxis.Normalize();
         Vector3.Cross(ref zaxis, ref xaxis, out var yaxis);
 
-        result = Matrix.Identity;
+        result = Identity;
         result.M11 = xaxis.X; result.M21 = xaxis.Y; result.M31 = xaxis.Z;
         result.M12 = yaxis.X; result.M22 = yaxis.Y; result.M32 = yaxis.Z;
         result.M13 = zaxis.X; result.M23 = zaxis.Y; result.M33 = zaxis.Z;
@@ -1959,7 +1958,7 @@ public struct Matrix : IEquatable<Matrix>, IFormattable
         Vector3.Cross(ref up, ref zaxis, out var xaxis); xaxis.Normalize();
         Vector3.Cross(ref zaxis, ref xaxis, out var yaxis);
 
-        result = Matrix.Identity;
+        result = Identity;
         result.M11 = xaxis.X; result.M21 = xaxis.Y; result.M31 = xaxis.Z;
         result.M12 = yaxis.X; result.M22 = yaxis.Y; result.M32 = yaxis.Z;
         result.M13 = zaxis.X; result.M23 = zaxis.Y; result.M33 = zaxis.Z;
@@ -2060,7 +2059,7 @@ public struct Matrix : IEquatable<Matrix>, IFormattable
     {
         float zRange = 1.0f / (zfar - znear);
 
-        result = Matrix.Identity;
+        result = Identity;
         result.M11 = 2.0f / (right - left);
         result.M22 = 2.0f / (top - bottom);
         result.M33 = zRange;
@@ -2437,7 +2436,7 @@ public struct Matrix : IEquatable<Matrix>, IFormattable
     /// <param name="result">When the method completes, contains the created scaling matrix.</param>
     public static void Scaling(float x, float y, float z, out Matrix result)
     {
-        result = Matrix.Identity;
+        result = Identity;
         result.M11 = x;
         result.M22 = y;
         result.M33 = z;
@@ -2463,7 +2462,7 @@ public struct Matrix : IEquatable<Matrix>, IFormattable
     /// <param name="result">When the method completes, contains the created scaling matrix.</param>
     public static void Scaling(float scale, out Matrix result)
     {
-        result = Matrix.Identity;
+        result = Identity;
         result.M11 = result.M22 = result.M33 = scale;
     }
 
@@ -2488,7 +2487,7 @@ public struct Matrix : IEquatable<Matrix>, IFormattable
         float cos = MathF.Cos(angle);
         float sin = MathF.Sin(angle);
 
-        result = Matrix.Identity;
+        result = Identity;
         result.M22 = cos;
         result.M23 = sin;
         result.M32 = -sin;
@@ -2516,7 +2515,7 @@ public struct Matrix : IEquatable<Matrix>, IFormattable
         float cos = MathF.Cos(angle);
         float sin = MathF.Sin(angle);
 
-        result = Matrix.Identity;
+        result = Identity;
         result.M11 = cos;
         result.M13 = -sin;
         result.M31 = sin;
@@ -2544,7 +2543,7 @@ public struct Matrix : IEquatable<Matrix>, IFormattable
         float cos = MathF.Cos(angle);
         float sin = MathF.Sin(angle);
 
-        result = Matrix.Identity;
+        result = Identity;
         result.M11 = cos;
         result.M12 = sin;
         result.M21 = -sin;
@@ -2582,7 +2581,7 @@ public struct Matrix : IEquatable<Matrix>, IFormattable
         float xz = x * z;
         float yz = y * z;
 
-        result = Matrix.Identity;
+        result = Identity;
         result.M11 = xx + (cos * (1.0f - xx));
         result.M12 = (xy - (cos * xy)) + (sin * z);
         result.M13 = (xz - (cos * xz)) - (sin * y);
@@ -2623,7 +2622,7 @@ public struct Matrix : IEquatable<Matrix>, IFormattable
         float yz = rotation.Y * rotation.Z;
         float xw = rotation.X * rotation.W;
 
-        result = Matrix.Identity;
+        result = Identity;
         result.M11 = 1.0f - (2.0f * (yy + zz));
         result.M12 = 2.0f * (xy + zw);
         result.M13 = 2.0f * (zx - yw);
@@ -2771,7 +2770,7 @@ public struct Matrix : IEquatable<Matrix>, IFormattable
     /// <param name="result">When the method completes, contains the created translation matrix.</param>
     public static void Translation(float x, float y, float z, out Matrix result)
     {
-        result = Matrix.Identity;
+        result = Identity;
         result.M41 = x;
         result.M42 = y;
         result.M43 = z;

@@ -36,12 +36,12 @@ public struct Size3 : IEquatable<Size3>, IComparable<Size3>
     /// <summary>
     /// A zero size with (width, height, depth) = (0,0,0)
     /// </summary>
-    public static readonly Size3 Zero = new Size3(0, 0, 0);
+    public static readonly Size3 Zero = new(0, 0, 0);
 
     /// <summary>
     /// A one size with (width, height, depth) = (1,1,1)
     /// </summary>
-    public static readonly Size3 One = new Size3(1, 1, 1);
+    public static readonly Size3 One = new(1, 1, 1);
 
     /// <summary>
     /// A zero size with (width, height, depth) = (0,0,0)

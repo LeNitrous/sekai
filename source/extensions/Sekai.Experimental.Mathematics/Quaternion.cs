@@ -173,18 +173,12 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
     /// <value>
     /// <c>true</c> if this instance is an identity quaternion; otherwise, <c>false</c>.
     /// </value>
-    public bool IsIdentity
-    {
-        get { return this.Equals(Identity); }
-    }
+    public bool IsIdentity => this.Equals(Identity);
 
     /// <summary>
     /// Gets a value indicting whether this instance is normalized.
     /// </summary>
-    public bool IsNormalized
-    {
-        get { return MathF.Abs((X * X) + (Y * Y) + (Z * Z) + (W * W) - 1f) < MathUtil.ZERO_TOLERANCE; }
-    }
+    public bool IsNormalized => Abs((X * X) + (Y * Y) + (Z * Z) + (W * W) - 1f) < MathUtil.ZERO_TOLERANCE;
 
     /// <summary>
     /// Gets the angle of the quaternion.
@@ -198,7 +192,7 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
             if (length < MathUtil.ZERO_TOLERANCE)
                 return 0.0f;
 
-            return 2.0f * MathF.Acos(W);
+            return 2.0f * Acos(W);
         }
     }
 
@@ -238,20 +232,19 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
     /// <value>The value of the X, Y, Z, or W component, depending on the index.</value>
     /// <param name="index">The index of the component to access. Use 0 for the X component, 1 for the Y component, 2 for the Z component, and 3 for the W component.</param>
     /// <returns>The value of the component at the specified index.</returns>
-    /// <exception cref="System.ArgumentOutOfRangeException">Thrown when the <paramref name="index"/> is out of the range [0, 3].</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when the <paramref name="index"/> is out of the range [0, 3].</exception>
     public float this[int index]
     {
         get
         {
-            switch (index)
+            return index switch
             {
-                case 0: return X;
-                case 1: return Y;
-                case 2: return Z;
-                case 3: return W;
-            }
-
-            throw new ArgumentOutOfRangeException("index", "Indices for Quaternion run from 0 to 3, inclusive.");
+                0 => X,
+                1 => Y,
+                2 => Z,
+                3 => W,
+                _ => throw new ArgumentOutOfRangeException("index", "Indices for Quaternion run from 0 to 3, inclusive."),
+            };
         }
 
         set
@@ -290,7 +283,7 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
             X = -X * lengthSq;
             Y = -Y * lengthSq;
             Z = -Z * lengthSq;
-            W = W * lengthSq;
+            W *= lengthSq;
         }
     }
 
@@ -304,7 +297,7 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
     /// </remarks>
     public readonly float Length()
     {
-        return MathF.Sqrt((X * X) + (Y * Y) + (Z * Z) + (W * W));
+        return Sqrt((X * X) + (Y * Y) + (Z * Z) + (W * W));
     }
 
     /// <summary>
@@ -585,10 +578,10 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
     /// <param name="result">When the method completes, contains the exponentiated quaternion.</param>
     public static void Exponential(ref Quaternion value, out Quaternion result)
     {
-        float angle = MathF.Sqrt((value.X * value.X) + (value.Y * value.Y) + (value.Z * value.Z));
-        float sin = MathF.Sin(angle);
+        float angle = Sqrt((value.X * value.X) + (value.Y * value.Y) + (value.Z * value.Z));
+        float sin = Sin(angle);
 
-        if (MathF.Abs(sin) >= MathUtil.ZERO_TOLERANCE)
+        if (Abs(sin) >= MathUtil.ZERO_TOLERANCE)
         {
             float coeff = sin / angle;
             result.X = coeff * value.X;
@@ -600,7 +593,7 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
             result = value;
         }
 
-        result.W = MathF.Cos(angle);
+        result.W = Cos(angle);
     }
 
     /// <summary>
@@ -719,12 +712,12 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
     /// <param name="result">When the method completes, contains the natural logarithm of the quaternion.</param>
     public static void Logarithm(ref Quaternion value, out Quaternion result)
     {
-        if (MathF.Abs(value.W) < 1.0f)
+        if (Abs(value.W) < 1.0f)
         {
-            float angle = MathF.Acos(value.W);
-            float sin = MathF.Sin(angle);
+            float angle = Acos(value.W);
+            float sin = Sin(angle);
 
-            if (MathF.Abs(sin) >= MathUtil.ZERO_TOLERANCE)
+            if (Abs(sin) >= MathUtil.ZERO_TOLERANCE)
             {
                 float coeff = angle / sin;
                 result.X = value.X * coeff;
@@ -803,8 +796,8 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
         Vector3.Normalize(ref axis, out var normalized);
 
         float half = angle * 0.5f;
-        float sin = MathF.Sin(half);
-        float cos = MathF.Cos(half);
+        float sin = Sin(half);
+        float cos = Cos(half);
 
         result.X = normalized.X * sin;
         result.Y = normalized.Y * sin;
@@ -837,7 +830,7 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
 
         if (scale > 0.0f)
         {
-            sqrt = MathF.Sqrt(scale + 1.0f);
+            sqrt = Sqrt(scale + 1.0f);
             result.W = sqrt * 0.5f;
             sqrt = 0.5f / sqrt;
 
@@ -847,7 +840,7 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
         }
         else if ((matrix.M11 >= matrix.M22) && (matrix.M11 >= matrix.M33))
         {
-            sqrt = MathF.Sqrt(1.0f + matrix.M11 - matrix.M22 - matrix.M33);
+            sqrt = Sqrt(1.0f + matrix.M11 - matrix.M22 - matrix.M33);
             half = 0.5f / sqrt;
 
             result.X = 0.5f * sqrt;
@@ -857,7 +850,7 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
         }
         else if (matrix.M22 > matrix.M33)
         {
-            sqrt = MathF.Sqrt(1.0f + matrix.M22 - matrix.M11 - matrix.M33);
+            sqrt = Sqrt(1.0f + matrix.M22 - matrix.M11 - matrix.M33);
             half = 0.5f / sqrt;
 
             result.X = (matrix.M21 + matrix.M12) * half;
@@ -867,7 +860,7 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
         }
         else
         {
-            sqrt = MathF.Sqrt(1.0f + matrix.M33 - matrix.M11 - matrix.M22);
+            sqrt = Sqrt(1.0f + matrix.M33 - matrix.M11 - matrix.M22);
             half = 0.5f / sqrt;
 
             result.X = (matrix.M31 + matrix.M13) * half;
@@ -896,7 +889,7 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
     public static void RotationX(float angle, out Quaternion result)
     {
         float halfAngle = angle * 0.5f;
-        result = new Quaternion(MathF.Sin(halfAngle), 0.0f, 0.0f, MathF.Cos(halfAngle));
+        result = new Quaternion(Sin(halfAngle), 0.0f, 0.0f, Cos(halfAngle));
     }
 
     /// <summary>
@@ -918,7 +911,7 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
     public static void RotationY(float angle, out Quaternion result)
     {
         float halfAngle = angle * 0.5f;
-        result = new Quaternion(0.0f, MathF.Sin(halfAngle), 0.0f, MathF.Cos(halfAngle));
+        result = new Quaternion(0.0f, Sin(halfAngle), 0.0f, Cos(halfAngle));
     }
 
     /// <summary>
@@ -940,7 +933,7 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
     public static void RotationZ(float angle, out Quaternion result)
     {
         float halfAngle = angle * 0.5f;
-        result = new Quaternion(0.0f, 0.0f, MathF.Sin(halfAngle), MathF.Cos(halfAngle));
+        result = new Quaternion(0.0f, 0.0f, Sin(halfAngle), Cos(halfAngle));
     }
 
     /// <summary>
@@ -978,15 +971,15 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
         float yz = rotation.Y * rotation.Z;
         float xw = rotation.X * rotation.W;
 
-        pitch = MathF.Asin(2.0f * (xw - yz));
-        if (MathF.Cos(pitch) > MathUtil.ZERO_TOLERANCE)
+        pitch = Asin(2.0f * (xw - yz));
+        if (Cos(pitch) > MathUtil.ZERO_TOLERANCE)
         {
-            roll = MathF.Atan2(2.0f * (xy + zw), 1.0f - (2.0f * (zz + xx)));
-            yaw = MathF.Atan2(2.0f * (zx + yw), 1.0f - (2.0f * (yy + xx)));
+            roll = Atan2(2.0f * (xy + zw), 1.0f - (2.0f * (zz + xx)));
+            yaw = Atan2(2.0f * (zx + yw), 1.0f - (2.0f * (yy + xx)));
         }
         else
         {
-            roll = MathF.Atan2(-2.0f * (xy - zw), 1.0f - (2.0f * (yy + zz)));
+            roll = Atan2(-2.0f * (xy - zw), 1.0f - (2.0f * (yy + zz)));
             yaw = 0.0f;
         }
     }
@@ -1004,12 +997,12 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
         float halfPitch = pitch * 0.5f;
         float halfYaw = yaw * 0.5f;
 
-        float sinRoll = MathF.Sin(halfRoll);
-        float cosRoll = MathF.Cos(halfRoll);
-        float sinPitch = MathF.Sin(halfPitch);
-        float cosPitch = MathF.Cos(halfPitch);
-        float sinYaw = MathF.Sin(halfYaw);
-        float cosYaw = MathF.Cos(halfYaw);
+        float sinRoll = Sin(halfRoll);
+        float cosRoll = Cos(halfRoll);
+        float sinPitch = Sin(halfPitch);
+        float cosPitch = Cos(halfPitch);
+        float sinYaw = Sin(halfYaw);
+        float cosYaw = Cos(halfYaw);
 
         float cosYawPitch = cosYaw * cosPitch;
         float sinYawPitch = sinYaw * sinPitch;
@@ -1053,13 +1046,13 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
     /// <param name="result">The resulting quaternion corresponding to the transformation of the source vector to the target vector.</param>
     public static void BetweenDirections(ref Vector3 source, ref Vector3 target, out Quaternion result)
     {
-        float norms = MathF.Sqrt(source.LengthSquared() * target.LengthSquared());
+        float norms = Sqrt(source.LengthSquared() * target.LengthSquared());
         float real = norms + Vector3.Dot(source, target);
         if (real < MathUtil.ZERO_TOLERANCE * norms)
         {
             // If source and target are exactly opposite, rotate 180 degrees around an arbitrary orthogonal axis.
             // Axis normalisation can happen later, when we normalise the quaternion.
-            result = MathF.Abs(source.X) > MathF.Abs(source.Z)
+            result = Abs(source.X) > Abs(source.Z)
                 ? new Quaternion(-source.Y, source.X, 0.0f, 0.0f)
                 : new Quaternion(0.0f, -source.Z, source.Y, 0.0f);
         }
@@ -1085,18 +1078,18 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
         float inverse;
         float dot = Dot(start, end);
 
-        if (MathF.Abs(dot) > 1.0f - MathUtil.ZERO_TOLERANCE)
+        if (Abs(dot) > 1.0f - MathUtil.ZERO_TOLERANCE)
         {
             inverse = 1.0f - amount;
-            opposite = amount * MathF.Sign(dot);
+            opposite = amount * Sign(dot);
         }
         else
         {
-            float acos = MathF.Acos(MathF.Abs(dot));
-            float invSin = 1.0f / MathF.Sin(acos);
+            float acos = Acos(Abs(dot));
+            float invSin = 1.0f / Sin(acos);
 
-            inverse = MathF.Sin((1.0f - amount) * acos) * invSin;
-            opposite = MathF.Sin(amount * acos) * invSin * MathF.Sign(dot);
+            inverse = Sin((1.0f - amount) * acos) * invSin;
+            opposite = Sin(amount * acos) * invSin * Sign(dot);
         }
 
         result.X = (inverse * start.X) + (opposite * end.X);

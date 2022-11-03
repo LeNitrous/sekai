@@ -36,7 +36,7 @@ public struct BoundingBoxExt : IEquatable<BoundingBoxExt>
     /// <summary>
     /// A <see cref="BoundingBoxExt"/> which represents an empty space.
     /// </summary>
-    public static readonly BoundingBoxExt Empty = new BoundingBoxExt(BoundingBox.Empty);
+    public static readonly BoundingBoxExt Empty = new(BoundingBox.Empty);
 
     /// <summary>
     /// The center of this bounding box.

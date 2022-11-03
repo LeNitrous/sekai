@@ -147,19 +147,14 @@ public struct UInt4 : IEquatable<UInt4>, IFormattable
     {
         get
         {
-            switch (index)
+            return index switch
             {
-                case 0:
-                    return X;
-                case 1:
-                    return Y;
-                case 2:
-                    return Z;
-                case 3:
-                    return W;
-            }
-
-            throw new ArgumentOutOfRangeException("index", "Indices for UInt4 run from 0 to 3, inclusive.");
+                0 => X,
+                1 => Y,
+                2 => Z,
+                3 => W,
+                _ => throw new ArgumentOutOfRangeException("index", "Indices for UInt4 run from 0 to 3, inclusive."),
+            };
         }
 
         set
@@ -340,8 +335,7 @@ public struct UInt4 : IEquatable<UInt4>, IFormattable
     /// <returns>The clamped value.</returns>
     public static UInt4 Clamp(UInt4 value, UInt4 min, UInt4 max)
     {
-        UInt4 result;
-        Clamp(ref value, ref min, ref max, out result);
+        Clamp(ref value, ref min, ref max, out var result);
         return result;
     }
 
@@ -367,8 +361,7 @@ public struct UInt4 : IEquatable<UInt4>, IFormattable
     /// <returns>A vector containing the largest components of the source vectors.</returns>
     public static UInt4 Max(UInt4 left, UInt4 right)
     {
-        UInt4 result;
-        Max(ref left, ref right, out result);
+        Max(ref left, ref right, out var result);
         return result;
     }
 
@@ -394,8 +387,7 @@ public struct UInt4 : IEquatable<UInt4>, IFormattable
     /// <returns>A vector containing the smallest components of the source vectors.</returns>
     public static UInt4 Min(UInt4 left, UInt4 right)
     {
-        UInt4 result;
-        Min(ref left, ref right, out result);
+        Min(ref left, ref right, out var result);
         return result;
     }
 
