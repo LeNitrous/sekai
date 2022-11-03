@@ -64,16 +64,19 @@ public struct Size3 : IEquatable<Size3>, IComparable<Size3>
     /// <summary>
     /// Width.
     /// </summary>
+    [DataMember]
     public int Width;
 
     /// <summary>
     /// Height.
     /// </summary>
+    [DataMember]
     public int Height;
 
     /// <summary>
     /// Height.
     /// </summary>
+    [DataMember]
     public int Depth;
 
     /// <summary>

@@ -56,11 +56,13 @@ public struct Size2 : IEquatable<Size2>
     /// <summary>
     /// Width.
     /// </summary>
+    [DataMember]
     public int Width;
 
     /// <summary>
     /// Height.
     /// </summary>
+    [DataMember]
     public int Height;
 
     /// <summary>
