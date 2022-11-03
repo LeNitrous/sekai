@@ -939,10 +939,10 @@ public struct Color4 : IEquatable<Color4>, IFormattable
     /// <returns>
     /// A <see cref="string"/> that represents this instance.
     /// </returns>
-    public string ToString(string format, IFormatProvider formatProvider)
+    public string ToString(string? format, IFormatProvider? formatProvider)
     {
         if (format == null)
-            return ToString(formatProvider);
+            return ToString(formatProvider ?? CultureInfo.CurrentCulture);
 
         return string.Format(formatProvider, to_string_format,
                              A.ToString(format, formatProvider),
