@@ -348,48 +348,4 @@ public struct Ray : IEquatable<Ray>, IFormattable
 
         return Equals((Ray)value);
     }
-
-#if SlimDX1xInterop
-        /// <summary>
-        /// Performs an implicit conversion from <see cref="Stride.Core.Mathematics.Ray"/> to <see cref="SlimDX.Ray"/>.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>The result of the conversion.</returns>
-        public static implicit operator SlimDX.Ray(Ray value)
-        {
-            return new SlimDX.Ray(value.Position, value.Direction);
-        }
-
-        /// <summary>
-        /// Performs an implicit conversion from <see cref="SlimDX.Ray"/> to <see cref="Stride.Core.Mathematics.Ray"/>.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>The result of the conversion.</returns>
-        public static implicit operator Ray(SlimDX.Ray value)
-        {
-            return new Ray(value.Position, value.Direction);
-        }
-#endif
-
-#if XnaInterop
-        /// <summary>
-        /// Performs an implicit conversion from <see cref="Stride.Core.Mathematics.Ray"/> to <see cref="Microsoft.Xna.Framework.Ray"/>.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>The result of the conversion.</returns>
-        public static implicit operator Microsoft.Xna.Framework.Ray(Ray value)
-        {
-            return new Microsoft.Xna.Framework.Ray(value.Position, value.Direction);
-        }
-
-        /// <summary>
-        /// Performs an implicit conversion from <see cref="Microsoft.Xna.Framework.Ray"/> to <see cref="Stride.Core.Mathematics.Ray"/>.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>The result of the conversion.</returns>
-        public static implicit operator Ray(Microsoft.Xna.Framework.Ray value)
-        {
-            return new Ray(value.Position, value.Direction);
-        }
-#endif
 }
