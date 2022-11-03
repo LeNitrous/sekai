@@ -49,41 +49,44 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
     /// <summary>
     /// A <see cref="Stride.Core.Mathematics.Vector3"/> with all of its components set to zero.
     /// </summary>
-    public static readonly Vector3 Zero = new Vector3();
+    public static readonly Vector3 Zero = new();
 
     /// <summary>
     /// The X unit <see cref="Stride.Core.Mathematics.Vector3"/> (1, 0, 0).
     /// </summary>
-    public static readonly Vector3 UnitX = new Vector3(1.0f, 0.0f, 0.0f);
+    public static readonly Vector3 UnitX = new(1.0f, 0.0f, 0.0f);
 
     /// <summary>
     /// The Y unit <see cref="Stride.Core.Mathematics.Vector3"/> (0, 1, 0).
     /// </summary>
-    public static readonly Vector3 UnitY = new Vector3(0.0f, 1.0f, 0.0f);
+    public static readonly Vector3 UnitY = new(0.0f, 1.0f, 0.0f);
 
     /// <summary>
     /// The Z unit <see cref="Stride.Core.Mathematics.Vector3"/> (0, 0, 1).
     /// </summary>
-    public static readonly Vector3 UnitZ = new Vector3(0.0f, 0.0f, 1.0f);
+    public static readonly Vector3 UnitZ = new(0.0f, 0.0f, 1.0f);
 
     /// <summary>
     /// A <see cref="Stride.Core.Mathematics.Vector3"/> with all of its components set to one.
     /// </summary>
-    public static readonly Vector3 One = new Vector3(1.0f, 1.0f, 1.0f);
+    public static readonly Vector3 One = new(1.0f, 1.0f, 1.0f);
 
     /// <summary>
     /// The X component of the vector.
     /// </summary>
+    [DataMember]
     public float X;
 
     /// <summary>
     /// The Y component of the vector.
     /// </summary>
+    [DataMember]
     public float Y;
 
     /// <summary>
     /// The Z component of the vector.
     /// </summary>
+    [DataMember]
     public float Z;
 
     /// <summary>
@@ -143,10 +146,7 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
     /// <summary>
     /// Gets a value indicting whether this instance is normalized.
     /// </summary>
-    public readonly bool IsNormalized
-    {
-        get { return MathF.Abs((X * X) + (Y * Y) + (Z * Z) - 1f) < MathUtil.ZERO_TOLERANCE; }
-    }
+    public readonly bool IsNormalized => MathF.Abs((X * X) + (Y * Y) + (Z * Z) - 1f) < MathUtil.ZERO_TOLERANCE;
 
     /// <summary>
     /// Gets or sets the component at the specified index.
@@ -457,8 +457,7 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
     /// <returns>A new <see cref="Stride.Core.Mathematics.Vector3"/> containing the 3D Cartesian coordinates of the specified point.</returns>
     public static Vector3 Barycentric(Vector3 value1, Vector3 value2, Vector3 value3, float amount1, float amount2)
     {
-        Vector3 result;
-        Barycentric(ref value1, ref value2, ref value3, amount1, amount2, out result);
+        Barycentric(ref value1, ref value2, ref value3, amount1, amount2, out var result);
         return result;
     }
 
@@ -495,8 +494,7 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
     /// <returns>The clamped value.</returns>
     public static Vector3 Clamp(Vector3 value, Vector3 min, Vector3 max)
     {
-        Vector3 result;
-        Clamp(ref value, ref min, ref max, out result);
+        Clamp(ref value, ref min, ref max, out var result);
         return result;
     }
 
@@ -691,8 +689,7 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
     /// </remarks>
     public static Vector3 Lerp(Vector3 start, Vector3 end, float amount)
     {
-        Vector3 result;
-        Lerp(ref start, ref end, amount, out result);
+        Lerp(ref start, ref end, amount, out var result);
         return result;
     }
 
@@ -722,8 +719,7 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
     /// <returns>The cubic interpolation of the two vectors.</returns>
     public static Vector3 SmoothStep(Vector3 start, Vector3 end, float amount)
     {
-        Vector3 result;
-        SmoothStep(ref start, ref end, amount, out result);
+        SmoothStep(ref start, ref end, amount, out var result);
         return result;
     }
 
@@ -761,8 +757,7 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
     /// <returns>The result of the Hermite spline interpolation.</returns>
     public static Vector3 Hermite(Vector3 value1, Vector3 tangent1, Vector3 value2, Vector3 tangent2, float amount)
     {
-        Vector3 result;
-        Hermite(ref value1, ref tangent1, ref value2, ref tangent2, amount, out result);
+        Hermite(ref value1, ref tangent1, ref value2, ref tangent2, amount, out var result);
         return result;
     }
 
@@ -804,8 +799,7 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
     /// <returns>A vector that is the result of the Catmull-Rom interpolation.</returns>
     public static Vector3 CatmullRom(Vector3 value1, Vector3 value2, Vector3 value3, Vector3 value4, float amount)
     {
-        Vector3 result;
-        CatmullRom(ref value1, ref value2, ref value3, ref value4, amount, out result);
+        CatmullRom(ref value1, ref value2, ref value3, ref value4, amount, out var result);
         return result;
     }
 
@@ -832,8 +826,7 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector3 Mod(Vector3 left, Vector3 right)
     {
-        Vector3 result;
-        Mod(ref left, ref right, out result);
+        Mod(ref left, ref right, out var result);
         return result;
     }
 
@@ -860,8 +853,7 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector3 Max(Vector3 left, Vector3 right)
     {
-        Vector3 result;
-        Max(ref left, ref right, out result);
+        Max(ref left, ref right, out var result);
         return result;
     }
 
@@ -888,8 +880,7 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vector3 Min(Vector3 left, Vector3 right)
     {
-        Vector3 result;
-        Min(ref left, ref right, out result);
+        Min(ref left, ref right, out var result);
         return result;
     }
 
@@ -907,8 +898,7 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
     /// <param name="result">When the method completes, contains the vector in screen space.</param>
     public static void Project(ref Vector3 vector, float x, float y, float width, float height, float minZ, float maxZ, ref Matrix worldViewProjection, out Vector3 result)
     {
-        Vector3 v;
-        TransformCoordinate(ref vector, ref worldViewProjection, out v);
+        TransformCoordinate(ref vector, ref worldViewProjection, out var v);
 
         result = new Vector3(((1.0f + v.X) * 0.5f * width) + x, ((1.0f - v.Y) * 0.5f * height) + y, (v.Z * (maxZ - minZ)) + minZ);
     }
@@ -927,8 +917,7 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
     /// <returns>The vector in screen space.</returns>
     public static Vector3 Project(Vector3 vector, float x, float y, float width, float height, float minZ, float maxZ, Matrix worldViewProjection)
     {
-        Vector3 result;
-        Project(ref vector, x, y, width, height, minZ, maxZ, ref worldViewProjection, out result);
+        Project(ref vector, x, y, width, height, minZ, maxZ, ref worldViewProjection, out var result);
         return result;
     }
 
@@ -947,8 +936,7 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
     public static void Unproject(ref Vector3 vector, float x, float y, float width, float height, float minZ, float maxZ, ref Matrix worldViewProjection, out Vector3 result)
     {
         Vector3 v = new Vector3();
-        Matrix matrix;
-        Matrix.Invert(ref worldViewProjection, out matrix);
+        Matrix.Invert(ref worldViewProjection, out var matrix);
 
         v.X = (((vector.X - x) / width) * 2.0f) - 1.0f;
         v.Y = -((((vector.Y - y) / height) * 2.0f) - 1.0f);
@@ -971,8 +959,7 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
     /// <returns>The vector in object space.</returns>
     public static Vector3 Unproject(Vector3 vector, float x, float y, float width, float height, float minZ, float maxZ, Matrix worldViewProjection)
     {
-        Vector3 result;
-        Unproject(ref vector, x, y, width, height, minZ, maxZ, ref worldViewProjection, out result);
+        Unproject(ref vector, x, y, width, height, minZ, maxZ, ref worldViewProjection, out var result);
         return result;
     }
 
@@ -1003,8 +990,7 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
     /// whether the original vector was close enough to the surface to hit it.</remarks>
     public static Vector3 Reflect(Vector3 vector, Vector3 normal)
     {
-        Vector3 result;
-        Reflect(ref vector, ref normal, out result);
+        Reflect(ref vector, ref normal, out var result);
         return result;
     }
 
@@ -1046,7 +1032,7 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
 
             for (int r = 0; r < i; ++r)
             {
-                newvector -= (Vector3.Dot(destination[r], newvector) / Vector3.Dot(destination[r], destination[r])) * destination[r];
+                newvector -= (Dot(destination[r], newvector) / Dot(destination[r], destination[r])) * destination[r];
             }
 
             destination[i] = newvector;
@@ -1089,11 +1075,11 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
 
         for (int i = 0; i < source.Length; ++i)
         {
-            Vector3 newvector = source[i];
+            var newvector = source[i];
 
             for (int r = 0; r < i; ++r)
             {
-                newvector -= Vector3.Dot(destination[r], newvector) * destination[r];
+                newvector -= Dot(destination[r], newvector) * destination[r];
             }
 
             newvector.Normalize();
@@ -1136,8 +1122,7 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
     /// <returns>The transformed <see cref="Stride.Core.Mathematics.Vector4"/>.</returns>
     public static Vector3 Transform(Vector3 vector, Quaternion rotation)
     {
-        Vector3 result;
-        Transform(ref vector, ref rotation, out result);
+        Transform(ref vector, ref rotation, out var result);
         return result;
     }
 
@@ -1228,8 +1213,7 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
     /// <returns>The transformed <see cref="Stride.Core.Mathematics.Vector4"/>.</returns>
     public static Vector4 Transform(Vector3 vector, Matrix transform)
     {
-        Vector4 result;
-        Transform(ref vector, ref transform, out result);
+        Transform(ref vector, ref transform, out Vector4 result);
         return result;
     }
 
@@ -1271,7 +1255,7 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
     /// </remarks>
     public static void TransformCoordinate(ref Vector3 coordinate, ref Matrix transform, out Vector3 result)
     {
-        var invW = 1f / ((coordinate.X * transform.M14) + (coordinate.Y * transform.M24) + (coordinate.Z * transform.M34) + transform.M44);
+        float invW = 1f / ((coordinate.X * transform.M14) + (coordinate.Y * transform.M24) + (coordinate.Z * transform.M34) + transform.M44);
         result = new Vector3(
             ((coordinate.X * transform.M11) + (coordinate.Y * transform.M21) + (coordinate.Z * transform.M31) + transform.M41) * invW,
             ((coordinate.X * transform.M12) + (coordinate.Y * transform.M22) + (coordinate.Z * transform.M32) + transform.M42) * invW,
@@ -1293,8 +1277,7 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
     /// </remarks>
     public static Vector3 TransformCoordinate(Vector3 coordinate, Matrix transform)
     {
-        Vector3 result;
-        TransformCoordinate(ref coordinate, ref transform, out result);
+        TransformCoordinate(ref coordinate, ref transform, out var result);
         return result;
     }
 
@@ -1365,8 +1348,7 @@ public struct Vector3 : IEquatable<Vector3>, IFormattable
     /// </remarks>
     public static Vector3 TransformNormal(Vector3 normal, Matrix transform)
     {
-        Vector3 result;
-        TransformNormal(ref normal, ref transform, out result);
+        TransformNormal(ref normal, ref transform, out var result);
         return result;
     }
 

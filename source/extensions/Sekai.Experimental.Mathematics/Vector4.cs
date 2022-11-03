@@ -29,7 +29,6 @@
 * THE SOFTWARE.
 */
 using System.Globalization;
-using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 
@@ -79,21 +78,25 @@ public struct Vector4 : IEquatable<Vector4>, IFormattable
     /// <summary>
     /// The X component of the vector.
     /// </summary>
+    [DataMember]
     public float X;
 
     /// <summary>
     /// The Y component of the vector.
     /// </summary>
+    [DataMember]
     public float Y;
 
     /// <summary>
     /// The Z component of the vector.
     /// </summary>
+    [DataMember]
     public float Z;
 
     /// <summary>
     /// The W component of the vector.
     /// </summary>
+    [DataMember]
     public float W;
 
     /// <summary>
