@@ -688,7 +688,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// its value is equal to the value of the current Stride.Core.Mathematics.Angle
     /// object; otherwise, false.
     /// </returns>
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         return (obj is AngleSingle single) && (this == single);
     }
