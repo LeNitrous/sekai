@@ -1355,10 +1355,10 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
     /// <returns>
     /// A <see cref="string"/> that represents this instance.
     /// </returns>
-    public readonly string ToString(string format, IFormatProvider formatProvider)
+    public readonly string ToString(string? format, IFormatProvider? formatProvider)
     {
         if (format == null)
-            return ToString(formatProvider);
+            return ToString(formatProvider ?? CultureInfo.CurrentCulture);
 
         return string.Format(formatProvider, "X:{0} Y:{1} Z:{2} W:{3}", X.ToString(format, formatProvider),
             Y.ToString(format, formatProvider), Z.ToString(format, formatProvider), W.ToString(format, formatProvider));
@@ -1397,74 +1397,8 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
     /// <returns>
     /// <c>true</c> if the specified <see cref="object"/> is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
-    public override readonly bool Equals(object value)
+    public override readonly bool Equals(object? value)
     {
         return value is Quaternion q && Equals(q);
     }
-
-#if SlimDX1xInterop
-        /// <summary>
-        /// Performs an implicit conversion from <see cref="Stride.Core.Mathematics.Quaternion"/> to <see cref="SlimDX.Quaternion"/>.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>The result of the conversion.</returns>
-        public static implicit operator SlimDX.Quaternion(Quaternion value)
-        {
-            return new SlimDX.Quaternion(value.X, value.Y, value.Z, value.W);
-        }
-
-        /// <summary>
-        /// Performs an implicit conversion from <see cref="SlimDX.Quaternion"/> to <see cref="Stride.Core.Mathematics.Quaternion"/>.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>The result of the conversion.</returns>
-        public static implicit operator Quaternion(SlimDX.Quaternion value)
-        {
-            return new Quaternion(value.X, value.Y, value.Z, value.W);
-        }
-#endif
-
-#if WPFInterop
-        /// <summary>
-        /// Performs an implicit conversion from <see cref="Stride.Core.Mathematics.Quaternion"/> to <see cref="System.Windows.Media.Media3D.Quaternion"/>.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>The result of the conversion.</returns>
-        public static implicit operator System.Windows.Media.Media3D.Quaternion(Quaternion value)
-        {
-            return new System.Windows.Media.Media3D.Quaternion(value.X, value.Y, value.Z, value.W);
-        }
-
-        /// <summary>
-        /// Performs an explicit conversion from <see cref="System.Windows.Media.Media3D.Quaternion"/> to <see cref="Stride.Core.Mathematics.Quaternion"/>.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>The result of the conversion.</returns>
-        public static explicit operator Quaternion(System.Windows.Media.Media3D.Quaternion value)
-        {
-            return new Quaternion((float)value.X, (float)value.Y, (float)value.Z, (float)value.W);
-        }
-#endif
-
-#if XnaInterop
-        /// <summary>
-        /// Performs an implicit conversion from <see cref="Stride.Core.Mathematics.Quaternion"/> to <see cref="Microsoft.Xna.Framework.Quaternion"/>.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>The result of the conversion.</returns>
-        public static implicit operator Microsoft.Xna.Framework.Quaternion(Quaternion value)
-        {
-            return new Microsoft.Xna.Framework.Quaternion(value.X, value.Y, value.Z, value.W);
-        }
-
-        /// <summary>
-        /// Performs an implicit conversion from <see cref="Microsoft.Xna.Framework.Quaternion"/> to <see cref="Stride.Core.Mathematics.Quaternion"/>.
-        /// </summary>
-        /// <param name="value">The value.</param>
-        /// <returns>The result of the conversion.</returns>
-        public static implicit operator Quaternion(Microsoft.Xna.Framework.Quaternion value)
-        {
-            return new Quaternion(value.X, value.Y, value.Z, value.W);
-        }
-#endif
 }

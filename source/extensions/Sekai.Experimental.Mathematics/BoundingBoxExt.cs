@@ -133,7 +133,7 @@ public struct BoundingBoxExt : IEquatable<BoundingBoxExt>
     }
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         if (obj is null) return false;
         return obj is BoundingBoxExt ext && Equals(ext);

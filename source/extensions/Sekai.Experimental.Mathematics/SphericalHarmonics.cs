@@ -61,7 +61,9 @@ public abstract class SphericalHarmonics<TDataType>
     /// <summary>
     /// Initializes a new instance of the <see cref="SphericalHarmonics{TDataType}"/> class (null, for serialization).
     /// </summary>
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     internal SphericalHarmonics()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     {
     }
 
@@ -107,7 +109,7 @@ public abstract class SphericalHarmonics<TDataType>
     // ReSharper restore UnusedParameter.Local
     {
         if (l > maxOrder - 1)
-            throw new IndexOutOfRangeException("'l' parameter should be between '0' and '{0}' (order-1).".ToFormat(maxOrder - 1));
+            throw new IndexOutOfRangeException($"'l' parameter should be between '0' and '{maxOrder - 1}' (order-1).");
 
         if (Math.Abs(m) > l)
             throw new IndexOutOfRangeException("'m' parameter should be between '-l' and '+l'.");
@@ -170,7 +172,9 @@ public class SphericalHarmonics : SphericalHarmonics<Color3>
     /// <summary>
     /// Initializes a new instance of the <see cref="SphericalHarmonics"/> class (null, for serialization).
     /// </summary>
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     internal SphericalHarmonics()
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
     {
     }
 

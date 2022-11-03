@@ -372,7 +372,7 @@ public static class CollisionHelper
         //Same thing as RayIntersectsSphere except that the radius of the sphere (point)
         //is the epsilon for zero.
         float b = Vector3.Dot(m, ray.Direction);
-        float c = Vector3.Dot(m, m) - MathUtil.ZeroTolerance;
+        float c = Vector3.Dot(m, m) - MathUtil.ZERO_TOLERANCE;
 
         if (c > 0f && b > 0f)
             return false;
@@ -413,12 +413,12 @@ public static class CollisionHelper
         float denominator = cross.Length();
 
         //Lines are parallel.
-        if (MathF.Abs(denominator) < MathUtil.ZeroTolerance)
+        if (MathF.Abs(denominator) < MathUtil.ZERO_TOLERANCE)
         {
             //Lines are parallel and on top of each other.
-            if (MathF.Abs(ray2.Position.X - ray1.Position.X) < MathUtil.ZeroTolerance &&
-                MathF.Abs(ray2.Position.Y - ray1.Position.Y) < MathUtil.ZeroTolerance &&
-                MathF.Abs(ray2.Position.Z - ray1.Position.Z) < MathUtil.ZeroTolerance)
+            if (MathF.Abs(ray2.Position.X - ray1.Position.X) < MathUtil.ZERO_TOLERANCE &&
+                MathF.Abs(ray2.Position.Y - ray1.Position.Y) < MathUtil.ZERO_TOLERANCE &&
+                MathF.Abs(ray2.Position.Z - ray1.Position.Z) < MathUtil.ZERO_TOLERANCE)
             {
                 point = Vector3.Zero;
                 return true;
@@ -470,9 +470,9 @@ public static class CollisionHelper
         Vector3 point2 = ray2.Position + (t * ray2.Direction);
 
         //If the points are not equal, no intersection has occurred.
-        if (MathF.Abs(point2.X - point1.X) > MathUtil.ZeroTolerance ||
-            MathF.Abs(point2.Y - point1.Y) > MathUtil.ZeroTolerance ||
-            MathF.Abs(point2.Z - point1.Z) > MathUtil.ZeroTolerance)
+        if (MathF.Abs(point2.X - point1.X) > MathUtil.ZERO_TOLERANCE ||
+            MathF.Abs(point2.Y - point1.Y) > MathUtil.ZERO_TOLERANCE ||
+            MathF.Abs(point2.Z - point1.Z) > MathUtil.ZERO_TOLERANCE)
         {
             point = Vector3.Zero;
             return false;
@@ -497,7 +497,7 @@ public static class CollisionHelper
 
         Vector3.Dot(ref plane.Normal, ref ray.Direction, out float direction);
 
-        if (MathF.Abs(direction) < MathUtil.ZeroTolerance)
+        if (MathF.Abs(direction) < MathUtil.ZERO_TOLERANCE)
         {
             distance = 0f;
             return false;
@@ -508,7 +508,7 @@ public static class CollisionHelper
 
         if (distance < 0f)
         {
-            if (distance < -MathUtil.ZeroTolerance)
+            if (distance < -MathUtil.ZERO_TOLERANCE)
             {
                 distance = 0;
                 return false;
@@ -592,7 +592,7 @@ public static class CollisionHelper
         //If the ray is parallel to the triangle plane, there is no collision.
         //This also means that we are not culling, the ray may hit both the
         //back and the front of the triangle.
-        if (determinant > -MathUtil.ZeroTolerance && determinant < MathUtil.ZeroTolerance)
+        if (determinant is > (-MathUtil.ZERO_TOLERANCE) and < MathUtil.ZERO_TOLERANCE)
         {
             distance = 0f;
             return false;
@@ -786,7 +786,7 @@ public static class CollisionHelper
         distance = 0f;
         float tmax = float.MaxValue;
 
-        if (MathF.Abs(ray.Direction.X) < MathUtil.ZeroTolerance)
+        if (MathF.Abs(ray.Direction.X) < MathUtil.ZERO_TOLERANCE)
         {
             if (ray.Position.X < box.Minimum.X || ray.Position.X > box.Maximum.X)
             {
@@ -817,7 +817,7 @@ public static class CollisionHelper
             }
         }
 
-        if (MathF.Abs(ray.Direction.Y) < MathUtil.ZeroTolerance)
+        if (MathF.Abs(ray.Direction.Y) < MathUtil.ZERO_TOLERANCE)
         {
             if (ray.Position.Y < box.Minimum.Y || ray.Position.Y > box.Maximum.Y)
             {
@@ -848,7 +848,7 @@ public static class CollisionHelper
             }
         }
 
-        if (MathF.Abs(ray.Direction.Z) < MathUtil.ZeroTolerance)
+        if (MathF.Abs(ray.Direction.Z) < MathUtil.ZERO_TOLERANCE)
         {
             if (ray.Position.Z < box.Minimum.Z || ray.Position.Z > box.Maximum.Z)
             {
@@ -996,7 +996,7 @@ public static class CollisionHelper
         //coincident. It is not an intersection. The dot product will tell us.
         Vector3.Dot(ref direction, ref direction, out float denominator);
 
-        if (MathF.Abs(denominator) < MathUtil.ZeroTolerance)
+        if (MathF.Abs(denominator) < MathUtil.ZERO_TOLERANCE)
             return false;
 
         return true;
@@ -1029,7 +1029,7 @@ public static class CollisionHelper
         //We assume the planes are normalized, therefore the denominator
         //only serves as a parallel and coincident check. Otherwise we need
         //to deivide the point by the denominator.
-        if (MathF.Abs(denominator) < MathUtil.ZeroTolerance)
+        if (MathF.Abs(denominator) < MathUtil.ZERO_TOLERANCE)
         {
             line = new Ray();
             return false;
@@ -1519,6 +1519,8 @@ public static class CollisionHelper
     /// <param name="distance">The distance from the start of the ray.</param>
     /// <param name="point">The position of the collision.</param>
     /// <returns>Whether there was a hit.</returns>
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+#pragma warning disable CS8601 // Possible null reference assignment.
     public static bool GetNearestHit<T>(IEnumerable<T> objects, ref Ray ray, out T hitObject, out float distance, out Vector3 point)
         where T : IIntersectableWithRay
     {
@@ -1538,9 +1540,11 @@ public static class CollisionHelper
 
         if (hit)
             hitObject.Intersects(ref ray, out point);
+
         else
             point = default;
 
         return hit;
     }
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
 }

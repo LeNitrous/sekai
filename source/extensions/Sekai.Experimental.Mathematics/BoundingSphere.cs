@@ -438,10 +438,10 @@ public struct BoundingSphere : IEquatable<BoundingSphere>, IFormattable, IInters
     /// <returns>
     /// A <see cref="string"/> that represents this instance.
     /// </returns>
-    public string ToString(string format, IFormatProvider formatProvider)
+    public string ToString(string? format, IFormatProvider? formatProvider)
     {
         if (format == null)
-            return ToString(formatProvider);
+            return ToString(formatProvider ?? CultureInfo.CurrentCulture);
 
         return string.Format(formatProvider, "Center:{0} Radius:{1}", Center.ToString(format, formatProvider),
             Radius.ToString(format, formatProvider));
@@ -477,7 +477,7 @@ public struct BoundingSphere : IEquatable<BoundingSphere>, IFormattable, IInters
     /// <returns>
     /// <c>true</c> if the specified <see cref="object"/> is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
-    public override bool Equals(object value)
+    public override bool Equals(object? value)
     {
         if (value == null)
             return false;

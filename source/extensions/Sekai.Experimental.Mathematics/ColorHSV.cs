@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 
@@ -137,7 +138,7 @@ public struct ColorHSV : IEquatable<ColorHSV>, IFormattable
     }
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         if (obj is null) return false;
         if (obj.GetType() != typeof(ColorHSV)) return false;
@@ -200,10 +201,10 @@ public struct ColorHSV : IEquatable<ColorHSV>, IFormattable
     /// <returns>
     /// A <see cref="string"/> that represents this instance.
     /// </returns>
-    public string ToString(string format, IFormatProvider formatProvider)
+    public string ToString(string? format, IFormatProvider? formatProvider)
     {
         if (format == null)
-            return ToString(formatProvider);
+            return ToString(formatProvider ?? CultureInfo.CurrentCulture);
 
         return string.Format(formatProvider, to_string_format,
                              H.ToString(format, formatProvider),

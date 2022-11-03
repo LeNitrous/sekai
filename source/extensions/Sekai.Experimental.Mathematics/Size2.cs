@@ -78,7 +78,7 @@ public struct Size2 : IEquatable<Size2>
     }
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         if (obj is null) return false;
         if (obj.GetType() != typeof(Size2)) return false;
