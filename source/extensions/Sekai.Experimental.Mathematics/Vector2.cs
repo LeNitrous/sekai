@@ -31,9 +31,14 @@
 
 using System.Globalization;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 
 namespace Sekai.Experimental.Mathematics;
 
+/// <summary>
+/// Represents a two dimensional mathematical vector.
+/// </summary>
+[DataContract]
 public struct Vector2 : IEquatable<Vector2>, IFormattable
 {
        /// <summary>

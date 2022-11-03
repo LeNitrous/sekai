@@ -26,42 +26,39 @@ using System.Runtime.Serialization;
 
 namespace Sekai.Experimental.Mathematics;
 /// <summary>
-/// Defines a 2D rectangular size (width,height).
+/// A 2D point.
 /// </summary>
 [DataContract]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct Size2 : IEquatable<Size2>
+public struct Point : IEquatable<Point>
 {
     /// <summary>
-    /// A zero size with (width, height) = (0,0)
+    /// A point with (0,0) coordinates.
     /// </summary>
-    public static readonly Size2 Zero = new(0, 0);
+    public static readonly Point Zero = new(0, 0);
 
     /// <summary>
-    /// A zero size with (width, height) = (0,0)
+    /// Initializes a new instance of the <see cref="Point"/> struct.
     /// </summary>
-    public static readonly Size2 Empty = Zero;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Size2"/> struct.
-    /// </summary>
-    /// <param name="width">The x.</param>
-    /// <param name="height">The y.</param>
-    public Size2(int width, int height)
+    /// <param name="x">The x.</param>
+    /// <param name="y">The y.</param>
+    public Point(int x, int y)
     {
-        Width = width;
-        Height = height;
+        X = x;
+        Y = y;
     }
 
     /// <summary>
-    /// Width.
+    /// Left coordinate.
     /// </summary>
-    public int Width;
+    [DataMember]
+    public int X;
 
     /// <summary>
-    /// Height.
+    /// Top coordinate.
     /// </summary>
-    public int Height;
+    [DataMember]
+    public int Y;
 
     /// <summary>
     /// Determines whether the specified <see cref="object"/> is equal to this instance.
@@ -70,17 +67,17 @@ public struct Size2 : IEquatable<Size2>
     /// <returns>
     ///   <c>true</c> if the specified <see cref="object"/> is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
-    public bool Equals(Size2 other)
+    public bool Equals(Point other)
     {
-        return other.Width == Width && other.Height == Height;
+        return other.X == X && other.Y == Y;
     }
 
     /// <inheritdoc/>
     public override bool Equals(object obj)
     {
         if (obj is null) return false;
-        if (obj.GetType() != typeof(Size2)) return false;
-        return Equals((Size2)obj);
+        if (obj.GetType() != typeof(Point)) return false;
+        return Equals((Point)obj);
     }
 
     /// <inheritdoc/>
@@ -88,7 +85,7 @@ public struct Size2 : IEquatable<Size2>
     {
         unchecked
         {
-            return (Width * 397) ^ Height;
+            return (X * 397) ^ Y;
         }
     }
 
@@ -100,7 +97,7 @@ public struct Size2 : IEquatable<Size2>
     /// <returns>
     /// The result of the operator.
     /// </returns>
-    public static bool operator ==(Size2 left, Size2 right)
+    public static bool operator ==(Point left, Point right)
     {
         return left.Equals(right);
     }
@@ -113,7 +110,7 @@ public struct Size2 : IEquatable<Size2>
     /// <returns>
     /// The result of the operator.
     /// </returns>
-    public static bool operator !=(Size2 left, Size2 right)
+    public static bool operator !=(Point left, Point right)
     {
         return !left.Equals(right);
     }
@@ -121,6 +118,26 @@ public struct Size2 : IEquatable<Size2>
     /// <inheritdoc/>
     public override string ToString()
     {
-        return string.Format("({0},{1})", Width, Height);
+        return string.Format("({0},{1})", X, Y);
+    }
+
+    /// <summary>
+    /// Performs an implicit conversion from <see cref="Vector2"/> to <see cref="Point"/>.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The result of the conversion.</returns>
+    public static explicit operator Point(Vector2 value)
+    {
+        return new Point((int)value.X, (int)value.Y);
+    }
+
+    /// <summary>
+    /// Performs an explicit conversion from <see cref="Point"/> to <see cref="Vector2"/>.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The result of the conversion.</returns>
+    public static implicit operator Vector2(Point value)
+    {
+        return new Vector2(value.X, value.Y);
     }
 }

@@ -31,12 +31,14 @@
 using System.Globalization;
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 
 namespace Sekai.Experimental.Mathematics;
 
 /// <summary>
 /// Represents a four dimensional mathematical vector.
 /// </summary>
+[DataContract]
 public struct Vector4 : IEquatable<Vector4>, IFormattable
 {
     /// <summary>

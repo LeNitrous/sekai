@@ -22,13 +22,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System.Runtime.InteropServices;
-
+using System.Runtime.Serialization;
 
 namespace Sekai.Experimental.Mathematics;
 
 /// <summary>
 /// Structure providing Width, Height and Depth.
 /// </summary>
+[DataContract]
 [StructLayout(LayoutKind.Sequential)]
 public struct Size3 : IEquatable<Size3>, IComparable<Size3>
 {

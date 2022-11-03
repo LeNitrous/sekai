@@ -22,11 +22,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
 
 namespace Sekai.Experimental.Mathematics;
 /// <summary>
 /// Defines a 2D rectangular size (width,height).
 /// </summary>
+[DataContract]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public struct Size2F : IEquatable<Size2F>
 {
