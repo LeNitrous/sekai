@@ -42,27 +42,27 @@ namespace Sekai.Experimental.Mathematics;
 public struct Vector2 : IEquatable<Vector2>, IFormattable
 {
     /// <summary>
-    /// The size of the <see cref="Stride.Core.Mathematics.Vector2"/> type, in bytes.
+    /// The size of the <see cref="Vector2"/> type, in bytes.
     /// </summary>
     public static readonly int SizeInBytes = Unsafe.SizeOf<Vector2>();
 
     /// <summary>
-    /// A <see cref="Stride.Core.Mathematics.Vector2"/> with all of its components set to zero.
+    /// A <see cref="Vector2"/> with all of its components set to zero.
     /// </summary>
     public static readonly Vector2 Zero = new();
 
     /// <summary>
-    /// The X unit <see cref="Stride.Core.Mathematics.Vector2"/> (1, 0).
+    /// The X unit <see cref="Vector2"/> (1, 0).
     /// </summary>
     public static readonly Vector2 UnitX = new(1.0f, 0.0f);
 
     /// <summary>
-    /// The Y unit <see cref="Stride.Core.Mathematics.Vector2"/> (0, 1).
+    /// The Y unit <see cref="Vector2"/> (0, 1).
     /// </summary>
     public static readonly Vector2 UnitY = new(0.0f, 1.0f);
 
     /// <summary>
-    /// A <see cref="Stride.Core.Mathematics.Vector2"/> with all of its components set to one.
+    /// A <see cref="Vector2"/> with all of its components set to one.
     /// </summary>
     public static readonly Vector2 One = new(1.0f, 1.0f);
 
@@ -79,7 +79,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     public float Y;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Stride.Core.Mathematics.Vector2"/> struct.
+    /// Initializes a new instance of the <see cref="Vector2"/> struct.
     /// </summary>
     /// <param name="value">The value that will be assigned to all components.</param>
     public Vector2(float value)
@@ -89,7 +89,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Stride.Core.Mathematics.Vector2"/> struct.
+    /// Initializes a new instance of the <see cref="Vector2"/> struct.
     /// </summary>
     /// <param name="x">Initial value for the X component of the vector.</param>
     /// <param name="y">Initial value for the Y component of the vector.</param>
@@ -100,7 +100,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Stride.Core.Mathematics.Vector2"/> struct.
+    /// Initializes a new instance of the <see cref="Vector2"/> struct.
     /// </summary>
     /// <param name="values">The values to assign to the X and Y components of the vector. This must be an array with two elements.</param>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="values"/> is <c>null</c>.</exception>
@@ -156,7 +156,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     /// </summary>
     /// <returns>The length of the vector.</returns>
     /// <remarks>
-    /// <see cref="Stride.Core.Mathematics.Vector2.LengthSquared"/> may be preferred when only the relative length is needed
+    /// <see cref="LengthSquared"/> may be preferred when only the relative length is needed
     /// and speed is of the essence.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -170,7 +170,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     /// </summary>
     /// <returns>The squared length of the vector.</returns>
     /// <remarks>
-    /// This method may be preferred to <see cref="Stride.Core.Mathematics.Vector2.Length"/> when only a relative length is needed
+    /// This method may be preferred to <see cref="Length"/> when only a relative length is needed
     /// and speed is of the essence.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -388,11 +388,11 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     }
 
     /// <summary>
-    /// Returns a <see cref="Stride.Core.Mathematics.Vector2"/> containing the 2D Cartesian coordinates of a point specified in Barycentric coordinates relative to a 2D triangle.
+    /// Returns a <see cref="Vector2"/> containing the 2D Cartesian coordinates of a point specified in Barycentric coordinates relative to a 2D triangle.
     /// </summary>
-    /// <param name="value1">A <see cref="Stride.Core.Mathematics.Vector2"/> containing the 2D Cartesian coordinates of vertex 1 of the triangle.</param>
-    /// <param name="value2">A <see cref="Stride.Core.Mathematics.Vector2"/> containing the 2D Cartesian coordinates of vertex 2 of the triangle.</param>
-    /// <param name="value3">A <see cref="Stride.Core.Mathematics.Vector2"/> containing the 2D Cartesian coordinates of vertex 3 of the triangle.</param>
+    /// <param name="value1">A <see cref="Vector2"/> containing the 2D Cartesian coordinates of vertex 1 of the triangle.</param>
+    /// <param name="value2">A <see cref="Vector2"/> containing the 2D Cartesian coordinates of vertex 2 of the triangle.</param>
+    /// <param name="value3">A <see cref="Vector2"/> containing the 2D Cartesian coordinates of vertex 3 of the triangle.</param>
     /// <param name="amount1">Barycentric coordinate b2, which expresses the weighting factor toward vertex 2 (specified in <paramref name="value2"/>).</param>
     /// <param name="amount2">Barycentric coordinate b3, which expresses the weighting factor toward vertex 3 (specified in <paramref name="value3"/>).</param>
     /// <param name="result">When the method completes, contains the 2D Cartesian coordinates of the specified point.</param>
@@ -404,14 +404,14 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     }
 
     /// <summary>
-    /// Returns a <see cref="Stride.Core.Mathematics.Vector2"/> containing the 2D Cartesian coordinates of a point specified in Barycentric coordinates relative to a 2D triangle.
+    /// Returns a <see cref="Vector2"/> containing the 2D Cartesian coordinates of a point specified in Barycentric coordinates relative to a 2D triangle.
     /// </summary>
-    /// <param name="value1">A <see cref="Stride.Core.Mathematics.Vector2"/> containing the 2D Cartesian coordinates of vertex 1 of the triangle.</param>
-    /// <param name="value2">A <see cref="Stride.Core.Mathematics.Vector2"/> containing the 2D Cartesian coordinates of vertex 2 of the triangle.</param>
-    /// <param name="value3">A <see cref="Stride.Core.Mathematics.Vector2"/> containing the 2D Cartesian coordinates of vertex 3 of the triangle.</param>
+    /// <param name="value1">A <see cref="Vector2"/> containing the 2D Cartesian coordinates of vertex 1 of the triangle.</param>
+    /// <param name="value2">A <see cref="Vector2"/> containing the 2D Cartesian coordinates of vertex 2 of the triangle.</param>
+    /// <param name="value3">A <see cref="Vector2"/> containing the 2D Cartesian coordinates of vertex 3 of the triangle.</param>
     /// <param name="amount1">Barycentric coordinate b2, which expresses the weighting factor toward vertex 2 (specified in <paramref name="value2"/>).</param>
     /// <param name="amount2">Barycentric coordinate b3, which expresses the weighting factor toward vertex 3 (specified in <paramref name="value3"/>).</param>
-    /// <returns>A new <see cref="Stride.Core.Mathematics.Vector2"/> containing the 2D Cartesian coordinates of the specified point.</returns>
+    /// <returns>A new <see cref="Vector2"/> containing the 2D Cartesian coordinates of the specified point.</returns>
     public static Vector2 Barycentric(Vector2 value1, Vector2 value2, Vector2 value3, float amount1, float amount2)
     {
         Barycentric(ref value1, ref value2, ref value3, amount1, amount2, out var result);
@@ -458,7 +458,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     /// <param name="value2">The second vector.</param>
     /// <param name="result">When the method completes, contains the distance between the two vectors.</param>
     /// <remarks>
-    /// <see cref="Stride.Core.Mathematics.Vector2.DistanceSquared(ref Vector2, ref Vector2, out float)"/> may be preferred when only the relative distance is needed
+    /// <see cref="DistanceSquared(ref Vector2, ref Vector2, out float)"/> may be preferred when only the relative distance is needed
     /// and speed is of the essence.
     /// </remarks>
     public static void Distance(ref Vector2 value1, ref Vector2 value2, out float result)
@@ -476,7 +476,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     /// <param name="value2">The second vector.</param>
     /// <returns>The distance between the two vectors.</returns>
     /// <remarks>
-    /// <see cref="Stride.Core.Mathematics.Vector2.DistanceSquared(Vector2, Vector2)"/> may be preferred when only the relative distance is needed
+    /// <see cref="DistanceSquared(Vector2, Vector2)"/> may be preferred when only the relative distance is needed
     /// and speed is of the essence.
     /// </remarks>
     public static float Distance(Vector2 value1, Vector2 value2)
@@ -893,11 +893,11 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     }
 
     /// <summary>
-    /// Transforms a 2D vector by the given <see cref="Stride.Core.Mathematics.Quaternion"/> rotation.
+    /// Transforms a 2D vector by the given <see cref="Quaternion"/> rotation.
     /// </summary>
     /// <param name="vector">The vector to rotate.</param>
-    /// <param name="rotation">The <see cref="Stride.Core.Mathematics.Quaternion"/> rotation to apply.</param>
-    /// <param name="result">When the method completes, contains the transformed <see cref="Stride.Core.Mathematics.Vector4"/>.</param>
+    /// <param name="rotation">The <see cref="Quaternion"/> rotation to apply.</param>
+    /// <param name="result">When the method completes, contains the transformed <see cref="Vector4"/>.</param>
     public static void Transform(ref Vector2 vector, ref Quaternion rotation, out Vector2 result)
     {
         float x = rotation.X + rotation.X;
@@ -913,11 +913,11 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     }
 
     /// <summary>
-    /// Transforms a 2D vector by the given <see cref="Stride.Core.Mathematics.Quaternion"/> rotation.
+    /// Transforms a 2D vector by the given <see cref="Quaternion"/> rotation.
     /// </summary>
     /// <param name="vector">The vector to rotate.</param>
-    /// <param name="rotation">The <see cref="Stride.Core.Mathematics.Quaternion"/> rotation to apply.</param>
-    /// <returns>The transformed <see cref="Stride.Core.Mathematics.Vector4"/>.</returns>
+    /// <param name="rotation">The <see cref="Quaternion"/> rotation to apply.</param>
+    /// <returns>The transformed <see cref="Vector4"/>.</returns>
     public static Vector2 Transform(Vector2 vector, Quaternion rotation)
     {
         Transform(ref vector, ref rotation, out var result);
@@ -925,10 +925,10 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     }
 
     /// <summary>
-    /// Transforms an array of vectors by the given <see cref="Stride.Core.Mathematics.Quaternion"/> rotation.
+    /// Transforms an array of vectors by the given <see cref="Quaternion"/> rotation.
     /// </summary>
     /// <param name="source">The array of vectors to transform.</param>
-    /// <param name="rotation">The <see cref="Stride.Core.Mathematics.Quaternion"/> rotation to apply.</param>
+    /// <param name="rotation">The <see cref="Quaternion"/> rotation to apply.</param>
     /// <param name="destination">The array for which the transformed vectors are stored.
     /// This array may be the same array as <paramref name="source"/>.</param>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="source"/> or <paramref name="destination"/> is <c>null</c>.</exception>
@@ -965,11 +965,11 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     }
 
     /// <summary>
-    /// Transforms a 2D vector by the given <see cref="Stride.Core.Mathematics.Matrix"/>.
+    /// Transforms a 2D vector by the given <see cref="Matrix"/>.
     /// </summary>
     /// <param name="vector">The source vector.</param>
-    /// <param name="transform">The transformation <see cref="Stride.Core.Mathematics.Matrix"/>.</param>
-    /// <param name="result">When the method completes, contains the transformed <see cref="Stride.Core.Mathematics.Vector4"/>.</param>
+    /// <param name="transform">The transformation <see cref="Matrix"/>.</param>
+    /// <param name="result">When the method completes, contains the transformed <see cref="Vector4"/>.</param>
     public static void Transform(ref Vector2 vector, ref Matrix transform, out Vector4 result)
     {
         result = new Vector4(
@@ -980,11 +980,11 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     }
 
     /// <summary>
-    /// Transforms a 2D vector by the given <see cref="Stride.Core.Mathematics.Matrix"/>.
+    /// Transforms a 2D vector by the given <see cref="Matrix"/>.
     /// </summary>
     /// <param name="vector">The source vector.</param>
-    /// <param name="transform">The transformation <see cref="Stride.Core.Mathematics.Matrix"/>.</param>
-    /// <returns>The transformed <see cref="Stride.Core.Mathematics.Vector4"/>.</returns>
+    /// <param name="transform">The transformation <see cref="Matrix"/>.</param>
+    /// <returns>The transformed <see cref="Vector4"/>.</returns>
     public static Vector4 Transform(Vector2 vector, Matrix transform)
     {
         Transform(ref vector, ref transform, out var result);
@@ -992,10 +992,10 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     }
 
     /// <summary>
-    /// Transforms an array of 2D vectors by the given <see cref="Stride.Core.Mathematics.Matrix"/>.
+    /// Transforms an array of 2D vectors by the given <see cref="Matrix"/>.
     /// </summary>
     /// <param name="source">The array of vectors to transform.</param>
-    /// <param name="transform">The transformation <see cref="Stride.Core.Mathematics.Matrix"/>.</param>
+    /// <param name="transform">The transformation <see cref="Matrix"/>.</param>
     /// <param name="destination">The array for which the transformed vectors are stored.</param>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="source"/> or <paramref name="destination"/> is <c>null</c>.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="destination"/> is shorter in length than <paramref name="source"/>.</exception>
@@ -1015,10 +1015,10 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     }
 
     /// <summary>
-    /// Performs a coordinate transformation using the given <see cref="Stride.Core.Mathematics.Matrix"/>.
+    /// Performs a coordinate transformation using the given <see cref="Matrix"/>.
     /// </summary>
     /// <param name="coordinate">The coordinate vector to transform.</param>
-    /// <param name="transform">The transformation <see cref="Stride.Core.Mathematics.Matrix"/>.</param>
+    /// <param name="transform">The transformation <see cref="Matrix"/>.</param>
     /// <param name="result">When the method completes, contains the transformed coordinates.</param>
     /// <remarks>
     /// A coordinate transform performs the transformation with the assumption that the w component
@@ -1039,10 +1039,10 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     }
 
     /// <summary>
-    /// Performs a coordinate transformation using the given <see cref="Stride.Core.Mathematics.Matrix"/>.
+    /// Performs a coordinate transformation using the given <see cref="Matrix"/>.
     /// </summary>
     /// <param name="coordinate">The coordinate vector to transform.</param>
-    /// <param name="transform">The transformation <see cref="Stride.Core.Mathematics.Matrix"/>.</param>
+    /// <param name="transform">The transformation <see cref="Matrix"/>.</param>
     /// <returns>The transformed coordinates.</returns>
     /// <remarks>
     /// A coordinate transform performs the transformation with the assumption that the w component
@@ -1058,10 +1058,10 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     }
 
     /// <summary>
-    /// Performs a coordinate transformation on an array of vectors using the given <see cref="Stride.Core.Mathematics.Matrix"/>.
+    /// Performs a coordinate transformation on an array of vectors using the given <see cref="Matrix"/>.
     /// </summary>
     /// <param name="source">The array of coordinate vectors to trasnform.</param>
-    /// <param name="transform">The transformation <see cref="Stride.Core.Mathematics.Matrix"/>.</param>
+    /// <param name="transform">The transformation <see cref="Matrix"/>.</param>
     /// <param name="destination">The array for which the transformed vectors are stored.
     /// This array may be the same array as <paramref name="source"/>.</param>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="source"/> or <paramref name="destination"/> is <c>null</c>.</exception>
@@ -1089,10 +1089,10 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     }
 
     /// <summary>
-    /// Performs a normal transformation using the given <see cref="Stride.Core.Mathematics.Matrix"/>.
+    /// Performs a normal transformation using the given <see cref="Matrix"/>.
     /// </summary>
     /// <param name="normal">The normal vector to transform.</param>
-    /// <param name="transform">The transformation <see cref="Stride.Core.Mathematics.Matrix"/>.</param>
+    /// <param name="transform">The transformation <see cref="Matrix"/>.</param>
     /// <param name="result">When the method completes, contains the transformed normal.</param>
     /// <remarks>
     /// A normal transform performs the transformation with the assumption that the w component
@@ -1109,10 +1109,10 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     }
 
     /// <summary>
-    /// Performs a normal transformation using the given <see cref="Stride.Core.Mathematics.Matrix"/>.
+    /// Performs a normal transformation using the given <see cref="Matrix"/>.
     /// </summary>
     /// <param name="normal">The normal vector to transform.</param>
-    /// <param name="transform">The transformation <see cref="Stride.Core.Mathematics.Matrix"/>.</param>
+    /// <param name="transform">The transformation <see cref="Matrix"/>.</param>
     /// <returns>The transformed normal.</returns>
     /// <remarks>
     /// A normal transform performs the transformation with the assumption that the w component
@@ -1128,10 +1128,10 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     }
 
     /// <summary>
-    /// Performs a normal transformation on an array of vectors using the given <see cref="Stride.Core.Mathematics.Matrix"/>.
+    /// Performs a normal transformation on an array of vectors using the given <see cref="Matrix"/>.
     /// </summary>
     /// <param name="source">The array of normal vectors to transform.</param>
-    /// <param name="transform">The transformation <see cref="Stride.Core.Mathematics.Matrix"/>.</param>
+    /// <param name="transform">The transformation <see cref="Matrix"/>.</param>
     /// <param name="destination">The array for which the transformed vectors are stored.
     /// This array may be the same array as <paramref name="source"/>.</param>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="source"/> or <paramref name="destination"/> is <c>null</c>.</exception>
@@ -1299,7 +1299,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     }
 
     /// <summary>
-    /// Performs an explicit conversion from <see cref="Stride.Core.Mathematics.Vector2"/> to <see cref="Stride.Core.Mathematics.Vector3"/>.
+    /// Performs an explicit conversion from <see cref="Vector2"/> to <see cref="Vector3"/>.
     /// </summary>
     /// <param name="value">The value.</param>
     /// <returns>The result of the conversion.</returns>
@@ -1309,7 +1309,7 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     }
 
     /// <summary>
-    /// Performs an explicit conversion from <see cref="Stride.Core.Mathematics.Vector2"/> to <see cref="Stride.Core.Mathematics.Vector4"/>.
+    /// Performs an explicit conversion from <see cref="Vector2"/> to <see cref="Vector4"/>.
     /// </summary>
     /// <param name="value">The value.</param>
     /// <returns>The result of the conversion.</returns>
@@ -1384,11 +1384,11 @@ public struct Vector2 : IEquatable<Vector2>, IFormattable
     }
 
     /// <summary>
-    /// Determines whether the specified <see cref="Stride.Core.Mathematics.Vector2"/> is equal to this instance.
+    /// Determines whether the specified <see cref="Vector2"/> is equal to this instance.
     /// </summary>
-    /// <param name="other">The <see cref="Stride.Core.Mathematics.Vector2"/> to compare with this instance.</param>
+    /// <param name="other">The <see cref="Vector2"/> to compare with this instance.</param>
     /// <returns>
-    /// <c>true</c> if the specified <see cref="Stride.Core.Mathematics.Vector2"/> is equal to this instance; otherwise, <c>false</c>.
+    /// <c>true</c> if the specified <see cref="Vector2"/> is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
     public bool Equals(Vector2 other)
     {
