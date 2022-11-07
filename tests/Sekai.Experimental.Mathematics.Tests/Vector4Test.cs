@@ -8,7 +8,6 @@ public class Vector4Test
 {
     private static readonly Random random = new();
 
-    [SetUp]
     // Vector4 Readonly fields correctness
     [Test]
     public void Vector4ReadonlyFieldsTest()
@@ -66,6 +65,53 @@ public class Vector4Test
         Assert.That(resultExpected, Is.EqualTo(result));
         Assert.That(leftExpected, Is.EqualTo(left));
         Assert.That(rightExpected, Is.EqualTo(right));
+    }
+
+    [Test]
+    public void SubtractionTest()
+    {
+        var left = new Vector4(random.NextSingle(), random.NextSingle(), random.NextSingle(), random.NextSingle());
+        var right = new Vector4(random.NextSingle(), random.NextSingle(), random.NextSingle(), random.NextSingle());
+        var expected = TestUtils.ConvertFromSystemVec4(System.Numerics.Vector4.Subtract(
+            TestUtils.ConvertToSystemVec4(left), TestUtils.ConvertToSystemVec4(right)));
+        var actual = left - right;
+
+        Assert.That(expected, Is.EqualTo(actual));
+    }
+
+    [Test]
+    public void SubtractionByRefTest()
+    {
+        var left = new Vector4(random.NextSingle(), random.NextSingle(), random.NextSingle(), random.NextSingle());
+        var right = new Vector4(random.NextSingle(), random.NextSingle(), random.NextSingle(), random.NextSingle());
+
+        // copy the values so we have a reference on what they looked like before.
+        var leftExpected = left;
+        var rightExpected = right;
+        var resultExpected = TestUtils.ConvertFromSystemVec4(System.Numerics.Vector4.Subtract(
+            TestUtils.ConvertToSystemVec4(left), TestUtils.ConvertToSystemVec4(right)));
+
+        Vector4.Subtract(ref left, ref right, out var result);
+
+        Assert.That(leftExpected, Is.EqualTo(left));
+        Assert.That(rightExpected, Is.EqualTo(right));
+        Assert.That(resultExpected, Is.EqualTo(result));
+    }
+
+    [Test]
+    public void MultiplicationByRefTest()
+    {
+        var vector = new Vector4(random.NextSingle(), random.NextSingle(), random.NextSingle(), random.NextSingle());
+        var expectedVector = vector;
+        float scale = random.NextSingle();
+
+        var expected = TestUtils.ConvertFromSystemVec4(System.Numerics.Vector4.Multiply(
+            TestUtils.ConvertToSystemVec4(vector), scale));
+
+        Vector4.Multiply(ref vector, scale, out var result);
+
+        Assert.That(result, Is.EqualTo(expected));
+        Assert.That(vector, Is.EqualTo(expectedVector));
     }
 
     [Test]
