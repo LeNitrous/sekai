@@ -635,10 +635,7 @@ public struct Vector4 : IEquatable<Vector4>, IFormattable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Dot(ref Vector4 left, ref Vector4 right, out float result)
     {
-        result = (left.X * right.X)
-               + (left.Y * right.Y)
-               + (left.Z * right.Z)
-               + (left.W * right.W);
+        result = (left.X * right.X) + (left.Y * right.Y) + (left.Z * right.Z) + (left.W * right.W);
     }
 
     /// <summary>
@@ -650,10 +647,7 @@ public struct Vector4 : IEquatable<Vector4>, IFormattable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float Dot(Vector4 left, Vector4 right)
     {
-        return (left.X * right.X)
-             + (left.Y * right.Y)
-             + (left.Z * right.Z)
-             + (left.W * right.W);
+        return (left.X * right.X) + (left.Y * right.Y) + (left.Z * right.Z) + (left.W * right.W);
     }
 
     /// <summary>
