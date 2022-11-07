@@ -5,7 +5,7 @@ using NUnit.Framework;
 
 namespace Sekai.Experimental.Mathematics.Tests;
 
-public class Tests
+public class ColorTest
 {
     [Test]
     public void TestRGB2HSVConversion()
