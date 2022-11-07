@@ -107,6 +107,23 @@ internal class Vector3Test
     }
 
     [Test]
+    public void MultiplicationByRefTest()
+    {
+        var vector = new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle());
+        var expectedVector = vector;
+
+        float scalar = random.NextSingle();
+
+        var expected = TestUtils.ConvertFromSystemVec3(System.Numerics.Vector3.Multiply(
+            TestUtils.ConvertToSystemVec3(vector), scalar));
+
+        Vector3.Multiply(ref vector, scalar, out var actual);
+
+        Assert.That(expectedVector, Is.EqualTo(vector));
+        Assert.That(expected, Is.EqualTo(actual));
+    }
+
+    [Test]
     public void DivisionTest()
     {
         var left = new Vector3(random.NextSingle(), random.NextSingle(), random.NextSingle());

@@ -99,6 +99,18 @@ public class Vector4Test
     }
 
     [Test]
+    public void MultiplicationTest()
+    {
+        var left = new Vector4(random.NextSingle(), random.NextSingle(), random.NextSingle(), random.NextSingle());
+        var right = new Vector4(random.NextSingle(), random.NextSingle(), random.NextSingle(), random.NextSingle());
+        var expected = TestUtils.ConvertFromSystemVec4(System.Numerics.Vector4.Multiply(
+            TestUtils.ConvertToSystemVec4(left), TestUtils.ConvertToSystemVec4(right)));
+        var actual = left * right;
+
+        Assert.That(expected, Is.EqualTo(actual));
+    }
+    
+    [Test]
     public void MultiplicationByRefTest()
     {
         var vector = new Vector4(random.NextSingle(), random.NextSingle(), random.NextSingle(), random.NextSingle());
