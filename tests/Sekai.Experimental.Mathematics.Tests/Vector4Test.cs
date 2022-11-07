@@ -38,8 +38,8 @@ internal class Vector4Test
         // That way, we have a baseline of sanity.
         var left = new Vector4(random.NextSingle(), random.NextSingle(), random.NextSingle(), random.NextSingle());
         var right = new Vector4(random.NextSingle(), random.NextSingle(), random.NextSingle(), random.NextSingle());
-        var expected = convertFromSystemVec4(System.Numerics.Vector4.Add(
-            convertToSystemVec4(left), convertToSystemVec4(right)));
+        var expected = TestUtils.ConvertFromSystemVec4(System.Numerics.Vector4.Add(
+            TestUtils.ConvertToSystemVec4(left), TestUtils.ConvertToSystemVec4(right)));
         var actual = left + right;
 
         Assert.That(expected, Is.EqualTo(actual));
@@ -55,8 +55,8 @@ internal class Vector4Test
         // copy the values so we have a reference on what they looked like before.
         var leftExpected = left;
         var rightExpected = right;
-        var resultExpected = convertFromSystemVec4(System.Numerics.Vector4.Add(
-            convertToSystemVec4(left), convertToSystemVec4(right)));
+        var resultExpected = TestUtils.ConvertFromSystemVec4(System.Numerics.Vector4.Add(
+            TestUtils.ConvertToSystemVec4(left), TestUtils.ConvertToSystemVec4(right)));
 
 
         Vector4.Add(ref left, ref right, out var result);
@@ -74,8 +74,8 @@ internal class Vector4Test
         var vector = new Vector4(random.NextSingle(), random.NextSingle(), random.NextSingle(), random.NextSingle());
         float scale = random.NextSingle();
 
-        var expected = convertFromSystemVec4(System.Numerics.Vector4.Divide(
-            convertToSystemVec4(vector), scale));
+        var expected = TestUtils.ConvertFromSystemVec4(System.Numerics.Vector4.Divide(
+            TestUtils.ConvertToSystemVec4(vector), scale));
 
         // we could use Vector4.Divide(), but we already implemented the / operator.
         var actual = vector / scale;
@@ -91,8 +91,8 @@ internal class Vector4Test
         var expectedVector = vector;
         float scale = random.NextSingle();
 
-        var expected = convertFromSystemVec4(System.Numerics.Vector4.Divide(
-            convertToSystemVec4(vector), scale));
+        var expected = TestUtils.ConvertFromSystemVec4(System.Numerics.Vector4.Divide(
+            TestUtils.ConvertToSystemVec4(vector), scale));
 
         Vector4.Divide(ref vector, scale, out var result);
 
@@ -106,7 +106,7 @@ internal class Vector4Test
         var left = new Vector4(random.NextSingle(), random.NextSingle(), random.NextSingle(), random.NextSingle());
         var right = new Vector4(random.NextSingle(), random.NextSingle(), random.NextSingle(), random.NextSingle());
 
-        float expected = System.Numerics.Vector4.Dot(convertToSystemVec4(left), convertToSystemVec4(right));
+        float expected = System.Numerics.Vector4.Dot(TestUtils.ConvertToSystemVec4(left), TestUtils.ConvertToSystemVec4(right));
         float actual = Vector4.Dot(left, right);
 
         Assert.That(actual, Is.EqualTo(expected));
@@ -121,7 +121,7 @@ internal class Vector4Test
         var expectedLeft = left;
         var expectedRight = right;
 
-        float expected = System.Numerics.Vector4.Dot(convertToSystemVec4(left), convertToSystemVec4(right));
+        float expected = System.Numerics.Vector4.Dot(TestUtils.ConvertToSystemVec4(left), TestUtils.ConvertToSystemVec4(right));
 
         Vector4.Dot(ref left, ref right, out float actual);
 
@@ -129,16 +129,4 @@ internal class Vector4Test
         Assert.That(left, Is.EqualTo(expectedLeft));
         Assert.That(right, Is.EqualTo(expectedRight));
     }
-
-    #region Helper private methods
-    private static System.Numerics.Vector4 convertToSystemVec4(Vector4 val)
-    {
-        return new System.Numerics.Vector4(val.X, val.Y, val.Z, val.W);
-    }
-
-    private static Vector4 convertFromSystemVec4(System.Numerics.Vector4 val)
-    {
-        return new Vector4(val.X, val.Y, val.Z, val.W);
-    }
-    #endregion
 }
