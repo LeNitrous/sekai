@@ -4,7 +4,7 @@
 using NUnit.Framework;
 
 namespace Sekai.Experimental.Mathematics.Tests;
-internal class Vector4Test
+public class Vector4Test
 {
     private static readonly Random random = new();
 
