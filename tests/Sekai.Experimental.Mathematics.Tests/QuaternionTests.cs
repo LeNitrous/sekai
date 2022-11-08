@@ -1,14 +1,14 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-using NUnit.Framework;
 using System.Runtime.InteropServices;
+using NUnit.Framework;
 
 namespace Sekai.Experimental.Mathematics.Tests;
 internal class QuaternionTests
 {
     private static readonly Random random = new();
-    
+
     [Test]
     public void QuaternionReadonlyFieldsTest()
     {
