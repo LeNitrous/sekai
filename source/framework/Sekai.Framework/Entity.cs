@@ -130,7 +130,7 @@ public sealed class Entity
     /// </summary>
     public void Remove(Entity entity)
     {
-        if(!children.Remove(entity))
+        if (!children.Remove(entity))
             return;
 
         if (IsAttached)

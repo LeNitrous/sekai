@@ -11,5 +11,5 @@ public interface INativeWindowSource
     /// <summary>
     /// Native access to the window.
     /// </summary>
-    public INativeWindow Native { get;}
+    public INativeWindow Native { get; }
 }

@@ -2,8 +2,8 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System.Numerics;
-using Sekai.Framework.Rendering;
 using Sekai.Framework.Mathematics;
+using Sekai.Framework.Rendering;
 
 namespace Sekai.Framework;
 
