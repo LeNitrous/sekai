@@ -109,7 +109,7 @@ public class Vector4Test
 
         Assert.That(expected, Is.EqualTo(actual));
     }
-    
+
     [Test]
     public void MultiplicationByRefTest()
     {
