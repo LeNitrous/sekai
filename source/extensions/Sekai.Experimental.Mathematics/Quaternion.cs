@@ -157,9 +157,9 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
     public Quaternion(float[] values)
     {
         if (values == null)
-            throw new ArgumentNullException("values");
+            throw new ArgumentNullException(nameof(values));
         if (values.Length != 4)
-            throw new ArgumentOutOfRangeException("values", "There must be four and only four input values for Quaternion.");
+            throw new ArgumentOutOfRangeException(nameof(values), "There must be four and only four input values for Quaternion.");
 
         X = values[0];
         Y = values[1];
@@ -243,7 +243,7 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
                 1 => Y,
                 2 => Z,
                 3 => W,
-                _ => throw new ArgumentOutOfRangeException("index", "Indices for Quaternion run from 0 to 3, inclusive."),
+                _ => throw new ArgumentOutOfRangeException(nameof(index), "Indices for Quaternion run from 0 to 3, inclusive."),
             };
         }
 
@@ -255,7 +255,7 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
                 case 1: Y = value; break;
                 case 2: Z = value; break;
                 case 3: W = value; break;
-                default: throw new ArgumentOutOfRangeException("index", "Indices for Quaternion run from 0 to 3, inclusive.");
+                default: throw new ArgumentOutOfRangeException(nameof(index), "Indices for Quaternion run from 0 to 3, inclusive.");
             }
         }
     }
