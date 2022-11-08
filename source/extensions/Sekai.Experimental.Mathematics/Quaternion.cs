@@ -29,6 +29,7 @@
 * THE SOFTWARE.
 */
 using System.Globalization;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
@@ -43,22 +44,22 @@ namespace Sekai.Experimental.Mathematics;
 public struct Quaternion : IEquatable<Quaternion>, IFormattable
 {
     /// <summary>
-    /// The size of the <see cref="Stride.Core.Mathematics.Quaternion"/> type, in bytes.
+    /// The size of the <see cref="Quaternion"/> type, in bytes.
     /// </summary>
     public static readonly int SizeInBytes = Unsafe.SizeOf<Quaternion>();
 
     /// <summary>
-    /// A <see cref="Stride.Core.Mathematics.Quaternion"/> with all of its components set to zero.
+    /// A <see cref="Quaternion"/> with all of its components set to zero.
     /// </summary>
     public static readonly Quaternion Zero = new();
 
     /// <summary>
-    /// A <see cref="Stride.Core.Mathematics.Quaternion"/> with all of its components set to one.
+    /// A <see cref="Quaternion"/> with all of its components set to one.
     /// </summary>
     public static readonly Quaternion One = new(1.0f, 1.0f, 1.0f, 1.0f);
 
     /// <summary>
-    /// The identity <see cref="Stride.Core.Mathematics.Quaternion"/> (0, 0, 0, 1).
+    /// The identity <see cref="Quaternion"/> (0, 0, 0, 1).
     /// </summary>
     public static readonly Quaternion Identity = new(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -83,7 +84,7 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
     public float W;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Stride.Core.Mathematics.Quaternion"/> struct.
+    /// Initializes a new instance of the <see cref="Quaternion"/> struct.
     /// </summary>
     /// <param name="value">The value that will be assigned to all components.</param>
     public Quaternion(float value)
@@ -95,7 +96,7 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Stride.Core.Mathematics.Quaternion"/> struct.
+    /// Initializes a new instance of the <see cref="Quaternion"/> struct.
     /// </summary>
     /// <param name="value">A vector containing the values with which to initialize the components.</param>
     public Quaternion(Vector4 value)
@@ -107,7 +108,7 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Stride.Core.Mathematics.Quaternion"/> struct.
+    /// Initializes a new instance of the <see cref="Quaternion"/> struct.
     /// </summary>
     /// <param name="value">A vector containing the values with which to initialize the X, Y, and Z components.</param>
     /// <param name="w">Initial value for the W component of the quaternion.</param>
@@ -120,7 +121,7 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Stride.Core.Mathematics.Quaternion"/> struct.
+    /// Initializes a new instance of the <see cref="Quaternion"/> struct.
     /// </summary>
     /// <param name="value">A vector containing the values with which to initialize the X and Y components.</param>
     /// <param name="z">Initial value for the Z component of the quaternion.</param>
@@ -134,7 +135,7 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Stride.Core.Mathematics.Quaternion"/> struct.
+    /// Initializes a new instance of the <see cref="Quaternion"/> struct.
     /// </summary>
     /// <param name="x">Initial value for the X component of the quaternion.</param>
     /// <param name="y">Initial value for the Y component of the quaternion.</param>
@@ -149,7 +150,7 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Stride.Core.Mathematics.Quaternion"/> struct.
+    /// Initializes a new instance of the <see cref="Quaternion"/> struct.
     /// </summary>
     /// <param name="values">The values to assign to the X, Y, Z, and W components of the quaternion. This must be an array with four elements.</param>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="values"/> is <c>null</c>.</exception>
@@ -292,7 +293,7 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
     /// </summary>
     /// <returns>The length of the quaternion.</returns>
     /// <remarks>
-    /// <see cref="Stride.Core.Mathematics.Quaternion.LengthSquared"/> may be preferred when only the relative length is needed
+    /// <see cref="LengthSquared"/> may be preferred when only the relative length is needed
     /// and speed is of the essence.
     /// </remarks>
     public readonly float Length()
@@ -305,7 +306,7 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
     /// </summary>
     /// <returns>The squared length of the quaternion.</returns>
     /// <remarks>
-    /// This method may be preferred to <see cref="Stride.Core.Mathematics.Quaternion.Length"/> when only a relative length is needed
+    /// This method may be preferred to <see cref="Length"/> when only a relative length is needed
     /// and speed is of the essence.
     /// </remarks>
     public readonly float LengthSquared()
@@ -447,20 +448,24 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
     /// <returns>The modulated quaternion.</returns>
     public static Quaternion Multiply(in Quaternion left, in Quaternion right)
     {
-        float lx = left.X;
-        float ly = left.Y;
-        float lz = left.Z;
-        float lw = left.W;
-        float rx = right.X;
-        float ry = right.Y;
-        float rz = right.Z;
-        float rw = right.W;
-
-        return new Quaternion(
-            (rx * lw + lx * rw + ry * lz) - (rz * ly),
-            (ry * lw + ly * rw + rz * lx) - (rx * lz),
-            (rz * lw + lz * rw + rx * ly) - (ry * lx),
-            (rw * lw) - (rx * lx + ry * ly + rz * lz));
+        Quaternion quaternion;
+        float x = left.X;
+        float y = left.Y;
+        float z = left.Z;
+        float w = left.W;
+        float num4 = right.X;
+        float num3 = right.Y;
+        float num2 = right.Z;
+        float num = right.W;
+        float num12 = (y * num2) - (z * num3);
+        float num11 = (z * num4) - (x * num2);
+        float num10 = (x * num3) - (y * num4);
+        float num9 = ((x * num4) + (y * num3)) + (z * num2);
+        quaternion.X = ((x * num) + (num4 * w)) + num12;
+        quaternion.Y = ((y * num) + (num3 * w)) + num11;
+        quaternion.Z = ((z * num) + (num2 * w)) + num10;
+        quaternion.W = (w * num) - num9;
+        return quaternion;
     }
 
     /// <summary>
@@ -488,14 +493,14 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
     }
 
     /// <summary>
-    /// Returns a <see cref="Stride.Core.Mathematics.Quaternion"/> containing the 4D Cartesian coordinates of a point specified in Barycentric coordinates relative to a 2D triangle.
+    /// Returns a <see cref="Quaternion"/> containing the 4D Cartesian coordinates of a point specified in Barycentric coordinates relative to a 2D triangle.
     /// </summary>
-    /// <param name="value1">A <see cref="Stride.Core.Mathematics.Quaternion"/> containing the 4D Cartesian coordinates of vertex 1 of the triangle.</param>
-    /// <param name="value2">A <see cref="Stride.Core.Mathematics.Quaternion"/> containing the 4D Cartesian coordinates of vertex 2 of the triangle.</param>
-    /// <param name="value3">A <see cref="Stride.Core.Mathematics.Quaternion"/> containing the 4D Cartesian coordinates of vertex 3 of the triangle.</param>
+    /// <param name="value1">A <see cref="Quaternion"/> containing the 4D Cartesian coordinates of vertex 1 of the triangle.</param>
+    /// <param name="value2">A <see cref="Quaternion"/> containing the 4D Cartesian coordinates of vertex 2 of the triangle.</param>
+    /// <param name="value3">A <see cref="Quaternion"/> containing the 4D Cartesian coordinates of vertex 3 of the triangle.</param>
     /// <param name="amount1">Barycentric coordinate b2, which expresses the weighting factor toward vertex 2 (specified in <paramref name="value2"/>).</param>
     /// <param name="amount2">Barycentric coordinate b3, which expresses the weighting factor toward vertex 3 (specified in <paramref name="value3"/>).</param>
-    /// <param name="result">When the method completes, contains a new <see cref="Stride.Core.Mathematics.Quaternion"/> containing the 4D Cartesian coordinates of the specified point.</param>
+    /// <param name="result">When the method completes, contains a new <see cref="Quaternion"/> containing the 4D Cartesian coordinates of the specified point.</param>
     public static void Barycentric(ref Quaternion value1, ref Quaternion value2, ref Quaternion value3, float amount1, float amount2, out Quaternion result)
     {
         Slerp(ref value1, ref value2, amount1 + amount2, out var start);
@@ -504,14 +509,14 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
     }
 
     /// <summary>
-    /// Returns a <see cref="Stride.Core.Mathematics.Quaternion"/> containing the 4D Cartesian coordinates of a point specified in Barycentric coordinates relative to a 2D triangle.
+    /// Returns a <see cref="Quaternion"/> containing the 4D Cartesian coordinates of a point specified in Barycentric coordinates relative to a 2D triangle.
     /// </summary>
-    /// <param name="value1">A <see cref="Stride.Core.Mathematics.Quaternion"/> containing the 4D Cartesian coordinates of vertex 1 of the triangle.</param>
-    /// <param name="value2">A <see cref="Stride.Core.Mathematics.Quaternion"/> containing the 4D Cartesian coordinates of vertex 2 of the triangle.</param>
-    /// <param name="value3">A <see cref="Stride.Core.Mathematics.Quaternion"/> containing the 4D Cartesian coordinates of vertex 3 of the triangle.</param>
+    /// <param name="value1">A <see cref="Quaternion"/> containing the 4D Cartesian coordinates of vertex 1 of the triangle.</param>
+    /// <param name="value2">A <see cref="Quaternion"/> containing the 4D Cartesian coordinates of vertex 2 of the triangle.</param>
+    /// <param name="value3">A <see cref="Quaternion"/> containing the 4D Cartesian coordinates of vertex 3 of the triangle.</param>
     /// <param name="amount1">Barycentric coordinate b2, which expresses the weighting factor toward vertex 2 (specified in <paramref name="value2"/>).</param>
     /// <param name="amount2">Barycentric coordinate b3, which expresses the weighting factor toward vertex 3 (specified in <paramref name="value3"/>).</param>
-    /// <returns>A new <see cref="Stride.Core.Mathematics.Quaternion"/> containing the 4D Cartesian coordinates of the specified point.</returns>
+    /// <returns>A new <see cref="Quaternion"/> containing the 4D Cartesian coordinates of the specified point.</returns>
     public static Quaternion Barycentric(Quaternion value1, Quaternion value2, Quaternion value3, float amount1, float amount2)
     {
         Barycentric(ref value1, ref value2, ref value3, amount1, amount2, out var result);
@@ -1376,11 +1381,11 @@ public struct Quaternion : IEquatable<Quaternion>, IFormattable
     }
 
     /// <summary>
-    /// Determines whether the specified <see cref="Stride.Core.Mathematics.Quaternion"/> is equal to this instance.
+    /// Determines whether the specified <see cref="Quaternion"/> is equal to this instance.
     /// </summary>
-    /// <param name="other">The <see cref="Stride.Core.Mathematics.Quaternion"/> to compare with this instance.</param>
+    /// <param name="other">The <see cref="Quaternion"/> to compare with this instance.</param>
     /// <returns>
-    /// <c>true</c> if the specified <see cref="Stride.Core.Mathematics.Quaternion"/> is equal to this instance; otherwise, <c>false</c>.
+    /// <c>true</c> if the specified <see cref="Quaternion"/> is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
     public readonly bool Equals(Quaternion other)
     {

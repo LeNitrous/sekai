@@ -4,6 +4,16 @@
 namespace Sekai.Experimental.Mathematics.Tests;
 internal static class TestUtils
 {
+    public static System.Numerics.Quaternion ConvertToSystemQuaternion(Quaternion val)
+    {
+        return new System.Numerics.Quaternion(val.X, val.Y, val.Z, val.W);
+    }
+
+    public static Quaternion ConvertFromSystemQuaternion(System.Numerics.Quaternion val)
+    {
+        return new Quaternion(val.X, val.Y, val.Z, val.W);
+    }
+
     public static System.Numerics.Vector4 ConvertToSystemVec4(Vector4 val)
     {
         return new System.Numerics.Vector4(val.X, val.Y, val.Z, val.W);
