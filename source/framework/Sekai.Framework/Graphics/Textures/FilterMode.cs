@@ -6,7 +6,7 @@ namespace Sekai.Framework.Graphics.Textures;
 /// <summary>
 /// Determines the operations when a texture is scaled up or down.
 /// </summary>
-public enum FilteringMode
+public enum FilterMode
 {
     /// <summary>
     /// Linear filtering mode.

@@ -79,7 +79,7 @@ public abstract class Game : FrameworkObject, IGame
     /// <summary>
     /// The graphics context.
     /// </summary>
-    public IGraphicsContext Graphics { get; private set; } = null!;
+    public GraphicsContext Graphics { get; private set; } = null!;
 
     /// <summary>
     /// The virtual file system for this game.
@@ -153,16 +153,14 @@ public abstract class Game : FrameworkObject, IGame
         Scenes = Resolve<SceneController>();
         Options = Resolve<GameOptions>();
         Storage = Resolve<VirtualStorage>();
-        Graphics = Resolve<IGraphicsContext>(false);
+        Graphics = Resolve<GraphicsContext>(false);
 
-        threads = new(new GameWindowThread())
+        threads = new(new GameWindowThread(), new GameUpdateThread(), new GameRenderThread())
         {
             ExecutionMode = Options.ExecutionMode,
             UpdatePerSecond = Options.UpdatePerSecond,
         };
 
-        threads.Add(new GameUpdateThread());
-        threads.Add(new GameRenderThread());
         threads.OnTick += showWindow;
 
         Services.Register(threads);
@@ -207,7 +205,6 @@ public abstract class Game : FrameworkObject, IGame
         }
         finally
         {
-            Graphics.Finish();
             Graphics.Present();
         }
     }

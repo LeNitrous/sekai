@@ -1,10 +1,10 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-namespace Sekai.Framework.Graphics;
+namespace Sekai.Framework.Graphics.Textures;
 
 /// <summary>
-/// The format of data stored in a <see cref="ITexture"/>.
+/// The format of data stored in a <see cref="Texture"/>.
 /// Each name is a compound identifier, where each component denotes a name and a number of bits used to store that
 /// component. The final component identifies the storage type of each component. "Float" identifies a signed, floating-point
 /// type, UNorm identifies an unsigned integer type which is normalized, meaning it occupies the full space of the integer

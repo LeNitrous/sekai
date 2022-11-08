@@ -10,6 +10,6 @@ public static class GLGameBuilderExtensions
     public static GameBuilder<T> UseGL<T>(this GameBuilder<T> builder)
         where T : Game, new()
     {
-        return builder.UseGraphics<GLGraphicsContext>();
+        return builder.UseGraphics<GLGraphicsSystem>();
     }
 }

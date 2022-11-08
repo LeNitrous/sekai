@@ -1,0 +1,8 @@
+{
+    "solution": {
+        "path": "Sekai.sln",
+        "projects": [
+            "examples\\Triangle\\Triangle.csproj"
+        ]
+    }
+}

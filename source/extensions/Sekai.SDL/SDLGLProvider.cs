@@ -22,8 +22,6 @@ internal class SDLGLProvider : FrameworkObject, IOpenGLProvider
             throw new InvalidOperationException(SDL_GetError());
 
         Handle = CreateContext();
-
-        ClearCurrentContext();
     }
 
     public void ClearCurrentContext()

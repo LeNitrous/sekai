@@ -2,15 +2,25 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch Window Example",
+            "name": "Launch Example",
             "type": "coreclr",
             "request": "launch",
-            "preLaunchTask": "build",
-            "program": "${workspaceFolder}/examples/Example.Window/bin/Debug/net6.0/Example.Window.dll",
+            "preLaunchTask": "Build Examples",
+            "program": "${workspaceFolder}/examples/${input:LaunchExample}/bin/Debug/net6.0/${input:LaunchExample}.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/examples/Example.Window",
+            "cwd": "${workspaceFolder}/examples/${input:LaunchExample}",
             "console": "internalConsole",
             "stopAtEntry": false
+        }
+    ],
+    "inputs": [
+        {
+            "type": "pickString",
+            "id": "LaunchExample",
+            "description": "Select Example",
+            "options": [
+                "Triangle"
+            ]
         }
     ]
 }

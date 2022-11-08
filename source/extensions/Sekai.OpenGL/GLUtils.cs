@@ -57,4 +57,33 @@ internal static class GLUtils
         StencilOperation.DecrementWrapped => StencilOp.DecrWrap,
         _ => throw new ArgumentException($"Unsupported stencil operation: {operation}", nameof(operation)),
     };
+
+    public static BlendEquationModeEXT ToBlendEquationModeEXT(BlendingEquation equation) => equation switch
+    {
+        BlendingEquation.Add => BlendEquationModeEXT.FuncAdd,
+        BlendingEquation.Minimum => BlendEquationModeEXT.Min,
+        BlendingEquation.Maximum => BlendEquationModeEXT.Max,
+        BlendingEquation.Subtract => BlendEquationModeEXT.FuncSubtract,
+        BlendingEquation.SubtractReverse => BlendEquationModeEXT.FuncReverseSubtract,
+        _ => throw new ArgumentException($"Unsupported blending equation: {equation}", nameof(equation)),
+    };
+
+    public static BlendingFactor ToBlendingFactor(BlendingType type) => type switch
+    {
+        BlendingType.Zero => BlendingFactor.Zero,
+        BlendingType.One => BlendingFactor.One,
+        BlendingType.ConstantAlpha => BlendingFactor.ConstantAlpha,
+        BlendingType.ConstantColor => BlendingFactor.ConstantColor,
+        BlendingType.DestinationAlpha => BlendingFactor.DstAlpha,
+        BlendingType.DestinationColor => BlendingFactor.DstColor,
+        BlendingType.OneMinusConstantAlpha => BlendingFactor.OneMinusConstantAlpha,
+        BlendingType.OneMinusConstantColor => BlendingFactor.OneMinusConstantColor,
+        BlendingType.OneMinusDestinationAlpha => BlendingFactor.OneMinusDstAlpha,
+        BlendingType.OneMinusDestinationColor => BlendingFactor.OneMinusDstColor,
+        BlendingType.OneMinusSourceAlpha => BlendingFactor.OneMinusSrcAlpha,
+        BlendingType.OneMinusSourceColor => BlendingFactor.OneMinusSrcColor,
+        BlendingType.SourceAlpha => BlendingFactor.SrcAlpha,
+        BlendingType.SourceColor => BlendingFactor.SrcColor,
+        _ => throw new ArgumentException($"Unsupported blending factor: {type}", nameof(type)),
+    };
 }

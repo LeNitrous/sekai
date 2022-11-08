@@ -4,271 +4,377 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using Sekai.Framework.Graphics.Buffers;
+using Sekai.Framework.Graphics.Shaders;
+using Sekai.Framework.Graphics.Textures;
+using Sekai.Framework.Graphics.Vertices;
 using Sekai.Framework.Windowing;
 
 namespace Sekai.Framework.Graphics;
 
-public abstract class GraphicsContext : FrameworkObject, IGraphicsContext
+public sealed class GraphicsContext : FrameworkObject
 {
-    public bool HasInitialized { get; private set; }
-    public BlendingParameters CurrentBlend { get; private set; }
-    public BlendingMask CurrentBlendMask { get; private set; }
-    public Rectangle CurrentViewport { get; private set; }
-    public Rectangle CurrentScissor { get; private set; }
-    public bool CurrentScissorState { get; private set; }
-    public ClearInfo CurrentClearInfo { get; private set; }
-    public DepthInfo CurrentDepthInfo { get; private set; }
-    public StencilInfo CurrentStencilInfo { get; private set; }
+    /// <summary>
+    /// The current clear info.
+    /// </summary>
+    public ClearInfo CurrentClear { get; private set; }
 
-    private readonly Stack<StencilInfo> stencilInfoStack = new();
-    private readonly Stack<DepthInfo> depthInfoStack = new();
+    /// <summary>
+    /// The current depth info.
+    /// </summary>
+    public DepthInfo CurrentDepth { get; private set; }
+
+    /// <summary>
+    /// The current stencil info.
+    /// </summary>
+    public StencilInfo CurrentStencil { get; private set; }
+
+    /// <summary>
+    /// The current viewport.
+    /// </summary>
+    public Rectangle CurrentViewport { get; private set; }
+
+    /// <summary>
+    /// The current scissor rectangle.
+    /// </summary>
+    public Rectangle CurrentScissor { get; private set; }
+
+    /// <summary>
+    /// The current scissor state.
+    /// </summary>
+    public bool CurrentScissorState { get; private set; }
+
+    /// <summary>
+    /// The current blending mask.
+    /// </summary>
+    public BlendingMask CurrentBlendMask { get; private set; }
+
+    /// <summary>
+    /// The current blending parameters.
+    /// </summary>
+    public BlendingParameters CurrentBlend { get; private set; }
+
+    /// <summary>
+    /// The current shader.
+    /// </summary>
+    public Shader? CurrentShader { get; private set; }
+
+    /// <summary>
+    /// The current vertex buffer.
+    /// </summary>
+    public Buffers.Buffer? CurrentVertexBuffer { get; private set; }
+
+    /// <summary>
+    /// The current index buffer.
+    /// </summary>
+    public Buffers.Buffer? CurrentIndexBuffer { get; private set; }
+
+    private readonly IView view;
+    private readonly IGraphicsSystem graphics;
+    private readonly Stack<StencilInfo> stencilStack = new();
+    private readonly Stack<DepthInfo> depthStack = new();
     private readonly Stack<Rectangle> viewportStack = new();
     private readonly Stack<Rectangle> scissorStack = new();
     private readonly Stack<bool> scissorStateStack = new();
-    private IView view = null!;
-    private bool hasPrepared;
+    private readonly Stack<Shader> shaderStack = new();
+    private readonly Texture[] boundTextures = new Texture[16];
+    private int prevBoundTextureUnit = -1;
+    private IndexFormat? prevBoundIndexFormat;
+    private IVertexLayout? prevBoundVertexLayout;
 
-    public void Initialize(IView view)
+    internal GraphicsContext(IGraphicsSystem graphics, IView view)
     {
-        if (HasInitialized)
-            return;
-
         this.view = view;
-
-        InitializeImpl(view);
-
-        HasInitialized = true;
+        this.graphics = graphics;
     }
 
-    public void Present()
-    {
-        ensureHasInitialized();
-        PresentImpl();
-    }
-
+    /// <summary>
+    /// Prepare for the next frame.
+    /// </summary>
     public void Prepare()
     {
-        ensureHasInitialized();
+        Reset();
+        Clear(new ClearInfo(new Color4(0, 0, 0, 1f)));
+    }
 
-        if (hasPrepared)
-            throw new InvalidOperationException($"{nameof(Finish)} must be called before starting another {nameof(Prepare)}.");
+    /// <summary>
+    /// Presents the current frame to the window.
+    /// </summary>
+    public void Present()
+    {
+        graphics.Present();
+    }
 
+    /// <summary>
+    /// Resets the state of the graphics context.
+    /// </summary>
+    public void Reset()
+    {
         CurrentBlend = new();
-
-        viewportStack.Clear();
-        scissorStack.Clear();
-        scissorStateStack.Clear();
-        depthInfoStack.Clear();
-        stencilInfoStack.Clear();
-
         CurrentScissor = Rectangle.Empty;
         CurrentViewport = Rectangle.Empty;
+        CurrentScissorState = false;
+        prevBoundTextureUnit = -1;
+        prevBoundIndexFormat = null;
+        prevBoundVertexLayout = null;
 
-        PrepareImpl();
+        depthStack.Clear();
+        stencilStack.Clear();
+        scissorStack.Clear();
+        viewportStack.Clear();
+        scissorStateStack.Clear();
+        boundTextures.AsSpan().Clear();
+
+        graphics.Reset();
 
         PushScissorState(true);
         PushViewport(new Rectangle(0, 0, view.Size.Width, view.Size.Height));
         PushScissor(new Rectangle(0, 0, view.Size.Width, view.Size.Height));
         PushDepth(new DepthInfo(true));
         PushStencil(new StencilInfo(false));
-
-        Clear(new ClearInfo(new Color4(0, 0, 0, 1f)));
-
-        hasPrepared = true;
     }
 
-    public void Finish()
-    {
-        ensureHasInitialized();
-
-        if (!hasPrepared)
-            throw new InvalidOperationException($"{nameof(Prepare)} must be called first before {nameof(Finish)}.");
-
-        FinishImpl();
-
-        hasPrepared = false;
-    }
-
+    /// <summary>
+    /// Clears the current framebuffer.
+    /// </summary>
     public void Clear(ClearInfo info)
     {
         PushDepth(new DepthInfo(writeDepth: true));
         PushScissorState(false);
 
-        ClearImpl(info);
-
-        CurrentClearInfo = info;
+        graphics.Clear(info);
 
         PopScissorState();
         PopDepth();
     }
 
-    public void SetBlend(BlendingParameters parameters)
+    /// <summary>
+    /// Sets the current blending parameters.
+    /// </summary>
+    public void SetBlend(BlendingParameters blend)
     {
-        if (CurrentBlend == parameters)
+        if (CurrentBlend == blend)
             return;
 
-        SetBlendImpl(parameters);
-
-        CurrentBlend = parameters;
+        graphics.SetBlend(blend);
+        CurrentBlend = blend;
     }
 
+    /// <summary>
+    /// Sets the current blending mask.
+    /// </summary>
     public void SetBlendMask(BlendingMask mask)
     {
         if (CurrentBlendMask == mask)
             return;
 
-        SetBlendMaskImpl(mask);
-
+        graphics.SetBlendMask(mask);
         CurrentBlendMask = mask;
     }
 
-    public void PushDepth(DepthInfo info)
+    /// <summary>
+    /// Applies new depth parameters.
+    /// </summary>
+    public void PushDepth(DepthInfo depth)
     {
-        depthInfoStack.Push(info);
-        setDepth(info);
+        depthStack.Push(depth);
+        setDepth(depth);
     }
 
+    /// <summary>
+    /// Restores the previous depth parameters.
+    /// </summary>
     public void PopDepth()
     {
-        depthInfoStack.Pop();
-        setDepth(depthInfoStack.Peek());
+        depthStack.Pop();
+        setDepth(depthStack.Peek());
     }
 
+    /// <summary>
+    /// Applies a new viewport rectangle.
+    /// </summary>
     public void PushViewport(Rectangle viewport)
     {
         viewportStack.Push(viewport);
         setViewport(viewport);
     }
 
+    /// <summary>
+    /// Restores the previous viewport rectangle.
+    /// </summary>
     public void PopViewport()
     {
         viewportStack.Pop();
         setViewport(viewportStack.Peek());
     }
 
+    /// <summary>
+    /// Applies a new scissor rectangle.
+    /// </summary>
     public void PushScissor(Rectangle scissor)
     {
         scissorStack.Push(scissor);
         setScissor(scissor);
     }
 
+    /// <summary>
+    /// Restores the previous scissor rectangle.
+    /// </summary>
     public void PopScissor()
     {
         scissorStack.Pop();
         setScissor(scissorStack.Peek());
     }
 
+    /// <summary>
+    /// Applies a new scissor state.
+    /// </summary>
     public void PushScissorState(bool enabled)
     {
         scissorStateStack.Push(enabled);
         setScissorState(enabled);
     }
 
+    /// <summary>
+    /// Restores the previous scissor state.
+    /// </summary>
     public void PopScissorState()
     {
         scissorStateStack.Pop();
         setScissorState(scissorStateStack.Peek());
     }
 
-    public void PushStencil(StencilInfo info)
+    /// <summary>
+    /// Applies the new stencil parameters.
+    /// </summary>
+    public void PushStencil(StencilInfo stencil)
     {
-        stencilInfoStack.Push(info);
-        setStencil(info);
+        stencilStack.Push(stencil);
+        setStencil(stencil);
     }
 
+    /// <summary>
+    /// Restores the previous stencil parameters.
+    /// </summary>
     public void PopStencil()
     {
-        stencilInfoStack.Pop();
-        setStencil(stencilInfoStack.Peek());
+        stencilStack.Pop();
+        setStencil(stencilStack.Peek());
     }
 
-    private void setDepth(DepthInfo info)
+    /// <summary>
+    /// Draws vertices onto the current framebuffer.
+    /// </summary>
+    public void Draw(int count, PrimitiveTopology topology)
     {
-        ensureHasInitialized();
-
-        if (CurrentDepthInfo == info)
-            return;
-
-        SetDepth(info);
-
-        CurrentDepthInfo = info;
+        graphics.Draw(count, topology);
     }
 
-    private void setScissor(Rectangle scissor)
+    internal void BindShader(Shader shader)
     {
-        ensureHasInitialized();
-
-        if (CurrentScissor == scissor)
-            return;
-
-        SetScissor(scissor);
-
-        CurrentScissor = scissor;
+        shaderStack.Push(shader);
+        setShader(shader);
     }
 
-    private void setStencil(StencilInfo info)
+    internal void UnbindShader(Shader shader)
     {
-        ensureHasInitialized();
+        if (shaderStack.Count > 0 && shaderStack.Peek() != shader)
+            throw new InvalidOperationException(@"Attempting to unbind shader whilst not currently bound.");
 
-        if (CurrentStencilInfo == info)
-            return;
-
-        SetStencil(info);
-
-        CurrentStencilInfo = info;
+        shaderStack.Pop();
+        setShader(shaderStack.Peek());
     }
 
-    private void setScissorState(bool state)
+    internal void BindTexture(Texture texture, int unit)
     {
-        ensureHasInitialized();
-
-        if (CurrentScissorState == state)
+        if (prevBoundTextureUnit == unit && boundTextures[unit] == texture)
             return;
 
-        SetScissorState(state);
+        graphics.SetTexture(texture.Native, unit);
+        boundTextures[unit] = texture;
+        prevBoundTextureUnit = unit;
+    }
 
-        CurrentScissorState = state;
+    internal void UnbindTexture(int unit = 0)
+    {
+        if (boundTextures[unit] is null)
+            return;
+
+        graphics.SetTexture(null, unit);
+        boundTextures[unit] = null!;
+    }
+
+    internal void BindIndexBuffer(Buffers.Buffer buffer, IndexFormat format)
+    {
+        if (prevBoundIndexFormat.HasValue && prevBoundIndexFormat.Value == format && CurrentIndexBuffer == buffer)
+            return;
+
+        graphics.SetIndexBuffer(buffer.Native, format);
+        CurrentIndexBuffer = buffer;
+        prevBoundIndexFormat = format;
+    }
+
+    internal void BindVertexBuffer(Buffers.Buffer buffer, IVertexLayout layout)
+    {
+        if ((prevBoundVertexLayout?.Equals(layout) ?? false) && CurrentVertexBuffer == buffer)
+            return;
+
+        graphics.SetVertexBuffer(buffer.Native, layout);
+        CurrentVertexBuffer = buffer;
+        prevBoundVertexLayout = layout;
+    }
+
+    private void setDepth(DepthInfo depth)
+    {
+        if (CurrentDepth == depth)
+            return;
+
+        graphics.SetDepth(depth);
+        CurrentDepth = depth;
     }
 
     private void setViewport(Rectangle viewport)
     {
-        ensureHasInitialized();
-
         if (CurrentViewport == viewport)
             return;
 
-        SetViewport(viewport);
-
+        graphics.SetViewport(viewport);
         CurrentViewport = viewport;
     }
 
-    private void ensureHasInitialized()
+    private void setScissor(Rectangle scissor)
     {
-        if (!HasInitialized)
-            throw new InvalidOperationException("The graphics context needs to be initialized.");
+        if (CurrentScissor == scissor)
+            return;
+
+        graphics.SetScissor(scissor);
+        CurrentScissor = scissor;
     }
 
-    protected abstract void InitializeImpl(IView view);
+    private void setScissorState(bool enabled)
+    {
+        if (CurrentScissorState == enabled)
+            return;
 
-    protected abstract void PrepareImpl();
+        graphics.SetScissorState(enabled);
+        CurrentScissorState = enabled;
+    }
 
-    protected abstract void PresentImpl();
+    private void setStencil(StencilInfo stencil)
+    {
+        if (CurrentStencil == stencil)
+            return;
 
-    protected abstract void FinishImpl();
+        graphics.SetStencil(stencil);
+        CurrentStencil = stencil;
+    }
 
-    protected abstract void ClearImpl(ClearInfo info);
+    private void setShader(Shader shader)
+    {
+        if (CurrentShader == shader)
+            return;
 
-    protected abstract void SetDepth(DepthInfo info);
-
-    protected abstract void SetStencil(StencilInfo info);
-
-    protected abstract void SetViewport(Rectangle viewport);
-
-    protected abstract void SetScissor(Rectangle scissor);
-
-    protected abstract void SetScissorState(bool state);
-
-    protected abstract void SetBlendImpl(BlendingParameters parameters);
-
-    protected abstract void SetBlendMaskImpl(BlendingMask mask);
+        graphics.SetShader(shader.Native);
+        CurrentShader = shader;
+    }
 }

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Sekai.Framework.Audio;
 using Sekai.Framework.Graphics;
+using Sekai.Framework.Graphics.Shaders;
 using Sekai.Framework.Input;
 using Sekai.Framework.Logging;
 using Sekai.Framework.Scenes;
@@ -23,7 +24,7 @@ public sealed class GameBuilder<T>
     private IWindow? window;
     private IAudioContext? audio;
     private IInputContext? input;
-    private IGraphicsContext? graphics;
+    private IGraphicsSystem? graphics;
     private readonly List<Action<T>> postBuildActions = new();
 
     internal GameBuilder(T game, GameOptions? options = null)
@@ -60,10 +61,10 @@ public sealed class GameBuilder<T>
     }
 
     /// <summary>
-    /// Uses the graphics device of a given type.
+    /// Uses the graphics system of a given type.
     /// </summary>
     public GameBuilder<T> UseGraphics<U>()
-        where U : IGraphicsContext, new()
+        where U : IGraphicsSystem, new()
     {
         graphics = new U();
         return this;
@@ -103,24 +104,25 @@ public sealed class GameBuilder<T>
         Logger.Log($"Environment: {RuntimeInfo.OS} ({Environment.OSVersion.VersionString})");
         Logger.Log("----------------------------------------------------------");
 
-        if (window != null)
-        {
-            window.Size = options.Size;
-            window.Title = options.Title;
-            window.Border = WindowBorder.Resizable;
-            window.Visible = false;
-            window.OnClose += game.Exit;
-            game.Services.Register<IView>(window);
-        }
+        if (window is null)
+            throw new InvalidOperationException(@"No windowing system was provided.");
 
-        if (graphics != null)
-        {
-            if (window == null)
-                throw new InvalidOperationException(@"A window is required when initializing a graphics context.");
+        window.Size = options.Size;
+        window.Title = options.Title;
+        window.Border = WindowBorder.Resizable;
+        window.Visible = false;
+        window.OnClose += game.Exit;
+        game.Services.Register(window);
+        game.Services.Register<IView>(window);
 
-            graphics.Initialize(window);
-            game.Services.Register(graphics);
-        }
+        if (graphics is null)
+            throw new InvalidOperationException(@"No graphics system was provided.");
+
+        graphics.Initialize(window);
+        game.Services.Register(graphics);
+        game.Services.Register(graphics.CreateFactory());
+        game.Services.Register(new ShaderGlobals());
+        game.Services.Register(new GraphicsContext(graphics, window));
 
         if (audio != null)
             game.Services.Register(audio);
