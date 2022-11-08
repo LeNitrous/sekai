@@ -139,8 +139,6 @@ public sealed class ThreadController : FrameworkObject
             action.Invoke();
         }
 
-        window.Process();
-
         if (ExecutionMode == ExecutionMode.SingleThread)
         {
             performFixedUpdate();
@@ -152,8 +150,6 @@ public sealed class ThreadController : FrameworkObject
 
                 updates[i].Update(elapsed);
             }
-
-            render.Render();
         }
 
         if (ExecutionMode == ExecutionMode.MultiThread)
@@ -181,9 +177,10 @@ public sealed class ThreadController : FrameworkObject
             catch (OperationCanceledException)
             {
             }
-
-            render.Render();
         }
+
+        render.Render();
+        window.Process();
 
         OnTick?.Invoke();
 
