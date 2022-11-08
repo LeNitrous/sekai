@@ -7,7 +7,7 @@ namespace Sekai.Experimental.Mathematics.Tests;
 internal class Vector2Test
 {
     private static readonly Random random = new();
-    
+
     [Test]
     public void Vector2ReadonlyFieldsTest()
     {
