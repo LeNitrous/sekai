@@ -1,13 +1,13 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-using System.Numerics;
 using System.Runtime.InteropServices;
-using Sekai.Framework;
-using Sekai.Framework.Graphics;
-using Sekai.Framework.Graphics.Buffers;
-using Sekai.Framework.Graphics.Shaders;
-using Sekai.Framework.Graphics.Vertices;
+using Sekai;
+using Sekai.Graphics;
+using Sekai.Graphics.Buffers;
+using Sekai.Graphics.Shaders;
+using Sekai.Graphics.Vertices;
+using Sekai.Mathematics;
 
 namespace Triangle;
 
