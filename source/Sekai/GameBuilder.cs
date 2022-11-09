@@ -12,6 +12,7 @@ using Sekai.Logging;
 using Sekai.Scenes;
 using Sekai.Services;
 using Sekai.Storage;
+using Sekai.Threading;
 using Sekai.Windowing;
 
 namespace Sekai;
@@ -84,17 +85,26 @@ public sealed class GameBuilder<T>
     /// </summary>
     public T Build()
     {
-        if (RuntimeInfo.IsDebug)
-            Logger.OnMessageLogged += new LogListenerConsole();
+        var threads = new ThreadController(new GameWindowThread(), new GameUpdateThread(), new GameRenderThread())
+        {
+            ExecutionMode = options.ExecutionMode,
+            UpdatePerSecond = options.UpdatePerSecond,
+        };
 
         var storage = new VirtualStorage();
         storage.Mount("/", new NativeStorage(AppDomain.CurrentDomain.BaseDirectory));
         storage.Mount("/engine", new AssemblyBackedStorage(typeof(Game).Assembly, "Resources"));
 
-        var stream = storage.Open("/runtime.log");
-        var writer = new LogListenerTextWriter(stream);
-        Logger.OnMessageLogged += writer;
-        game.OnExiting += writer.Dispose;
+        if (!options.Variables.Contains("SEKAI_HEADLESS_TEST"))
+        {
+            if (RuntimeInfo.IsDebug)
+                Logger.OnMessageLogged += new LogListenerConsole();
+
+            var stream = storage.Open("/runtime.log");
+            var writer = new LogListenerTextWriter(stream);
+            Logger.OnMessageLogged += writer;
+            game.OnExiting += writer.Dispose;
+        }
 
         var entry = Assembly.GetEntryAssembly()?.GetName();
 
@@ -139,6 +149,7 @@ public sealed class GameBuilder<T>
         Logger.Log($"Graphics  : {graphics?.GetType().Name ?? "None"}");
         Logger.Log($"Windowing : {window?.GetType().Name ?? "None"}");
 
+        game.Services.Register(threads);
         game.Services.Register(storage);
         game.Services.Register(options);
         game.Services.Register<SceneController>();
@@ -157,5 +168,22 @@ public sealed class GameBuilder<T>
     public void Run()
     {
         Build().Run();
+    }
+
+    private class GameWindowThread : WindowThread
+    {
+        private readonly IView view = Game.Resolve<IView>(false);
+        public override void Process() => view?.DoEvents();
+    }
+
+    private class GameRenderThread : RenderThread
+    {
+        public override void Render() => ((IGame)Game.Current).Render();
+    }
+
+    private class GameUpdateThread : UpdateThread
+    {
+        public override void FixedUpdate() => ((IGame)Game.Current).FixedUpdate();
+        public override void Update(double elapsed) => ((IGame)Game.Current).Update(elapsed);
     }
 }

@@ -147,40 +147,21 @@ public abstract class Game : FrameworkObject, IGame
         if (hasStarted)
             return;
 
+        hasStarted = true;
+
         Input = Resolve<IInputContext>(false);
         Audio = Resolve<AudioContext>(false);
         Window = Resolve<IView>();
         Scenes = Resolve<SceneController>();
         Options = Resolve<GameOptions>();
         Storage = Resolve<VirtualStorage>();
+        threads = Resolve<ThreadController>();
         Graphics = Resolve<GraphicsContext>();
-
-        threads = new(new GameWindowThread(), new GameUpdateThread(), new GameRenderThread())
-        {
-            ExecutionMode = Options.ExecutionMode,
-            UpdatePerSecond = Options.UpdatePerSecond,
-        };
-
-        Services.Register(threads);
-        hasStarted = true;
 
         Load();
         OnLoaded?.Invoke();
 
-        if (!Options.Variables.Contains("SEKAI_HEADLESS_TEST"))
-            threads.OnTick += showWindowOnFirstTick;
-
         threads.Run();
-
-        void showWindowOnFirstTick()
-        {
-            if (Window is IWindow window)
-            {
-                window.Visible = true;
-            }
-
-            threads.OnTick -= showWindowOnFirstTick;
-        }
     }
 
     /// <summary>
@@ -248,22 +229,5 @@ public abstract class Game : FrameworkObject, IGame
         Audio?.Dispose();
 
         current = null;
-    }
-
-    private class GameWindowThread : WindowThread
-    {
-        private readonly IView view = Resolve<IView>(false);
-        public override void Process() => view?.DoEvents();
-    }
-
-    private class GameRenderThread : RenderThread
-    {
-        public override void Render() => ((IGame)Current).Render();
-    }
-
-    private class GameUpdateThread : UpdateThread
-    {
-        public override void FixedUpdate() => ((IGame)Current).FixedUpdate();
-        public override void Update(double elapsed) => ((IGame)Current).Update(elapsed);
     }
 }
