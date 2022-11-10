@@ -31,6 +31,7 @@ jobs:
           sudo mv Xvfb.service /etc/systemd/system/Xvfb.service
           sudo systemctl daemon-reload
           sudo systemctl start Xvfb
+          sudo systemctl status Xvfb
 
       - name: Test
         run: dotnet test Sekai.sln --logger "trx;LogFileName=${{ github.workspace }}/results.trx"
