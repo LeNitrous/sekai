@@ -26,7 +26,8 @@ jobs:
 
       - name: Test
         run: |
-          xvfb-run -n 1 dotnet test Sekai.sln --logger "trx;LogFileName=${{ github.workspace }}/results.trx"
+          wget -O xvfb-run.sh https://github.com/revnode/xvfb-run/raw/master/xvfb-run
+          bash ./xvfb-run.sh -n 1 dotnet test Sekai.sln --logger "trx;LogFileName=${{ github.workspace }}/results.trx"
         env:
           # Tell SDL to use dummy drivers so we can run tests on CI
           # https://wiki.libsdl.org/FAQUsingSDL
