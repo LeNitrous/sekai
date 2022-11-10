@@ -24,15 +24,23 @@ jobs:
             xvfb \
             xauth
 
-      - name: Test
+      - name: Setup Xvfb
         run: |
-          wget -O xvfb-run.sh https://github.com/revnode/xvfb-run/raw/master/xvfb-run
-          bash ./xvfb-run.sh -n 1 dotnet test Sekai.sln --logger "trx;LogFileName=${{ github.workspace }}/results.trx"
+          mkdir .staging
+          wget -O Xvfb.service https://gist.githubusercontent.com/ypandit/f4fe751bcbf3ee6a32ca/raw/f2f3a955e430e1f574c985cec0947d55496066d3/Xvfb.service
+          sudo mv Xvfb.service /etc/systemd/system/Xvfb.service
+          sudo systemctl daemon-reload
+          sudo systemctl start Xvfb
+
+      - name: Test
+        run: dotnet test Sekai.sln --logger "trx;LogFileName=${{ github.workspace }}/results.trx"
         env:
           # Tell SDL to use dummy drivers so we can run tests on CI
           # https://wiki.libsdl.org/FAQUsingSDL
           SDL_VIDEODRIVER: x11
           SDL_AUDIODRIVER: dummy
+          # Use Xvfb display
+          DISPLAY: :99
 
       - name: Upload Results
         uses: actions/upload-artifact@v2
