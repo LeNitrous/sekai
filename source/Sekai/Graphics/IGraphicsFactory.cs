@@ -35,5 +35,5 @@ public interface IGraphicsFactory
     /// <summary>
     /// Creates a framebuffer.
     /// </summary>
-    INativeFrameBuffer CreateFramebuffer(INativeTexture color, RenderBufferFormat[]? depth);
+    INativeFrameBuffer CreateFramebuffer();
 }
