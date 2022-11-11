@@ -89,6 +89,11 @@ public interface IGraphicsSystem : IDisposable
     void SetVertexBuffer(INativeBuffer buffer, IVertexLayout layout);
 
     /// <summary>
+    /// Sets the current framebuffer.
+    /// </summary>
+    void SetFrameBuffer(INativeFrameBuffer buffer);
+
+    /// <summary>
     /// Draws the currently bound vertex and index buffer using the currently bound shader to the currently bound framebuffer.
     /// </summary>
     void Draw(int count, PrimitiveTopology topology);

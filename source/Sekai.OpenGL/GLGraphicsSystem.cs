@@ -207,6 +207,10 @@ internal class GLGraphicsSystem : FrameworkObject, IGraphicsSystem
         }
     }
 
+    public void SetFrameBuffer(INativeFrameBuffer buffer)
+    {
+    }
+
     public unsafe void Draw(int count, PrimitiveTopology topology)
     {
         var mode = topology switch
