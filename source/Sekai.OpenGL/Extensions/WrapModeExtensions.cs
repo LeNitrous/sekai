@@ -13,9 +13,9 @@ internal static class WrapModeExtensions
     {
         return mode switch
         {
-            WrapMode.None or WrapMode.ClampToBorder => (int)GLEnum.ClampToBorder,
+            WrapMode.None or WrapMode.Repeat => (int)GLEnum.Repeat,
+            WrapMode.ClampToBorder => (int)GLEnum.ClampToBorder,
             WrapMode.ClampToEdge => (int)GLEnum.ClampToEdge,
-            WrapMode.Repeat => (int)GLEnum.Repeat,
             WrapMode.RepeatMirrored => (int)GLEnum.MirroredRepeat,
             _ => throw new NotSupportedException($@"Wrap mode ""{mode}"" is not supported."),
         };

@@ -48,7 +48,7 @@ vec4 frag()
             new Vertex2D { Position = new Vector2(+0.0f, +0.5f) },
         });
 
-        tex = Texture.New2D(1, 1, PixelFormat.R8_G8_B8_A8_UNorm);
+        tex = Texture.New2D(1, 1, PixelFormat.R8_G8_B8_A8_UNorm_SRgb);
         tex.SetData(new byte[] { 0, 0, 255, 255 }, 0, 0, 0, 1, 1, 1, 0, 0);
     }
 
