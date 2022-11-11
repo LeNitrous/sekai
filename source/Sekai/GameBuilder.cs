@@ -85,7 +85,7 @@ public sealed class GameBuilder<T>
     /// </summary>
     public T Build()
     {
-        var threads = new ThreadController(new GameWindowThread(), new GameUpdateThread(), new GameRenderThread())
+        var threads = new ThreadController(new GameWindowThread(window), new GameUpdateThread(), new GameRenderThread())
         {
             ExecutionMode = options.ExecutionMode,
             UpdatePerSecond = options.UpdatePerSecond,
@@ -104,6 +104,15 @@ public sealed class GameBuilder<T>
             var writer = new LogListenerTextWriter(stream);
             Logger.OnMessageLogged += writer;
             game.OnExiting += writer.Dispose;
+            threads.OnTick += showWindow;
+
+            void showWindow()
+            {
+                if (window is IWindow w)
+                    w.Visible = true;
+
+                threads.OnTick -= showWindow;
+            }
         }
 
         var entry = Assembly.GetEntryAssembly()?.GetName();
@@ -172,7 +181,13 @@ public sealed class GameBuilder<T>
 
     private class GameWindowThread : WindowThread
     {
-        private readonly IView view = Game.Resolve<IView>(false);
+        private readonly IView? view;
+
+        public GameWindowThread(IView? view)
+        {
+            this.view = view;
+        }
+
         public override void Process() => view?.DoEvents();
     }
 

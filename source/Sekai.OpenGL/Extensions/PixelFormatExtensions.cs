@@ -4,9 +4,9 @@
 using System;
 using Sekai.Graphics.Textures;
 
-namespace Sekai.OpenGL;
+namespace Sekai.OpenGL.Extensions;
 
-internal static class PixelFormatExtensions
+internal static class GLPixelFormatExtensions
 {
     public static Silk.NET.OpenGL.PixelType ToPixelType(this PixelFormat format)
     {
@@ -327,6 +327,150 @@ internal static class PixelFormatExtensions
                 return Silk.NET.OpenGL.InternalFormat.Rgb10A2ui;
             case PixelFormat.R11_G11_B10_Float:
                 return Silk.NET.OpenGL.InternalFormat.R11fG11fB10f;
+
+            default:
+                throw new NotSupportedException(@$"Pixel format ""{format}"" is not supported.");
+        }
+    }
+
+    public static Silk.NET.OpenGL.SizedInternalFormat ToSizedInternalFormat(this PixelFormat format)
+    {
+        switch (format)
+        {
+            case PixelFormat.R8_UNorm:
+                return Silk.NET.OpenGL.SizedInternalFormat.R8;
+            case PixelFormat.R8_SNorm:
+                return Silk.NET.OpenGL.SizedInternalFormat.R8SNorm;
+            case PixelFormat.R8_UInt:
+                return Silk.NET.OpenGL.SizedInternalFormat.R8ui;
+            case PixelFormat.R8_SInt:
+                return Silk.NET.OpenGL.SizedInternalFormat.R8i;
+
+            case PixelFormat.R16_UNorm:
+                return Silk.NET.OpenGL.SizedInternalFormat.R16;
+            case PixelFormat.R16_SNorm:
+                return Silk.NET.OpenGL.SizedInternalFormat.R16SNorm;
+            case PixelFormat.R16_UInt:
+                return Silk.NET.OpenGL.SizedInternalFormat.R16ui;
+            case PixelFormat.R16_SInt:
+                return Silk.NET.OpenGL.SizedInternalFormat.R16i;
+            case PixelFormat.R16_Float:
+                return Silk.NET.OpenGL.SizedInternalFormat.R16f;
+            case PixelFormat.R32_UInt:
+                return Silk.NET.OpenGL.SizedInternalFormat.R32ui;
+            case PixelFormat.R32_SInt:
+                return Silk.NET.OpenGL.SizedInternalFormat.R32i;
+            case PixelFormat.R32_Float:
+                return Silk.NET.OpenGL.SizedInternalFormat.R32f;
+
+            case PixelFormat.R8_G8_UNorm:
+                return Silk.NET.OpenGL.SizedInternalFormat.RG8;
+            case PixelFormat.R8_G8_SNorm:
+                return Silk.NET.OpenGL.SizedInternalFormat.RG8SNorm;
+            case PixelFormat.R8_G8_UInt:
+                return Silk.NET.OpenGL.SizedInternalFormat.RG8ui;
+            case PixelFormat.R8_G8_SInt:
+                return Silk.NET.OpenGL.SizedInternalFormat.RG8i;
+
+            case PixelFormat.R16_G16_UNorm:
+                return Silk.NET.OpenGL.SizedInternalFormat.RG16;
+            case PixelFormat.R16_G16_SNorm:
+                return Silk.NET.OpenGL.SizedInternalFormat.RG16SNorm;
+            case PixelFormat.R16_G16_UInt:
+                return Silk.NET.OpenGL.SizedInternalFormat.RG16ui;
+            case PixelFormat.R16_G16_SInt:
+                return Silk.NET.OpenGL.SizedInternalFormat.RG16i;
+            case PixelFormat.R16_G16_Float:
+                return Silk.NET.OpenGL.SizedInternalFormat.RG16f;
+
+            case PixelFormat.R32_G32_UInt:
+                return Silk.NET.OpenGL.SizedInternalFormat.RG32ui;
+            case PixelFormat.R32_G32_SInt:
+                return Silk.NET.OpenGL.SizedInternalFormat.RG32i;
+            case PixelFormat.R32_G32_Float:
+                return Silk.NET.OpenGL.SizedInternalFormat.RG32f;
+
+            case PixelFormat.R8_G8_B8_A8_UNorm:
+                return Silk.NET.OpenGL.SizedInternalFormat.Rgba8;
+            case PixelFormat.R8_G8_B8_A8_UNorm_SRgb:
+                return Silk.NET.OpenGL.SizedInternalFormat.Srgb8Alpha8;
+            case PixelFormat.R8_G8_B8_A8_SNorm:
+                return Silk.NET.OpenGL.SizedInternalFormat.Rgba8SNorm;
+            case PixelFormat.R8_G8_B8_A8_UInt:
+                return Silk.NET.OpenGL.SizedInternalFormat.Rgba8ui;
+            case PixelFormat.R8_G8_B8_A8_SInt:
+                return Silk.NET.OpenGL.SizedInternalFormat.Rgba8i;
+
+            case PixelFormat.R16_G16_B16_A16_UNorm:
+                return Silk.NET.OpenGL.SizedInternalFormat.Rgba16;
+            case PixelFormat.R16_G16_B16_A16_SNorm:
+                return Silk.NET.OpenGL.SizedInternalFormat.Rgba16SNorm;
+            case PixelFormat.R16_G16_B16_A16_UInt:
+                return Silk.NET.OpenGL.SizedInternalFormat.Rgba16ui;
+            case PixelFormat.R16_G16_B16_A16_SInt:
+                return Silk.NET.OpenGL.SizedInternalFormat.Rgba16i;
+            case PixelFormat.R16_G16_B16_A16_Float:
+                return Silk.NET.OpenGL.SizedInternalFormat.Rgba16f;
+
+            case PixelFormat.R32_G32_B32_A32_Float:
+                return Silk.NET.OpenGL.SizedInternalFormat.Rgba32f;
+            case PixelFormat.R32_G32_B32_A32_UInt:
+                return Silk.NET.OpenGL.SizedInternalFormat.Rgba32ui;
+            case PixelFormat.R32_G32_B32_A32_SInt:
+                return Silk.NET.OpenGL.SizedInternalFormat.Rgba32i;
+
+            case PixelFormat.B8_G8_R8_A8_UNorm:
+                return Silk.NET.OpenGL.SizedInternalFormat.Rgba8;
+            case PixelFormat.B8_G8_R8_A8_UNorm_SRgb:
+                return Silk.NET.OpenGL.SizedInternalFormat.Srgb8Alpha8;
+
+            case PixelFormat.BC1_Rgb_UNorm:
+                return Silk.NET.OpenGL.SizedInternalFormat.CompressedRgbS3TCDxt1Ext;
+            case PixelFormat.BC1_Rgb_UNorm_SRgb:
+                return Silk.NET.OpenGL.SizedInternalFormat.CompressedSrgbS3TCDxt1Ext;
+            case PixelFormat.BC1_Rgba_UNorm:
+                return Silk.NET.OpenGL.SizedInternalFormat.CompressedRgbaS3TCDxt1Ext;
+            case PixelFormat.BC1_Rgba_UNorm_SRgb:
+                return Silk.NET.OpenGL.SizedInternalFormat.CompressedSrgbAlphaS3TCDxt1Ext;
+            case PixelFormat.BC2_UNorm:
+                return Silk.NET.OpenGL.SizedInternalFormat.CompressedRgbaS3TCDxt3Ext;
+            case PixelFormat.BC2_UNorm_SRgb:
+                return Silk.NET.OpenGL.SizedInternalFormat.CompressedSrgbAlphaS3TCDxt3Ext;
+            case PixelFormat.BC3_UNorm:
+                return Silk.NET.OpenGL.SizedInternalFormat.CompressedRgbaS3TCDxt5Ext;
+            case PixelFormat.BC3_UNorm_SRgb:
+                return Silk.NET.OpenGL.SizedInternalFormat.CompressedSrgbAlphaS3TCDxt5Ext;
+            case PixelFormat.BC4_UNorm:
+                return Silk.NET.OpenGL.SizedInternalFormat.CompressedRedRgtc1;
+            case PixelFormat.BC4_SNorm:
+                return Silk.NET.OpenGL.SizedInternalFormat.CompressedSignedRedRgtc1;
+            case PixelFormat.BC5_UNorm:
+                return Silk.NET.OpenGL.SizedInternalFormat.CompressedRGRgtc2;
+            case PixelFormat.BC5_SNorm:
+                return Silk.NET.OpenGL.SizedInternalFormat.CompressedSignedRGRgtc2;
+            case PixelFormat.BC7_UNorm:
+                return Silk.NET.OpenGL.SizedInternalFormat.CompressedRgbaBptcUnorm;
+            case PixelFormat.BC7_UNorm_SRgb:
+                return Silk.NET.OpenGL.SizedInternalFormat.CompressedSrgbAlphaBptcUnorm;
+
+            case PixelFormat.ETC2_R8_G8_B8_UNorm:
+                return Silk.NET.OpenGL.SizedInternalFormat.CompressedRgb8Etc2;
+            case PixelFormat.ETC2_R8_G8_B8_A1_UNorm:
+                return Silk.NET.OpenGL.SizedInternalFormat.CompressedRgb8PunchthroughAlpha1Etc2;
+            case PixelFormat.ETC2_R8_G8_B8_A8_UNorm:
+                return Silk.NET.OpenGL.SizedInternalFormat.CompressedRgba8Etc2Eac;
+
+            case PixelFormat.D32_Float_S8_UInt:
+                return Silk.NET.OpenGL.SizedInternalFormat.Depth32fStencil8;
+            case PixelFormat.D24_UNorm_S8_UInt:
+                return Silk.NET.OpenGL.SizedInternalFormat.Depth24Stencil8;
+
+            case PixelFormat.R10_G10_B10_A2_UNorm:
+                return Silk.NET.OpenGL.SizedInternalFormat.Rgb10A2;
+            case PixelFormat.R10_G10_B10_A2_UInt:
+                return Silk.NET.OpenGL.SizedInternalFormat.Rgb10A2ui;
+            case PixelFormat.R11_G11_B10_Float:
+                return Silk.NET.OpenGL.SizedInternalFormat.R11fG11fB10f;
 
             default:
                 throw new NotSupportedException(@$"Pixel format ""{format}"" is not supported.");

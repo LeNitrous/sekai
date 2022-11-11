@@ -6,6 +6,7 @@ using Sekai;
 using Sekai.Graphics;
 using Sekai.Graphics.Buffers;
 using Sekai.Graphics.Shaders;
+using Sekai.Graphics.Textures;
 using Sekai.Graphics.Vertices;
 using Sekai.Mathematics;
 
@@ -16,8 +17,10 @@ public class TriangleGame : Game
     private Shader shd = null!;
     private Buffer<short> ebo = null!;
     private Buffer<Vertex2D> vbo = null!;
+    private Texture tex = null!;
     private static readonly string shader = @"
 attrib vec2 Position;
+extern sampler2D Texture;
 
 vec4 vert()
 {
@@ -26,7 +29,7 @@ vec4 vert()
 
 vec4 frag()
 {
-    return vec4(1.0f, 1.0f, 1.0f, 1.0f);
+    return texture(Texture, vec2(0.0f, 0.0f));
 }
 ";
 
@@ -44,10 +47,14 @@ vec4 frag()
             new Vertex2D { Position = new Vector2(+0.5f, -0.5f) },
             new Vertex2D { Position = new Vector2(+0.0f, +0.5f) },
         });
+
+        tex = Texture.New2D(1, 1, PixelFormat.R8_G8_B8_A8_UNorm);
+        tex.SetData(new byte[] { 0, 0, 255, 255 }, 0, 0, 0, 1, 1, 1, 0, 0);
     }
 
     protected override void Render()
     {
+        tex.Bind();
         shd.Bind();
         ebo.Bind();
         vbo.Bind();
@@ -59,6 +66,7 @@ vec4 frag()
         shd?.Dispose();
         ebo?.Dispose();
         vbo?.Dispose();
+        tex?.Dispose();
     }
 
     [StructLayout(LayoutKind.Sequential)]

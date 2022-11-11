@@ -6,7 +6,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "Build Examples",
-            "program": "${workspaceFolder}/examples/${input:LaunchExample}/bin/Debug/net6.0/${input:LaunchExample}.dll",
+            "program": "${workspaceFolder}/examples/${input:LaunchExample}/bin/Debug/net7.0/${input:LaunchExample}.dll",
             "args": [],
             "cwd": "${workspaceFolder}/examples/${input:LaunchExample}",
             "console": "internalConsole",

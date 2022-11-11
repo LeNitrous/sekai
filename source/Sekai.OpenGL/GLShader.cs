@@ -127,9 +127,6 @@ internal class GLShader : GLResource, INativeShader
                 case UniformType.FloatMat3x2:
                     uniforms.Add(new GLUniform<Matrix3x2>(this, name, (int)i));
                     break;
-
-                default:
-                    throw new NotSupportedException($@"GL Type ""{type}"" is not supported.");
             }
         }
     }

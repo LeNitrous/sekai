@@ -166,6 +166,9 @@ internal class GLGraphicsSystem : FrameworkObject, IGraphicsSystem
         }
         else
         {
+            var tex = (GLTexture)texture;
+            GL.ActiveTexture(TextureUnit.Texture0 + unit);
+            GL.BindTexture(tex.Target, tex);
         }
     }
 

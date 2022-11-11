@@ -53,6 +53,16 @@ internal unsafe class SDLView : FrameworkObject, IView, INativeWindowSource, IOp
         Native = new SDLNativeWindow(this);
 
         Sdl.SetEventFilter(filter = handleSdlEvent, null);
+
+        int w = 0;
+        int h = 0;
+        Sdl.GetWindowSize(Window, ref w, ref h);
+        Size = new Size2(w, h);
+
+        int x = 0;
+        int y = 0;
+        Sdl.GetWindowPosition(Window, ref x, ref y);
+        Position = new Mathematics.Point(x, y);
     }
 
     private const int events_per_peep = 64;
@@ -117,7 +127,7 @@ internal unsafe class SDLView : FrameworkObject, IView, INativeWindowSource, IOp
 
     private void handleWindowEvent(WindowEvent evt)
     {
-        var wtype = (WindowEventID)evt.Type;
+        var wtype = (WindowEventID)evt.Event;
 
         switch (wtype)
         {
@@ -167,8 +177,7 @@ internal unsafe class SDLView : FrameworkObject, IView, INativeWindowSource, IOp
     {
         Sdl.DestroyWindow(Window);
 
-        if (gl is not null)
-            gl.Dispose();
+        gl?.Dispose();
 
         Sdl.Quit();
     }

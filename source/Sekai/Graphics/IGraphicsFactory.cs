@@ -30,7 +30,7 @@ public interface IGraphicsFactory
     /// <summary>
     /// Creates a texture.
     /// </summary>
-    INativeTexture CreateTexture();
+    INativeTexture CreateTexture(int width, int height, int depth, int level, int layers, FilterMode min, FilterMode mag, WrapMode wrapModeS, WrapMode wrapModeT, WrapMode wrapModeR, TextureType type, TextureUsage usage, TextureSampleCount sampleCount, PixelFormat format);
 
     /// <summary>
     /// Creates a framebuffer.
