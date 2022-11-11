@@ -12,10 +12,18 @@ namespace Sekai.Graphics.Buffers;
 public interface INativeFrameBuffer : IDisposable
 {
     /// <summary>
-    /// Adds a framebuffer attachment.
+    /// Sets a framebuffer depth attachment.
     /// </summary>
     /// <param name="texture">The texture to attach.</param>
     /// <param name="level">The texture's level to attach.</param>
     /// <param name="layer">The texture's layer to attach.</param>
-    void AddAttachment(INativeTexture texture, int level, int layer);
+    void SetDepthAttachment(INativeTexture texture, int level, int layer);
+
+    /// <summary>
+    /// Adds a framebuffer color attachment.
+    /// </summary>
+    /// <param name="texture">The texture to attach.</param>
+    /// <param name="level">The texture's level to attach.</param>
+    /// <param name="layer">The texture's layer to attach.</param>
+    void AddColorAttachment(INativeTexture texture, int level, int layer);
 }

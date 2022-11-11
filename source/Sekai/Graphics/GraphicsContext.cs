@@ -69,6 +69,11 @@ public sealed class GraphicsContext : FrameworkObject
     /// </summary>
     public Buffers.Buffer? CurrentIndexBuffer { get; private set; }
 
+    /// <summary>
+    /// The current frame buffer.
+    /// </summary>
+    public FrameBuffer? CurrentFrameBuffer { get; private set; }
+
     private readonly IView view;
     private readonly IGraphicsSystem graphics;
     private readonly Stack<StencilInfo> stencilStack = new();
@@ -77,6 +82,7 @@ public sealed class GraphicsContext : FrameworkObject
     private readonly Stack<Rectangle> scissorStack = new();
     private readonly Stack<bool> scissorStateStack = new();
     private readonly Stack<Shader> shaderStack = new();
+    private readonly Stack<FrameBuffer> frameBufferStack = new();
     private readonly Texture[] boundTextures = new Texture[16];
     private int prevBoundTextureUnit = -1;
     private IndexFormat? prevBoundIndexFormat;
@@ -113,6 +119,9 @@ public sealed class GraphicsContext : FrameworkObject
         CurrentBlend = new();
         CurrentScissor = Rectangle.Empty;
         CurrentViewport = Rectangle.Empty;
+        CurrentFrameBuffer = null;
+        CurrentIndexBuffer = null;
+        CurrentVertexBuffer = null;
         CurrentScissorState = false;
         prevBoundTextureUnit = -1;
         prevBoundIndexFormat = null;
@@ -267,6 +276,12 @@ public sealed class GraphicsContext : FrameworkObject
     /// </summary>
     public void Draw(int count, PrimitiveTopology topology)
     {
+        if (CurrentShader is null)
+            throw new InvalidOperationException(@"A shader must be bound before draw operations can begin.");
+
+        if (CurrentVertexBuffer is null || CurrentIndexBuffer is null)
+            throw new InvalidOperationException(@"A vertex buffer and index buffer must be bound before draw operations can begin.");
+
         graphics.Draw(count, topology);
     }
 
@@ -324,6 +339,21 @@ public sealed class GraphicsContext : FrameworkObject
         prevBoundVertexLayout = layout;
     }
 
+    internal void BindFrameBuffer(FrameBuffer frameBuffer)
+    {
+        frameBufferStack.Push(frameBuffer);
+        setFrameBuffer(frameBuffer);
+    }
+
+    internal void UnbindFrameBuffer(FrameBuffer frameBuffer)
+    {
+        if (CurrentFrameBuffer != frameBuffer)
+            throw new InvalidOperationException(@"Attempting to unbind framebuffer whilst currently not bound.");
+
+        frameBufferStack.Pop();
+        setFrameBuffer(frameBufferStack.Count > 0 ? frameBufferStack.Peek() : null);
+    }
+
     private void setDepth(DepthInfo depth)
     {
         if (CurrentDepth == depth)
@@ -376,5 +406,14 @@ public sealed class GraphicsContext : FrameworkObject
 
         graphics.SetShader(shader.Native);
         CurrentShader = shader;
+    }
+
+    private void setFrameBuffer(FrameBuffer? frameBuffer)
+    {
+        if (CurrentFrameBuffer == frameBuffer)
+            return;
+
+        graphics.SetFrameBuffer(frameBuffer?.Native);
+        CurrentFrameBuffer = frameBuffer;
     }
 }

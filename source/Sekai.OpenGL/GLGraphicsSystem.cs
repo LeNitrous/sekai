@@ -207,8 +207,19 @@ internal class GLGraphicsSystem : FrameworkObject, IGraphicsSystem
         }
     }
 
-    public void SetFrameBuffer(INativeFrameBuffer buffer)
+    public void SetFrameBuffer(INativeFrameBuffer? buffer)
     {
+        if (buffer is null)
+        {
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+        }
+        else
+        {
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, (GLFrameBuffer)buffer);
+
+            if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != GLEnum.FramebufferComplete)
+                throw new InvalidOperationException(@"Framebuffer is not ready to be bound.");
+        }
     }
 
     public unsafe void Draw(int count, PrimitiveTopology topology)

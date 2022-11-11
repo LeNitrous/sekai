@@ -91,7 +91,7 @@ public interface IGraphicsSystem : IDisposable
     /// <summary>
     /// Sets the current framebuffer.
     /// </summary>
-    void SetFrameBuffer(INativeFrameBuffer buffer);
+    void SetFrameBuffer(INativeFrameBuffer? buffer);
 
     /// <summary>
     /// Draws the currently bound vertex and index buffer using the currently bound shader to the currently bound framebuffer.
