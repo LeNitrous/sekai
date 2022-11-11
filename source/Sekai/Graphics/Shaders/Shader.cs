@@ -43,7 +43,7 @@ public sealed class Shader : FrameworkObject
     }
 
     /// <summary>
-    /// Makes this shader active.
+    /// Makes this shader the current.
     /// </summary>
     public void Bind()
     {
@@ -55,7 +55,7 @@ public sealed class Shader : FrameworkObject
     }
 
     /// <summary>
-    /// Makes this shader
+    /// Makes this shader not the current.
     /// </summary>
     public void Unbind()
     {
