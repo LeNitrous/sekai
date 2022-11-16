@@ -685,7 +685,7 @@ public static class CollisionHelper
     /// <param name="normalAxis">The index of axis defining the normal of the rectangle in the world. This value should be 0, 1 or 2</param>
     /// <param name="intersectionPoint">The position of the intersection point in the world</param>
     /// <returns><value>true</value> if the ray and rectangle intersects.</returns>
-    /// FIXME: This method is not working properly, Matrix[int] doesn't convert well to Matrix[int,int]. I tried my best :(
+    /// FIXME: I don't know if this method is working properly, Matrix[int] doesn't convert well to Matrix[int,int]. I tried my best :(
     public static bool RayIntersectsRectangle(ref Ray ray, ref Matrix4x4 rectangleWorldMatrix, ref Vector3 rectangleSize, int normalAxis, out Vector3 intersectionPoint)
     {
         // Compute the intersection of the ray with the plane of the rectangle
@@ -697,7 +697,7 @@ public static class CollisionHelper
         }
 
         // Compute the intersection point
-        intersectionPoint = ray.Position + distance * ray.Direction;
+        intersectionPoint = ray.Position + (distance * ray.Direction);
 
         // Check if the intersection point is inside the rectangle
         var rectangleCenter = rectangleWorldMatrix.Translation;
