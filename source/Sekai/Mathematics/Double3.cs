@@ -23,6 +23,7 @@
 
 using System;
 using System.Globalization;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
@@ -36,32 +37,32 @@ namespace Sekai.Mathematics;
 public struct Double3 : IEquatable<Double3>, IFormattable
 {
     /// <summary>
-    /// The size of the <see cref="Stride.Core.Mathematics.Double3"/> type, in bytes.
+    /// The size of the <see cref="Double3"/> type, in bytes.
     /// </summary>
     public static readonly int SizeInBytes = Unsafe.SizeOf<Double3>();
 
     /// <summary>
-    /// A <see cref="Stride.Core.Mathematics.Double3"/> with all of its components set to zero.
+    /// A <see cref="Double3"/> with all of its components set to zero.
     /// </summary>
     public static readonly Double3 Zero = new();
 
     /// <summary>
-    /// The X unit <see cref="Stride.Core.Mathematics.Double3"/> (1, 0, 0).
+    /// The X unit <see cref="Double3"/> (1, 0, 0).
     /// </summary>
     public static readonly Double3 UnitX = new(1.0, 0.0, 0.0);
 
     /// <summary>
-    /// The Y unit <see cref="Stride.Core.Mathematics.Double3"/> (0, 1, 0).
+    /// The Y unit <see cref="Double3"/> (0, 1, 0).
     /// </summary>
     public static readonly Double3 UnitY = new(0.0, 1.0, 0.0);
 
     /// <summary>
-    /// The Z unit <see cref="Stride.Core.Mathematics.Double3"/> (0, 0, 1).
+    /// The Z unit <see cref="Double3"/> (0, 0, 1).
     /// </summary>
     public static readonly Double3 UnitZ = new(0.0, 0.0, 1.0);
 
     /// <summary>
-    /// A <see cref="Stride.Core.Mathematics.Double3"/> with all of its components set to one.
+    /// A <see cref="Double3"/> with all of its components set to one.
     /// </summary>
     public static readonly Double3 One = new(1.0, 1.0, 1.0);
 
@@ -84,7 +85,7 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     public double Z;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Stride.Core.Mathematics.Double3"/> struct.
+    /// Initializes a new instance of the <see cref="Double3"/> struct.
     /// </summary>
     /// <param name="value">The value that will be assigned to all components.</param>
     public Double3(double value)
@@ -95,7 +96,7 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Stride.Core.Mathematics.Double3"/> struct.
+    /// Initializes a new instance of the <see cref="Double3"/> struct.
     /// </summary>
     /// <param name="x">Initial value for the X component of the vector.</param>
     /// <param name="y">Initial value for the Y component of the vector.</param>
@@ -108,7 +109,7 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Stride.Core.Mathematics.Double3"/> struct.
+    /// Initializes a new instance of the <see cref="Double3"/> struct.
     /// </summary>
     /// <param name="value">A vector containing the values with which to initialize the X and Y components.</param>
     /// <param name="z">Initial value for the Z component of the vector.</param>
@@ -120,7 +121,7 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Stride.Core.Mathematics.Double3"/> struct.
+    /// Initializes a new instance of the <see cref="Double3"/> struct.
     /// </summary>
     /// <param name="values">The values to assign to the X, Y, and Z components of the vector. This must be an array with three elements.</param>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="values"/> is <c>null</c>.</exception>
@@ -138,7 +139,7 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Stride.Core.Mathematics.Double3"/> struct.
+    /// Initializes a new instance of the <see cref="Double3"/> struct.
     /// </summary>
     /// <param name="v">The Vector3 to construct the Double3 from.</param>
     public Double3(Vector3 v)
@@ -190,7 +191,7 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     /// </summary>
     /// <returns>The length of the vector.</returns>
     /// <remarks>
-    /// <see cref="Stride.Core.Mathematics.Double3.LengthSquared"/> may be preferred when only the relative length is needed
+    /// <see cref="Double3.LengthSquared"/> may be preferred when only the relative length is needed
     /// and speed is of the essence.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -204,7 +205,7 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     /// </summary>
     /// <returns>The squared length of the vector.</returns>
     /// <remarks>
-    /// This method may be preferred to <see cref="Stride.Core.Mathematics.Double3.Length"/> when only a relative length is needed
+    /// This method may be preferred to <see cref="Double3.Length"/> when only a relative length is needed
     /// and speed is of the essence.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -416,11 +417,11 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     }
 
     /// <summary>
-    /// Returns a <see cref="Stride.Core.Mathematics.Double3"/> containing the 3D Cartesian coordinates of a point specified in Barycentric coordinates relative to a 3D triangle.
+    /// Returns a <see cref="Double3"/> containing the 3D Cartesian coordinates of a point specified in Barycentric coordinates relative to a 3D triangle.
     /// </summary>
-    /// <param name="value1">A <see cref="Stride.Core.Mathematics.Double3"/> containing the 3D Cartesian coordinates of vertex 1 of the triangle.</param>
-    /// <param name="value2">A <see cref="Stride.Core.Mathematics.Double3"/> containing the 3D Cartesian coordinates of vertex 2 of the triangle.</param>
-    /// <param name="value3">A <see cref="Stride.Core.Mathematics.Double3"/> containing the 3D Cartesian coordinates of vertex 3 of the triangle.</param>
+    /// <param name="value1">A <see cref="Double3"/> containing the 3D Cartesian coordinates of vertex 1 of the triangle.</param>
+    /// <param name="value2">A <see cref="Double3"/> containing the 3D Cartesian coordinates of vertex 2 of the triangle.</param>
+    /// <param name="value3">A <see cref="Double3"/> containing the 3D Cartesian coordinates of vertex 3 of the triangle.</param>
     /// <param name="amount1">Barycentric coordinate b2, which expresses the weighting factor toward vertex 2 (specified in <paramref name="value2"/>).</param>
     /// <param name="amount2">Barycentric coordinate b3, which expresses the weighting factor toward vertex 3 (specified in <paramref name="value3"/>).</param>
     /// <param name="result">When the method completes, contains the 3D Cartesian coordinates of the specified point.</param>
@@ -432,14 +433,14 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     }
 
     /// <summary>
-    /// Returns a <see cref="Stride.Core.Mathematics.Double3"/> containing the 3D Cartesian coordinates of a point specified in Barycentric coordinates relative to a 3D triangle.
+    /// Returns a <see cref="Double3"/> containing the 3D Cartesian coordinates of a point specified in Barycentric coordinates relative to a 3D triangle.
     /// </summary>
-    /// <param name="value1">A <see cref="Stride.Core.Mathematics.Double3"/> containing the 3D Cartesian coordinates of vertex 1 of the triangle.</param>
-    /// <param name="value2">A <see cref="Stride.Core.Mathematics.Double3"/> containing the 3D Cartesian coordinates of vertex 2 of the triangle.</param>
-    /// <param name="value3">A <see cref="Stride.Core.Mathematics.Double3"/> containing the 3D Cartesian coordinates of vertex 3 of the triangle.</param>
+    /// <param name="value1">A <see cref="Double3"/> containing the 3D Cartesian coordinates of vertex 1 of the triangle.</param>
+    /// <param name="value2">A <see cref="Double3"/> containing the 3D Cartesian coordinates of vertex 2 of the triangle.</param>
+    /// <param name="value3">A <see cref="Double3"/> containing the 3D Cartesian coordinates of vertex 3 of the triangle.</param>
     /// <param name="amount1">Barycentric coordinate b2, which expresses the weighting factor toward vertex 2 (specified in <paramref name="value2"/>).</param>
     /// <param name="amount2">Barycentric coordinate b3, which expresses the weighting factor toward vertex 3 (specified in <paramref name="value3"/>).</param>
-    /// <returns>A new <see cref="Stride.Core.Mathematics.Double3"/> containing the 3D Cartesian coordinates of the specified point.</returns>
+    /// <returns>A new <see cref="Double3"/> containing the 3D Cartesian coordinates of the specified point.</returns>
     public static Double3 Barycentric(Double3 value1, Double3 value2, Double3 value3, double amount1, double amount2)
     {
         Barycentric(ref value1, ref value2, ref value3, amount1, amount2, out var result);
@@ -516,7 +517,7 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     /// <param name="value2">The second vector.</param>
     /// <param name="result">When the method completes, contains the distance between the two vectors.</param>
     /// <remarks>
-    /// <see cref="Stride.Core.Mathematics.Double3.DistanceSquared(ref Double3, ref Double3, out double)"/> may be preferred when only the relative distance is needed
+    /// <see cref="Double3.DistanceSquared(ref Double3, ref Double3, out double)"/> may be preferred when only the relative distance is needed
     /// and speed is of the essence.
     /// </remarks>
     public static void Distance(ref Double3 value1, ref Double3 value2, out double result)
@@ -535,7 +536,7 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     /// <param name="value2">The second vector.</param>
     /// <returns>The distance between the two vectors.</returns>
     /// <remarks>
-    /// <see cref="Stride.Core.Mathematics.Double3.DistanceSquared(Double3, Double3)"/> may be preferred when only the relative distance is needed
+    /// <see cref="Double3.DistanceSquared(Double3, Double3)"/> may be preferred when only the relative distance is needed
     /// and speed is of the essence.
     /// </remarks>
     public static double Distance(Double3 value1, Double3 value2)
@@ -852,7 +853,7 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     /// <param name="maxZ">The maximum depth of the viewport.</param>
     /// <param name="worldViewProjection">The combined world-view-projection matrix.</param>
     /// <param name="result">When the method completes, contains the vector in screen space.</param>
-    public static void Project(ref Double3 vector, double x, double y, double width, double height, double minZ, double maxZ, ref Matrix worldViewProjection, out Double3 result)
+    public static void Project(ref Double3 vector, double x, double y, double width, double height, double minZ, double maxZ, ref Matrix4x4 worldViewProjection, out Double3 result)
     {
         TransformCoordinate(ref vector, ref worldViewProjection, out var v);
 
@@ -871,7 +872,7 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     /// <param name="maxZ">The maximum depth of the viewport.</param>
     /// <param name="worldViewProjection">The combined world-view-projection matrix.</param>
     /// <returns>The vector in screen space.</returns>
-    public static Double3 Project(Double3 vector, double x, double y, double width, double height, double minZ, double maxZ, Matrix worldViewProjection)
+    public static Double3 Project(Double3 vector, double x, double y, double width, double height, double minZ, double maxZ, Matrix4x4 worldViewProjection)
     {
         Project(ref vector, x, y, width, height, minZ, maxZ, ref worldViewProjection, out var result);
         return result;
@@ -889,10 +890,10 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     /// <param name="maxZ">The maximum depth of the viewport.</param>
     /// <param name="worldViewProjection">The combined world-view-projection matrix.</param>
     /// <param name="result">When the method completes, contains the vector in object space.</param>
-    public static void Unproject(ref Double3 vector, double x, double y, double width, double height, double minZ, double maxZ, ref Matrix worldViewProjection, out Double3 result)
+    public static void Unproject(ref Double3 vector, double x, double y, double width, double height, double minZ, double maxZ, ref Matrix4x4 worldViewProjection, out Double3 result)
     {
         var v = new Double3();
-        Matrix.Invert(ref worldViewProjection, out var matrix);
+        Matrix4x4.Invert(worldViewProjection, out var matrix);
 
         v.X = (((vector.X - x) / width) * 2.0f) - 1.0;
         v.Y = -((((vector.Y - y) / height) * 2.0f) - 1.0);
@@ -913,7 +914,7 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     /// <param name="maxZ">The maximum depth of the viewport.</param>
     /// <param name="worldViewProjection">The combined world-view-projection matrix.</param>
     /// <returns>The vector in object space.</returns>
-    public static Double3 Unproject(Double3 vector, double x, double y, double width, double height, double minZ, double maxZ, Matrix worldViewProjection)
+    public static Double3 Unproject(Double3 vector, double x, double y, double width, double height, double minZ, double maxZ, Matrix4x4 worldViewProjection)
     {
         Unproject(ref vector, x, y, width, height, minZ, maxZ, ref worldViewProjection, out var result);
         return result;
@@ -1044,11 +1045,11 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     }
 
     /// <summary>
-    /// Transforms a 3D vector by the given <see cref="Stride.Core.Mathematics.Quaternion"/> rotation.
+    /// Transforms a 3D vector by the given <see cref="Quaternion"/> rotation.
     /// </summary>
     /// <param name="vector">The vector to rotate.</param>
-    /// <param name="rotation">The <see cref="Stride.Core.Mathematics.Quaternion"/> rotation to apply.</param>
-    /// <param name="result">When the method completes, contains the transformed <see cref="Stride.Core.Mathematics.Double4"/>.</param>
+    /// <param name="rotation">The <see cref="Quaternion"/> rotation to apply.</param>
+    /// <param name="result">When the method completes, contains the transformed <see cref="Double4"/>.</param>
     public static void Transform(ref Double3 vector, ref Quaternion rotation, out Double3 result)
     {
         double x = rotation.X + rotation.X;
@@ -1071,11 +1072,11 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     }
 
     /// <summary>
-    /// Transforms a 3D vector by the given <see cref="Stride.Core.Mathematics.Quaternion"/> rotation.
+    /// Transforms a 3D vector by the given <see cref="Quaternion"/> rotation.
     /// </summary>
     /// <param name="vector">The vector to rotate.</param>
-    /// <param name="rotation">The <see cref="Stride.Core.Mathematics.Quaternion"/> rotation to apply.</param>
-    /// <returns>The transformed <see cref="Stride.Core.Mathematics.Double4"/>.</returns>
+    /// <param name="rotation">The <see cref="Quaternion"/> rotation to apply.</param>
+    /// <returns>The transformed <see cref="Double4"/>.</returns>
     public static Double3 Transform(Double3 vector, Quaternion rotation)
     {
         Transform(ref vector, ref rotation, out var result);
@@ -1083,10 +1084,10 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     }
 
     /// <summary>
-    /// Transforms an array of vectors by the given <see cref="Stride.Core.Mathematics.Quaternion"/> rotation.
+    /// Transforms an array of vectors by the given <see cref="Quaternion"/> rotation.
     /// </summary>
     /// <param name="source">The array of vectors to transform.</param>
-    /// <param name="rotation">The <see cref="Stride.Core.Mathematics.Quaternion"/> rotation to apply.</param>
+    /// <param name="rotation">The <see cref="Quaternion"/> rotation to apply.</param>
     /// <param name="destination">The array for which the transformed vectors are stored.
     /// This array may be the same array as <paramref name="source"/>.</param>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="source"/> or <paramref name="destination"/> is <c>null</c>.</exception>
@@ -1133,12 +1134,12 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     }
 
     /// <summary>
-    /// Transforms a 3D vector by the given <see cref="Stride.Core.Mathematics.Matrix"/>.
+    /// Transforms a 3D vector by the given <see cref="Matrix"/>.
     /// </summary>
     /// <param name="vector">The source vector.</param>
-    /// <param name="transform">The transformation <see cref="Stride.Core.Mathematics.Matrix"/>.</param>
-    /// <param name="result">When the method completes, contains the transformed <see cref="Stride.Core.Mathematics.Double4"/>.</param>
-    public static void Transform(ref Double3 vector, ref Matrix transform, out Double4 result)
+    /// <param name="transform">The transformation <see cref="Matrix"/>.</param>
+    /// <param name="result">When the method completes, contains the transformed <see cref="Double4"/>.</param>
+    public static void Transform(ref Double3 vector, ref Matrix4x4 transform, out Double4 result)
     {
         result = new Double4(
             (vector.X * transform.M11) + (vector.Y * transform.M21) + (vector.Z * transform.M31) + transform.M41,
@@ -1148,12 +1149,12 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     }
 
     /// <summary>
-    /// Transforms a 3D vector by the given <see cref="Stride.Core.Mathematics.Matrix"/>.
+    /// Transforms a 3D vector by the given <see cref="Matrix"/>.
     /// </summary>
     /// <param name="vector">The source vector.</param>
-    /// <param name="transform">The transformation <see cref="Stride.Core.Mathematics.Matrix"/>.</param>
-    /// <param name="result">When the method completes, contains the transformed <see cref="Stride.Core.Mathematics.Double3"/>.</param>
-    public static void Transform(ref Double3 vector, ref Matrix transform, out Double3 result)
+    /// <param name="transform">The transformation <see cref="Matrix"/>.</param>
+    /// <param name="result">When the method completes, contains the transformed <see cref="Double3"/>.</param>
+    public static void Transform(ref Double3 vector, ref Matrix4x4 transform, out Double3 result)
     {
         result = new Double3(
             (vector.X * transform.M11) + (vector.Y * transform.M21) + (vector.Z * transform.M31) + transform.M41,
@@ -1162,26 +1163,26 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     }
 
     /// <summary>
-    /// Transforms a 3D vector by the given <see cref="Stride.Core.Mathematics.Matrix"/>.
+    /// Transforms a 3D vector by the given <see cref="Matrix"/>.
     /// </summary>
     /// <param name="vector">The source vector.</param>
-    /// <param name="transform">The transformation <see cref="Stride.Core.Mathematics.Matrix"/>.</param>
-    /// <returns>The transformed <see cref="Stride.Core.Mathematics.Double4"/>.</returns>
-    public static Double4 Transform(Double3 vector, Matrix transform)
+    /// <param name="transform">The transformation <see cref="Matrix"/>.</param>
+    /// <returns>The transformed <see cref="Double4"/>.</returns>
+    public static Double4 Transform(Double3 vector, Matrix4x4 transform)
     {
         Transform(ref vector, ref transform, out Double4 result);
         return result;
     }
 
     /// <summary>
-    /// Transforms an array of 3D vectors by the given <see cref="Stride.Core.Mathematics.Matrix"/>.
+    /// Transforms an array of 3D vectors by the given <see cref="Matrix"/>.
     /// </summary>
     /// <param name="source">The array of vectors to transform.</param>
-    /// <param name="transform">The transformation <see cref="Stride.Core.Mathematics.Matrix"/>.</param>
+    /// <param name="transform">The transformation <see cref="Matrix"/>.</param>
     /// <param name="destination">The array for which the transformed vectors are stored.</param>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="source"/> or <paramref name="destination"/> is <c>null</c>.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="destination"/> is shorter in length than <paramref name="source"/>.</exception>
-    public static void Transform(Double3[] source, ref Matrix transform, Double4[] destination)
+    public static void Transform(Double3[] source, ref Matrix4x4 transform, Double4[] destination)
     {
         if (source == null)
             throw new ArgumentNullException(nameof(source));
@@ -1197,10 +1198,10 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     }
 
     /// <summary>
-    /// Performs a coordinate transformation using the given <see cref="Stride.Core.Mathematics.Matrix"/>.
+    /// Performs a coordinate transformation using the given <see cref="Matrix"/>.
     /// </summary>
     /// <param name="coordinate">The coordinate vector to transform.</param>
-    /// <param name="transform">The transformation <see cref="Stride.Core.Mathematics.Matrix"/>.</param>
+    /// <param name="transform">The transformation <see cref="Matrix"/>.</param>
     /// <param name="result">When the method completes, contains the transformed coordinates.</param>
     /// <remarks>
     /// A coordinate transform performs the transformation with the assumption that the w component
@@ -1209,7 +1210,7 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     /// therefore makes the vector homogeneous. The homogeneous vector is often prefered when working
     /// with coordinates as the w component can safely be ignored.
     /// </remarks>
-    public static void TransformCoordinate(ref Double3 coordinate, ref Matrix transform, out Double3 result)
+    public static void TransformCoordinate(ref Double3 coordinate, ref Matrix4x4 transform, out Double3 result)
     {
         double invW = 1f / ((coordinate.X * transform.M14) + (coordinate.Y * transform.M24) + (coordinate.Z * transform.M34) + transform.M44);
         result = new Double3(
@@ -1219,10 +1220,10 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     }
 
     /// <summary>
-    /// Performs a coordinate transformation using the given <see cref="Stride.Core.Mathematics.Matrix"/>.
+    /// Performs a coordinate transformation using the given <see cref="Matrix"/>.
     /// </summary>
     /// <param name="coordinate">The coordinate vector to transform.</param>
-    /// <param name="transform">The transformation <see cref="Stride.Core.Mathematics.Matrix"/>.</param>
+    /// <param name="transform">The transformation <see cref="Matrix"/>.</param>
     /// <returns>The transformed coordinates.</returns>
     /// <remarks>
     /// A coordinate transform performs the transformation with the assumption that the w component
@@ -1231,17 +1232,17 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     /// therefore makes the vector homogeneous. The homogeneous vector is often prefered when working
     /// with coordinates as the w component can safely be ignored.
     /// </remarks>
-    public static Double3 TransformCoordinate(Double3 coordinate, Matrix transform)
+    public static Double3 TransformCoordinate(Double3 coordinate, Matrix4x4 transform)
     {
         TransformCoordinate(ref coordinate, ref transform, out var result);
         return result;
     }
 
     /// <summary>
-    /// Performs a coordinate transformation on an array of vectors using the given <see cref="Stride.Core.Mathematics.Matrix"/>.
+    /// Performs a coordinate transformation on an array of vectors using the given <see cref="Matrix"/>.
     /// </summary>
     /// <param name="source">The array of coordinate vectors to trasnform.</param>
-    /// <param name="transform">The transformation <see cref="Stride.Core.Mathematics.Matrix"/>.</param>
+    /// <param name="transform">The transformation <see cref="Matrix"/>.</param>
     /// <param name="destination">The array for which the transformed vectors are stored.
     /// This array may be the same array as <paramref name="source"/>.</param>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="source"/> or <paramref name="destination"/> is <c>null</c>.</exception>
@@ -1253,7 +1254,7 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     /// therefore makes the vector homogeneous. The homogeneous vector is often prefered when working
     /// with coordinates as the w component can safely be ignored.
     /// </remarks>
-    public static void TransformCoordinate(Double3[] source, ref Matrix transform, Double3[] destination)
+    public static void TransformCoordinate(Double3[] source, ref Matrix4x4 transform, Double3[] destination)
     {
         if (source == null)
             throw new ArgumentNullException(nameof(source));
@@ -1269,10 +1270,10 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     }
 
     /// <summary>
-    /// Performs a normal transformation using the given <see cref="Stride.Core.Mathematics.Matrix"/>.
+    /// Performs a normal transformation using the given <see cref="Matrix"/>.
     /// </summary>
     /// <param name="normal">The normal vector to transform.</param>
-    /// <param name="transform">The transformation <see cref="Stride.Core.Mathematics.Matrix"/>.</param>
+    /// <param name="transform">The transformation <see cref="Matrix"/>.</param>
     /// <param name="result">When the method completes, contains the transformed normal.</param>
     /// <remarks>
     /// A normal transform performs the transformation with the assumption that the w component
@@ -1281,7 +1282,7 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     /// apply. This is often prefered for normal vectors as normals purely represent direction
     /// rather than location because normal vectors should not be translated.
     /// </remarks>
-    public static void TransformNormal(ref Double3 normal, ref Matrix transform, out Double3 result)
+    public static void TransformNormal(ref Double3 normal, ref Matrix4x4 transform, out Double3 result)
     {
         result = new Double3(
             (normal.X * transform.M11) + (normal.Y * transform.M21) + (normal.Z * transform.M31),
@@ -1290,10 +1291,10 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     }
 
     /// <summary>
-    /// Performs a normal transformation using the given <see cref="Stride.Core.Mathematics.Matrix"/>.
+    /// Performs a normal transformation using the given <see cref="Matrix"/>.
     /// </summary>
     /// <param name="normal">The normal vector to transform.</param>
-    /// <param name="transform">The transformation <see cref="Stride.Core.Mathematics.Matrix"/>.</param>
+    /// <param name="transform">The transformation <see cref="Matrix"/>.</param>
     /// <returns>The transformed normal.</returns>
     /// <remarks>
     /// A normal transform performs the transformation with the assumption that the w component
@@ -1302,17 +1303,17 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     /// apply. This is often prefered for normal vectors as normals purely represent direction
     /// rather than location because normal vectors should not be translated.
     /// </remarks>
-    public static Double3 TransformNormal(Double3 normal, Matrix transform)
+    public static Double3 TransformNormal(Double3 normal, Matrix4x4 transform)
     {
         TransformNormal(ref normal, ref transform, out var result);
         return result;
     }
 
     /// <summary>
-    /// Performs a normal transformation on an array of vectors using the given <see cref="Stride.Core.Mathematics.Matrix"/>.
+    /// Performs a normal transformation on an array of vectors using the given <see cref="Matrix"/>.
     /// </summary>
     /// <param name="source">The array of normal vectors to transform.</param>
-    /// <param name="transform">The transformation <see cref="Stride.Core.Mathematics.Matrix"/>.</param>
+    /// <param name="transform">The transformation <see cref="Matrix"/>.</param>
     /// <param name="destination">The array for which the transformed vectors are stored.
     /// This array may be the same array as <paramref name="source"/>.</param>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="source"/> or <paramref name="destination"/> is <c>null</c>.</exception>
@@ -1324,7 +1325,7 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     /// apply. This is often prefered for normal vectors as normals purely represent direction
     /// rather than location because normal vectors should not be translated.
     /// </remarks>
-    public static void TransformNormal(Double3[] source, ref Matrix transform, Double3[] destination)
+    public static void TransformNormal(Double3[] source, ref Matrix4x4 transform, Double3[] destination)
     {
         if (source == null)
             throw new ArgumentNullException(nameof(source));
@@ -1528,7 +1529,7 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     }
 
     /// <summary>
-    /// Performs an explicit conversion from <see cref="Stride.Core.Mathematics.Double3"/> to <see cref="Stride.Core.Mathematics.Vector3"/>.
+    /// Performs an explicit conversion from <see cref="Double3"/> to <see cref="Vector3"/>.
     /// </summary>
     /// <param name="value">The value.</param>
     /// <returns>The result of the conversion.</returns>
@@ -1538,7 +1539,7 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     }
 
     /// <summary>
-    /// Performs an implicit conversion from <see cref="Stride.Core.Mathematics.Vector3"/> to <see cref="Stride.Core.Mathematics.Double3"/>.
+    /// Performs an implicit conversion from <see cref="Vector3"/> to <see cref="Double3"/>.
     /// </summary>
     /// <param name="value">The value.</param>
     /// <returns>The result of the conversion.</returns>
@@ -1568,7 +1569,7 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     }
 
     /// <summary>
-    /// Performs an explicit conversion from <see cref="Stride.Core.Mathematics.Double3"/> to <see cref="Stride.Core.Mathematics.Double2"/>.
+    /// Performs an explicit conversion from <see cref="Double3"/> to <see cref="Double2"/>.
     /// </summary>
     /// <param name="value">The value.</param>
     /// <returns>The result of the conversion.</returns>
@@ -1578,7 +1579,7 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     }
 
     /// <summary>
-    /// Performs an explicit conversion from <see cref="Stride.Core.Mathematics.Double3"/> to <see cref="Stride.Core.Mathematics.Double4"/>.
+    /// Performs an explicit conversion from <see cref="Double3"/> to <see cref="Double4"/>.
     /// </summary>
     /// <param name="value">The value.</param>
     /// <returns>The result of the conversion.</returns>
@@ -1681,11 +1682,11 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     }
 
     /// <summary>
-    /// Determines whether the specified <see cref="Stride.Core.Mathematics.Double3"/> is equal to this instance.
+    /// Determines whether the specified <see cref="Double3"/> is equal to this instance.
     /// </summary>
-    /// <param name="other">The <see cref="Stride.Core.Mathematics.Double3"/> to compare with this instance.</param>
+    /// <param name="other">The <see cref="Double3"/> to compare with this instance.</param>
     /// <returns>
-    /// 	<c>true</c> if the specified <see cref="Stride.Core.Mathematics.Double3"/> is equal to this instance; otherwise, <c>false</c>.
+    /// 	<c>true</c> if the specified <see cref="Double3"/> is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
     public bool Equals(Double3 other)
     {

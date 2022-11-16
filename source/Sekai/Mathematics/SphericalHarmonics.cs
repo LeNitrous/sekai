@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 using System;
+using System.Numerics;
 using System.Runtime.Serialization;
 
 namespace Sekai.Mathematics;

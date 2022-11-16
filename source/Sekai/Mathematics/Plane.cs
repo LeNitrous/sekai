@@ -31,6 +31,7 @@
 
 using System;
 using System.Globalization;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 
@@ -85,7 +86,7 @@ public struct Plane : IEquatable<Plane>, IFormattable, IIntersectableWithRay
     public Plane(Vector3 point, Vector3 normal)
     {
         Normal = normal;
-        Vector3.Dot(ref normal, ref point, out D);
+        D = Vector3.Dot(normal, point);
     }
 
     /// <summary>
@@ -410,8 +411,8 @@ public struct Plane : IEquatable<Plane>, IFormattable, IIntersectableWithRay
         DotCoordinate(ref plane, ref point, out float distance);
 
         // compute: point - distance * plane.Normal
-        Vector3.Multiply(ref plane.Normal, distance, out result);
-        Vector3.Subtract(ref point, ref result, out result);
+        result = Vector3.Multiply(plane.Normal, distance);
+        result = Vector3.Subtract(point, result);
     }
 
     /// <summary>
@@ -605,14 +606,14 @@ public struct Plane : IEquatable<Plane>, IFormattable, IIntersectableWithRay
     /// <param name="plane">The normalized source plane.</param>
     /// <param name="transformation">The transformation matrix.</param>
     /// <param name="result">When the method completes, contains the transformed plane.</param>
-    public static void Transform(ref Plane plane, ref Matrix transformation, out Plane result)
+    public static void Transform(ref Plane plane, ref Matrix4x4 transformation, out Plane result)
     {
         float x = plane.Normal.X;
         float y = plane.Normal.Y;
         float z = plane.Normal.Z;
         float d = plane.D;
 
-        Matrix.Invert(ref transformation, out var inverse);
+        Matrix4x4.Invert(transformation, out var inverse);
 
         result.Normal.X = (x * inverse.M11) + (y * inverse.M12) + (z * inverse.M13) + (d * inverse.M14);
         result.Normal.Y = (x * inverse.M21) + (y * inverse.M22) + (z * inverse.M23) + (d * inverse.M24);
@@ -626,7 +627,7 @@ public struct Plane : IEquatable<Plane>, IFormattable, IIntersectableWithRay
     /// <param name="plane">The normalized source plane.</param>
     /// <param name="transformation">The transformation matrix.</param>
     /// <returns>When the method completes, contains the transformed plane.</returns>
-    public static Plane Transform(Plane plane, Matrix transformation)
+    public static Plane Transform(Plane plane, Matrix4x4 transformation)
     {
         Plane result;
         float x = plane.Normal.X;
@@ -649,12 +650,12 @@ public struct Plane : IEquatable<Plane>, IFormattable, IIntersectableWithRay
     /// <param name="planes">The array of normalized planes to transform.</param>
     /// <param name="transformation">The transformation matrix.</param>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="planes"/> is <c>null</c>.</exception>
-    public static void Transform(Plane[] planes, ref Matrix transformation)
+    public static void Transform(Plane[] planes, ref Matrix4x4 transformation)
     {
         if (planes == null)
             throw new ArgumentNullException(nameof(planes));
 
-        Matrix.Invert(ref transformation, out var inverse);
+        Matrix4x4.Invert(transformation, out var inverse);
 
         for (int i = 0; i < planes.Length; ++i)
         {

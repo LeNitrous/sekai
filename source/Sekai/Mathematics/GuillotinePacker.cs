@@ -27,7 +27,7 @@ namespace Sekai.Mathematics;
 
 /// <summary>
 /// Implementation of a "Guillotine" packer.
-/// More information at http://clb.demon.fi/files/RectangleBinPack.pdf.
+/// More information at http://pds25.egloos.com/pds/201504/21/98/RectangleBinPack.pdf.
 /// </summary>
 public class GuillotinePacker
 {

@@ -1,6 +1,7 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
+using System.Numerics;
 using System.Runtime.InteropServices;
 using Sekai.Mathematics;
 

@@ -20,6 +20,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace Sekai.Mathematics;
@@ -62,7 +63,7 @@ public struct BoundingFrustum
     /// Initializes a new instance of the <see cref="BoundingFrustum"/> struct from a matrix view-projection.
     /// </summary>
     /// <param name="matrix">The matrix view projection.</param>
-    public BoundingFrustum(ref Matrix matrix)
+    public BoundingFrustum(ref Matrix4x4 matrix)
     {
         // Left
         Plane.Normalize(

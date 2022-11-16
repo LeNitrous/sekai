@@ -3,6 +3,7 @@
 
 using Sekai.Mathematics;
 using Sekai.Rendering;
+using System.Numerics;
 
 namespace Sekai;
 
@@ -29,7 +30,7 @@ public abstract class Drawable : Component
     /// <summary>
     /// The transform matrix for this drawable.
     /// </summary>
-    internal Matrix Transform => Entity?.Transform?.WorldMatrix ?? Matrix.Identity;
+    internal Matrix4x4 Transform => Entity?.Transform?.WorldMatrix ?? Matrix4x4.Identity;
 
     /// <summary>
     /// Called every frame on render if it is visible.

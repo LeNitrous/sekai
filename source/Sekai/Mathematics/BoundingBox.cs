@@ -23,6 +23,7 @@
 
 using System;
 using System.Globalization;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 
@@ -227,8 +228,8 @@ public struct BoundingBox : IEquatable<BoundingBox>, IFormattable, IIntersectabl
 
         for (int i = 0; i < points.Length; ++i)
         {
-            Vector3.Min(ref min, ref points[i], out min);
-            Vector3.Max(ref max, ref points[i], out max);
+            min = Vector3.Min(min, points[i]);
+            max = Vector3.Max(max, points[i]);
         }
 
         result = new BoundingBox(min, max);
@@ -243,15 +244,15 @@ public struct BoundingBox : IEquatable<BoundingBox>, IFormattable, IIntersectabl
     public static BoundingBox FromPoints(Vector3[] points)
     {
         if (points == null)
-            throw new ArgumentNullException("points");
+            throw new ArgumentNullException(nameof(points));
 
         Vector3 min = new Vector3(float.MaxValue);
         Vector3 max = new Vector3(float.MinValue);
 
         for (int i = 0; i < points.Length; ++i)
         {
-            Vector3.Min(ref min, ref points[i], out min);
-            Vector3.Max(ref max, ref points[i], out max);
+            min = Vector3.Min(min, points[i]);
+            max = Vector3.Max(max, points[i]);
         }
 
         return new BoundingBox(min, max);
@@ -287,7 +288,7 @@ public struct BoundingBox : IEquatable<BoundingBox>, IFormattable, IIntersectabl
     /// <param name="value">The original bounding box.</param>
     /// <param name="transform">The transform to apply to the bounding box.</param>
     /// <param name="result">The transformed bounding box.</param>
-    public static void Transform(ref BoundingBox value, ref Matrix transform, out BoundingBox result)
+    public static void Transform(ref BoundingBox value, ref Matrix4x4 transform, out BoundingBox result)
     {
         var boundingBox = new BoundingBoxExt(value);
         boundingBox.Transform(transform);
@@ -302,8 +303,8 @@ public struct BoundingBox : IEquatable<BoundingBox>, IFormattable, IIntersectabl
     /// <param name="result">When the method completes, contains the newly constructed bounding box.</param>
     public static void Merge(ref BoundingBox value1, ref Vector3 value2, out BoundingBox result)
     {
-        Vector3.Min(ref value1.Minimum, ref value2, out result.Minimum);
-        Vector3.Max(ref value1.Maximum, ref value2, out result.Maximum);
+        result.Minimum = Vector3.Min(value1.Minimum, value2);
+        result.Maximum = Vector3.Max(value1.Maximum, value2);
     }
 
     /// <summary>
@@ -314,8 +315,8 @@ public struct BoundingBox : IEquatable<BoundingBox>, IFormattable, IIntersectabl
     /// <param name="result">When the method completes, contains the newly constructed bounding box.</param>
     public static void Merge(ref BoundingBox value1, ref BoundingBox value2, out BoundingBox result)
     {
-        Vector3.Min(ref value1.Minimum, ref value2.Minimum, out result.Minimum);
-        Vector3.Max(ref value1.Maximum, ref value2.Maximum, out result.Maximum);
+        result.Minimum = Vector3.Min(value1.Minimum, value2.Minimum);
+        result.Maximum = Vector3.Max(value1.Maximum, value2.Maximum);
     }
 
     /// <summary>
@@ -327,8 +328,8 @@ public struct BoundingBox : IEquatable<BoundingBox>, IFormattable, IIntersectabl
     public static BoundingBox Merge(BoundingBox value1, BoundingBox value2)
     {
         BoundingBox box;
-        Vector3.Min(ref value1.Minimum, ref value2.Minimum, out box.Minimum);
-        Vector3.Max(ref value1.Maximum, ref value2.Maximum, out box.Maximum);
+        box.Minimum = Vector3.Min(value1.Minimum, value2.Minimum);
+        box.Maximum = Vector3.Max(value1.Maximum, value2.Maximum);
         return box;
     }
 

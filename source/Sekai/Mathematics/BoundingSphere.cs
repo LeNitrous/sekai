@@ -31,6 +31,7 @@
 
 using System;
 using System.Globalization;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
@@ -213,7 +214,7 @@ public struct BoundingSphere : IEquatable<BoundingSphere>, IFormattable, IInters
     {
         if (vertexBufferPtr == IntPtr.Zero)
         {
-            throw new ArgumentNullException("vertexBufferPtr");
+            throw new ArgumentNullException(nameof(vertexBufferPtr));
         }
 
         byte* startPoint = (byte*)vertexBufferPtr + vertexPositionOffsetInBytes;
@@ -223,7 +224,7 @@ public struct BoundingSphere : IEquatable<BoundingSphere>, IFormattable, IInters
         byte* nextPoint = startPoint;
         for (int i = 0; i < vertexCount; ++i)
         {
-            Vector3.Add(ref *(Vector3*)nextPoint, ref center, out center);
+            center = Vector3.Add(*(Vector3*)nextPoint, center);
             nextPoint += vertexStride;
         }
 
@@ -237,7 +238,7 @@ public struct BoundingSphere : IEquatable<BoundingSphere>, IFormattable, IInters
         {
             //We are doing a relative distance comparasin to find the maximum distance
             //from the center of our sphere.
-            Vector3.DistanceSquared(ref center, ref *(Vector3*)nextPoint, out float distance);
+            float distance = Vector3.DistanceSquared(center, *(Vector3*)nextPoint);
 
             if (distance > radius)
                 radius = distance;
@@ -270,7 +271,7 @@ public struct BoundingSphere : IEquatable<BoundingSphere>, IFormattable, IInters
     /// <param name="result">When the method completes, the newly constructed bounding sphere.</param>
     public static void FromBox(ref BoundingBox box, out BoundingSphere result)
     {
-        Vector3.Lerp(ref box.Minimum, ref box.Maximum, 0.5f, out result.Center);
+        result.Center = Vector3.Lerp(box.Minimum, box.Maximum, 0.5f);
 
         float x = box.Minimum.X - box.Maximum.X;
         float y = box.Minimum.Y - box.Maximum.Y;
@@ -297,9 +298,9 @@ public struct BoundingSphere : IEquatable<BoundingSphere>, IFormattable, IInters
     /// <param name="value">The original bounding sphere.</param>
     /// <param name="transform">The transform to apply to the bounding sphere.</param>
     /// <param name="result">The transformed bounding sphere.</param>
-    public static void Transform(ref BoundingSphere value, ref Matrix transform, out BoundingSphere result)
+    public static void Transform(ref BoundingSphere value, ref Matrix4x4 transform, out BoundingSphere result)
     {
-        Vector3.TransformCoordinate(ref value.Center, ref transform, out result.Center);
+        result.Center = Vector3.Transform(value.Center, transform);
 
         float majorAxisLengthSquared = MathF.Max(
             (transform.M11 * transform.M11) + (transform.M12 * transform.M12) + (transform.M13 * transform.M13), MathF.Max(

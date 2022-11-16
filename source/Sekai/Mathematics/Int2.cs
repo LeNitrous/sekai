@@ -31,6 +31,7 @@
 
 using System;
 using System.Globalization;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
@@ -44,27 +45,27 @@ namespace Sekai.Mathematics;
 public struct Int2 : IEquatable<Int2>, IFormattable
 {
     /// <summary>
-    /// The size of the <see cref="Stride.Core.Mathematics.Int2"/> type, in bytes.
+    /// The size of the <see cref="Int2"/> type, in bytes.
     /// </summary>
     public static readonly int SizeInBytes = Unsafe.SizeOf<Int2>();
 
     /// <summary>
-    /// A <see cref="Stride.Core.Mathematics.Int2"/> with all of its components set to zero.
+    /// A <see cref="Int2"/> with all of its components set to zero.
     /// </summary>
     public static readonly Int2 Zero = new();
 
     /// <summary>
-    /// The X unit <see cref="Stride.Core.Mathematics.Int2"/> (1, 0, 0).
+    /// The X unit <see cref="Int2"/> (1, 0, 0).
     /// </summary>
     public static readonly Int2 UnitX = new(1, 0);
 
     /// <summary>
-    /// The Y unit <see cref="Stride.Core.Mathematics.Int2"/> (0, 1, 0).
+    /// The Y unit <see cref="Int2"/> (0, 1, 0).
     /// </summary>
     public static readonly Int2 UnitY = new(0, 1);
 
     /// <summary>
-    /// A <see cref="Stride.Core.Mathematics.Int2"/> with all of its components set to one.
+    /// A <see cref="Int2"/> with all of its components set to one.
     /// </summary>
     public static readonly Int2 One = new(1, 1);
 
@@ -81,7 +82,7 @@ public struct Int2 : IEquatable<Int2>, IFormattable
     public int Y;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Stride.Core.Mathematics.Int2"/> struct.
+    /// Initializes a new instance of the <see cref="Int2"/> struct.
     /// </summary>
     /// <param name="value">The value that will be assigned to all components.</param>
     public Int2(int value)
@@ -91,7 +92,7 @@ public struct Int2 : IEquatable<Int2>, IFormattable
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Stride.Core.Mathematics.Int2"/> struct.
+    /// Initializes a new instance of the <see cref="Int2"/> struct.
     /// </summary>
     /// <param name="x">Initial value for the X component of the vector.</param>
     /// <param name="y">Initial value for the Y component of the vector.</param>
@@ -102,7 +103,7 @@ public struct Int2 : IEquatable<Int2>, IFormattable
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Stride.Core.Mathematics.Int2"/> struct.
+    /// Initializes a new instance of the <see cref="Int2"/> struct.
     /// </summary>
     /// <param name="value">A vector containing the values with which to initialize the X and Y components.</param>
     public Int2(Vector2 value)
@@ -112,7 +113,7 @@ public struct Int2 : IEquatable<Int2>, IFormattable
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Stride.Core.Mathematics.Int2"/> struct.
+    /// Initializes a new instance of the <see cref="Int2"/> struct.
     /// </summary>
     /// <param name="values">The values to assign to the X, Y, and Z components of the vector. This must be an array with three elements.</param>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="values"/> is <c>null</c>.</exception>
@@ -163,7 +164,7 @@ public struct Int2 : IEquatable<Int2>, IFormattable
     /// </summary>
     /// <returns>The length of the vector.</returns>
     /// <remarks>
-    /// <see cref="Stride.Core.Mathematics.Int2.LengthSquared"/> may be preferred when only the relative length is needed
+    /// <see cref="LengthSquared"/> may be preferred when only the relative length is needed
     /// and speed is of the essence.
     /// </remarks>
     public int Length()
@@ -176,7 +177,7 @@ public struct Int2 : IEquatable<Int2>, IFormattable
     /// </summary>
     /// <returns>The squared length of the vector.</returns>
     /// <remarks>
-    /// This method may be preferred to <see cref="Stride.Core.Mathematics.Int2.Length"/> when only a relative length is needed
+    /// This method may be preferred to <see cref="Length"/> when only a relative length is needed
     /// and speed is of the essence.
     /// </remarks>
     public int LengthSquared()
@@ -599,7 +600,7 @@ public struct Int2 : IEquatable<Int2>, IFormattable
     }
 
     /// <summary>
-    /// Performs an explicit conversion from <see cref="Stride.Core.Mathematics.Int2"/> to <see cref="Vector2"/>.
+    /// Performs an explicit conversion from <see cref="Int2"/> to <see cref="Vector2"/>.
     /// </summary>
     /// <param name="value">The value.</param>
     /// <returns>The result of the conversion.</returns>
@@ -609,7 +610,7 @@ public struct Int2 : IEquatable<Int2>, IFormattable
     }
 
     /// <summary>
-    /// Performs an explicit conversion from <see cref="Stride.Core.Mathematics.Int2"/> to <see cref="Vector4"/>.
+    /// Performs an explicit conversion from <see cref="Int2"/> to <see cref="Vector4"/>.
     /// </summary>
     /// <param name="value">The value.</param>
     /// <returns>The result of the conversion.</returns>
@@ -684,11 +685,11 @@ public struct Int2 : IEquatable<Int2>, IFormattable
     }
 
     /// <summary>
-    /// Determines whether the specified <see cref="Stride.Core.Mathematics.Int2"/> is equal to this instance.
+    /// Determines whether the specified <see cref="Int2"/> is equal to this instance.
     /// </summary>
-    /// <param name="other">The <see cref="Stride.Core.Mathematics.Int2"/> to compare with this instance.</param>
+    /// <param name="other">The <see cref="Int2"/> to compare with this instance.</param>
     /// <returns>
-    /// <c>true</c> if the specified <see cref="Stride.Core.Mathematics.Int2"/> is equal to this instance; otherwise, <c>false</c>.
+    /// <c>true</c> if the specified <see cref="Int2"/> is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
     public bool Equals(Int2 other)
     {

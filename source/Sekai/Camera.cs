@@ -2,6 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System.Drawing;
+using System.Numerics;
 using Sekai.Mathematics;
 using Sekai.Rendering;
 
@@ -68,12 +69,12 @@ public class Camera : Behavior
     /// <summary>
     /// The camera's view matrix.
     /// </summary>
-    public Matrix ViewMatrix { get; private set; } = Matrix.Identity;
+    public Matrix4x4 ViewMatrix { get; private set; } = Matrix4x4.Identity;
 
     /// <summary>
     /// The camera's projection matrix.
     /// </summary>
-    public Matrix ProjMatrix { get; private set; } = Matrix.Identity;
+    public Matrix4x4 ProjMatrix { get; private set; } = Matrix4x4.Identity;
 
     /// <summary>
     /// The render target to draw on.

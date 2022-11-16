@@ -22,6 +22,7 @@
 // THE SOFTWARE.
 
 using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
@@ -87,7 +88,7 @@ public struct BoundingBoxExt : IEquatable<BoundingBoxExt>
     /// Transform this Bounding box
     /// </summary>
     /// <param name="world">The transform to apply to the bounding box.</param>
-    public void Transform(Matrix world)
+    public void Transform(Matrix4x4 world)
     {
         // http://zeuxcg.org/2010/10/17/aabb-from-obb-with-component-wise-abs/
         // Compute transformed AABB (by world)

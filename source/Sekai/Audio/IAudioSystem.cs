@@ -2,6 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
+using System.Numerics;
 using Sekai.Mathematics;
 
 namespace Sekai.Audio;
