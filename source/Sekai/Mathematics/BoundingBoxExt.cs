@@ -95,7 +95,7 @@ public struct BoundingBoxExt : IEquatable<BoundingBoxExt>
         var center = Center;
         var extent = Extent;
 
-        Vector3.TransformCoordinate(ref center, ref world, out Center);
+        Center = Vector3.Transform(center, world);
 
         // Update world matrix into absolute form
         unsafe
@@ -110,7 +110,7 @@ public struct BoundingBoxExt : IEquatable<BoundingBoxExt>
             }
         }
 
-        Vector3.TransformNormal(ref extent, ref world, out Extent);
+        Extent = Vector3.TransformNormal(extent, world);
     }
 
     /// <summary>
