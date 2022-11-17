@@ -100,11 +100,11 @@ public static class CollisionHelper
         }
 
         //Check if P in edge region of AB, if so return projection of P onto AB
-        float vc = d1 * d4 - d3 * d2;
+        float vc = (d1 * d4) - (d3 * d2);
         if (vc <= 0.0f && d1 >= 0.0f && d3 <= 0.0f)
         {
             float v = d1 / (d1 - d3);
-            result = vertex1 + v * ab; //Barycentric coordinates (1-v,v,0)
+            result = vertex1 + (v * ab); //Barycentric coordinates (1-v,v,0)
             return;
         }
 
@@ -119,20 +119,20 @@ public static class CollisionHelper
         }
 
         //Check if P in edge region of AC, if so return projection of P onto AC
-        float vb = d5 * d2 - d1 * d6;
+        float vb = (d5 * d2) - (d1 * d6);
         if (vb <= 0.0f && d2 >= 0.0f && d6 <= 0.0f)
         {
             float w = d2 / (d2 - d6);
-            result = vertex1 + w * ac; //Barycentric coordinates (1-w,0,w)
+            result = vertex1 + (w * ac); //Barycentric coordinates (1-w,0,w)
             return;
         }
 
         //Check if P in edge region of BC, if so return projection of P onto BC
-        float va = d3 * d6 - d5 * d4;
+        float va = (d3 * d6) - (d5 * d4);
         if (va <= 0.0f && (d4 - d3) >= 0.0f && (d5 - d6) >= 0.0f)
         {
             float w = (d4 - d3) / ((d4 - d3) + (d5 - d6));
-            result = vertex2 + w * (vertex3 - vertex2); //Barycentric coordinates (0,1-w,w)
+            result = vertex2 + (w * (vertex3 - vertex2)); //Barycentric coordinates (0,1-w,w)
             return;
         }
 
@@ -140,11 +140,11 @@ public static class CollisionHelper
         float denom = 1.0f / (va + vb + vc);
         float v2 = vb * denom;
         float w2 = vc * denom;
-        result = vertex1 + ab * v2 + ac * w2; //= u*vertex1 + v*vertex2 + w*vertex3, u = va * denom = 1.0f - v - w
+        result = vertex1 + (ab * v2) + (ac * w2); //= u*vertex1 + v*vertex2 + w*vertex3, u = va * denom = 1.0f - v - w
     }
 
     /// <summary>
-    /// Determines the closest point between a <see cref="Stride.Core.Mathematics.Plane"/> and a point.
+    /// Determines the closest point between a <see cref="Plane"/> and a point.
     /// </summary>
     /// <param name="plane">The plane to test.</param>
     /// <param name="point">The point to test.</param>
@@ -161,7 +161,7 @@ public static class CollisionHelper
     }
 
     /// <summary>
-    /// Determines the closest point between a <see cref="Stride.Core.Mathematics.BoundingBox"/> and a point.
+    /// Determines the closest point between a <see cref="BoundingBox"/> and a point.
     /// </summary>
     /// <param name="box">The box to test.</param>
     /// <param name="point">The point to test.</param>
@@ -176,12 +176,12 @@ public static class CollisionHelper
     }
 
     /// <summary>
-    /// Determines the closest point between a <see cref="Stride.Core.Mathematics.BoundingSphere"/> and a point.
+    /// Determines the closest point between a <see cref="BoundingSphere"/> and a point.
     /// </summary>
     /// <param name="sphere">The bounding sphere.</param>
     /// <param name="point">The point to test.</param>
     /// <param name="result">When the method completes, contains the closest point between the two objects;
-    /// or, if the point is directly in the center of the sphere, contains <see cref="Stride.Core.Mathematics.Vector3.Zero"/>.</param>
+    /// or, if the point is directly in the center of the sphere, contains <see cref="Vector3.Zero"/>.</param>
     public static void ClosestPointSpherePoint(ref BoundingSphere sphere, ref Vector3 point, out Vector3 result)
     {
         //Source: Jorgy343
@@ -200,12 +200,12 @@ public static class CollisionHelper
     }
 
     /// <summary>
-    /// Determines the closest point between a <see cref="Stride.Core.Mathematics.BoundingSphere"/> and a <see cref="Stride.Core.Mathematics.BoundingSphere"/>.
+    /// Determines the closest point between a <see cref="BoundingSphere"/> and a <see cref="BoundingSphere"/>.
     /// </summary>
     /// <param name="sphere1">The first sphere to test.</param>
     /// <param name="sphere2">The second sphere to test.</param>
     /// <param name="result">When the method completes, contains the closest point between the two objects;
-    /// or, if the point is directly in the center of the sphere, contains <see cref="Stride.Core.Mathematics.Vector3.Zero"/>.</param>
+    /// or, if the point is directly in the center of the sphere, contains <see cref="Vector3.Zero"/>.</param>
     /// <remarks>
     /// If the two spheres are overlapping, but not directly ontop of each other, the closest point
     /// is the 'closest' point of intersection. This can also be considered is the deepest point of
@@ -229,7 +229,7 @@ public static class CollisionHelper
     }
 
     /// <summary>
-    /// Determines the distance between a <see cref="Stride.Core.Mathematics.Plane"/> and a point.
+    /// Determines the distance between a <see cref="Plane"/> and a point.
     /// </summary>
     /// <param name="plane">The plane to test.</param>
     /// <param name="point">The point to test.</param>
@@ -244,7 +244,7 @@ public static class CollisionHelper
     }
 
     /// <summary>
-    /// Determines the distance between a <see cref="Stride.Core.Mathematics.BoundingBox"/> and a point.
+    /// Determines the distance between a <see cref="BoundingBox"/> and a point.
     /// </summary>
     /// <param name="box">The box to test.</param>
     /// <param name="point">The point to test.</param>
@@ -275,7 +275,7 @@ public static class CollisionHelper
     }
 
     /// <summary>
-    /// Determines the distance between a <see cref="Stride.Core.Mathematics.BoundingBox"/> and a <see cref="Stride.Core.Mathematics.BoundingBox"/>.
+    /// Determines the distance between a <see cref="BoundingBox"/> and a <see cref="BoundingBox"/>.
     /// </summary>
     /// <param name="box1">The first box to test.</param>
     /// <param name="box2">The second box to test.</param>
@@ -327,7 +327,7 @@ public static class CollisionHelper
     }
 
     /// <summary>
-    /// Determines the distance between a <see cref="Stride.Core.Mathematics.BoundingSphere"/> and a point.
+    /// Determines the distance between a <see cref="BoundingSphere"/> and a point.
     /// </summary>
     /// <param name="sphere">The sphere to test.</param>
     /// <param name="point">The point to test.</param>
@@ -344,7 +344,7 @@ public static class CollisionHelper
     }
 
     /// <summary>
-    /// Determines the distance between a <see cref="Stride.Core.Mathematics.BoundingSphere"/> and a <see cref="Stride.Core.Mathematics.BoundingSphere"/>.
+    /// Determines the distance between a <see cref="BoundingSphere"/> and a <see cref="BoundingSphere"/>.
     /// </summary>
     /// <param name="sphere1">The first sphere to test.</param>
     /// <param name="sphere2">The second sphere to test.</param>
@@ -361,7 +361,7 @@ public static class CollisionHelper
     }
 
     /// <summary>
-    /// Determines whether there is an intersection between a <see cref="Stride.Core.Mathematics.Ray"/> and a point.
+    /// Determines whether there is an intersection between a <see cref="Ray"/> and a point.
     /// </summary>
     /// <param name="ray">The ray to test.</param>
     /// <param name="point">The point to test.</param>
@@ -381,7 +381,7 @@ public static class CollisionHelper
         if (c > 0f && b > 0f)
             return false;
 
-        float discriminant = b * b - c;
+        float discriminant = (b * b) - c;
 
         if (discriminant < 0f)
             return false;
@@ -390,12 +390,12 @@ public static class CollisionHelper
     }
 
     /// <summary>
-    /// Determines whether there is an intersection between a <see cref="Stride.Core.Mathematics.Ray"/> and a <see cref="Stride.Core.Mathematics.Ray"/>.
+    /// Determines whether there is an intersection between a <see cref="Ray"/> and a <see cref="Ray"/>.
     /// </summary>
     /// <param name="ray1">The first ray to test.</param>
     /// <param name="ray2">The second ray to test.</param>
     /// <param name="point">When the method completes, contains the point of intersection,
-    /// or <see cref="Stride.Core.Mathematics.Vector3.Zero"/> if there was no intersection.</param>
+    /// or <see cref="Vector3.Zero"/> if there was no intersection.</param>
     /// <returns>Whether the two objects intersect.</returns>
     /// <remarks>
     /// This method performs a ray vs ray intersection test based on the following formula
@@ -444,12 +444,12 @@ public static class CollisionHelper
 
         //Determinant of first matrix.
         float dets =
-            m11 * m22 * m33 +
-            m12 * m23 * m31 +
-            m13 * m21 * m32 -
-            m11 * m23 * m32 -
-            m12 * m21 * m33 -
-            m13 * m22 * m31;
+            (m11 * m22 * m33) +
+            (m12 * m23 * m31) +
+            (m13 * m21 * m32) -
+            (m11 * m23 * m32) -
+            (m12 * m21 * m33) -
+            (m13 * m22 * m31);
 
         //3x3 matrix for the second ray.
         m21 = ray1.Direction.X;
@@ -458,12 +458,12 @@ public static class CollisionHelper
 
         //Determinant of the second matrix.
         float dett =
-            m11 * m22 * m33 +
-            m12 * m23 * m31 +
-            m13 * m21 * m32 -
-            m11 * m23 * m32 -
-            m12 * m21 * m33 -
-            m13 * m22 * m31;
+            (m11 * m22 * m33) +
+            (m12 * m23 * m31) +
+            (m13 * m21 * m32) -
+            (m11 * m23 * m32) -
+            (m12 * m21 * m33) -
+            (m13 * m22 * m31);
 
         //t values of the point of intersection.
         float s = dets / denominator;
@@ -487,7 +487,7 @@ public static class CollisionHelper
     }
 
     /// <summary>
-    /// Determines whether there is an intersection between a <see cref="Stride.Core.Mathematics.Ray"/> and a <see cref="Stride.Core.Mathematics.Plane"/>.
+    /// Determines whether there is an intersection between a <see cref="Ray"/> and a <see cref="Plane"/>.
     /// </summary>
     /// <param name="ray">The ray to test.</param>
     /// <param name="plane">The plane to test.</param>
@@ -525,12 +525,12 @@ public static class CollisionHelper
     }
 
     /// <summary>
-    /// Determines whether there is an intersection between a <see cref="Stride.Core.Mathematics.Ray"/> and a <see cref="Stride.Core.Mathematics.Plane"/>.
+    /// Determines whether there is an intersection between a <see cref="Ray"/> and a <see cref="Plane"/>.
     /// </summary>
     /// <param name="ray">The ray to test.</param>
     /// <param name="plane">The plane to test</param>
     /// <param name="point">When the method completes, contains the point of intersection,
-    /// or <see cref="Stride.Core.Mathematics.Vector3.Zero"/> if there was no intersection.</param>
+    /// or <see cref="Vector3.Zero"/> if there was no intersection.</param>
     /// <returns>Whether the two objects intersected.</returns>
     public static bool RayIntersectsPlane(ref Ray ray, ref Plane plane, out Vector3 point)
     {
@@ -548,7 +548,7 @@ public static class CollisionHelper
     }
 
     /// <summary>
-    /// Determines whether there is an intersection between a <see cref="Stride.Core.Mathematics.Ray"/> and a triangle.
+    /// Determines whether there is an intersection between a <see cref="Ray"/> and a triangle.
     /// </summary>
     /// <param name="ray">The ray to test.</param>
     /// <param name="vertex1">The first vertex of the triangle to test.</param>
@@ -655,14 +655,14 @@ public static class CollisionHelper
     }
 
     /// <summary>
-    /// Determines whether there is an intersection between a <see cref="Stride.Core.Mathematics.Ray"/> and a triangle.
+    /// Determines whether there is an intersection between a <see cref="Ray"/> and a triangle.
     /// </summary>
     /// <param name="ray">The ray to test.</param>
     /// <param name="vertex1">The first vertex of the triangle to test.</param>
     /// <param name="vertex2">The second vertex of the triangle to test.</param>
     /// <param name="vertex3">The third vertex of the triangle to test.</param>
     /// <param name="point">When the method completes, contains the point of intersection,
-    /// or <see cref="Stride.Core.Mathematics.Vector3.Zero"/> if there was no intersection.</param>
+    /// or <see cref="Vector3.Zero"/> if there was no intersection.</param>
     /// <returns>Whether the two objects intersected.</returns>
     public static bool RayIntersectsTriangle(ref Ray ray, ref Vector3 vertex1, ref Vector3 vertex2, ref Vector3 vertex3, out Vector3 point)
     {
@@ -716,7 +716,7 @@ public static class CollisionHelper
     }
 
     /// <summary>
-    /// Determines whether there is an intersection between a <see cref="Stride.Core.Mathematics.Ray"/> and a <see cref="Stride.Core.Mathematics.BoundingBox"/>.
+    /// Determines whether there is an intersection between a <see cref="Ray"/> and a <see cref="BoundingBox"/>.
     /// </summary>
     /// <param name="ray">The ray to test.</param>
     /// <param name="box">The box to test.</param>
@@ -828,12 +828,12 @@ public static class CollisionHelper
     }
 
     /// <summary>
-    /// Determines whether there is an intersection between a <see cref="Stride.Core.Mathematics.Ray"/> and a <see cref="Stride.Core.Mathematics.Plane"/>.
+    /// Determines whether there is an intersection between a <see cref="Ray"/> and a <see cref="Plane"/>.
     /// </summary>
     /// <param name="ray">The ray to test.</param>
     /// <param name="box">The box to test.</param>
     /// <param name="point">When the method completes, contains the point of intersection,
-    /// or <see cref="Stride.Core.Mathematics.Vector3.Zero"/> if there was no intersection.</param>
+    /// or <see cref="Vector3.Zero"/> if there was no intersection.</param>
     /// <returns>Whether the two objects intersected.</returns>
     public static bool RayIntersectsBox(ref Ray ray, ref BoundingBox box, out Vector3 point)
     {
@@ -848,7 +848,7 @@ public static class CollisionHelper
     }
 
     /// <summary>
-    /// Determines whether there is an intersection between a <see cref="Stride.Core.Mathematics.Ray"/> and a <see cref="Stride.Core.Mathematics.BoundingSphere"/>.
+    /// Determines whether there is an intersection between a <see cref="Ray"/> and a <see cref="BoundingSphere"/>.
     /// </summary>
     /// <param name="ray">The ray to test.</param>
     /// <param name="sphere">The sphere to test.</param>
@@ -871,7 +871,7 @@ public static class CollisionHelper
             return false;
         }
 
-        float discriminant = b * b - c;
+        float discriminant = (b * b) - c;
 
         if (discriminant < 0f)
         {
@@ -888,12 +888,12 @@ public static class CollisionHelper
     }
 
     /// <summary>
-    /// Determines whether there is an intersection between a <see cref="Stride.Core.Mathematics.Ray"/> and a <see cref="Stride.Core.Mathematics.BoundingSphere"/>.
+    /// Determines whether there is an intersection between a <see cref="Ray"/> and a <see cref="BoundingSphere"/>.
     /// </summary>
     /// <param name="ray">The ray to test.</param>
     /// <param name="sphere">The sphere to test.</param>
     /// <param name="point">When the method completes, contains the point of intersection,
-    /// or <see cref="Stride.Core.Mathematics.Vector3.Zero"/> if there was no intersection.</param>
+    /// or <see cref="Vector3.Zero"/> if there was no intersection.</param>
     /// <returns>Whether the two objects intersected.</returns>
     public static bool RayIntersectsSphere(ref Ray ray, ref BoundingSphere sphere, out Vector3 point)
     {
@@ -908,7 +908,7 @@ public static class CollisionHelper
     }
 
     /// <summary>
-    /// Determines whether there is an intersection between a <see cref="Stride.Core.Mathematics.Plane"/> and a point.
+    /// Determines whether there is an intersection between a <see cref="Plane"/> and a point.
     /// </summary>
     /// <param name="plane">The plane to test.</param>
     /// <param name="point">The point to test.</param>
@@ -928,7 +928,7 @@ public static class CollisionHelper
     }
 
     /// <summary>
-    /// Determines whether there is an intersection between a <see cref="Stride.Core.Mathematics.Plane"/> and a <see cref="Stride.Core.Mathematics.Plane"/>.
+    /// Determines whether there is an intersection between a <see cref="Plane"/> and a <see cref="Plane"/>.
     /// </summary>
     /// <param name="plane1">The first plane to test.</param>
     /// <param name="plane2">The second plane to test.</param>
@@ -948,12 +948,12 @@ public static class CollisionHelper
     }
 
     /// <summary>
-    /// Determines whether there is an intersection between a <see cref="Stride.Core.Mathematics.Plane"/> and a <see cref="Stride.Core.Mathematics.Plane"/>.
+    /// Determines whether there is an intersection between a <see cref="Plane"/> and a <see cref="Plane"/>.
     /// </summary>
     /// <param name="plane1">The first plane to test.</param>
     /// <param name="plane2">The second plane to test.</param>
     /// <param name="line">When the method completes, contains the line of intersection
-    /// as a <see cref="Stride.Core.Mathematics.Ray"/>, or a zero ray if there was no intersection.</param>
+    /// as a <see cref="Ray"/>, or a zero ray if there was no intersection.</param>
     /// <returns>Whether the two objects intersected.</returns>
     /// <remarks>
     /// Although a ray is set to have an origin, the ray returned by this method is really
@@ -980,7 +980,7 @@ public static class CollisionHelper
             return false;
         }
 
-        Vector3 temp = plane1.D * plane2.Normal - plane2.D * plane1.Normal;
+        Vector3 temp = (plane1.D * plane2.Normal) - (plane2.D * plane1.Normal);
         var point = Vector3.Cross(temp, direction);
 
         line.Position = point;
@@ -991,7 +991,7 @@ public static class CollisionHelper
     }
 
     /// <summary>
-    /// Determines whether there is an intersection between a <see cref="Stride.Core.Mathematics.Plane"/> and a triangle.
+    /// Determines whether there is an intersection between a <see cref="Plane"/> and a triangle.
     /// </summary>
     /// <param name="plane">The plane to test.</param>
     /// <param name="vertex1">The first vertex of the triangle to test.</param>
@@ -1017,7 +1017,7 @@ public static class CollisionHelper
     }
 
     /// <summary>
-    /// Determines whether there is an intersection between a <see cref="Stride.Core.Mathematics.Plane"/> and a <see cref="Stride.Core.Mathematics.BoundingBox"/>.
+    /// Determines whether there is an intersection between a <see cref="Plane"/> and a <see cref="BoundingBox"/>.
     /// </summary>
     /// <param name="plane">The plane to test.</param>
     /// <param name="box">The box to test.</param>
@@ -1051,7 +1051,7 @@ public static class CollisionHelper
     }
 
     /// <summary>
-    /// Determines whether there is an intersection between a <see cref="Stride.Core.Mathematics.Plane"/> and a <see cref="Stride.Core.Mathematics.BoundingSphere"/>.
+    /// Determines whether there is an intersection between a <see cref="Plane"/> and a <see cref="BoundingSphere"/>.
     /// </summary>
     /// <param name="plane">The plane to test.</param>
     /// <param name="sphere">The sphere to test.</param>
@@ -1075,7 +1075,7 @@ public static class CollisionHelper
 
     /* This implentation is wrong
     /// <summary>
-    /// Determines whether there is an intersection between a <see cref="Stride.Core.Mathematics.BoundingBox"/> and a triangle.
+    /// Determines whether there is an intersection between a <see cref="BoundingBox"/> and a triangle.
     /// </summary>
     /// <param name="box">The box to test.</param>
     /// <param name="vertex1">The first vertex of the triangle to test.</param>
@@ -1095,7 +1095,7 @@ public static class CollisionHelper
     */
 
     /// <summary>
-    /// Determines whether there is an intersection between a <see cref="Stride.Core.Mathematics.BoundingBox"/> and a <see cref="Stride.Core.Mathematics.BoundingBox"/>.
+    /// Determines whether there is an intersection between a <see cref="BoundingBox"/> and a <see cref="BoundingBox"/>.
     /// </summary>
     /// <param name="box1">The first box to test.</param>
     /// <param name="box2">The second box to test.</param>
@@ -1115,7 +1115,7 @@ public static class CollisionHelper
     }
 
     /// <summary>
-    /// Determines whether there is an intersection between a <see cref="Stride.Core.Mathematics.BoundingBox"/> and a <see cref="Stride.Core.Mathematics.BoundingSphere"/>.
+    /// Determines whether there is an intersection between a <see cref="BoundingBox"/> and a <see cref="BoundingSphere"/>.
     /// </summary>
     /// <param name="box">The box to test.</param>
     /// <param name="sphere">The sphere to test.</param>
@@ -1132,7 +1132,7 @@ public static class CollisionHelper
     }
 
     /// <summary>
-    /// Determines whether there is an intersection between a <see cref="Stride.Core.Mathematics.BoundingSphere"/> and a triangle.
+    /// Determines whether there is an intersection between a <see cref="BoundingSphere"/> and a triangle.
     /// </summary>
     /// <param name="sphere">The sphere to test.</param>
     /// <param name="vertex1">The first vertex of the triangle to test.</param>
@@ -1153,7 +1153,7 @@ public static class CollisionHelper
     }
 
     /// <summary>
-    /// Determines whether there is an intersection between a <see cref="Stride.Core.Mathematics.BoundingSphere"/> and a <see cref="Stride.Core.Mathematics.BoundingSphere"/>.
+    /// Determines whether there is an intersection between a <see cref="BoundingSphere"/> and a <see cref="BoundingSphere"/>.
     /// </summary>
     /// <param name="sphere1">First sphere to test.</param>
     /// <param name="sphere2">Second sphere to test.</param>
@@ -1165,7 +1165,7 @@ public static class CollisionHelper
     }
 
     /// <summary>
-    /// Determines whether a <see cref="Stride.Core.Mathematics.BoundingBox"/> contains a point.
+    /// Determines whether a <see cref="BoundingBox"/> contains a point.
     /// </summary>
     /// <param name="box">The box to test.</param>
     /// <param name="point">The point to test.</param>
@@ -1184,7 +1184,7 @@ public static class CollisionHelper
 
     /* This implentation is wrong
     /// <summary>
-    /// Determines whether a <see cref="Stride.Core.Mathematics.BoundingBox"/> contains a triangle.
+    /// Determines whether a <see cref="BoundingBox"/> contains a triangle.
     /// </summary>
     /// <param name="box">The box to test.</param>
     /// <param name="vertex1">The first vertex of the triangle to test.</param>
@@ -1205,7 +1205,7 @@ public static class CollisionHelper
     */
 
     /// <summary>
-    /// Determines whether a <see cref="Stride.Core.Mathematics.BoundingBox"/> contains a <see cref="Stride.Core.Mathematics.BoundingBox"/>.
+    /// Determines whether a <see cref="BoundingBox"/> contains a <see cref="BoundingBox"/>.
     /// </summary>
     /// <param name="box1">The first box to test.</param>
     /// <param name="box2">The second box to test.</param>
@@ -1232,7 +1232,7 @@ public static class CollisionHelper
     }
 
     /// <summary>
-    /// Determines whether a <see cref="Stride.Core.Mathematics.BoundingBox"/> contains a <see cref="Stride.Core.Mathematics.BoundingSphere"/>.
+    /// Determines whether a <see cref="BoundingBox"/> contains a <see cref="BoundingSphere"/>.
     /// </summary>
     /// <param name="box">The box to test.</param>
     /// <param name="sphere">The sphere to test.</param>
@@ -1256,7 +1256,7 @@ public static class CollisionHelper
     }
 
     /// <summary>
-    /// Determines whether a <see cref="Stride.Core.Mathematics.BoundingSphere"/> contains a point.
+    /// Determines whether a <see cref="BoundingSphere"/> contains a point.
     /// </summary>
     /// <param name="sphere">The sphere to test.</param>
     /// <param name="point">The point to test.</param>
@@ -1270,7 +1270,7 @@ public static class CollisionHelper
     }
 
     /// <summary>
-    /// Determines whether a <see cref="Stride.Core.Mathematics.BoundingSphere"/> contains a triangle.
+    /// Determines whether a <see cref="BoundingSphere"/> contains a triangle.
     /// </summary>
     /// <param name="sphere">The sphere to test.</param>
     /// <param name="vertex1">The first vertex of the triangle to test.</param>
@@ -1296,7 +1296,7 @@ public static class CollisionHelper
     }
 
     /// <summary>
-    /// Determines whether a <see cref="Stride.Core.Mathematics.BoundingSphere"/> contains a <see cref="Stride.Core.Mathematics.BoundingBox"/>.
+    /// Determines whether a <see cref="BoundingSphere"/> contains a <see cref="BoundingBox"/>.
     /// </summary>
     /// <param name="sphere">The sphere to test.</param>
     /// <param name="box">The box to test.</param>
@@ -1369,7 +1369,7 @@ public static class CollisionHelper
     }
 
     /// <summary>
-    /// Determines whether a <see cref="Stride.Core.Mathematics.BoundingSphere"/> contains a <see cref="Stride.Core.Mathematics.BoundingSphere"/>.
+    /// Determines whether a <see cref="BoundingSphere"/> contains a <see cref="BoundingSphere"/>.
     /// </summary>
     /// <param name="sphere1">The first sphere to test.</param>
     /// <param name="sphere2">The second sphere to test.</param>
@@ -1405,9 +1405,9 @@ public static class CollisionHelper
                 {
                     // Previous code:
                     if (Vector3.Dot(boundingBoxExt.Center, plane->Normal)
-                        + boundingBoxExt.Extent.X * MathF.Abs(plane->Normal.X)
-                        + boundingBoxExt.Extent.Y * MathF.Abs(plane->Normal.Y)
-                        + boundingBoxExt.Extent.Z * MathF.Abs(plane->Normal.Z)
+                        + (boundingBoxExt.Extent.X * MathF.Abs(plane->Normal.X))
+                        + (boundingBoxExt.Extent.Y * MathF.Abs(plane->Normal.Y))
+                        + (boundingBoxExt.Extent.Z * MathF.Abs(plane->Normal.Z))
                         <= -plane->D)
                         return false;
                     plane++;
