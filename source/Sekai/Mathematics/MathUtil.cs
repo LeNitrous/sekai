@@ -30,6 +30,7 @@
 */
 
 using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace Sekai.Mathematics;
@@ -70,7 +71,7 @@ public static class MathUtil
     public const float PI_OVER_FOUR = (float)(Math.PI / 4);
 
     /// <summary>
-    /// Checks if a and b are almost equals, taking into account the magnitude of floating point numbers (unlike <see cref="WithinEpsilon"/> method). See Remarks.
+    /// Checks if a and b are almost equals, taking into account the magnitude of floating point numbers (unlike <see cref="WithinEpsilon"/> method).
     /// See remarks.
     /// </summary>
     /// <param name="a">The left value to compare.</param>
