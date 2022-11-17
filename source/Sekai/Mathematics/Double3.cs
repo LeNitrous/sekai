@@ -1347,9 +1347,8 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     /// <returns>The equivation yaw/pitch/roll rotation</returns>
     public static Double3 RotationYawPitchRoll(Quaternion quaternion)
     {
-        Vector3 yawPitchRoll;
-        Quaternion.RotationYawPitchRoll(ref quaternion, out yawPitchRoll.X, out yawPitchRoll.Y, out yawPitchRoll.Z);
-        return yawPitchRoll;
+        QuaternionExtensions.RotationYawPitchToll(quaternion, out double x , out double y, out double z);   
+        return new Double3(x, y, z);
     }
 
     /// <summary>
@@ -1359,7 +1358,7 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     /// <param name="yawPitchRoll">The equivation yaw/pitch/roll rotation</param>
     public static void RotationYawPitchRoll(ref Quaternion quaternion, out Double3 yawPitchRoll)
     {
-        Quaternion.RotationYawPitchRoll(ref quaternion, out yawPitchRoll.X, out yawPitchRoll.Y, out yawPitchRoll.Z);
+        QuaternionExtensions.RotationYawPitchToll(quaternion, out yawPitchRoll.X, out yawPitchRoll.Y, out yawPitchRoll.Z);
     }
 
     /// <summary>
