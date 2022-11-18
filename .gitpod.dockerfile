@@ -4,7 +4,7 @@ USER gitpod
 
 # Install Xvfb
 RUN sudo apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends \
+    && sudo apt-get -y install --no-install-recommends \
         xvfb xauth \
     && sudo apt-get autoremove -y \
     && sudo apt-get clean -y \
