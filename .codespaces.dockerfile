@@ -3,7 +3,7 @@ FROM mcr.microsoft.com/vscode/devcontainers/base:debian
 USER vscode
 
 # Install Xvfb
-RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
+RUN sudo apt-get update && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install --no-install-recommends \
         xvfb xauth \
     && apt-get autoremove -y \
