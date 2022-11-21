@@ -3,12 +3,12 @@ FROM mcr.microsoft.com/vscode/devcontainers/base:debian
 USER vscode
 
 # Install Xvfb
-RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
-    && apt-get -y install --no-install-recommends \
+RUN sudo apt-get update && export DEBIAN_FRONTEND=noninteractive \
+    && sudo apt-get -y install --no-install-recommends \
         xvfb xauth \
-    && apt-get autoremove -y \
-    && apt-get clean -y \
-    && rm -rf /var/lib/apt/lists/*
+    && sudo apt-get autoremove -y \
+    && sudo apt-get clean -y \
+    && sudo rm -rf /var/lib/apt/lists/*
 
 # Install .NET SDK
 # Source: https://docs.microsoft.com/dotnet/core/install/linux-scripted-manual#scripted-install
