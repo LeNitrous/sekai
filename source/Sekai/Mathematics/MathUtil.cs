@@ -93,7 +93,6 @@ public static class MathUtil
         y = *(float*)&i;
 
         y *= (threehalfs - (x2 * y * y)); // 1st iteration
-        
         // y *= (threehalfs - (x2 * y * y)); // 2nd iteration, this can be removed
 
         return y;
