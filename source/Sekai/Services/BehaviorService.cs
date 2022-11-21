@@ -9,10 +9,6 @@ public sealed class BehaviorService : FrameworkObject, IGameService
 {
     private readonly List<Behavior> behaviors = new();
 
-    public void Render()
-    {
-    }
-
     public void Update(double delta)
     {
         for (int i = 0; i < behaviors.Count; i++)

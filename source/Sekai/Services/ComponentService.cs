@@ -21,10 +21,6 @@ public sealed class ComponentService : FrameworkObject, IGameService
     {
     }
 
-    public void Render()
-    {
-    }
-
     internal void Add(Component component)
     {
         components.Enqueue(component);

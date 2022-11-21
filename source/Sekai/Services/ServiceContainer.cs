@@ -36,9 +36,9 @@ public class ServiceContainer : FrameworkObject
         {
             cache.Add(type, instance);
 
-            if (instance is IGameService service)
+            if (instance is IGameService or IDrawingGameService)
             {
-                services.Add(service);
+                services.Add((IGameService)instance);
             }
         }
     }

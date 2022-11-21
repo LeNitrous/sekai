@@ -10,12 +10,6 @@ namespace Sekai.Services;
 public interface IGameService : IDisposable
 {
     /// <summary>
-    /// Renders the service. This only applies to services that requires to draw to the screen.
-    /// </summary>
-    /// FIXME: Please don't make this required because not all services requires to render to the screen.
-    void Render();
-
-    /// <summary>
     /// Updates the service with a delta attached.
     /// </summary>
     /// <param name="delta"></param>
