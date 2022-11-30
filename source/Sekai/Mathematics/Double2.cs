@@ -444,7 +444,7 @@ public struct Double2 : IEquatable<Double2>, IFormattable
     /// <param name="value2">The second vector.</param>
     /// <param name="result">When the method completes, contains the distance between the two vectors.</param>
     /// <remarks>
-    /// <see cref="Double2.DistanceSquared(ref Double2, ref Double2, out double)"/> may be preferred when only the relative distance is needed
+    /// <see cref="DistanceSquared(ref Double2, ref Double2, out double)"/> may be preferred when only the relative distance is needed
     /// and speed is of the essence.
     /// </remarks>
     public static void Distance(ref Double2 value1, ref Double2 value2, out double result)
@@ -462,7 +462,7 @@ public struct Double2 : IEquatable<Double2>, IFormattable
     /// <param name="value2">The second vector.</param>
     /// <returns>The distance between the two vectors.</returns>
     /// <remarks>
-    /// <see cref="Double2.DistanceSquared(Double2, Double2)"/> may be preferred when only the relative distance is needed
+    /// <see cref="DistanceSquared(Double2, Double2)"/> may be preferred when only the relative distance is needed
     /// and speed is of the essence.
     /// </remarks>
     public static double Distance(Double2 value1, Double2 value2)

@@ -71,7 +71,35 @@ public static class MathUtil
     public const float PI_OVER_FOUR = (float)(Math.PI / 4);
 
     /// <summary>
-    /// Checks if a and b are almost equals, taking into account the magnitude of floating point numbers (unlike <see cref="WithinEpsilon"/> method). See Remarks.
+    /// An implementation of the fast-inverse square root from Quake III. While it doesn't serve a purpose,
+    /// this was implemented as an easter egg for those who dare.
+    /// </summary>
+    /// <param name="number"></param>
+    /// <returns>An approximation value in <c>float</c></returns>
+    /// <remarks>
+    /// The code is faithfully remade in its original form as seen in
+    /// <a href="https://github.com/id-Software/Quake-III-Arena/blob/master/code/game/q_math.c#L552">the original Quake III code</a>.
+    /// </remarks>
+    public static unsafe float Q_rsqrt(float number)
+    {
+        long i;
+        float x2, y;
+        const float threehalfs = 1.5F;
+
+        x2 = number * 0.5F;
+        y = number;
+        i = *(long*)&y; // evil floating point bit level hacking
+        i = 0x5f3759df - (i >> 1); // what the f*ck!?
+        y = *(float*)&i;
+
+        y *= (threehalfs - (x2 * y * y)); // 1st iteration
+        // y *= (threehalfs - (x2 * y * y)); // 2nd iteration, this can be removed
+
+        return y;
+    }
+
+    /// <summary>
+    /// Checks if a and b are almost equals, taking into account the magnitude of floating point numbers (unlike <see cref="WithinEpsilon"/> method).
     /// See remarks.
     /// </summary>
     /// <param name="a">The left value to compare.</param>
