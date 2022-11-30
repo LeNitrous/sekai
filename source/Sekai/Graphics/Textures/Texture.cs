@@ -11,7 +11,7 @@ namespace Sekai.Graphics.Textures;
 /// <summary>
 /// A storage object containing color data which can be used to draw on the screen.
 /// </summary>
-public class Texture : FrameworkObject
+public class Texture : GraphicsObject
 {
     /// <inheritdoc cref="INativeTexture.Width"/>
     public int Width => Native.Width;
@@ -77,18 +77,16 @@ public class Texture : FrameworkObject
     public TextureSampleCount SampleCount => Native.SampleCount;
 
     internal readonly INativeTexture Native;
-    private readonly GraphicsContext context = Game.Resolve<GraphicsContext>();
-    private readonly IGraphicsFactory factory = Game.Resolve<IGraphicsFactory>();
 
-    private Texture(int width, int height, int depth, int level, int layers, FilterMode min, FilterMode mag, WrapMode wrapModeS, WrapMode wrapModeT, WrapMode wrapModeR, TextureType type, TextureUsage usage, TextureSampleCount sampleCount, PixelFormat format)
+    protected Texture(int width, int height, int depth, int level, int layers, FilterMode min, FilterMode mag, WrapMode wrapModeS, WrapMode wrapModeT, WrapMode wrapModeR, TextureType type, TextureUsage usage, TextureSampleCount sampleCount, PixelFormat format)
     {
-        Native = factory.CreateTexture(width, height, depth, level, layers, min, mag, wrapModeS, wrapModeT, wrapModeR, type, usage, sampleCount, format);
+        Native = Context.Factory.CreateTexture(width, height, depth, level, layers, min, mag, wrapModeS, wrapModeT, wrapModeR, type, usage, sampleCount, format);
     }
 
     /// <inheritdoc cref="INativeTexture.Bind"/>
     public void Bind(int unit = 0)
     {
-        context.BindTexture(this, unit);
+        Context.BindTexture(this, unit);
     }
 
     /// <inheritdoc cref="INativeTexture.SetData"/>

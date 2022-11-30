@@ -6,6 +6,6 @@ namespace Sekai.Audio;
 /// <summary>
 /// A component capable of emitting sound.
 /// </summary>
-public class AudioSource : Component
+public class AudioSource
 {
 }

@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Reflection;
 using Sekai.Mathematics;
 
@@ -148,7 +149,7 @@ public class VertexLayout : IVertexLayout
         { typeof(Vector3), VertexMemberFormat.Float },
         { typeof(Vector4), VertexMemberFormat.Float },
         { typeof(Color4), VertexMemberFormat.Float },
-        { typeof(Matrix), VertexMemberFormat.Float },
+        { typeof(Matrix4x4), VertexMemberFormat.Float },
     };
 
     private static readonly Dictionary<Type, int> countMap = new()
@@ -157,6 +158,6 @@ public class VertexLayout : IVertexLayout
         { typeof(Vector3), 3 },
         { typeof(Vector4), 4 },
         { typeof(Color4), 4 },
-        { typeof(Matrix), 16 },
+        { typeof(Matrix4x4), 16 },
     };
 }

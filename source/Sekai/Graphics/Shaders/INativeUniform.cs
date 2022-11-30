@@ -17,4 +17,9 @@ public interface INativeUniform : IUniform
     /// The shader that declared this uniform.
     /// </summary>
     INativeShader Owner { get; }
+
+    /// <summary>
+    /// Updates the uniform's value.
+    /// </summary>
+    void Update();
 }

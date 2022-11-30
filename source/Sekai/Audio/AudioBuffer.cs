@@ -1,5 +1,9 @@
+// Copyright (c) The Vignette Authors
+// Licensed under MIT. See LICENSE for details.
+
 using System;
 using System.Runtime.CompilerServices;
+using Sekai.Allocation;
 
 namespace Sekai.Audio;
 
@@ -8,8 +12,8 @@ namespace Sekai.Audio;
 /// </summary>
 public class AudioBuffer : FrameworkObject
 {
-    private readonly IAudioSystem audio = Game.Resolve<IAudioSystem>();
     private readonly INativeAudioBuffer buffer;
+    private readonly IAudioSystem audio = Services.Current.Resolve<IAudioSystem>();
 
     public AudioBuffer()
     {

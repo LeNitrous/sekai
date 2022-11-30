@@ -176,9 +176,9 @@ internal unsafe class SDLView : FrameworkObject, IView, INativeWindowSource, IOp
     protected override void Destroy()
     {
         Sdl.DestroyWindow(Window);
-
         gl?.Dispose();
 
         Sdl.Quit();
+        Sdl.Dispose();
     }
 }

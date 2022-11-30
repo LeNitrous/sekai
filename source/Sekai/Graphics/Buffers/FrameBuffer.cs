@@ -10,7 +10,7 @@ namespace Sekai.Graphics.Buffers;
 /// <summary>
 /// Contains data necessary for blitting an image onto the screen.
 /// </summary>
-public sealed class FrameBuffer : FrameworkObject
+public sealed class FrameBuffer : GraphicsObject
 {
     /// <summary>
     /// The depth attachment of this framebuffer.
@@ -24,9 +24,6 @@ public sealed class FrameBuffer : FrameworkObject
 
     internal readonly INativeFrameBuffer Native;
 
-    private readonly GraphicsContext context = Game.Resolve<GraphicsContext>();
-    private readonly IGraphicsFactory factory = Game.Resolve<IGraphicsFactory>();
-
     public FrameBuffer(FrameBufferAttachment color, FrameBufferAttachment? depth = null)
         : this(new[] { color }, depth)
     {
@@ -34,7 +31,7 @@ public sealed class FrameBuffer : FrameworkObject
 
     public FrameBuffer(FrameBufferAttachment[] color, FrameBufferAttachment? depth = null)
     {
-        Native = factory.CreateFramebuffer();
+        Native = Context.Factory.CreateFramebuffer();
 
         if (depth.HasValue)
         {
@@ -61,7 +58,7 @@ public sealed class FrameBuffer : FrameworkObject
     /// </summary>
     public void Bind()
     {
-        context.BindFrameBuffer(this);
+        Context.BindFrameBuffer(this);
     }
 
     /// <summary>
@@ -69,6 +66,8 @@ public sealed class FrameBuffer : FrameworkObject
     /// </summary>
     public void Unbind()
     {
-        context.UnbindFrameBuffer(this);
+        Context.UnbindFrameBuffer(this);
     }
+
+    protected override void Destroy() => Native.Dispose();
 }

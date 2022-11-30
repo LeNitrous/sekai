@@ -51,6 +51,12 @@ internal class GLShader : GLResource, INativeShader
         setupUniforms();
     }
 
+    public void Update()
+    {
+        foreach (var uniform in uniforms)
+            uniform.Update();
+    }
+
     private uint compileShader(string code, GLEnum type)
     {
         uint id = GL.CreateShader(type);
@@ -123,10 +129,6 @@ internal class GLShader : GLResource, INativeShader
                 case UniformType.FloatMat4:
                     uniforms.Add(new GLUniform<Matrix4x4>(this, name, (int)i));
                     break;
-
-                case UniformType.FloatMat3x2:
-                    uniforms.Add(new GLUniform<Matrix3x2>(this, name, (int)i));
-                    break;
             }
         }
     }
@@ -153,19 +155,15 @@ internal class GLShader : GLResource, INativeShader
                 break;
 
             case GLUniform<Vector2> v:
-                GL.Uniform2(uniform.Offset, ref v.GetValueByRef());
+                GL.Uniform2(uniform.Offset, 1, (float*)Unsafe.AsPointer(ref v.GetValueByRef()));
                 break;
 
             case GLUniform<Vector3> v:
-                GL.Uniform3(uniform.Offset, ref v.GetValueByRef());
+                GL.Uniform3(uniform.Offset, 1, (float*)Unsafe.AsPointer(ref v.GetValueByRef()));
                 break;
 
             case GLUniform<Vector4> v:
-                GL.Uniform4(uniform.Offset, ref v.GetValueByRef());
-                break;
-
-            case GLUniform<Matrix3x2> m:
-                GL.UniformMatrix3x2(uniform.Offset, 1, false, (float*)Unsafe.AsPointer(ref m.GetValueByRef()));
+                GL.Uniform4(uniform.Offset, 1, (float*)Unsafe.AsPointer(ref v.GetValueByRef()));
                 break;
 
             case GLUniform<Matrix4x4> m:

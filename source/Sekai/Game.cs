@@ -2,140 +2,92 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
+using Sekai.Allocation;
 using Sekai.Audio;
 using Sekai.Graphics;
 using Sekai.Input;
 using Sekai.Scenes;
-using Sekai.Services;
 using Sekai.Storage;
-using Sekai.Threading;
-using Sekai.Windowing;
 
 namespace Sekai;
 
 /// <summary>
 /// The game application and the entry point for Sekai.
 /// </summary>
-public abstract class Game : FrameworkObject, IGame
+public abstract class Game : FrameworkObject
 {
-    /// <summary>
-    /// The current game instance.
-    /// </summary>
-    public static Game Current
-    {
-        get
-        {
-            if (current is null)
-                throw new InvalidOperationException(@"There is no active game instance present.");
-
-            return current;
-        }
-    }
-
-    private static Game? current = null;
-
     /// <summary>
     /// Prepares a game for running.
     /// </summary>
     public static GameBuilder<T> Setup<T>(GameOptions? options = null)
         where T : Game, new()
     {
-        return new GameBuilder<T>((T)(current = new T()), options);
+        return new GameBuilder<T>(new T(), options);
     }
-
-    /// <summary>
-    /// Resolves a registered game service.
-    /// </summary>
-    public static T Resolve<T>(bool required = true)
-    {
-        return Current.Services.Resolve<T>(required);
-    }
-
-    /// <summary>
-    /// The services associated with this game.
-    /// </summary>
-    public ServiceContainer Services { get; } = new ServiceContainer();
-
-    /// <summary>
-    /// The game window.
-    /// </summary>
-    public IView Window { get; private set; } = null!;
-
-    /// <summary>
-    /// The audio context.
-    /// </summary>
-    public AudioContext Audio { get; private set; } = null!;
-
-    /// <summary>
-    /// The input context.
-    /// </summary>
-    public IInputContext Input { get; private set; } = null!;
-
-    /// <summary>
-    /// Game options provided in launching the game.
-    /// </summary>
-    public GameOptions Options { get; private set; } = null!;
-
-    /// <summary>
-    /// The graphics context.
-    /// </summary>
-    public GraphicsContext Graphics { get; private set; } = null!;
-
-    /// <summary>
-    /// The virtual file system for this game.
-    /// </summary>
-    public VirtualStorage Storage { get; private set; } = null!;
-
-    /// <summary>
-    /// The game scene controller.
-    /// </summary>
-    public SceneController Scenes { get; private set; } = null!;
 
     /// <summary>
     /// Called when the game has loaded.
     /// </summary>
-    public event Action OnLoaded = null!;
+    public event Action? OnLoaded;
 
     /// <summary>
     /// Called as the game is being closed.
     /// </summary>
-    public event Action OnExiting = null!;
+    public event Action? OnExiting;
 
-    private bool hasStarted = false;
-    private ThreadController threads = null!;
+    /// <summary>
+    /// The game's scenes.
+    /// </summary>
+    public SceneCollection Scenes { get; private set; } = null!;
+
+    /// <summary>
+    /// The game's graphics context.
+    /// </summary>
+    public GraphicsContext Graphics { get; private set; } = null!;
+
+    /// <summary>
+    /// The game's storage context.
+    /// </summary>
+    public StorageContext? Storage { get; private set; }
+
+    /// <summary>
+    /// The game's audio context.
+    /// </summary>
+    public AudioContext? Audio { get; private set; }
+
+    /// <summary>
+    /// The game's input context.
+    /// </summary>
+    public InputContext? Input { get; private set; }
+
+    private bool hasStarted;
+    private GameRunner? runner;
 
     /// <summary>
     /// Called as the game starts.
     /// </summary>
-    protected virtual void Load()
+    public virtual void Load()
     {
     }
 
     /// <summary>
     /// Called every frame.
     /// </summary>
-    protected virtual void Render()
+    public virtual void Render()
     {
     }
 
     /// <summary>
     /// Called every frame.
     /// </summary>
-    protected virtual void Update()
-    {
-    }
-
-    /// <summary>
-    /// Called (possibly multiple times) every frame.
-    /// </summary>
-    protected virtual void FixedUpdate()
+    public virtual void Update(double elapsed)
     {
     }
 
     /// <summary>
     /// Called before the game exits.
     /// </summary>
-    protected virtual void Unload()
+    public virtual void Unload()
     {
     }
 
@@ -149,19 +101,17 @@ public abstract class Game : FrameworkObject, IGame
 
         hasStarted = true;
 
-        Input = Resolve<IInputContext>(false);
-        Audio = Resolve<AudioContext>(false);
-        Window = Resolve<IView>();
-        Scenes = Resolve<SceneController>();
-        Options = Resolve<GameOptions>();
-        Storage = Resolve<VirtualStorage>();
-        threads = Resolve<ThreadController>();
-        Graphics = Resolve<GraphicsContext>();
+        runner = Services.Current.Resolve<GameRunner>();
+        Audio = Services.Current.Resolve<AudioContext>(false);
+        Input = Services.Current.Resolve<InputContext>(false);
+        Scenes = Services.Current.Resolve<SceneCollection>();
+        Storage = Services.Current.Resolve<StorageContext>(false);
+        Graphics = Services.Current.Resolve<GraphicsContext>();
 
         Load();
         OnLoaded?.Invoke();
 
-        threads.Run();
+        runner.Start();
     }
 
     /// <summary>
@@ -169,43 +119,7 @@ public abstract class Game : FrameworkObject, IGame
     /// </summary>
     public void Exit()
     {
-        Dispose();
-    }
-
-    void IGame.Render()
-    {
-        if (!hasStarted || Graphics is null)
-            return;
-
-        Graphics.Prepare();
-
-        try
-        {
-            Render();
-            Services.Render();
-        }
-        finally
-        {
-            Graphics.Present();
-        }
-    }
-
-    void IGame.Update(double elapsed)
-    {
-        if (!hasStarted)
-            return;
-
-        Update();
-        Services.Update(elapsed);
-    }
-
-    void IGame.FixedUpdate()
-    {
-        if (!hasStarted)
-            return;
-
-        FixedUpdate();
-        Services.FixedUpdate();
+        runner?.Stop();
     }
 
     protected sealed override void Destroy()
@@ -213,21 +127,7 @@ public abstract class Game : FrameworkObject, IGame
         if (!hasStarted)
             return;
 
-        hasStarted = false;
-
         OnExiting?.Invoke();
-
-        threads.Stop();
-
         Unload();
-
-        Services.Dispose();
-        Graphics.Dispose();
-        Storage.Dispose();
-        Window.Dispose();
-        Input?.Dispose();
-        Audio?.Dispose();
-
-        current = null;
     }
 }

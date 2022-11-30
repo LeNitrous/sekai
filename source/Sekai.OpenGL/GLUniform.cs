@@ -22,7 +22,8 @@ internal class GLUniform<T> : INativeUniform, IUniform<T>
                 return;
 
             this.value = value;
-            Owner.UpdateUniform(this);
+
+            Update();
         }
     }
 
@@ -33,8 +34,9 @@ internal class GLUniform<T> : INativeUniform, IUniform<T>
         Name = name;
         Owner = owner;
         Offset = offset;
-        value = default;
     }
+
+    public void Update() => Owner.UpdateUniform(this);
 
     public ref T GetValueByRef() => ref value;
 

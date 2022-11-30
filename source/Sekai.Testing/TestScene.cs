@@ -2,6 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 
 using NUnit.Framework;
+using Sekai.Scenes;
 
 namespace Sekai.Testing;
 
@@ -20,8 +21,6 @@ public abstract class TestScene<T> : TestScene
     {
         if (!TestUtils.IsNUnit)
             return;
-
-        Environment.SetEnvironmentVariable("SEKAI_HEADLESS_TEST", "true", EnvironmentVariableTarget.Process);
 
         game = Game.Setup<T>().Test(this).Build();
         task = Task.Factory.StartNew(() => game.Run(), TaskCreationOptions.LongRunning);

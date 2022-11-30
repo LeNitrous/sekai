@@ -8,7 +8,7 @@ using Silk.NET.SDL;
 
 namespace Sekai.SDL;
 
-internal class SDLKeyboard : IKeyboard
+internal class SDLKeyboard : FrameworkObject, IKeyboard
 {
     public IReadOnlyList<Key> SupportedKeys { get; } = Enum.GetValues<Key>();
     public string Name { get; } = @"Keyboard";
@@ -18,7 +18,28 @@ internal class SDLKeyboard : IKeyboard
     public event Action<IKeyboard, Key, int?> OnKeyUp = null!;
     private readonly List<Scancode> pressedKeys = new();
 
-    public void HandleEvent(KeyboardEvent keyboardEvent)
+    private readonly SDLView view;
+
+    public SDLKeyboard(SDLView view)
+    {
+        this.view = view;
+        this.view.OnProcessEvent += onProcessEvent;
+    }
+
+    public bool IsKeyPressed(Key key) => contains(key.ToScancode());
+
+    private bool contains(Scancode scancode)
+    {
+        for (int i = 0; i < pressedKeys.Count; i++)
+        {
+            if (pressedKeys[i] == scancode)
+                return true;
+        }
+
+        return false;
+    }
+
+    private void handleEvent(KeyboardEvent keyboardEvent)
     {
         var type = (EventType)keyboardEvent.Type;
 
@@ -46,16 +67,21 @@ internal class SDLKeyboard : IKeyboard
         }
     }
 
-    public bool IsKeyPressed(Key key) => contains(key.ToScancode());
-
-    private bool contains(Scancode scancode)
+    private void onProcessEvent(Event evt)
     {
-        for (int i = 0; i < pressedKeys.Count; i++)
-        {
-            if (pressedKeys[i] == scancode)
-                return true;
-        }
+        var type = (EventType)evt.Type;
 
-        return false;
+        switch (type)
+        {
+            case EventType.Keyup:
+            case EventType.Keydown:
+                handleEvent(evt.Key);
+                break;
+        }
+    }
+
+    protected override void Destroy()
+    {
+        view.OnProcessEvent -= onProcessEvent;
     }
 }

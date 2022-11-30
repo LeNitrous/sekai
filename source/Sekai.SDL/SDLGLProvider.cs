@@ -14,7 +14,6 @@ internal unsafe class SDLGLProvider : FrameworkObject, IOpenGLProvider
     public SDLGLProvider(SDLView view)
     {
         this.view = view;
-
         Handle = CreateContext();
     }
 

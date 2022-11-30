@@ -1,6 +1,7 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
+using System.Numerics;
 using System.Runtime.InteropServices;
 using Sekai;
 using Sekai.Graphics;
@@ -8,7 +9,6 @@ using Sekai.Graphics.Buffers;
 using Sekai.Graphics.Shaders;
 using Sekai.Graphics.Textures;
 using Sekai.Graphics.Vertices;
-using Sekai.Mathematics;
 
 namespace TriangleAOT;
 
@@ -33,7 +33,7 @@ vec4 frag()
 }
 ";
 
-    protected override void Load()
+    public override void Load()
     {
         shd = new Shader(shader);
 
@@ -52,7 +52,7 @@ vec4 frag()
         tex.SetData(new byte[] { 0, 0, 255, 255 }, 0, 0, 0, 1, 1, 1, 0, 0);
     }
 
-    protected override void Render()
+    public override void Render()
     {
         tex.Bind();
         shd.Bind();
@@ -61,7 +61,7 @@ vec4 frag()
         Graphics.Draw(3, PrimitiveTopology.Triangles);
     }
 
-    protected override void Unload()
+    public override void Unload()
     {
         shd?.Dispose();
         ebo?.Dispose();

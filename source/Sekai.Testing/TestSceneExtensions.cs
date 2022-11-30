@@ -2,7 +2,6 @@
 // Licensed under MIT. See LICENSE for details.
 
 using Sekai.OpenGL;
-using Sekai.Scenes;
 using Sekai.SDL;
 
 namespace Sekai.Testing;
@@ -14,15 +13,6 @@ public static class TestSceneExtensions
     {
         return builder
             .UseGL()
-            .UseSDL()
-            .AddBuildAction(game =>
-            {
-                var scene = new Scene
-                {
-                    Entities = new[] { new Entity { Components = new[] { test } } }
-                };
-
-                game.Services.Resolve<SceneController>().Push(scene);
-            });
+            .UseSDL();
     }
 }

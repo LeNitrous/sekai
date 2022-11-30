@@ -16,7 +16,7 @@ namespace Sekai.OpenGL;
 
 internal class GLGraphicsSystem : FrameworkObject, IGraphicsSystem
 {
-    internal GL GL { get; private set; } = null!;
+    public GL GL { get; private set; } = null!;
     private IOpenGLProvider provider = null!;
     private int enabledAttributeCount;
     private bool? lastBlendingState;

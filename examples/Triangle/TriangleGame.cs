@@ -1,6 +1,7 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
+using System.Numerics;
 using System.Runtime.InteropServices;
 using Sekai;
 using Sekai.Graphics;
@@ -8,7 +9,6 @@ using Sekai.Graphics.Buffers;
 using Sekai.Graphics.Shaders;
 using Sekai.Graphics.Textures;
 using Sekai.Graphics.Vertices;
-using Sekai.Mathematics;
 
 namespace Triangle;
 
@@ -19,12 +19,13 @@ public class TriangleGame : Game
     private Buffer<Vertex2D> vbo = null!;
     private Texture tex = null!;
     private static readonly string shader = @"
-attrib vec2 Position;
+attrib vec2 a_Position;
+extern mat4 g_ProjMatrix;
 extern sampler2D Texture;
 
 vec4 vert()
 {
-    return vec4(Position.x, Position.y, 0.0f, 1.0f);
+    return g_ProjMatrix * vec4(a_Position.x, a_Position.y, 0.0f, 1.0f);
 }
 
 vec4 frag()
@@ -33,7 +34,7 @@ vec4 frag()
 }
 ";
 
-    protected override void Load()
+    public override void Load()
     {
         shd = new Shader(shader);
 
@@ -43,17 +44,18 @@ vec4 frag()
         vbo = new Buffer<Vertex2D>(3);
         vbo.SetData(new[]
         {
-            new Vertex2D { Position = new Vector2(-0.5f, -0.5f) },
-            new Vertex2D { Position = new Vector2(+0.5f, -0.5f) },
-            new Vertex2D { Position = new Vector2(+0.0f, +0.5f) },
+            new Vertex2D { Position = new Vector2(-0.5f, -0.5f) * 50 },
+            new Vertex2D { Position = new Vector2(+0.5f, -0.5f) * 50 },
+            new Vertex2D { Position = new Vector2(+0.0f, +0.5f) * 50 },
         });
 
         tex = Texture.New2D(1, 1, PixelFormat.R8_G8_B8_A8_UNorm_SRgb);
         tex.SetData(new byte[] { 0, 0, 255, 255 }, 0, 0, 0, 1, 1, 1, 0, 0);
     }
 
-    protected override void Render()
+    public override void Render()
     {
+        Graphics.PushProjectionMatrix(Matrix4x4.CreateOrthographic(1280, 720, -1 ,1));
         tex.Bind();
         shd.Bind();
         ebo.Bind();
@@ -61,7 +63,7 @@ vec4 frag()
         Graphics.Draw(3, PrimitiveTopology.Triangles);
     }
 
-    protected override void Unload()
+    public override void Unload()
     {
         shd?.Dispose();
         ebo?.Dispose();

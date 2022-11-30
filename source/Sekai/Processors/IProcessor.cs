@@ -1,0 +1,13 @@
+// Copyright (c) The Vignette Authors
+// Licensed under MIT. See LICENSE for details.
+
+using Sekai.Scenes;
+
+namespace Sekai.Processors;
+
+public interface IProcessor
+{
+    bool IsAttached { get; }
+    bool Enabled { get; }
+    Scene? Scene { get; }
+}

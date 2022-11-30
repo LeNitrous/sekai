@@ -8,7 +8,7 @@ using Pastel;
 
 namespace Sekai.Logging;
 
-public class LogListenerConsole : LogListenerTextWriter
+public partial class LogListenerConsole : LogListenerTextWriter
 {
     protected override Func<Exception, string> FormatException => formatException;
     protected override Func<DateTime, string> FormatTimestamp => formatTimestamp;
@@ -56,11 +56,12 @@ public class LogListenerConsole : LogListenerTextWriter
         };
     }
 
-    [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool AllocConsole();
 
-    [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
+    [LibraryImport("kernel32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool FreeConsole();
+    private static partial bool AllocConsole();
+
+    [LibraryImport("kernel32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool FreeConsole();
 }

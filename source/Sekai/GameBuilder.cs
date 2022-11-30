@@ -2,17 +2,14 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using System.Collections.Generic;
 using System.Reflection;
+using Sekai.Allocation;
 using Sekai.Audio;
 using Sekai.Graphics;
-using Sekai.Graphics.Shaders;
 using Sekai.Input;
 using Sekai.Logging;
 using Sekai.Scenes;
-using Sekai.Services;
 using Sekai.Storage;
-using Sekai.Threading;
 using Sekai.Windowing;
 
 namespace Sekai;
@@ -20,13 +17,11 @@ namespace Sekai;
 public sealed class GameBuilder<T>
     where T : Game, new()
 {
+    private IView? view;
+    private IAudioSystem? audio;
+    private IGraphicsSystem? graphics;
     private readonly T game;
     private readonly GameOptions options;
-    private IWindow? window;
-    private IAudioSystem? audio;
-    private IInputContext? input;
-    private IGraphicsSystem? graphics;
-    private readonly List<Action<T>> postBuildActions = new();
 
     internal GameBuilder(T game, GameOptions? options = null)
     {
@@ -42,22 +37,12 @@ public sealed class GameBuilder<T>
     }
 
     /// <summary>
-    /// Uses the input context of a given type.
+    /// Uses the view of a given type.
     /// </summary>
-    public GameBuilder<T> UseInput<U>()
-        where U : IInputContext, new()
+    public GameBuilder<T> UseView<U>()
+        where U : IView, new()
     {
-        input = new U();
-        return this;
-    }
-
-    /// <summary>
-    /// Uses the window of a given type.
-    /// </summary>
-    public GameBuilder<T> UseWindow<U>()
-        where U : IWindow, new()
-    {
-        window = new U();
+        view = new U();
         return this;
     }
 
@@ -72,48 +57,47 @@ public sealed class GameBuilder<T>
     }
 
     /// <summary>
-    /// Adds a build action.
-    /// </summary>
-    public GameBuilder<T> AddBuildAction(Action<T> action)
-    {
-        postBuildActions.Add(action);
-        return this;
-    }
-
-    /// <summary>
     /// Builds the game.
     /// </summary>
     public T Build()
     {
-        var threads = new ThreadController(new GameWindowThread(window), new GameUpdateThread(), new GameRenderThread())
-        {
-            ExecutionMode = options.ExecutionMode,
-            UpdatePerSecond = options.UpdatePerSecond,
-        };
+        if (graphics is null || view is null)
+            throw new InvalidOperationException();
 
-        var storage = new VirtualStorage();
+        if (view is IWindow window)
+        {
+            window.Size = options.Size;
+            window.Title = options.Title;
+            window.Border = WindowBorder.Resizable;
+            window.Visible = true;
+            window.OnClose += game.Exit;
+        }
+
+        Services.Current.Register(game);
+        Services.Current.Register<Game>(game);
+
+        Services.Current.Register(options);
+        Services.Current.Register(new GraphicsContext(graphics, view));
+
+        if (audio is not null)
+            Services.Current.Register(new AudioContext());
+
+        var storage = new StorageContext();
         storage.Mount("/", new NativeStorage(AppDomain.CurrentDomain.BaseDirectory));
         storage.Mount("/engine", new AssemblyBackedStorage(typeof(Game).Assembly, "Resources"));
 
-        if (!options.Variables.Contains("SEKAI_HEADLESS_TEST"))
-        {
-            if (RuntimeInfo.IsDebug)
-                Logger.OnMessageLogged += new LogListenerConsole();
+        Services.Current.Register(storage);
+        Services.Current.Register<GameRunner>();
+        Services.Current.Register<InputContext>();
+        Services.Current.Register<SceneCollection>();
 
-            var stream = storage.Open("/runtime.log");
-            var writer = new LogListenerTextWriter(stream);
-            Logger.OnMessageLogged += writer;
-            game.OnExiting += writer.Dispose;
-            threads.OnTick += showWindow;
+        if (RuntimeInfo.IsDebug)
+            Logger.OnMessageLogged += new LogListenerConsole();
 
-            void showWindow()
-            {
-                if (window is IWindow w)
-                    w.Visible = true;
-
-                threads.OnTick -= showWindow;
-            }
-        }
+        var stream = storage.Open("/runtime.log");
+        var writer = new LogListenerTextWriter(stream);
+        Logger.OnMessageLogged += writer;
+        game.OnExiting += writer.Dispose;
 
         var entry = Assembly.GetEntryAssembly()?.GetName();
 
@@ -123,82 +107,11 @@ public sealed class GameBuilder<T>
         Logger.Log($"Environment: {RuntimeInfo.OS} ({Environment.OSVersion.VersionString})");
         Logger.Log("----------------------------------------------------------");
 
-        if (window is null)
-            throw new InvalidOperationException(@"No windowing system was provided.");
-
-        window.Size = options.Size;
-        window.Title = options.Title;
-        window.Border = WindowBorder.Resizable;
-        window.Visible = false;
-        window.OnClose += game.Exit;
-        game.Services.Register(window);
-        game.Services.Register<IView>(window);
-
-        if (graphics is null)
-            throw new InvalidOperationException(@"No graphics system was provided.");
-
-        graphics.Initialize(window);
-        game.Services.Register(graphics);
-        game.Services.Register(graphics.CreateFactory());
-        game.Services.Register(new ShaderGlobals());
-        game.Services.Register(new GraphicsContext(graphics, window));
-
-        if (audio != null)
-        {
-            game.Services.Register(audio);
-            game.Services.Register(new AudioContext(audio));
-        }
-
-        if (input != null)
-            game.Services.Register(input);
-
-        Logger.Log("Runtime Information");
-        Logger.Log($"Input     : {input?.GetType().Name ?? "None"}");
-        Logger.Log($"Audio     : {audio?.GetType().Name ?? "None"}");
-        Logger.Log($"Graphics  : {graphics?.GetType().Name ?? "None"}");
-        Logger.Log($"Windowing : {window?.GetType().Name ?? "None"}");
-
-        game.Services.Register(threads);
-        game.Services.Register(storage);
-        game.Services.Register(options);
-        game.Services.Register<SceneController>();
-        game.Services.Register<BehaviorService>();
-        game.Services.Register<ComponentService>();
-
-        foreach (var action in postBuildActions)
-            action.Invoke(game);
-
         return game;
     }
 
     /// <summary>
     /// Builds then runs the game.
     /// </summary>
-    public void Run()
-    {
-        Build().Run();
-    }
-
-    private class GameWindowThread : WindowThread
-    {
-        private readonly IView? view;
-
-        public GameWindowThread(IView? view)
-        {
-            this.view = view;
-        }
-
-        public override void Process() => view?.DoEvents();
-    }
-
-    private class GameRenderThread : RenderThread
-    {
-        public override void Render() => ((IGame)Game.Current).Render();
-    }
-
-    private class GameUpdateThread : UpdateThread
-    {
-        public override void FixedUpdate() => ((IGame)Game.Current).FixedUpdate();
-        public override void Update(double elapsed) => ((IGame)Game.Current).Update(elapsed);
-    }
+    public void Run() => Build().Run();
 }

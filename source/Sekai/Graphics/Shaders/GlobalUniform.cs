@@ -24,14 +24,11 @@ public class GlobalUniform : IUniform
         Name = name;
     }
 
-    internal virtual void Attach(IUniform uniform)
-    {
-        attached.Add(uniform);
-    }
+    internal virtual void Attach(IUniform uniform) => attached.Add(uniform);
+    internal virtual void Detach(IUniform uniform) => attached.Remove(uniform);
 
-    internal virtual void Detach(IUniform uniform)
+    internal virtual void Update()
     {
-        attached.Remove(uniform);
     }
 }
 
@@ -72,6 +69,17 @@ public class GlobalUniform<T> : GlobalUniform, IUniform<T>
             throw new InvalidOperationException();
 
         u.Value = value;
+
         base.Attach(uniform);
+    }
+
+    internal sealed override void Detach(IUniform uniform)
+    {
+        if (uniform is not IUniform<T> u)
+            throw new InvalidOperationException();
+
+        u.Value = default;
+
+        base.Detach(uniform);
     }
 }

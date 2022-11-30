@@ -3,149 +3,117 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using Sekai.Allocation;
+using Sekai.Processors;
 
 namespace Sekai.Scenes;
 
-public class Scene : FrameworkObject
+public class Scene : ActivateableObject
 {
-    /// <summary>
-    /// Gets or sets the entities in this scene.
-    /// </summary>
-    public IEnumerable<Entity> Entities
+    public readonly Node Root;
+    public readonly Services Services = Services.Current.CreateScoped();
+    public SceneCollection? Scenes { get; private set; }
+    private readonly Dictionary<Type, Processor> processors = new();
+    private readonly List<IRenderable> renderables = new();
+    private readonly List<IUpdateable> updateables = new();
+
+    public Scene()
     {
-        get => entities;
-        set
+        Root = CreateRootNode();
+        Add<BehaviorProcessor>();
+    }
+
+    protected void Add<T>()
+        where T : Processor, new()
+    {
+        var processor = Activator.CreateInstance<T>();
+
+        if (processor is IRenderable renderable)
+            renderables.Add(renderable);
+
+        if (processor is IUpdateable updateable)
+            updateables.Add(updateable);
+
+        processors.Add(typeof(T), processor);
+    }
+
+    public T Get<T>()
+        where T : Processor, new()
+    {
+        if (!processors.TryGetValue(typeof(T), out var processor))
+            throw new KeyNotFoundException();
+
+        return Unsafe.As<T>(processor);
+    }
+
+    internal void Render()
+    {
+        foreach (var renderable in renderables)
         {
-            Clear();
-            AddRange(value);
+            if (!renderable.Enabled || !renderable.IsAttached)
+                continue;
+
+            renderable.Render();
         }
     }
 
-    /// <summary>
-    /// Gets all attached entities in this scene.
-    /// </summary>
-    public IEnumerable<Entity> Attached => attached;
-
-    /// <summary>
-    /// The associated scene controller for this scene.
-    /// </summary>
-    public SceneController Controller { get; internal set; } = null!;
-
-    /// <summary>
-    /// Called when an entity has been added to the scene.
-    /// </summary>
-    public event Action<Scene, Entity> OnEntityAttach = null!;
-
-    /// <summary>
-    /// Called when an entity has been removed from the scene.
-    /// </summary>
-    public event Action<Scene, Entity> OnEntityDetach = null!;
-
-    private readonly List<Entity> entities = new();
-    private readonly List<Entity> attached = new();
-
-    /// <summary>
-    /// Adds an entity to this scene.
-    /// </summary>
-    public void Add(Entity entity)
+    internal void Update(double elapsed)
     {
-        if (entity.IsAttached)
-            throw new InvalidOperationException(@"This entity is already attached.");
+        foreach (var updateable in updateables)
+        {
+            if (!updateable.Enabled || !updateable.IsAttached)
+                continue;
 
-        entities.Add(entity);
-        entity.Attach(this, null);
+            updateable.Update(elapsed);
+        }
     }
 
-    /// <summary>
-    /// Adds a range of entities to this scene.
-    /// </summary>
-    public void AddRange(IEnumerable<Entity> entities)
+    protected override void OnAttach()
     {
-        foreach (var entity in entities)
-            Add(entity);
+        foreach (var processor in processors)
+            processor.Value.Attach(this);
     }
 
-    /// <summary>
-    /// Removes an entity from this scene.
-    /// </summary>
-    public void Remove(Entity entity)
+    protected override void OnDetach()
     {
-        if (!entities.Remove(entity))
+        foreach (var processor in processors)
+            processor.Value.Detach(this);
+    }
+
+    internal void Attach(SceneCollection scenes)
+    {
+        if (IsAttached)
             return;
 
-        entity.Detach();
+        if (scenes is null)
+            throw new InvalidOperationException();
+
+        Scenes = scenes;
+
+        Attach();
+        Root.Attach(this);
     }
 
-    /// <summary>
-    /// Removes a range of entities from this scene.
-    /// </summary>
-    public void RemoveRange(IEnumerable<Entity> entities)
+    internal void Detach(SceneCollection scenes)
     {
-        foreach (var entity in entities)
-            Remove(entity);
+        if (!IsAttached)
+            return;
+
+        if (Scenes != scenes)
+            throw new InvalidOperationException();
+
+        Scenes = null;
+
+        Root.Detach(this);
+        Detach();
     }
 
-    /// <summary>
-    /// Removes all entities from the scene.
-    /// </summary>
-    public void Clear()
-    {
-        RemoveRange(entities.ToArray());
-    }
+    protected virtual Node CreateRootNode() => new();
+}
 
-    /// <summary>
-    /// Exits this current scene.
-    /// </summary>
-    public void Exit()
-    {
-        Controller?.Exit(this);
-    }
-
-    /// <summary>
-    /// Makes this scene the current.
-    /// </summary>
-    public void MakeCurrent()
-    {
-        Controller?.MakeCurrent(this);
-    }
-
-    /// <summary>
-    /// Called when the scene has been pushed as the current.
-    /// </summary>
-    public virtual void OnEntering(Scene last)
-    {
-    }
-
-    /// <summary>
-    /// Called when the scene is being exited.
-    /// </summary>
-    public virtual void OnExiting(Scene next)
-    {
-    }
-
-    /// <summary>
-    /// Called when the scene is resumed as the current.
-    /// </summary>
-    public virtual void OnResuming(Scene last)
-    {
-    }
-
-    /// <summary>
-    /// Called when the scene is suspended.
-    /// </summary>
-    public virtual void OnSuspending(Scene next)
-    {
-    }
-
-    internal void Attach(Entity entity)
-    {
-        attached.Add(entity);
-        OnEntityAttach?.Invoke(this, entity);
-    }
-
-    internal void Detach(Entity entity)
-    {
-        if (attached.Remove(entity))
-            OnEntityDetach?.Invoke(this, entity);
-    }
+public abstract class Scene<T> : Scene
+    where T : Node
+{
+    public new T Root => (T)base.Root;
 }

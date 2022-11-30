@@ -20,4 +20,9 @@ public interface INativeShader : IDisposable
     /// The uniforms declared in this shader.
     /// </summary>
     IReadOnlyList<INativeUniform> Uniforms { get; }
+
+    /// <summary>
+    /// Updates the uniforms for this shader.
+    /// </summary>
+    void Update();
 }

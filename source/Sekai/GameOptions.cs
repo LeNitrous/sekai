@@ -5,7 +5,6 @@ using System;
 using System.Collections;
 using System.Reflection;
 using Sekai.Mathematics;
-using Sekai.Threading;
 
 namespace Sekai;
 
@@ -33,10 +32,4 @@ public class GameOptions
     /// Environment variables obtained from launching the process.
     /// </summary>
     public IDictionary Variables { get; } = Environment.GetEnvironmentVariables();
-
-    /// <inheritdoc cref="ThreadController.ExecutionMode"/>
-    public ExecutionMode ExecutionMode { get; set; } = ExecutionMode.MultiThread;
-
-    /// <inheritdoc cref="ThreadController.UpdatePerSecond"/>
-    public double UpdatePerSecond { get; set; } = 240;
 }

@@ -6,7 +6,7 @@ using System;
 namespace Sekai;
 
 /// <summary>
-/// The base class for all objects used by Sekai.
+/// The base class for all objects used by Sekai which provides a general implementation of an <see cref="IDisposable"/>.
 /// </summary>
 public abstract class FrameworkObject : IDisposable
 {

@@ -12,7 +12,7 @@ namespace Sekai.Graphics.Buffers;
 /// <summary>
 /// A storage object capable of storing arbitrary contents in the GPU.
 /// </summary>
-public class Buffer : FrameworkObject
+public class Buffer : GraphicsObject
 {
     /// <summary>
     /// The number in bytes of how much this buffer can store.
@@ -20,15 +20,13 @@ public class Buffer : FrameworkObject
     public int Capacity => Native.Capacity;
 
     internal readonly INativeBuffer Native;
-    private readonly GraphicsContext context = Game.Resolve<GraphicsContext>();
-    private readonly IGraphicsFactory factory = Game.Resolve<IGraphicsFactory>();
 
     public Buffer(int capacity, bool dynamic = false)
     {
         if (capacity <= 0)
             throw new ArgumentException(@"Capacity cannot be a zero or negative value.");
 
-        Native = factory.CreateBuffer(capacity, dynamic);
+        Native = Context.Factory.CreateBuffer(capacity, dynamic);
     }
 
     /// <summary>
@@ -67,7 +65,7 @@ public class Buffer : FrameworkObject
     /// <param name="format">The index format used.</param>
     public void Bind(IndexFormat format)
     {
-        context.BindIndexBuffer(this, format);
+        Context.BindIndexBuffer(this, format);
     }
 
     /// <summary>
@@ -76,13 +74,10 @@ public class Buffer : FrameworkObject
     /// <param name="layout">The layout used to define this buffer.</param>
     public void Bind(IVertexLayout layout)
     {
-        context.BindVertexBuffer(this, layout);
+        Context.BindVertexBuffer(this, layout);
     }
 
-    protected sealed override void Destroy()
-    {
-        Native.Dispose();
-    }
+    protected sealed override void Destroy() => Native.Dispose();
 }
 
 /// <summary>

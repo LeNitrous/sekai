@@ -10,7 +10,7 @@ using Silk.NET.SDL;
 
 namespace Sekai.SDL;
 
-internal unsafe class SDLMouse : IMouse
+internal unsafe class SDLMouse : FrameworkObject, IMouse
 {
     public IReadOnlyList<MouseButton> SupportedButtons { get; } = Enumerable.Range(0, 4).Select(n => (MouseButton)n).ToArray();
     public IReadOnlyList<ScrollWheel> ScrollWheels => scrollWheels;
@@ -43,9 +43,12 @@ internal unsafe class SDLMouse : IMouse
     public SDLMouse(SDLView view)
     {
         this.view = view;
+        this.view.OnProcessEvent += onProcessEvent;
     }
 
-    public void HandleEvent(MouseButtonEvent mouseButtonEvent)
+    public bool IsButtonPressed(MouseButton button) => contains(button);
+
+    private void handleEvent(MouseButtonEvent mouseButtonEvent)
     {
         var button = toMouseButton(mouseButtonEvent.Button);
         var type = (EventType)mouseButtonEvent.Type;
@@ -71,19 +74,17 @@ internal unsafe class SDLMouse : IMouse
         }
     }
 
-    public void HandleEvent(MouseMotionEvent mouseMotionEvent)
+    private void handleEvent(MouseMotionEvent mouseMotionEvent)
     {
         position = new Vector2(mouseMotionEvent.X, mouseMotionEvent.Y);
         OnMove?.Invoke(this, position);
     }
 
-    public void HandleEvent(MouseWheelEvent mouseWheelEvent)
+    private void handleEvent(MouseWheelEvent mouseWheelEvent)
     {
         scrollWheels[0] = new ScrollWheel(mouseWheelEvent.X, mouseWheelEvent.Y);
         OnScroll?.Invoke(this, scrollWheels[0]);
     }
-
-    public bool IsButtonPressed(MouseButton button) => contains(button);
 
     private bool contains(MouseButton button)
     {
@@ -94,6 +95,27 @@ internal unsafe class SDLMouse : IMouse
         }
 
         return false;
+    }
+
+    private void onProcessEvent(Event evt)
+    {
+        var type = (EventType)evt.Type;
+
+        switch (type)
+        {
+            case EventType.Mousemotion:
+                handleEvent(evt.Motion);
+                break;
+
+            case EventType.Mousewheel:
+                handleEvent(evt.Wheel);
+                break;
+
+            case EventType.Mousebuttonup:
+            case EventType.Mousebuttondown:
+                handleEvent(evt.Button);
+                break;
+        }
     }
 
     private static MouseButton toMouseButton(uint button)
@@ -107,5 +129,10 @@ internal unsafe class SDLMouse : IMouse
             Sdl.ButtonX2 => MouseButton.Button5,
             _ => MouseButton.Unknown,
         };
+    }
+
+    protected override void Destroy()
+    {
+        view.OnProcessEvent -= onProcessEvent;
     }
 }
