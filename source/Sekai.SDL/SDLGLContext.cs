@@ -5,13 +5,13 @@ using Sekai.Windowing.OpenGL;
 
 namespace Sekai.SDL;
 
-internal unsafe class SDLGLProvider : FrameworkObject, IOpenGLProvider
+internal unsafe class SDLGLContext : FrameworkObject, IOpenGLContext
 {
     public nint Handle { get; }
 
     private readonly SDLView view;
 
-    public SDLGLProvider(SDLView view)
+    public SDLGLContext(SDLView view)
     {
         this.view = view;
         Handle = CreateContext();

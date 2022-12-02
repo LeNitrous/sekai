@@ -72,20 +72,20 @@ public interface IWindow : IView
     /// <summary>
     /// Called when the window resizes.
     /// </summary>
-    event Action<Size2> OnResize;
+    event Action<Size2>? OnResize;
 
     /// <summary>
     /// Called when the window's position is changed.
     /// </summary>
-    event Action<Point> OnMoved;
+    event Action<Point>? OnMoved;
 
     /// <summary>
     /// Called when the window focus changes.
     /// </summary>
-    event Action<bool> OnFocusChanged;
+    event Action<bool>? OnFocusChanged;
 
     /// <summary>
     /// Called when a file has been dropped to this window.
     /// </summary>
-    event Action<string[]> OnDataDropped;
+    event Action<string[]>? OnDataDropped;
 }

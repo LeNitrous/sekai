@@ -9,16 +9,15 @@ using Silk.NET.SDL;
 
 namespace Sekai.SDL;
 
-internal unsafe class SDLView : FrameworkObject, IView, INativeWindowSource, IOpenGLProviderSource
+internal unsafe class SDLView : FrameworkObject, IView, INativeWindowSource, IOpenGLContextSource
 {
     public INativeWindow Native { get; }
     public bool Active { get; private set; } = true;
 
-    public event Action OnClose = null!;
-    public event Func<bool> OnCloseRequested = null!;
-    public event Action<bool> OnStateChanged = null!;
-
-    internal event Action<Event> OnProcessEvent = null!;
+    public event Action? OnClose;
+    public event Func<bool>? OnCloseRequested;
+    public event Action<bool>? OnStateChanged;
+    internal event Action<Event>? OnProcessEvent;
 
 #pragma warning disable IDE0052
 
@@ -170,8 +169,8 @@ internal unsafe class SDLView : FrameworkObject, IView, INativeWindowSource, IOp
         OnClose?.Invoke();
     }
 
-    private IOpenGLProvider gl = null!;
-    public IOpenGLProvider GL => gl ??= new SDLGLProvider(this);
+    private IOpenGLContext gl = null!;
+    public IOpenGLContext GL => gl ??= new SDLGLContext(this);
 
     protected override void Destroy()
     {

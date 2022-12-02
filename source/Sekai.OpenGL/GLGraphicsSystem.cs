@@ -1,4 +1,4 @@
-﻿// Copyright (c) The Vignette Authors
+// Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
 using System;
@@ -17,25 +17,21 @@ namespace Sekai.OpenGL;
 internal class GLGraphicsSystem : FrameworkObject, IGraphicsSystem
 {
     public GL GL { get; private set; } = null!;
-    private IOpenGLProvider provider = null!;
+    private IOpenGLContext provider = null!;
     private int enabledAttributeCount;
     private bool? lastBlendingState;
     private IndexFormat indexFormat;
     private Rectangle lastViewport;
-    private uint vao;
 
     public IGraphicsFactory CreateFactory() => new GLGraphicsFactory(this);
 
     public void Initialize(IView view)
     {
-        if (view is not IOpenGLProviderSource source)
+        if (view is not IOpenGLContextSource source)
             throw new Exception($"Window system is not a GL provider.");
 
         GL = GL.GetApi(source.GL.GetProcAddress);
         provider = source.GL;
-
-        vao = GL.GenVertexArray();
-        GL.BindVertexArray(vao);
     }
 
     public void Present()
@@ -242,11 +238,5 @@ internal class GLGraphicsSystem : FrameworkObject, IGraphicsSystem
         };
 
         GL.DrawElements(mode, (uint)count, type, null);
-    }
-
-    protected override void Destroy()
-    {
-        if (vao != 0)
-            GL.DeleteVertexArray(vao);
     }
 }

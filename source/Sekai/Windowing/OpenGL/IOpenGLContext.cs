@@ -8,7 +8,7 @@ namespace Sekai.Windowing.OpenGL;
 /// <summary>
 /// An interface for windowing systems capable of providing OpenGL APIs.
 /// </summary>
-public interface IOpenGLProvider : IDisposable
+public interface IOpenGLContext : IDisposable
 {
     /// <summary>
     /// The OpenGL handle.

@@ -6,10 +6,10 @@ namespace Sekai.Windowing.OpenGL;
 /// <summary>
 /// An interface for windowing systems capable of providing OpenGL.
 /// </summary>
-public interface IOpenGLProviderSource
+public interface IOpenGLContextSource
 {
     /// <summary>
-    /// The OpenGL provider.
+    /// The OpenGL context.
     /// </summary>
-    IOpenGLProvider GL { get; }
+    IOpenGLContext GL { get; }
 }

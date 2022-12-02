@@ -16,10 +16,10 @@ internal unsafe class SDLWindow : SDLView, IWindow
     public bool Focused { get; private set; }
     public IMonitor Monitor => getMonitorFromSDL(Sdl.GetWindowDisplayIndex(Window));
     public IEnumerable<IMonitor> Monitors => Enumerable.Range(0, Sdl.GetNumVideoDisplays()).Select(getMonitorFromSDL);
-    public event Action<Size2> OnResize = null!;
-    public event Action<Mathematics.Point> OnMoved = null!;
-    public event Action<string[]> OnDataDropped = null!;
-    public event Action<bool> OnFocusChanged = null!;
+    public event Action<Size2>? OnResize;
+    public event Action<Mathematics.Point>? OnMoved;
+    public event Action<string[]>? OnDataDropped;
+    public event Action<bool>? OnFocusChanged;
 
     private string title = string.Empty;
 

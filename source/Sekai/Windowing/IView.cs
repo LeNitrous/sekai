@@ -26,17 +26,17 @@ public interface IView : IDisposable
     /// <summary>
     /// Called when the active state of this view changes.
     /// </summary>
-    event Action<bool> OnStateChanged;
+    event Action<bool>? OnStateChanged;
 
     /// <summary>
     /// Called when the view closes.
     /// </summary>
-    event Action OnClose;
+    event Action? OnClose;
 
     /// <summary>
     /// Called when the view requests to be closed. Return true to continue closing.
     /// </summary>
-    event Func<bool> OnCloseRequested;
+    event Func<bool>? OnCloseRequested;
 
     /// <summary>
     /// Convert this point to screen coordinates.

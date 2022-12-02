@@ -16,6 +16,8 @@ internal class GameRunner : FrameworkObject
     [MemberNotNullWhen(true, "cts")]
     public bool IsRunning => cts is not null;
 
+    public event Action? OnTick;
+
     private CancellationTokenSource? cts;
     private readonly Game game = Services.Current.Resolve<Game>();
     private readonly GraphicsContext graphics = Services.Current.Resolve<GraphicsContext>();
@@ -77,6 +79,7 @@ internal class GameRunner : FrameworkObject
         finally
         {
             graphics.Present();
+            OnTick?.Invoke();
         }
     }
 }

@@ -17,11 +17,13 @@ namespace Sekai;
 public sealed class GameBuilder<T>
     where T : Game, new()
 {
+
     private IView? view;
     private IAudioSystem? audio;
     private IGraphicsSystem? graphics;
     private readonly T game;
     private readonly GameOptions options;
+    private GameRunner? runner;
 
     internal GameBuilder(T game, GameOptions? options = null)
     {
@@ -61,38 +63,14 @@ public sealed class GameBuilder<T>
     /// </summary>
     public T Build()
     {
-        if (graphics is null || view is null)
-            throw new InvalidOperationException();
-
-        if (view is IWindow window)
-        {
-            window.Size = options.Size;
-            window.Title = options.Title;
-            window.Border = WindowBorder.Resizable;
-            window.Visible = true;
-            window.OnClose += game.Exit;
-        }
-
-        Services.Current.Register(game);
-        Services.Current.Register<Game>(game);
-
-        Services.Current.Register(options);
-        Services.Current.Register(new GraphicsContext(graphics, view));
-
-        if (audio is not null)
-            Services.Current.Register(new AudioContext());
+        if (RuntimeInfo.IsDebug)
+            Logger.OnMessageLogged += new LogListenerConsole();
 
         var storage = new StorageContext();
         storage.Mount("/", new NativeStorage(AppDomain.CurrentDomain.BaseDirectory));
         storage.Mount("/engine", new AssemblyBackedStorage(typeof(Game).Assembly, "Resources"));
 
         Services.Current.Register(storage);
-        Services.Current.Register<GameRunner>();
-        Services.Current.Register<InputContext>();
-        Services.Current.Register<SceneCollection>();
-
-        if (RuntimeInfo.IsDebug)
-            Logger.OnMessageLogged += new LogListenerConsole();
 
         var stream = storage.Open("/runtime.log");
         var writer = new LogListenerTextWriter(stream);
@@ -107,6 +85,30 @@ public sealed class GameBuilder<T>
         Logger.Log($"Environment: {RuntimeInfo.OS} ({Environment.OSVersion.VersionString})");
         Logger.Log("----------------------------------------------------------");
 
+        if (graphics is null || view is null)
+            throw new InvalidOperationException(@"Cannot build the game without a graphics system or view.");
+
+        Services.Current.Register(game);
+        Services.Current.Register<Game>(game);
+        Services.Current.Register(options);
+        Services.Current.Register(new GraphicsContext(graphics, view));
+        Services.Current.Register(runner = new());
+
+        if (view is IWindow window)
+        {
+            window.Size = options.Size;
+            window.Title = options.Title;
+            window.Border = WindowBorder.Resizable;
+            window.OnClose += game.Exit;
+            runner.OnTick += showWindow;
+        }
+
+        if (audio is not null)
+            Services.Current.Register(new AudioContext());
+
+        Services.Current.Register<InputContext>();
+        Services.Current.Register<SceneCollection>();
+
         return game;
     }
 
@@ -114,4 +116,13 @@ public sealed class GameBuilder<T>
     /// Builds then runs the game.
     /// </summary>
     public void Run() => Build().Run();
+
+    private void showWindow()
+    {
+        if (view is IWindow window)
+            window.Visible = true;
+
+        if (runner is not null)
+            runner.OnTick -= showWindow;
+    }
 }
