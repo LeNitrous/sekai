@@ -11,7 +11,8 @@ namespace Sekai.SDL;
 
 internal unsafe class SDLView : FrameworkObject, IView, INativeWindowSource, IOpenGLContextSource
 {
-    public INativeWindow Native { get; }
+    public INativeWindow Native => native.Value;
+    public IOpenGLContext GL => context.Value;
     public bool Active { get; private set; } = true;
 
     public event Action? OnClose;
@@ -32,6 +33,9 @@ internal unsafe class SDLView : FrameworkObject, IView, INativeWindowSource, IOp
     internal readonly Window* Window;
     internal readonly Sdl Sdl;
 
+    private readonly Lazy<INativeWindow> native;
+    private readonly Lazy<IOpenGLContext> context;
+
     public SDLView()
     {
         Sdl = Sdl.GetApi();
@@ -49,7 +53,9 @@ internal unsafe class SDLView : FrameworkObject, IView, INativeWindowSource, IOp
             Sdl.ThrowError();
 
         Window = Sdl.CreateWindow("Sekai", Sdl.WindowposCentered, Sdl.WindowposCentered, 1280, 720, (uint)(WindowFlags.Hidden | WindowFlags.Opengl));
-        Native = new SDLNativeWindow(this);
+
+        native = new(() => new SDLNativeWindow(this));
+        context = new(() => new SDLGLContext(this));
 
         Sdl.SetEventFilter(filter = handleSdlEvent, null);
 
@@ -169,14 +175,9 @@ internal unsafe class SDLView : FrameworkObject, IView, INativeWindowSource, IOp
         OnClose?.Invoke();
     }
 
-    private IOpenGLContext gl = null!;
-    public IOpenGLContext GL => gl ??= new SDLGLContext(this);
-
     protected override void Destroy()
     {
         Sdl.DestroyWindow(Window);
-        gl?.Dispose();
-
         Sdl.Quit();
         Sdl.Dispose();
     }
