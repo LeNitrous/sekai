@@ -1,0 +1,50 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{3F99CDA7-FF6E-48C3-A6A1-1C64D4388D72}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Triangle.Forms", "examples\Triangle.Forms\Triangle.Forms.csproj", "{169DB67D-79AA-443B-BD21-78BA3C0F7ADB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "source", "source", "{7E3E3D92-CAAD-40C3-9E94-82FF90F13F50}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Forms", "source\Sekai.Forms\Sekai.Forms.csproj", "{33C76395-00C5-4696-8940-79CC496CE370}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai", "source\Sekai\Sekai.csproj", "{48DC56B5-C6E7-402F-8DB8-114D5580626C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.OpenGL", "source\Sekai.OpenGL\Sekai.OpenGL.csproj", "{1C05D52D-A973-4C18-AE7E-7ECC7223068D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{169DB67D-79AA-443B-BD21-78BA3C0F7ADB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{169DB67D-79AA-443B-BD21-78BA3C0F7ADB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{169DB67D-79AA-443B-BD21-78BA3C0F7ADB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{169DB67D-79AA-443B-BD21-78BA3C0F7ADB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33C76395-00C5-4696-8940-79CC496CE370}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33C76395-00C5-4696-8940-79CC496CE370}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33C76395-00C5-4696-8940-79CC496CE370}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33C76395-00C5-4696-8940-79CC496CE370}.Release|Any CPU.Build.0 = Release|Any CPU
+		{48DC56B5-C6E7-402F-8DB8-114D5580626C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{48DC56B5-C6E7-402F-8DB8-114D5580626C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{48DC56B5-C6E7-402F-8DB8-114D5580626C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{48DC56B5-C6E7-402F-8DB8-114D5580626C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C05D52D-A973-4C18-AE7E-7ECC7223068D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C05D52D-A973-4C18-AE7E-7ECC7223068D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C05D52D-A973-4C18-AE7E-7ECC7223068D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C05D52D-A973-4C18-AE7E-7ECC7223068D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{169DB67D-79AA-443B-BD21-78BA3C0F7ADB} = {3F99CDA7-FF6E-48C3-A6A1-1C64D4388D72}
+		{33C76395-00C5-4696-8940-79CC496CE370} = {7E3E3D92-CAAD-40C3-9E94-82FF90F13F50}
+		{48DC56B5-C6E7-402F-8DB8-114D5580626C} = {7E3E3D92-CAAD-40C3-9E94-82FF90F13F50}
+		{1C05D52D-A973-4C18-AE7E-7ECC7223068D} = {7E3E3D92-CAAD-40C3-9E94-82FF90F13F50}
+	EndGlobalSection
+EndGlobal
