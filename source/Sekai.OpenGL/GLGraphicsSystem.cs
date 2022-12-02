@@ -22,6 +22,7 @@ internal class GLGraphicsSystem : FrameworkObject, IGraphicsSystem
     private bool? lastBlendingState;
     private IndexFormat indexFormat;
     private Rectangle lastViewport;
+    private uint vao;
 
     public IGraphicsFactory CreateFactory() => new GLGraphicsFactory(this);
 
@@ -32,6 +33,9 @@ internal class GLGraphicsSystem : FrameworkObject, IGraphicsSystem
 
         GL = GL.GetApi(source.GL.GetProcAddress);
         provider = source.GL;
+
+        vao = GL.GenVertexArray();
+        GL.BindVertexArray(vao);
     }
 
     public void Present()
@@ -239,4 +243,6 @@ internal class GLGraphicsSystem : FrameworkObject, IGraphicsSystem
 
         GL.DrawElements(mode, (uint)count, type, null);
     }
+
+    protected override void Destroy() => GL.DeleteVertexArray(vao);
 }
