@@ -3,16 +3,15 @@
 
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Sekai;
 using Sekai.Graphics;
 using Sekai.Graphics.Buffers;
 using Sekai.Graphics.Shaders;
 using Sekai.Graphics.Textures;
 using Sekai.Graphics.Vertices;
 
-namespace Triangle;
+namespace Triangle.Game;
 
-public class TriangleGame : Game
+public class TriangleGame : Sekai.Game
 {
     private Shader shd = null!;
     private Buffer<short> ebo = null!;

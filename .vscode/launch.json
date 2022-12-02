@@ -19,7 +19,8 @@
             "id": "LaunchExample",
             "description": "Select Example",
             "options": [
-                "Triangle"
+                "Triangle.SDL",
+                "Triangle.SDL.AOT"
             ]
         }
     ]

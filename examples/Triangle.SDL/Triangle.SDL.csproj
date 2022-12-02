@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="../Triangle.Game/Triangle.Game.csproj" />
     <ProjectReference Include="../../source/Sekai/Sekai.csproj" />
     <ProjectReference Include="../../source/Sekai.SDL/Sekai.SDL.csproj" />
     <ProjectReference Include="../../source/Sekai.OpenGL/Sekai.OpenGL.csproj" />

@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "TriangleAOT": {
-      "commandName": "Project",
-      "nativeDebugging": true
-    }
-  }
-}

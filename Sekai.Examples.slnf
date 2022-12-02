@@ -2,7 +2,9 @@
     "solution": {
         "path": "Sekai.sln",
         "projects": [
-            "examples\\Triangle\\Triangle.csproj"
+            "examples\\Triangle.Game\\Triangle.Game.csproj",
+            "examples\\Triangle.SDL\\Triangle.SDL.csproj",
+            "examples\\Triangle.SDL.AOT\\Triangle.SDL.AOT.csproj",
         ]
     }
 }
