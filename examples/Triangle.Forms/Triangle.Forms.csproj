@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0-windows10.0.19041.0</TargetFramework>
+    <RuntimeIdentifiers>win10-x86;win10-x64</RuntimeIdentifiers>
+    <OutputType>Exe</OutputType>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Triangle.Game/Triangle.Game.csproj" />
+    <ProjectReference Include="../../source/Sekai/Sekai.csproj" />
+    <ProjectReference Include="../../source/Sekai.Forms/Sekai.Forms.csproj" />
+    <ProjectReference Include="../../source/Sekai.OpenGL/Sekai.OpenGL.csproj" />
+  </ItemGroup>
+
+</Project>

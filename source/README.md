@@ -7,9 +7,10 @@ Sekai's source has been split into multiple folders and C# projects (`.csproj`),
     - Implements core functionality.
 - **Sekai.Testing**
     - Implements test functionality for NUnit.
-- **Sekai.OpenAL**
-    - Provides [**OpenAL**](https://github.com/dotnet/Silk.NET) audio support.
 - **Sekai.OpenGL**
     - Provides [**OpenGL**](https://github.com/dotnet/Silk.NET) graphics support.
+- **Sekai.Forms**
+    - Provides [**Windows Forms**](https://github.com/dotnet/winforms) windowing and input support.
+    - Visual Studio 2022 is required.
 - **Sekai.SDL**
     - Provides [**SDL2**](https://github.com/dotnet/Silk.NET) windowing and input support.
