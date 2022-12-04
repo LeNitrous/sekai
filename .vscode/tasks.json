@@ -2,7 +2,7 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "Build Examples",
+            "label": "build examples",
             "command": "dotnet",
             "type": "process",
             "args": [

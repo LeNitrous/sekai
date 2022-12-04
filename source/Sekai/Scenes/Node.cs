@@ -7,17 +7,19 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Sekai.Processors;
 using Sekai.Serialization;
 
 namespace Sekai.Scenes;
 
-public class Node : AttachableObject, IReferenceable, ICollection<Node>, IReadOnlyList<Node>, IEnumerable<Component>
+/// <summary>
+/// A node is a container for other child <see cref="Node"/>s or <see cref="Component"/>s which can extend functionality providing
+/// visual or logical representations of itself. These are contained in <see cref="Scenes.Scene"/>s which contain <see cref="Processor"/>s
+/// and the <see cref="Rendering.Renderer"/> which actually handle updating and drawing components which it owns.
+/// </summary>
+public class Node : AttachableObject, IReferenceable, IProcessorAttachable, ICollection<Node>, IReadOnlyList<Node>, IEnumerable<Component>
 {
     public Guid Id { get; }
-
-    /// <summary>
-    /// The scene where this node is attached to.
-    /// </summary>
     public Scene? Scene { get; private set; }
 
     /// <summary>
@@ -71,6 +73,7 @@ public class Node : AttachableObject, IReferenceable, ICollection<Node>, IReadOn
     private Component[] components = Array.Empty<Component>();
     private readonly Dictionary<Type, int> indices = new();
     private readonly List<Node> children = new();
+    private IEnumerable<Component> componentsEnumerable => this;
 
     /// <summary>
     /// Adds a child node to this node.
@@ -307,20 +310,24 @@ public class Node : AttachableObject, IReferenceable, ICollection<Node>, IReadOn
 
     protected override void OnAttach()
     {
-        foreach (var component in components)
+        foreach (var component in componentsEnumerable)
             component.Attach(this);
 
         foreach (var child in children)
             child.Attach(this);
+
+        Scene?.Processors.Attach(this);
     }
 
     protected override void OnDetach()
     {
-        foreach (var component in components)
+        foreach (var component in componentsEnumerable)
             component.Detach(this);
 
         foreach (var child in children)
             child.Detach(this);
+
+        Scene?.Processors.Detach(this);
     }
 
     protected sealed override void Destroy() => Parent?.Remove(this);
@@ -390,15 +397,21 @@ public class Node : AttachableObject, IReferenceable, ICollection<Node>, IReadOn
 
         private int position = -1;
         private readonly Node node;
+        private readonly int length;
 
         public Enumerator(Node node)
         {
+            length = node.current;
             this.node = node;
         }
 
         public bool MoveNext()
         {
-            return node.indices.ContainsValue(position++);
+            if (length != node.current)
+                throw new InvalidOperationException(@"The node's component collection has been modified during enumeration.");
+
+            position++;
+            return node.indices.ContainsValue(position);
         }
 
         public void Reset()

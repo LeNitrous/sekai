@@ -9,16 +9,17 @@ namespace Sekai.Scenes;
 /// <summary>
 /// A scene capable of drawing two-dimensional objects.
 /// </summary>
-public sealed class Scene2D : Scene<Node2D>, IRenderableScene
+public sealed class Scene2D : RenderableScene<Node2D>
 {
-    public Camera2D? Camera { get; set; }
+    internal new Renderer2D Renderer => (Renderer2D)base.Renderer;
 
-    public Scene2D()
+    protected override void Initialize(ProcessorCollection processors)
     {
-        Add<Transform2DProcessor>();
+        base.Initialize(processors);
+        processors.Register<Camera2DProcessor>();
+        processors.Register<Transform2DProcessor>();
     }
 
     protected override Node CreateRootNode() => new Node2D();
-
-    Camera? IRenderableScene.Camera => Camera;
+    protected override Renderer CreateRenderer() => new Renderer2D();
 }

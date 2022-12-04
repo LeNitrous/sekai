@@ -16,18 +16,21 @@ public abstract class ActivateableObject : AttachableObject
             if (enabled == value)
                 return;
 
-            if (enabled = value)
+            enabled = value;
+
+            if (IsAttached)
             {
-                OnActivate();
-            }
-            else
-            {
-                OnDeactivate();
+                invokeState();
             }
         }
     }
 
-    private bool enabled;
+    private bool enabled = true;
+
+    /// <summary>
+    /// Toggles the active state of this object.
+    /// </summary>
+    public void Toggle() => Enabled = !Enabled;
 
     /// <summary>
     /// Called when the object is activated.
@@ -43,9 +46,21 @@ public abstract class ActivateableObject : AttachableObject
     {
     }
 
+    private void invokeState()
+    {
+        if (enabled)
+        {
+            OnActivate();
+        }
+        else
+        {
+            OnDeactivate();
+        }
+    }
+
     protected override void OnAttach()
     {
-        Enabled = true;
+        invokeState();
     }
 
     protected override void Destroy()

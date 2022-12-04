@@ -76,6 +76,7 @@ public class Texture : GraphicsObject
     /// <inheritdoc cref="INativeTexture.SampleCount"/>
     public TextureSampleCount SampleCount => Native.SampleCount;
 
+    private int unit = -1;
     internal readonly INativeTexture Native;
 
     protected Texture(int width, int height, int depth, int level, int layers, FilterMode min, FilterMode mag, WrapMode wrapModeS, WrapMode wrapModeT, WrapMode wrapModeR, TextureType type, TextureUsage usage, TextureSampleCount sampleCount, PixelFormat format)
@@ -83,10 +84,26 @@ public class Texture : GraphicsObject
         Native = Context.Factory.CreateTexture(width, height, depth, level, layers, min, mag, wrapModeS, wrapModeT, wrapModeR, type, usage, sampleCount, format);
     }
 
-    /// <inheritdoc cref="INativeTexture.Bind"/>
+    internal Texture(GraphicsContext context, INativeTexture native)
+        : base(context)
+    {
+        Native = native;
+    }
+
     public void Bind(int unit = 0)
     {
-        Context.BindTexture(this, unit);
+        if (unit is < 0 or > 16)
+            throw new ArgumentOutOfRangeException(nameof(unit), @"Texture unit can only be between 0 and 15.");
+
+        Context.BindTexture(this, this.unit = unit);
+    }
+
+    public void Unbind()
+    {
+        if (unit != -1)
+            Context.UnbindTexture(this, unit);
+
+        unit = -1;
     }
 
     /// <inheritdoc cref="INativeTexture.SetData"/>

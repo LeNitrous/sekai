@@ -7,6 +7,7 @@ using Sekai.Graphics.Buffers;
 using Sekai.Graphics.Shaders;
 using Sekai.Graphics.Textures;
 using Sekai.Graphics.Vertices;
+using Sekai.Logging;
 using Sekai.Mathematics;
 using Sekai.Windowing;
 using Sekai.Windowing.OpenGL;
@@ -17,16 +18,17 @@ namespace Sekai.OpenGL;
 internal class GLGraphicsSystem : FrameworkObject, IGraphicsSystem
 {
     public GL GL { get; private set; } = null!;
+    public GLShader? CurrentShader { get; private set; }
     private IOpenGLContext provider = null!;
     private int enabledAttributeCount;
     private bool? lastBlendingState;
     private IndexFormat indexFormat;
-    private Rectangle lastViewport;
+    private Viewport lastViewport;
     private uint vao;
 
     public IGraphicsFactory CreateFactory() => new GLGraphicsFactory(this);
 
-    public void Initialize(IView view)
+    public unsafe void Initialize(IView view)
     {
         if (view is not IOpenGLContextSource source)
             throw new Exception($"Window system is not a GL provider.");
@@ -36,6 +38,20 @@ internal class GLGraphicsSystem : FrameworkObject, IGraphicsSystem
 
         vao = GL.GenVertexArray();
         GL.BindVertexArray(vao);
+
+        GL.DebugMessageCallback(handleGLError, null);
+        GL.GetInteger(GetPName.NumExtensions, out int num);
+
+        string[] extensions = new string[num];
+
+        for (uint i = 0; i < num; i++)
+            extensions[i] = GL.GetStringS(StringName.Extensions, i);
+
+        Logger.Log(@"OpenGL Initialized.");
+        Logger.Log(@"OpenGL Renderer   : " + GL.GetStringS(StringName.Renderer));
+        Logger.Log(@"OpenGL Version    : " + GL.GetStringS(StringName.Version));
+        Logger.Log(@"OpenGL Vendor     : " + GL.GetStringS(StringName.Vendor));
+        Logger.Log(@"OpenGL Extensions : " + string.Join(' ', extensions));
     }
 
     public void Present()
@@ -46,7 +62,7 @@ internal class GLGraphicsSystem : FrameworkObject, IGraphicsSystem
     public void Reset()
     {
         lastBlendingState = null;
-        lastViewport = Rectangle.Empty;
+        lastViewport = Viewport.Empty;
     }
 
     public void Clear(ClearInfo info)
@@ -108,10 +124,11 @@ internal class GLGraphicsSystem : FrameworkObject, IGraphicsSystem
         }
     }
 
-    public void SetViewport(Rectangle viewport)
+    public void SetViewport(Viewport viewport)
     {
         lastViewport = viewport;
         GL.Viewport(viewport.X, viewport.Y, (uint)viewport.Width, (uint)viewport.Height);
+        GL.DepthRange(viewport.MinimumDepth, viewport.MaximumDepth);
     }
 
     public void SetBlend(BlendingParameters parameters)
@@ -157,6 +174,47 @@ internal class GLGraphicsSystem : FrameworkObject, IGraphicsSystem
         );
     }
 
+    public void SetFaceCulling(FaceCulling culling)
+    {
+        if (culling == FaceCulling.None)
+        {
+            GL.Disable(EnableCap.CullFace);
+        }
+        else
+        {
+            GL.Enable(EnableCap.CullFace);
+
+            switch (culling)
+            {
+                case FaceCulling.Back:
+                    GL.CullFace(CullFaceMode.Back);
+                    break;
+
+                case FaceCulling.Front:
+                    GL.CullFace(CullFaceMode.Front);
+                    break;
+
+                case FaceCulling.Both:
+                    GL.CullFace(CullFaceMode.FrontAndBack);
+                    break;
+            }
+        }
+    }
+
+    public void SetFaceWinding(FaceWinding winding)
+    {
+        switch (winding)
+        {
+            case FaceWinding.Clockwise:
+                GL.FrontFace(FrontFaceDirection.CW);
+                break;
+
+            case FaceWinding.CounterClockwise:
+                GL.FrontFace(FrontFaceDirection.Ccw);
+                break;
+        }
+    }
+
     public void SetTexture(INativeTexture? texture, int unit)
     {
         if (texture is null)
@@ -172,9 +230,18 @@ internal class GLGraphicsSystem : FrameworkObject, IGraphicsSystem
         }
     }
 
-    public void SetShader(INativeShader shader)
+    public void SetShader(INativeShader? shader)
     {
-        GL.UseProgram((GLShader)shader);
+        if (shader is null)
+        {
+            GL.UseProgram(0);
+            shader = null;
+        }
+        else
+        {
+            CurrentShader = (GLShader)shader;
+            GL.UseProgram(CurrentShader);
+        }
     }
 
     public void SetIndexBuffer(INativeBuffer buffer, IndexFormat format)
@@ -203,7 +270,7 @@ internal class GLGraphicsSystem : FrameworkObject, IGraphicsSystem
         for (int i = 0; i < layout.Members.Count; i++)
         {
             var member = layout.Members[i];
-            GL.VertexAttribPointer((uint)i, member.Count, member.Format.ToVertexAttribPointerType(), member.Normalized, (uint)(member.Count * member.Format.SizeOfFormat()), (void*)member.Offset);
+            GL.VertexAttribPointer((uint)i, member.Count, member.Format.ToVertexAttribPointerType(), member.Normalized, (uint)layout.Stride, (void*)member.Offset);
         }
     }
 
@@ -245,4 +312,12 @@ internal class GLGraphicsSystem : FrameworkObject, IGraphicsSystem
     }
 
     protected override void Destroy() => GL.DeleteVertexArray(vao);
+
+    private static readonly Logger logger = Logger.GetLogger("OpenGL");
+
+    private static unsafe void handleGLError(GLEnum source, GLEnum type, int id, GLEnum severity, int length, nint message, nint userdata)
+    {
+        string msg = System.Text.Encoding.UTF8.GetString((byte*)message, length);
+        logger.Log(msg);
+    }
 }

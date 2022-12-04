@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <PublishAot>true</PublishAot>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="../Triangle.SDL/Program.cs">
+      <Link>Program.cs</Link>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Triangle/Triangle.csproj" />
+    <ProjectReference Include="../../../source/Sekai/Sekai.csproj" />
+    <ProjectReference Include="../../../source/Sekai.SDL/Sekai.SDL.csproj" />
+    <ProjectReference Include="../../../source/Sekai.OpenGL/Sekai.OpenGL.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -136,6 +136,9 @@ internal class GLShader : GLResource, INativeShader
     internal unsafe void UpdateUniform<T>(GLUniform<T> uniform)
         where T : unmanaged, IEquatable<T>
     {
+        var prev = Context.CurrentShader;
+        Context.SetShader(this);
+
         switch (uniform)
         {
             case GLUniform<int> i:
@@ -173,6 +176,8 @@ internal class GLShader : GLResource, INativeShader
             default:
                 throw new NotSupportedException(@"Uniform is not supported.");
         }
+
+        Context.SetShader(prev);
     }
 
     protected override void Destroy()

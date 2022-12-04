@@ -2,23 +2,23 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
+using Sekai.Processors;
 using Sekai.Serialization;
 
 namespace Sekai.Scenes;
 
-public abstract class Component : ActivateableObject, IReferenceable
+/// <summary>
+/// Base class for all attachable objects to extend a <see cref="Node"/>'s functionality.
+/// </summary>
+public abstract class Component : ActivateableObject, IReferenceable, IProcessorAttachable
 {
     public Guid Id { get; }
+    public Scene? Scene { get; private set; }
 
     /// <summary>
     /// The node owning this component.
     /// </summary>
     public Node? Owner { get; private set; }
-
-    /// <summary>
-    /// The scene where this component is attached to.
-    /// </summary>
-    public Scene? Scene { get; private set; }
 
     internal void Attach(Node node)
     {
@@ -49,6 +49,7 @@ public abstract class Component : ActivateableObject, IReferenceable
     }
 
     internal virtual bool CanAttach(Node node) => true;
-
+    protected override void OnDeactivate() => Scene?.Processors.Detach(this);
+    protected override void OnActivate() => Scene?.Processors.Attach(this);
     protected override void Destroy() => Owner?.Remove(this);
 }

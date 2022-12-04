@@ -12,12 +12,19 @@ public enum FaceCulling
     /// The back face is culled.
     /// </summary>
     Back,
+
     /// <summary>
     /// The front face is culled.
     /// </summary>
     Front,
+
     /// <summary>
     /// No face culling.
     /// </summary>
     None,
+
+    /// <summary>
+    /// Both faces are culled.
+    /// </summary>
+    Both,
 }

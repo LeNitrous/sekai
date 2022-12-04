@@ -3,6 +3,9 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Sekai.Graphics;
+using Sekai.Rendering;
 
 namespace Sekai.Scenes;
 
@@ -17,6 +20,31 @@ public class SceneCollection : FrameworkObject, ICollection<Scene>, IReadOnlyLis
 
     private readonly List<Scene> scenes = new();
 
+    internal void Update(double delta)
+    {
+        var scenes = this.scenes.ToArray();
+
+        foreach (var scene in scenes)
+        {
+            if (scene.Enabled)
+                scene.Update(delta);
+        }
+    }
+
+    internal void Render(GraphicsContext graphics)
+    {
+        var scenes = this.scenes.OfType<IRenderableScene>().ToArray();
+
+        foreach (var scene in scenes)
+        {
+            if (scene.Enabled)
+                scene.Render(graphics);
+        }
+    }
+
+    /// <summary>
+    /// Adds a scene to this collection.
+    /// </summary>
     public void Add(Scene item)
     {
         if (item.IsAttached)
@@ -26,6 +54,9 @@ public class SceneCollection : FrameworkObject, ICollection<Scene>, IReadOnlyLis
         item.Attach(this);
     }
 
+    /// <summary>
+    /// Removes all scenes in this collection.
+    /// </summary>
     public void Clear()
     {
         foreach (var scene in scenes)
@@ -34,11 +65,17 @@ public class SceneCollection : FrameworkObject, ICollection<Scene>, IReadOnlyLis
         scenes.Clear();
     }
 
+    /// <summary>
+    /// Returns whether a given scene is in this collection.
+    /// </summary>
     public bool Contains(Scene item)
     {
         return scenes.Contains(item);
     }
 
+    /// <summary>
+    /// Copies a range of scenes to the array at a given index.
+    /// </summary>
     public void CopyTo(Scene[] array, int arrayIndex)
     {
         scenes.CopyTo(array, arrayIndex);
@@ -49,6 +86,9 @@ public class SceneCollection : FrameworkObject, ICollection<Scene>, IReadOnlyLis
         return scenes.GetEnumerator();
     }
 
+    /// <summary>
+    /// Removes a scene from this collection.
+    /// </summary>
     public bool Remove(Scene item)
     {
         if (!item.IsAttached)

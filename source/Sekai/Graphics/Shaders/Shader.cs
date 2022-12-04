@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Sekai.Graphics.Shaders;
@@ -24,7 +23,9 @@ public sealed partial class Shader : GraphicsObject
     public readonly string Code;
 
     internal readonly INativeShader Native;
-    private readonly Dictionary<string, IUniform> uniforms = new();
+    internal IReadOnlyDictionary<string, IUniform> Uniforms => uniforms;
+
+    private readonly Dictionary<string, IUniform> uniforms;
 
     /// <summary>
     /// Creates a new shader from code.
@@ -32,75 +33,8 @@ public sealed partial class Shader : GraphicsObject
     public Shader(string code)
     {
         Code = code;
-
-        string transformed = code;
-
-        var match = regex_attr.Match(transformed);
-
-        var pass = new StringBuilder();
-        var attribsIns = new StringBuilder();
-        var attribsOut = new StringBuilder();
-        int attribsEnd = 0;
-        int attribsStart = -1;
-
-        do
-        {
-            if (!match.Success)
-                break;
-
-            string type = match.Groups["Type"].Value;
-            string name = match.Groups["Name"].Value;
-
-            pass.AppendLine($"v_internal_{name} = {name};");
-            attribsIns.AppendLine($"in {type} {name};");
-            attribsOut.AppendLine($"out {type} v_internal_{name};");
-
-            if (attribsStart == -1)
-                attribsStart = match.Index;
-
-            attribsEnd = match.Index + match.Length;
-        }
-        while ((match = match.NextMatch()).Success);
-
-        transformed = transformed[..attribsStart] + attribsIns + attribsOut + transformed[attribsEnd..];
-        transformed = transformed.Trim();
-
-        if (regex_vert.IsMatch(transformed) && regex_frag.IsMatch(transformed))
-        {
-            string vert = string.Concat(template_glsl, template_vert);
-            vert = vert.Replace("{{ pass }}", pass.ToString());
-            vert = vert.Replace("{{ content }}", transformed);
-
-            string frag = string.Concat(template_glsl, template_frag);
-            frag = frag.Replace("{{ content }}", transformed);
-
-            Native = Context.Factory.CreateShader(vert, frag);
-        }
-
-        if (regex_comp.IsMatch(transformed))
-        {
-            string comp = string.Concat(template_glsl, template_comp);
-            comp = comp.Replace("{{ content }}", transformed);
-
-            Native = Context.Factory.CreateShader(comp);
-        }
-
-        if (Native is null)
-            throw new ArgumentException(@"Invalid shader code.");
-
-        foreach (var uniform in Native.Uniforms)
-        {
-            if (Context.Uniforms.HasUniform(uniform.Name))
-            {
-                var global = Context.Uniforms.GetUniform(uniform.Name);
-                global.Attach(uniform);
-                uniforms.Add(global.Name, global);
-            }
-            else
-            {
-                uniforms.Add(uniform.Name, uniform);
-            }
-        }
+        Native = createNativeShader(code);
+        uniforms = createUniformMap(Native);
     }
 
     /// <summary>
@@ -141,63 +75,206 @@ public sealed partial class Shader : GraphicsObject
     {
         foreach (var uniform in Native.Uniforms)
         {
-            if (Context.Uniforms.HasUniform(uniform.Name))
-            {
-                var global = Context.Uniforms.GetUniform(uniform.Name);
+            if (Context.Uniforms.TryGetUniform(uniform.Name, out var global))
                 global.Detach(uniform);
-            }
         }
 
         uniforms.Clear();
         Native.Dispose();
     }
 
+    private Dictionary<string, IUniform> createUniformMap(INativeShader native)
+    {
+        var uniforms = new Dictionary<string, IUniform>();
+
+        foreach (var uniform in native.Uniforms)
+        {
+            if (Context.Uniforms.TryGetUniform(uniform.Name, out var global))
+            {
+                global.Attach(uniform);
+                uniforms.Add(global.Name, global);
+            }
+            else
+            {
+                uniforms.Add(uniform.Name, uniform);
+            }
+        }
+
+        return uniforms;
+    }
+
+    private INativeShader createNativeShader(string code)
+    {
+        var attribs = getAttribCalls(code);
+        var vertMatch = regex_vert.Match(code);
+        var fragMatch = regex_frag.Match(code);
+        var compMatch = regex_comp.Match(code);
+
+        if (vertMatch.Success && fragMatch.Success)
+        {
+            string vertMethod = getMethod(code, vertMatch.Index);
+            string fragMethod = getMethod(code, fragMatch.Index);
+
+            string vertBody = string.Empty;
+            string fragHead = string.Empty;
+            string vertContent = code;
+            string fragContent = code;
+
+            int attribLoc = 0;
+            foreach (var attrib in attribs)
+            {
+                string line = attrib.Line.ToString();
+                string a = $"layout(location = {attribLoc}) in {attrib.Type} {attrib.Name};";
+                string b = $"layout(location = {attribLoc}) out {attrib.Type} v_internal_{attrib.Name};";
+
+                vertBody += $"v_internal_{attrib.Name} = {attrib.Name};" + Environment.NewLine;
+                vertContent = vertContent.Replace(line, string.Join(Environment.NewLine, a, b));
+                fragContent = fragContent.Replace(line, a);
+
+                attribLoc++;
+            }
+
+            int colorMatches = regex_color.Matches(fragMethod).Count;
+            for (int colorLoc = 0; colorLoc < colorMatches; colorLoc++)
+                fragHead += $"layout(location = {colorLoc}) out vec4 SK_COLOR{colorLoc};" + Environment.NewLine;
+
+            string vert = string.Concat(template_glsl, template_vert);
+            vert = vert.Replace("{{ body }}", vertBody);
+            vert = vert.Replace("{{ content }}", vertContent);
+            vert = vert.Replace(fragMethod, string.Empty);
+
+            string frag = string.Concat(template_glsl, template_frag);
+            frag = frag.Replace("{{ head }}", fragHead);
+            frag = frag.Replace("{{ content }}", fragContent);
+            frag = frag.Replace(vertMethod, string.Empty);
+
+            return Context.Factory.CreateShader(vert, frag);
+        }
+
+        if (compMatch.Success)
+        {
+            string compContent = code;
+
+            int attribLoc = 0;
+            foreach (var attrib in attribs)
+            {
+                compContent = compContent.Replace(attrib.Line.ToString(), $"layout(location = {attribLoc}) in {attrib.Type} {attrib.Name};");
+                attribLoc++;
+            }
+
+            string comp = string.Concat(template_glsl, template_comp);
+            comp = comp.Replace("{{ content }}", compContent);
+
+            return Context.Factory.CreateShader(comp);
+        }
+
+        throw new ArgumentException(@"Unable to determine shader type from code", nameof(code));
+    }
+
+    private static string getMethod(string code, int start)
+    {
+        int current = start;
+
+        // Look for the first open bracket.
+        while (code[current] != '{')
+            current++;
+
+        // Move to the open bracket's index.
+        current++;
+
+        int depth = 1;
+
+        while (depth != 0)
+        {
+            if (code[current] == '{')
+                depth++;
+
+            if (code[current] == '}')
+                depth--;
+
+            current++;
+
+            if (current > code.Length)
+                throw new ArgumentException(@"Invalid shader code.", nameof(code));
+        }
+
+        return code[start..current];
+    }
+
+    private static IEnumerable<ShaderAttribute> getAttribCalls(string code)
+    {
+        var match = regex_attr.Match(code);
+        var memory = code.AsMemory();
+
+        do
+        {
+            if (!match.Success)
+                yield break;
+
+            var type = match.Groups["Type"];
+            var name = match.Groups["Name"];
+
+            yield return new ShaderAttribute
+            (
+                memory.Slice(match.Index, match.Length),
+                memory.Slice(name.Index, name.Length),
+                memory.Slice(type.Index, type.Length)
+            );
+        }
+        while ((match = match.NextMatch()).Success);
+    }
+
     private static readonly Regex regex_attr = regex_attr_generator();
     private static readonly Regex regex_vert = regex_vert_generator();
     private static readonly Regex regex_frag = regex_frag_generator();
     private static readonly Regex regex_comp = regex_comp_generator();
-
-    private static readonly string template_glsl = @"
-#version 330 core
-#define extern uniform
-
-{{ content }}
-
-";
-
-    private static readonly string template_vert = @"
-void main()
-{
-{{ pass }}
-gl_Position = vert();
-}
-";
-
-    private static readonly string template_frag = @"
-out vec4 v_internal_Color;
-
-void main()
-{
-v_internal_Color = frag();
-}
-";
-
-    private static readonly string template_comp = @"
-void main()
-{
-comp();
-}
-";
+    private static readonly Regex regex_color = regex_color_generator();
 
     [GeneratedRegex("(?:attrib)\\s*(?<Type>\\w+)\\s*(?<Name>\\w+);", RegexOptions.Compiled)]
     private static partial Regex regex_attr_generator();
 
-    [GeneratedRegex("(?:vec4)\\s*(?:vert)\\(\\)", RegexOptions.Compiled)]
+    [GeneratedRegex("(?:void)\\s*(?:vert)\\(\\)", RegexOptions.Compiled)]
     private static partial Regex regex_vert_generator();
 
-    [GeneratedRegex("(?:vec4)\\s*(?:frag)\\(\\)", RegexOptions.Compiled)]
+    [GeneratedRegex("(?:void)\\s*(?:frag)\\(\\)", RegexOptions.Compiled)]
     private static partial Regex regex_frag_generator();
 
     [GeneratedRegex("(?:void)\\s*(?:comp)\\(\\)", RegexOptions.Compiled)]
     private static partial Regex regex_comp_generator();
+
+    [GeneratedRegex("SK_COLOR[0-7]", RegexOptions.Compiled)]
+    private static partial Regex regex_color_generator();
+
+    private static readonly string template_glsl = @"
+#version 330 core
+#extension GL_ARB_separate_shader_objects : enable
+#define extern uniform
+#define SK_POSITION gl_Position
+";
+
+    private static readonly string template_vert = @"
+{{ content }}
+void main()
+{
+{{ body }}
+vert();
+}
+";
+
+    private static readonly string template_frag = @"
+#define SK_POSITION gl_Position
+{{ head }}
+{{ content }}
+void main()
+{
+frag();
+}";
+    private static readonly string template_comp = @"
+{{ content }}
+void main()
+{
+comp();
+}";
+
+    private readonly record struct ShaderAttribute(ReadOnlyMemory<char> Line, ReadOnlyMemory<char> Name, ReadOnlyMemory<char> Type);
 }

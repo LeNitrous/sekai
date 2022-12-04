@@ -25,11 +25,7 @@ public class VertexLayout : IVertexLayout
     public void Add(IVertexLayout layout)
     {
         foreach (var member in layout.Members)
-        {
-            member.Offset = Stride;
-            members.Add(member);
-            Stride += member.Format.SizeOfFormat();
-        }
+            Add(member);
     }
 
     /// <summary>
@@ -37,12 +33,9 @@ public class VertexLayout : IVertexLayout
     /// </summary>
     public void Add(VertexMember member)
     {
-        if (members.Contains(member))
-            return;
-
         member.Offset = Stride;
         members.Add(member);
-        Stride += member.Format.SizeOfFormat();
+        Stride += member.Format.SizeOfFormat() * member.Count;
     }
 
     /// <summary>

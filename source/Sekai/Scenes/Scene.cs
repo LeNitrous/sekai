@@ -2,84 +2,59 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using Sekai.Allocation;
+using Sekai.Graphics;
 using Sekai.Processors;
+using Sekai.Rendering;
 
 namespace Sekai.Scenes;
 
+/// <summary>
+/// A container for all <see cref="Node"/>s.
+/// </summary>
 public class Scene : ActivateableObject
 {
+    /// <summary>
+    /// The root node of this scene.
+    /// </summary>
     public readonly Node Root;
-    public readonly Services Services = Services.Current.CreateScoped();
+
+    /// <summary>
+    /// The scene services.
+    /// </summary>
+    /// <remarks>
+    /// Services registered are only local to this scene and does not affect the global <see cref="Allocation.Services"/>.
+    /// </remarks>
+    public readonly ServiceContainer Services = Allocation.Services.CreateScoped();
+
+    /// <summary>
+    /// The scene collection where this scene is currently attached to.
+    /// </summary>
     public SceneCollection? Scenes { get; private set; }
-    private readonly Dictionary<Type, Processor> processors = new();
-    private readonly List<IRenderable> renderables = new();
-    private readonly List<IUpdateable> updateables = new();
+
+    internal readonly ProcessorCollection Processors = new();
 
     public Scene()
     {
         Root = CreateRootNode();
-        Add<BehaviorProcessor>();
+        Initialize(Processors);
     }
 
-    protected void Add<T>()
-        where T : Processor, new()
+    protected virtual void Initialize(ProcessorCollection processors)
     {
-        var processor = Activator.CreateInstance<T>();
-
-        if (processor is IRenderable renderable)
-            renderables.Add(renderable);
-
-        if (processor is IUpdateable updateable)
-            updateables.Add(updateable);
-
-        processors.Add(typeof(T), processor);
+        processors.Register<ScriptProcessor>();
+        processors.Register<BehaviorProcessor>();
     }
 
-    public T Get<T>()
-        where T : Processor, new()
+    internal void Update(double delta)
     {
-        if (!processors.TryGetValue(typeof(T), out var processor))
-            throw new KeyNotFoundException();
-
-        return Unsafe.As<T>(processor);
+        foreach (var processor in Processors)
+            processor.Update(delta);
     }
 
-    internal void Render()
-    {
-        foreach (var renderable in renderables)
-        {
-            if (!renderable.Enabled || !renderable.IsAttached)
-                continue;
+    protected override void OnAttach() => Processors.Attach(this);
 
-            renderable.Render();
-        }
-    }
-
-    internal void Update(double elapsed)
-    {
-        foreach (var updateable in updateables)
-        {
-            if (!updateable.Enabled || !updateable.IsAttached)
-                continue;
-
-            updateable.Update(elapsed);
-        }
-    }
-
-    protected override void OnAttach()
-    {
-        foreach (var processor in processors)
-            processor.Value.Attach(this);
-    }
-
-    protected override void OnDetach()
-    {
-        foreach (var processor in processors)
-            processor.Value.Detach(this);
-    }
+    protected override void OnDetach() => Processors.Detach(this);
 
     internal void Attach(SceneCollection scenes)
     {
@@ -116,4 +91,19 @@ public abstract class Scene<T> : Scene
     where T : Node
 {
     public new T Root => (T)base.Root;
+}
+
+public abstract class RenderableScene<T> : Scene<T>, IRenderableScene
+    where T : Node, IRenderableNode
+{
+    internal Renderer Renderer { get; }
+
+    public RenderableScene()
+    {
+        Renderer = CreateRenderer();
+    }
+
+    public void Render(GraphicsContext graphics) => Renderer.Render(graphics);
+
+    protected abstract Renderer CreateRenderer();
 }

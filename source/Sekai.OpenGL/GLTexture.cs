@@ -144,7 +144,6 @@ internal unsafe class GLTexture : GLResource, INativeTexture
     private void generateTexture()
     {
         GL.BindTexture(Target, textureId);
-        GL.TexParameterI(Target, TextureParameterName.GenerateMipmapSgis, (int)GLEnum.False);
         GL.TexParameterI(Target, TextureParameterName.TextureMinFilter, Min.ToGLEnumInt());
         GL.TexParameterI(Target, TextureParameterName.TextureMagFilter, Mag.ToGLEnumInt());
         GL.TexParameterI(Target, TextureParameterName.TextureWrapS, WrapModeS.ToGLEnumInt());

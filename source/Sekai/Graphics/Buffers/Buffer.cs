@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using Sekai.Graphics.Vertices;
 
 namespace Sekai.Graphics.Buffers;
@@ -87,7 +86,7 @@ public class Buffer<T> : Buffer
     where T : unmanaged
 {
     public Buffer(int count, bool dynamic = false)
-        : base(count * Marshal.SizeOf<T>(), dynamic)
+        : base(count * Unsafe.SizeOf<T>(), dynamic)
     {
     }
 

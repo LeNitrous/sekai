@@ -73,16 +73,12 @@ public abstract class Game : FrameworkObject
     /// <summary>
     /// Called every frame.
     /// </summary>
-    public virtual void Render()
-    {
-    }
+    public virtual void Render() => Scenes.Render(Graphics);
 
     /// <summary>
     /// Called every frame.
     /// </summary>
-    public virtual void Update(double elapsed)
-    {
-    }
+    public virtual void Update(double delta) => Scenes.Update(delta);
 
     /// <summary>
     /// Called before the game exits.

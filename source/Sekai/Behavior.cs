@@ -5,9 +5,15 @@ using Sekai.Processors;
 
 namespace Sekai;
 
-public abstract class Behavior : Scriptable
+/// <summary>
+/// Logical scripts that have an <see cref="Update"/> method called every frame.
+/// </summary>
+[Processor<BehaviorProcessor>]
+public abstract class Behavior : Script
 {
+    /// <summary>
+    /// Called every frame to perform custom logic.
+    /// </summary>
+    /// <param name="delta">Time taken between frames.</param>
     public abstract void Update(double delta);
-    protected override void OnActivate() => Scene?.Get<BehaviorProcessor>().Add(this);
-    protected override void OnDeactivate() => Scene?.Get<BehaviorProcessor>().Remove(this);
 }

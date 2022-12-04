@@ -15,10 +15,4 @@ public enum GlobalUniforms
     /// </summary>
     [Description("g_ProjMatrix")]
     Projection,
-
-    /// <summary>
-    /// The view matrix.
-    /// </summary>
-    [Description("g_ViewMatrix")]
-    View,
 }

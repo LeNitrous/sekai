@@ -19,13 +19,23 @@ public abstract class GraphicsObject : IDisposable
     /// <summary>
     /// The graphics context.
     /// </summary>
-    protected readonly GraphicsContext Context = Services.Current.Resolve<GraphicsContext>();
+    protected readonly GraphicsContext Context;
 
     private bool isQueuedForDisposal;
 
+    protected GraphicsObject(GraphicsContext context)
+    {
+        Context = context;
+    }
+
+    protected GraphicsObject()
+        : this(Services.Current.Resolve<GraphicsContext>())
+    {
+    }
+
     protected abstract void Destroy();
 
-    public void Dispose()
+    public virtual void Dispose()
     {
         if (isQueuedForDisposal)
             return;

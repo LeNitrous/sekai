@@ -33,6 +33,9 @@ public sealed class FrameBuffer : GraphicsObject
     {
         Native = Context.Factory.CreateFramebuffer();
 
+        if (color.Length > 8)
+            throw new ArgumentException(@"There cannot be more than 8 color attachments in a framebuffer.", nameof(color));
+
         if (depth.HasValue)
         {
             if (!depth.Value.Target.Format.IsDepthStencil() || depth.Value.Target.Type != TextureType.Texture2D)
@@ -46,7 +49,7 @@ public sealed class FrameBuffer : GraphicsObject
             if (attach.Target.Format.IsDepthStencil() || attach.Target.Type != TextureType.Texture2D)
                 throw new ArgumentException(@"Color attachment is not a valid color target.", nameof(color));
 
-            Native.SetDepthAttachment(attach.Target.Native, attach.Level, attach.Layer);
+            Native.AddColorAttachment(attach.Target.Native, attach.Level, attach.Layer);
         }
 
         Color = color;

@@ -44,9 +44,9 @@ public interface IGraphicsSystem : IDisposable
     void SetStencil(StencilInfo stencil);
 
     /// <summary>
-    /// Sets the viewport rectangle.
+    /// Sets the viewport.
     /// </summary>
-    void SetViewport(Rectangle viewport);
+    void SetViewport(Viewport viewport);
 
     /// <summary>
     /// Sets the scissor rectangle.
@@ -69,6 +69,16 @@ public interface IGraphicsSystem : IDisposable
     void SetBlendMask(BlendingMask mask);
 
     /// <summary>
+    /// Sets the face culling.
+    /// </summary>
+    void SetFaceCulling(FaceCulling culling);
+
+    /// <summary>
+    /// Sets the face winding.
+    /// </summary>
+    void SetFaceWinding(FaceWinding winding);
+
+    /// <summary>
     /// Sets the texture at a given unit.
     /// </summary>
     void SetTexture(INativeTexture? texture, int unit);
@@ -76,7 +86,7 @@ public interface IGraphicsSystem : IDisposable
     /// <summary>
     /// Sets the current active shader.
     /// </summary>
-    void SetShader(INativeShader shader);
+    void SetShader(INativeShader? shader);
 
     /// <summary>
     /// Sets the current index buffer.

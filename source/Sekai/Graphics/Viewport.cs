@@ -12,29 +12,34 @@ namespace Sekai.Graphics;
 public readonly struct Viewport : IEquatable<Viewport>
 {
     /// <summary>
+    /// Represents an empty <see cref="Viewport">.
+    /// </summary>
+    public static Viewport Empty => new(Rectangle.Empty, 0, 0);
+
+    /// <summary>
     /// The viewport X position.
     /// </summary>
-    public float X => Rectangle.X;
+    public int X => Rectangle.X;
 
     /// <summary>
     /// The viewport Y position.
     /// </summary>
-    public float Y => Rectangle.Y;
+    public int Y => Rectangle.Y;
 
     /// <summary>
     /// The viewport width.
     /// </summary>
-    public float Width => Rectangle.Width;
+    public int Width => Rectangle.Width;
 
     /// <summary>
     /// The viewport height.
     /// </summary>
-    public float Height => Rectangle.Height;
+    public int Height => Rectangle.Height;
 
     /// <summary>
     /// The viewport rectangle.
     /// </summary>
-    public readonly RectangleF Rectangle;
+    public readonly Rectangle Rectangle;
 
     /// <summary>
     /// The minimum depth.
@@ -46,9 +51,9 @@ public readonly struct Viewport : IEquatable<Viewport>
     /// </summary>
     public readonly float MaximumDepth;
 
-    public Viewport(float x, float y, float width, float height, float minDepth, float maxDepth)
+    public Viewport(int x, int y, int width, int height, float minDepth, float maxDepth)
     {
-        Rectangle = new RectangleF(x, y, width, height);
+        Rectangle = new Rectangle(x, y, width, height);
         MinimumDepth = minDepth;
         MaximumDepth = maxDepth;
     }

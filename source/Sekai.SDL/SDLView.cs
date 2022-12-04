@@ -52,6 +52,9 @@ internal unsafe class SDLView : FrameworkObject, IView, INativeWindowSource, IOp
         if (Sdl.GLSetAttribute(GLattr.ContextMinorVersion, 3) != 0)
             Sdl.ThrowError();
 
+        if (Sdl.GLSetAttribute(GLattr.ContextFlags, (int)GLcontextFlag.DebugFlag) != 0)
+            Sdl.ThrowError();
+
         Window = Sdl.CreateWindow("Sekai", Sdl.WindowposCentered, Sdl.WindowposCentered, 1280, 720, (uint)(WindowFlags.Hidden | WindowFlags.Opengl));
 
         native = new(() => new SDLNativeWindow(this));

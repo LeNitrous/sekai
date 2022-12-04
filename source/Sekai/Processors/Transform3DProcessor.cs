@@ -6,9 +6,9 @@ using Sekai.Scenes;
 
 namespace Sekai.Processors;
 
-public sealed class Transform3DProcessor : TransformProcessor<Node3D>
+public sealed class Transform3DProcessor : Processor<Node3D>
 {
-    internal override void Update(Node3D node)
+    protected override void Process(double delta, Node3D node)
     {
         var rot = Matrix4x4.CreateFromQuaternion(node.Transform.Rotation);
         var scale = Matrix4x4.CreateScale(node.Transform.Scale);

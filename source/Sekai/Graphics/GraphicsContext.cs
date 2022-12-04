@@ -33,7 +33,7 @@ public sealed class GraphicsContext : FrameworkObject
     /// <summary>
     /// The current viewport.
     /// </summary>
-    public Rectangle CurrentViewport { get; private set; }
+    public Viewport CurrentViewport { get; private set; }
 
     /// <summary>
     /// The current scissor rectangle.
@@ -56,6 +56,16 @@ public sealed class GraphicsContext : FrameworkObject
     public BlendingParameters CurrentBlend { get; private set; }
 
     /// <summary>
+    /// The current face winding.
+    /// </summary>
+    public FaceWinding CurrentFaceWinding { get; private set; }
+
+    /// <summary>
+    /// The current face culling.
+    /// </summary>
+    public FaceCulling CurrentFaceCulling { get; private set; }
+
+    /// <summary>
     /// The current shader.
     /// </summary>
     public Shader? CurrentShader { get; private set; }
@@ -76,14 +86,19 @@ public sealed class GraphicsContext : FrameworkObject
     public FrameBuffer? CurrentFrameBuffer { get; private set; }
 
     /// <summary>
-    /// The current view matrix.
-    /// </summary>
-    public Matrix4x4 CurrentViewMatrix { get; private set; }
-
-    /// <summary>
     /// The current projection matrix.
     /// </summary>
     public Matrix4x4 CurrentProjectionMatrix  { get; private set; }
+
+    /// <summary>
+    /// The default render target.
+    /// </summary>
+    public IRenderTarget BackBufferTarget => new BackBufferRenderTarget(this);
+
+    /// <summary>
+    /// The default texture.
+    /// </summary>
+    public Texture WhitePixel { get; }
 
     /// <summary>
     /// The underlying windowing system.
@@ -108,13 +123,12 @@ public sealed class GraphicsContext : FrameworkObject
     private readonly Queue<Action> disposals = new();
     private readonly Stack<StencilInfo> stencilStack = new();
     private readonly Stack<DepthInfo> depthStack = new();
-    private readonly Stack<Rectangle> viewportStack = new();
+    private readonly Stack<Viewport> viewportStack = new();
     private readonly Stack<Rectangle> scissorStack = new();
     private readonly Stack<bool> scissorStateStack = new();
     private readonly Stack<Shader> shaderStack = new();
-    private readonly Stack<FrameBuffer> frameBufferStack = new();
+    private readonly Stack<FrameBuffer?> frameBufferStack = new();
     private readonly Stack<Matrix4x4> projMatrixStack = new();
-    private readonly Stack<Matrix4x4> viewMatrixStack = new();
     private readonly Texture[] boundTextures = new Texture[16];
     private int prevBoundTextureUnit = -1;
     private IndexFormat? prevBoundIndexFormat;
@@ -128,6 +142,9 @@ public sealed class GraphicsContext : FrameworkObject
         Graphics.Initialize(view);
 
         Factory = graphics.CreateFactory();
+
+        WhitePixel = new Texture(this, Factory.CreateTexture(1, 1, 1, 1, 1, FilterMode.Nearest, FilterMode.Nearest, WrapMode.Repeat, WrapMode.Repeat, WrapMode.Repeat, TextureType.Texture2D, TextureUsage.Sampled, TextureSampleCount.Count1, PixelFormat.R8_G8_B8_A8_UNorm_SRgb));
+        WhitePixel.SetData(new byte[] { 255, 255, 255, 255 }, 0, 0, 0, 1, 1, 1, 0, 0);
     }
 
     /// <summary>
@@ -158,8 +175,7 @@ public sealed class GraphicsContext : FrameworkObject
         CurrentBlend = new();
         CurrentShader = null;
         CurrentScissor = Rectangle.Empty;
-        CurrentViewport = Rectangle.Empty;
-        CurrentViewMatrix = Matrix4x4.Identity;
+        CurrentViewport = Viewport.Empty;
         CurrentProjectionMatrix = Matrix4x4.Identity;
         CurrentFrameBuffer = null;
         CurrentIndexBuffer = null;
@@ -175,14 +191,13 @@ public sealed class GraphicsContext : FrameworkObject
         scissorStack.Clear();
         viewportStack.Clear();
         projMatrixStack.Clear();
-        viewMatrixStack.Clear();
         scissorStateStack.Clear();
         boundTextures.AsSpan().Clear();
 
         Graphics.Reset();
 
         PushScissorState(true);
-        PushViewport(new Rectangle(0, 0, View.Size.Width, View.Size.Height));
+        PushViewport(new Viewport(0, 0, View.Size.Width, View.Size.Height, 0, 1));
         PushScissor(new Rectangle(0, 0, View.Size.Width, View.Size.Height));
         PushDepth(new DepthInfo(true));
         PushStencil(new StencilInfo(false));
@@ -227,6 +242,30 @@ public sealed class GraphicsContext : FrameworkObject
     }
 
     /// <summary>
+    /// Sets the current face winding.
+    /// </summary>
+    public void SetFaceWinding(FaceWinding winding)
+    {
+        if (CurrentFaceWinding == winding)
+            return;
+
+        Graphics.SetFaceWinding(winding);
+        CurrentFaceWinding = winding;
+    }
+
+    /// <summary>
+    /// Sets the current face culling.
+    /// </summary>
+    public void SetFaceCulling(FaceCulling culling)
+    {
+        if (CurrentFaceCulling == culling)
+            return;
+
+        Graphics.SetFaceCulling(culling);
+        CurrentFaceCulling = culling;
+    }
+
+    /// <summary>
     /// Applies new depth parameters.
     /// </summary>
     public void PushDepth(DepthInfo depth)
@@ -247,7 +286,7 @@ public sealed class GraphicsContext : FrameworkObject
     /// <summary>
     /// Applies a new viewport rectangle.
     /// </summary>
-    public void PushViewport(Rectangle viewport)
+    public void PushViewport(Viewport viewport)
     {
         viewportStack.Push(viewport);
         setViewport(viewport);
@@ -339,19 +378,11 @@ public sealed class GraphicsContext : FrameworkObject
     public void PopProjectionMatrix()
     {
         projMatrixStack.Pop();
-        setProjectionMatrix(projMatrixStack.Peek());
-    }
 
-    public void PushViewMatrix(Matrix4x4 matrix)
-    {
-        viewMatrixStack.Push(matrix);
-        setViewMatrix(matrix);
-    }
+        if (!projMatrixStack.TryPeek(out var matrix))
+            matrix = Matrix4x4.Identity;
 
-    public void PopViewMatrix()
-    {
-        viewMatrixStack.Pop();
-        setViewMatrix(viewMatrixStack.Peek());
+        setProjectionMatrix(matrix);
     }
 
     internal void BindShader(Shader shader)
@@ -366,7 +397,15 @@ public sealed class GraphicsContext : FrameworkObject
             throw new InvalidOperationException(@"Attempting to unbind shader whilst not currently bound.");
 
         shaderStack.Pop();
-        setShader(shaderStack.Peek());
+
+        if (shaderStack.TryPeek(out var next))
+        {
+            setShader(next);
+        }
+        else
+        {
+            setShader(null);
+        }
     }
 
     internal void BindTexture(Texture texture, int unit)
@@ -379,9 +418,9 @@ public sealed class GraphicsContext : FrameworkObject
         prevBoundTextureUnit = unit;
     }
 
-    internal void UnbindTexture(int unit = 0)
+    internal void UnbindTexture(Texture texture, int unit = 0)
     {
-        if (boundTextures[unit] is null)
+        if (boundTextures[unit] is null || boundTextures[unit] != texture)
             return;
 
         Graphics.SetTexture(null, unit);
@@ -408,13 +447,13 @@ public sealed class GraphicsContext : FrameworkObject
         prevBoundVertexLayout = layout;
     }
 
-    internal void BindFrameBuffer(FrameBuffer frameBuffer)
+    internal void BindFrameBuffer(FrameBuffer? frameBuffer)
     {
         frameBufferStack.Push(frameBuffer);
         setFrameBuffer(frameBuffer);
     }
 
-    internal void UnbindFrameBuffer(FrameBuffer frameBuffer)
+    internal void UnbindFrameBuffer(FrameBuffer? frameBuffer)
     {
         if (CurrentFrameBuffer != frameBuffer)
             throw new InvalidOperationException(@"Attempting to unbind framebuffer whilst currently not bound.");
@@ -437,7 +476,7 @@ public sealed class GraphicsContext : FrameworkObject
         CurrentDepth = depth;
     }
 
-    private void setViewport(Rectangle viewport)
+    private void setViewport(Viewport viewport)
     {
         if (CurrentViewport == viewport)
             return;
@@ -473,13 +512,13 @@ public sealed class GraphicsContext : FrameworkObject
         CurrentStencil = stencil;
     }
 
-    private void setShader(Shader shader)
+    private void setShader(Shader? shader)
     {
         if (CurrentShader == shader)
             return;
 
-        Graphics.SetShader(shader.Native);
-        shader.Native.Update();
+        Graphics.SetShader(shader?.Native);
+        shader?.Native.Update();
 
         CurrentShader = shader;
     }
@@ -502,12 +541,29 @@ public sealed class GraphicsContext : FrameworkObject
         Uniforms.GetUniform<Matrix4x4>(GlobalUniforms.Projection).Value = matrix;
     }
 
-    private void setViewMatrix(Matrix4x4 matrix)
+    private struct BackBufferRenderTarget : IRenderTarget
     {
-        if (CurrentViewMatrix == matrix)
-            return;
+        public int Width => context.View.Size.Width;
+        public int Height => context.View.Size.Height;
+        private readonly GraphicsContext context;
 
-        CurrentViewMatrix = matrix;
-        Uniforms.GetUniform<Matrix4x4>(GlobalUniforms.View).Value = matrix;
+        public BackBufferRenderTarget(GraphicsContext context)
+        {
+            this.context = context;
+        }
+
+        public void Bind()
+        {
+            context.BindFrameBuffer(null);
+        }
+
+        public void Unbind()
+        {
+            context.UnbindFrameBuffer(null);
+        }
+
+        public void Dispose()
+        {
+        }
     }
 }

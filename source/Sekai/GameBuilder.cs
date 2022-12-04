@@ -70,7 +70,7 @@ public sealed class GameBuilder<T>
         storage.Mount("/", new NativeStorage(AppDomain.CurrentDomain.BaseDirectory));
         storage.Mount("/engine", new AssemblyBackedStorage(typeof(Game).Assembly, "Resources"));
 
-        Services.Current.Register(storage);
+        Services.Current.Cache(storage);
 
         var stream = storage.Open("/runtime.log");
         var writer = new LogListenerTextWriter(stream);
@@ -88,11 +88,11 @@ public sealed class GameBuilder<T>
         if (graphics is null || view is null)
             throw new InvalidOperationException(@"Cannot build the game without a graphics system or view.");
 
-        Services.Current.Register(game);
-        Services.Current.Register<Game>(game);
-        Services.Current.Register(options);
-        Services.Current.Register(new GraphicsContext(graphics, view));
-        Services.Current.Register(runner = new());
+        Services.Current.Cache(game);
+        Services.Current.Cache<Game>(game);
+        Services.Current.Cache(options);
+        Services.Current.Cache(new GraphicsContext(graphics, view));
+        Services.Current.Cache(runner = new());
 
         if (view is IWindow window)
         {
@@ -104,10 +104,10 @@ public sealed class GameBuilder<T>
         }
 
         if (audio is not null)
-            Services.Current.Register(new AudioContext());
+            Services.Current.Cache(new AudioContext());
 
-        Services.Current.Register<InputContext>();
-        Services.Current.Register<SceneCollection>();
+        Services.Current.Cache<InputContext>();
+        Services.Current.Cache<SceneCollection>();
 
         return game;
     }

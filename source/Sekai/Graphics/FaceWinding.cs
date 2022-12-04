@@ -12,6 +12,7 @@ public enum FaceWinding
     /// Clockwise winding order.
     /// </summary>
     Clockwise,
+
     /// <summary>
     /// Counter-clockwise winding order.
     /// </summary>

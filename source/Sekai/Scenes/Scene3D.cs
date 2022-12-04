@@ -9,16 +9,17 @@ namespace Sekai.Scenes;
 /// <summary>
 /// A scene capable of drawing three-dimensional objects.
 /// </summary>
-public sealed class Scene3D : Scene<Node3D>, IRenderableScene
+public sealed class Scene3D : RenderableScene<Node3D>
 {
-    public Camera3D? Camera { get; set; }
+    internal new Renderer3D Renderer => (Renderer3D)base.Renderer;
 
-    public Scene3D()
+    protected override void Initialize(ProcessorCollection processors)
     {
-        Add<Transform3DProcessor>();
+        base.Initialize(processors);
+        processors.Register<Camera3DProcessor>();
+        processors.Register<Transform3DProcessor>();
     }
 
     protected sealed override Node CreateRootNode() => new Node3D();
-
-    Camera? IRenderableScene.Camera => Camera;
+    protected override Renderer CreateRenderer() => new Renderer3D();
 }
