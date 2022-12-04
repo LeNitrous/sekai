@@ -18,6 +18,7 @@ public sealed class Camera3DProcessor : Processor<Camera3D>
         var target = camera.Target ?? context.BackBufferTarget;
         var position = camera.Owner?.Transform.Position ?? Vector3.Zero;
         var rotation = camera.Owner?.Transform.Rotation ?? Quaternion.Identity;
+
         camera.ViewMatrix = Matrix4x4.CreateLookAt(position, position + Vector3.Transform(-position, rotation), Vector3.UnitY);
         camera.ProjMatrix = camera.Projection == CameraProjectionMode.Perspective
             ? Matrix4x4.CreatePerspectiveFieldOfView(MathUtil.DegreesToRadians(camera.FieldOfView), camera.AspectRatio, camera.NearPlane, camera.FarPlane)
@@ -25,5 +26,11 @@ public sealed class Camera3DProcessor : Processor<Camera3D>
 
         var viewProjMatrix = camera.ProjMatrix * camera.ViewMatrix;
         camera.Frustum = new BoundingFrustum(ref viewProjMatrix);
+
+        Matrix4x4.Invert(camera.ViewMatrix, out var viewMatrixInverse);
+        camera.ViewMatrixInverse = viewMatrixInverse;
+
+        Matrix4x4.Invert(camera.ProjMatrix, out var projMatrixInverse);
+        camera.ProjMatrixInverse = projMatrixInverse;
     }
 }
