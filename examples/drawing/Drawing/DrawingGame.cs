@@ -36,11 +36,11 @@ public class DrawingGame : Game
 
         public override void Draw(Renderer2D renderer)
         {
-            for (int x = 0; x < 100; x++)
+            for (int x = 0; x < 25; x++)
             {
-                for (int y = 0; y < 100; y++)
+                for (int y = 0; y < 25; y++)
                 {
-                    renderer.Draw(new Rectangle(x * 15, y * 15, 10, 10));
+                    renderer.Draw(new Rectangle(x * 15, y * 15, 10, 10), new Color4(0.4f));
                 }
             }
         }
