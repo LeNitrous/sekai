@@ -198,6 +198,8 @@ public sealed partial class Shader : GraphicsObject
                 throw new ArgumentException(@"Invalid shader code.", nameof(code));
         }
 
+        // This should be a span as well but unfortunately they removed the Replace APIs for ReadOnlySpan<char>
+        // Replace this as a span once this has been added: https://github.com/dotnet/runtime/issues/29758
         return code[start..current];
     }
 
@@ -262,7 +264,6 @@ vert();
 ";
 
     private static readonly string template_frag = @"
-#define SK_POSITION gl_Position
 {{ head }}
 {{ content }}
 void main()
