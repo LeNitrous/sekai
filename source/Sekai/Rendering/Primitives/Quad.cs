@@ -43,7 +43,7 @@ public struct Quad : IPrimitive<Vector2>, IEquatable<Quad>
         TopRight = topRight;
     }
 
-    public ReadOnlySpan<Vector2> GetVertices() => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef(in TopLeft), 4);
+    public ReadOnlySpan<Vector2> GetPoints() => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef(in TopLeft), 4);
 
 
     public override bool Equals(object? obj)

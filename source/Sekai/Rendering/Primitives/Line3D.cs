@@ -30,7 +30,7 @@ public struct Line3D : IPrimitive<Vector3>, IEquatable<Line3D>
         End = end;
     }
 
-    public ReadOnlySpan<Vector3> GetVertices() => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef(in Start), 2);
+    public ReadOnlySpan<Vector3> GetPoints() => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef(in Start), 2);
 
     public override bool Equals(object? obj)
     {

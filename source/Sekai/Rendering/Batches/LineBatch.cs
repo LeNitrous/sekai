@@ -12,10 +12,10 @@ namespace Sekai.Rendering.Batches;
 /// <summary>
 /// A line batch renderer.
 /// </summary>
-public abstract class LineBatch<TPrimitive, TVertex, TVector> : RenderBatch<TPrimitive, TVertex, TVector>
-    where TPrimitive : unmanaged, IPrimitive<TVector>
+public abstract class LineBatch<TPrimitive, TVertex, TPoint> : RenderBatch<TPrimitive, TVertex, TPoint>
+    where TPrimitive : unmanaged, IPrimitive<TPoint>
     where TVertex : unmanaged, IVertex, IColoredVertex
-    where TVector : struct, IEquatable<TVector>
+    where TPoint : unmanaged, IEquatable<TPoint>
 {
     /// <summary>
     /// Gets the current color or sets the color after flushing the current batch.
@@ -46,13 +46,9 @@ public abstract class LineBatch<TPrimitive, TVertex, TVector> : RenderBatch<TPri
     {
     }
 
-    protected sealed override ReadOnlySpan<ushort> CreateIndices(int maxIndexCount)
+    protected sealed override void CreateIndices(Span<ushort> indices)
     {
-        Span<ushort> indices = new ushort[maxIndexCount];
-
-        for (ushort i = 0; i < maxIndexCount; i++)
+        for (ushort i = 0; i < indices.Length; i++)
             indices[i] = i;
-
-        return indices;
     }
 }

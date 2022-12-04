@@ -18,14 +18,10 @@ public sealed class LineBatch3D : LineBatch<Line3D, ColoredVertex3D, Vector3>
 
     protected override Shader CreateShader() => new(shader);
 
-    protected override ReadOnlySpan<ColoredVertex3D> CreateVertices(ReadOnlySpan<Vector3> positions)
+    protected override void CreateVertices(Span<ColoredVertex3D> vertices, ReadOnlySpan<Vector3> positions)
     {
-        Span<ColoredVertex3D> vertices = new ColoredVertex3D[positions.Length];
-
         for (int i = 0; i < positions.Length; i++)
             vertices[i] = new ColoredVertex3D { Position = positions[i], Color = Color };
-
-        return vertices;
     }
 
     private static readonly string shader = @"

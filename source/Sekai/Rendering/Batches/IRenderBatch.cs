@@ -23,9 +23,15 @@ public interface IRenderBatch : IDisposable
 }
 
 /// <inheritdoc cref="IRenderBatch"/>
-public interface IRenderBatch<T, U> : IRenderBatch
+public interface IRenderBatch<T> : IRenderBatch
+    where T : unmanaged, IPrimitive
+{
+}
+
+/// <inheritdoc cref="IRenderBatch"/>
+public interface IRenderBatch<T, U> : IRenderBatch<T>
     where T : unmanaged, IPrimitive<U>
-    where U : struct, IEquatable<U>
+    where U : unmanaged, IEquatable<U>
 {
     /// <summary>
     /// Collects a primitive.

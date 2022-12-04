@@ -8,11 +8,19 @@ namespace Sekai.Rendering.Primitives;
 /// <summary>
 /// A geometric primitive.
 /// </summary>
-public interface IPrimitive<T>
+public interface IPrimitive
+{
+}
+
+/// <summary>
+/// A strongly typed geometric primitive.
+/// </summary>
+public interface IPrimitive<T> : IPrimitive
+    where T : unmanaged, IEquatable<T>
 {
     /// <summary>
-    /// Retrieves the vertices of this primitive.
+    /// Retrieves the points of this primitive.
     /// </summary>
-    /// <returns>The polygon's vertices.</returns>
-    ReadOnlySpan<T> GetVertices();
+    /// <returns>The polygon's points.</returns>
+    ReadOnlySpan<T> GetPoints();
 }

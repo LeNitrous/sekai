@@ -1,10 +1,14 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
+using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using Sekai.Graphics;
 using Sekai.Mathematics;
+using Sekai.Rendering.Batches;
+using Sekai.Rendering.Primitives;
 
 namespace Sekai.Rendering;
 
@@ -13,13 +17,15 @@ public abstract class Renderer : FrameworkObject
     internal abstract void Render(GraphicsContext graphics);
 }
 
-public abstract class Renderer<T, U> : Renderer
-    where T : Drawable
-    where U : Camera
+public abstract class Renderer<TDrawable, TCamera> : Renderer
+    where TDrawable : Drawable
+    where TCamera : Camera
 {
-    private readonly List<U> cameras = new();
-    private readonly List<T> drawables = new();
-    private readonly IComparer<T> comparer;
+    private IRenderBatch? currentRenderBatch;
+    private readonly List<TCamera> cameras = new();
+    private readonly List<TDrawable> drawables = new();
+    private readonly IComparer<TDrawable> comparer;
+    private readonly Dictionary<Type, IRenderBatch> batches = new();
 
     public Renderer()
     {
@@ -28,11 +34,12 @@ public abstract class Renderer<T, U> : Renderer
 
     internal sealed override void Render(GraphicsContext graphics)
     {
-        var cameras = this.cameras.ToArray();
-        var drawables = this.drawables.ToArray();
+        // This will be unsafe once we delve into multithreading!
+        var cameras = CollectionsMarshal.AsSpan(this.cameras);
+        var drawables = CollectionsMarshal.AsSpan(this.drawables);
 
-        var frontToBack = new List<T>();
-        var backToFront = new List<T>();
+        var frontToBack = new List<TDrawable>();
+        var backToFront = new List<TDrawable>();
 
         foreach (var drawable in drawables)
         {
@@ -51,9 +58,7 @@ public abstract class Renderer<T, U> : Renderer
             }
         }
 
-        frontToBack.Sort(comparer);
         backToFront.Sort(comparer);
-        backToFront.Reverse();
 
         foreach (var camera in cameras)
         {
@@ -61,17 +66,26 @@ public abstract class Renderer<T, U> : Renderer
 
             target.Bind();
 
-            foreach (var drawable in frontToBack)
-                renderDrawable(graphics, camera, drawable);
+            if (frontToBack.Count > 0)
+            {
+                foreach (var drawable in frontToBack)
+                    renderDrawable(graphics, camera, drawable);
+            }
 
-            foreach (var drawable in backToFront)
-                renderDrawable(graphics, camera, drawable);
+            if (backToFront.Count > 0)
+            {
+                for (int i = backToFront.Count - 1; i <= 0; i--)
+                {
+                    var drawable = backToFront[i];
+                    renderDrawable(graphics, camera, drawable);
+                }
+            }
 
             target.Unbind();
         }
     }
 
-    internal void Add(T drawable)
+    internal void Add(TDrawable drawable)
     {
         if (drawables.Contains(drawable))
             return;
@@ -79,12 +93,12 @@ public abstract class Renderer<T, U> : Renderer
         drawables.Add(drawable);
     }
 
-    internal void Remove(T drawable)
+    internal void Remove(TDrawable drawable)
     {
         drawables.Remove(drawable);
     }
 
-    internal void Add(U camera)
+    internal void Add(TCamera camera)
     {
         if (cameras.Contains(camera))
             return;
@@ -92,38 +106,23 @@ public abstract class Renderer<T, U> : Renderer
         cameras.Add(camera);
     }
 
-    internal void Remove(U camera)
+    internal void Remove(TCamera camera)
     {
         cameras.Remove(camera);
     }
 
-    private void renderDrawable(GraphicsContext graphics, U camera, T drawable)
+    private void renderDrawable(GraphicsContext graphics, TCamera camera, TDrawable drawable)
     {
         if (IsCulled(camera, drawable))
             return;
 
         var matrix = camera.ProjMatrix * camera.ViewMatrix * (drawable.Transform?.WorldMatrix ?? Matrix4x4.Identity);
         graphics.PushProjectionMatrix(matrix);
-        OnDrawStart(graphics);
 
         drawable.Draw(this);
 
-        OnDrawEnd(graphics);
+        ClearRenderBatch();
         graphics.PopProjectionMatrix();
-    }
-
-    /// <summary>
-    /// Called before drawables begin drawing.
-    /// </summary>
-    protected virtual void OnDrawStart(GraphicsContext graphics)
-    {
-    }
-
-    /// <summary>
-    /// Called after drawables end drawing.
-    /// </summary>
-    protected virtual void OnDrawEnd(GraphicsContext graphics)
-    {
     }
 
     /// <summary>
@@ -134,7 +133,7 @@ public abstract class Renderer<T, U> : Renderer
     /// if the drawable has a non-empty bounding box, is inside the camera's frustum. Otherwise, it is
     /// never culled from rendering.
     /// </remarks>
-    protected virtual bool IsCulled(U camera, T drawable)
+    protected virtual bool IsCulled(TCamera camera, TDrawable drawable)
     {
         if ((camera.Groups & drawable.Group) != 0)
             return true;
@@ -151,5 +150,40 @@ public abstract class Renderer<T, U> : Renderer
     /// <summary>
     /// Creates an <see cref="IComparer{T}"/> for depth-comparison.
     /// </summary>
-    protected abstract IComparer<T> CreateComparer();
+    protected abstract IComparer<TDrawable> CreateComparer();
+
+    protected void AddRenderBatch<TPrimitive>(IRenderBatch<TPrimitive> batch)
+        where TPrimitive : unmanaged, IPrimitive
+    {
+        if (batches.ContainsKey(typeof(TPrimitive)))
+            throw new ArgumentException(@"A render batch with the given key has already been added", nameof(TPrimitive));
+
+        batches.Add(typeof(TPrimitive), batch);
+    }
+
+    protected IRenderBatch<TPrimitive> GetRenderBatch<TPrimitive>()
+        where TPrimitive : unmanaged, IPrimitive
+    {
+        if (!batches.TryGetValue(typeof(TPrimitive), out var batch))
+            throw new Exception();
+
+        if (currentRenderBatch != batch)
+        {
+            currentRenderBatch?.End();
+            currentRenderBatch = batch;
+            currentRenderBatch.Begin();
+        }
+
+        return (IRenderBatch<TPrimitive>)batch;
+    }
+
+    protected void ClearRenderBatch()
+    {
+        if (currentRenderBatch is null)
+            return;
+
+        currentRenderBatch.End();
+        currentRenderBatch = null;
+    }
 }
+

@@ -69,11 +69,9 @@ public class QuadBatch : RenderBatch<Quad, TexturedVertex2D, Vector2>, IRenderBa
         texture.Unbind();
     }
 
-    protected override ReadOnlySpan<ushort> CreateIndices(int maxIndexCount)
+    protected override void CreateIndices(Span<ushort> indices)
     {
-        Span<ushort> indices = new ushort[maxIndexCount];
-
-        for (int i = 0, j = 0; j < maxIndexCount; i += 4, j += 6)
+        for (int i = 0, j = 0; j < indices.Length; i += 4, j += 6)
         {
             indices[j + 0] = (ushort)(i + 0);
             indices[j + 1] = (ushort)(i + 1);
@@ -82,14 +80,10 @@ public class QuadBatch : RenderBatch<Quad, TexturedVertex2D, Vector2>, IRenderBa
             indices[j + 4] = (ushort)(i + 3);
             indices[j + 5] = (ushort)(i + 0);
         }
-
-        return indices;
     }
 
-    protected override ReadOnlySpan<TexturedVertex2D> CreateVertices(ReadOnlySpan<Vector2> vector)
+    protected override void CreateVertices(Span<TexturedVertex2D> vertices, ReadOnlySpan<Vector2> vector)
     {
-        Span<TexturedVertex2D> vertices = new TexturedVertex2D[4];
-
         vertices[0] = new()
         {
             Color = Color,
@@ -117,8 +111,6 @@ public class QuadBatch : RenderBatch<Quad, TexturedVertex2D, Vector2>, IRenderBa
             TexCoord = Vector2.One,
             Position = vector[3],
         };
-
-        return vertices;
     }
 
     private static readonly string shader = @"

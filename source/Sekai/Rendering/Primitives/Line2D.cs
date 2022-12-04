@@ -45,7 +45,7 @@ public struct Line2D : IPrimitive<Vector2>, IEquatable<Line2D>
         return HashCode.Combine(Start, End);
     }
 
-    public ReadOnlySpan<Vector2> GetVertices() => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef(in Start), 2);
+    public ReadOnlySpan<Vector2> GetPoints() => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef(in Start), 2);
 
     public static bool operator ==(Line2D left, Line2D right)
     {

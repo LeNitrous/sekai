@@ -11,10 +11,10 @@ using Sekai.Rendering.Primitives;
 namespace Sekai.Rendering.Batches;
 
 /// <inheritdoc cref="IRenderBatch"/>
-public abstract class RenderBatch<TPrimitive, TVertex, TVector> : FrameworkObject, IRenderBatch<TPrimitive, TVector>
-    where TPrimitive : unmanaged, IPrimitive<TVector>
+public abstract class RenderBatch<TPrimitive, TVertex, TPoint> : FrameworkObject, IRenderBatch<TPrimitive, TPoint>
+    where TPrimitive : unmanaged, IPrimitive<TPoint>
     where TVertex : unmanaged, IVertex
-    where TVector : struct, IEquatable<TVector>
+    where TPoint : unmanaged, IEquatable<TPoint>
 {
     /// <summary>
     /// Gets whether this batch has begun and can collect primitives.
@@ -47,7 +47,7 @@ public abstract class RenderBatch<TPrimitive, TVertex, TVector> : FrameworkObjec
     private int currentVertexCount;
     private readonly int maxPrimitiveCount;
     private readonly Shader shader;
-    private readonly TVertex[] vArray;
+    private readonly TVertex[] vertices;
     private readonly Graphics.Buffers.Buffer<ushort> iBuffer;
     private readonly Graphics.Buffers.Buffer<TVertex> vBuffer;
 
@@ -57,15 +57,13 @@ public abstract class RenderBatch<TPrimitive, TVertex, TVector> : FrameworkObjec
 
         shader = CreateShader();
 
-        var indices = CreateIndices(maxIndexCount);
-
-        if (indices.Length != maxIndexCount)
-            throw new InvalidOperationException($"Unexpected index count. Expected {maxIndexCount}, got {indices.Length}.");
+        Span<ushort> indices = stackalloc ushort[maxIndexCount];
+        CreateIndices(indices);
 
         iBuffer = new(maxIndexCount);
         iBuffer.SetData(indices);
 
-        vArray = new TVertex[maxVertexCount];
+        vertices = new TVertex[maxVertexCount];
         vBuffer = new(maxVertexCount, true);
     }
 
@@ -106,16 +104,10 @@ public abstract class RenderBatch<TPrimitive, TVertex, TVector> : FrameworkObjec
     {
         EnsureStarted();
 
-        var vertices = CreateVertices(primitive.GetVertices());
-
-        if (vertices.Length != PrimitiveVertexCount)
-            throw new InvalidOperationException($"Unexpected vertex count. Expected {PrimitiveVertexCount}, got {vertices.Length}.");
-
-        if (currentVertexCount + vertices.Length > maxVertexCount)
+        if (currentVertexCount + PrimitiveVertexCount > maxVertexCount)
             Flush();
 
-        for (int i = 0; i < PrimitiveVertexCount; i++)
-            vArray[currentVertexCount + i] = vertices[i];
+        CreateVertices(vertices.AsSpan(currentVertexCount, PrimitiveVertexCount), primitive.GetPoints());
 
         currentVertexCount += PrimitiveVertexCount;
     }
@@ -130,9 +122,9 @@ public abstract class RenderBatch<TPrimitive, TVertex, TVector> : FrameworkObjec
         if (currentVertexCount == 0)
             return;
 
-        vBuffer.SetData(vArray);
+        vBuffer.SetData(vertices);
         Context.Draw(maxIndexCount, Topology);
-        vArray.AsSpan().Clear();
+        vertices.AsSpan().Clear();
         currentVertexCount = 0;
     }
 
@@ -168,10 +160,10 @@ public abstract class RenderBatch<TPrimitive, TVertex, TVector> : FrameworkObjec
     /// <summary>
     /// Creates a vertex for a given position vector.
     /// </summary>
-    protected abstract ReadOnlySpan<TVertex> CreateVertices(ReadOnlySpan<TVector> vector);
+    protected abstract void CreateVertices(Span<TVertex> buffer, ReadOnlySpan<TPoint> vector);
 
     /// <summary>
     /// Creates a span of indices used by the index buffer.
     /// </summary>
-    protected abstract ReadOnlySpan<ushort> CreateIndices(int maxVertexCount);
+    protected abstract void CreateIndices(Span<ushort> buffer);
 }

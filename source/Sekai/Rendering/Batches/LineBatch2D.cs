@@ -18,14 +18,10 @@ public sealed class LineBatch2D : LineBatch<Line2D, ColoredVertex2D, Vector2>, I
 
     protected override Shader CreateShader() => new(shader);
 
-    protected override ReadOnlySpan<ColoredVertex2D> CreateVertices(ReadOnlySpan<Vector2> positions)
+    protected override void CreateVertices(Span<ColoredVertex2D> vertices, ReadOnlySpan<Vector2> positions)
     {
-        Span<ColoredVertex2D> vertices = new ColoredVertex2D[positions.Length];
-
         for (int i = 0; i < positions.Length; i++)
             vertices[i] = new ColoredVertex2D { Position = positions[i], Color = Color };
-
-        return vertices;
     }
 
     private static readonly string shader = @"
