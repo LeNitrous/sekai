@@ -81,10 +81,13 @@ public class VertexLayout : IVertexLayout
 
     internal static IVertexLayout From(Type type)
     {
+        if (cache.TryGetValue(type, out var layout))
+            return layout;
+
         if (!type.IsAssignableTo(typeof(IVertex)))
             throw new ArgumentException(@$"""{type}"" does not implement {nameof(IVertex)}.");
 
-        var layout = new VertexLayout();
+        layout = new VertexLayout();
         buildLayout(type, layout);
 
         static void buildLayout(Type t, VertexLayout layout)
@@ -110,6 +113,7 @@ public class VertexLayout : IVertexLayout
             }
         }
 
+        cache.Add(type, layout);
         return layout;
     }
 
@@ -127,6 +131,8 @@ public class VertexLayout : IVertexLayout
     {
         return other is not null && Enumerable.SequenceEqual(members, other.Members, EqualityComparer<VertexMember>.Default);
     }
+
+    private static readonly Dictionary<Type, VertexLayout> cache = new();
 
     private static readonly Dictionary<Type, VertexMemberFormat> formatMap = new()
     {
