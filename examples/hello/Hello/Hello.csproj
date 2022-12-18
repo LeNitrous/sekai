@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../../source/Sekai/Sekai.csproj" />
+    <ProjectReference Include="../../../source/Sekai.SDL/Sekai.SDL.csproj" />
+    <ProjectReference Include="../../../source/Sekai.OpenGL/Sekai.OpenGL.csproj" />
+  </ItemGroup>
+
+</Project>
