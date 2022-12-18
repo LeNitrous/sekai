@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using Sekai.Graphics;
+using Sekai.Graphics.Vertices;
 using Sekai.Mathematics;
 using Sekai.Rendering.Batches;
-using Sekai.Rendering.Primitives;
 
 namespace Sekai.Rendering;
 
@@ -21,7 +21,7 @@ public abstract class Renderer<TDrawable, TCamera> : Renderer
     where TDrawable : Drawable
     where TCamera : Camera
 {
-    private IRenderBatch? currentRenderBatch;
+    private IRenderBatch? currentBatch;
     private readonly List<TCamera> cameras = new();
     private readonly List<TDrawable> drawables = new();
     private readonly IComparer<TDrawable> comparer;
@@ -120,8 +120,8 @@ public abstract class Renderer<TDrawable, TCamera> : Renderer
         graphics.PushProjectionMatrix(matrix);
 
         drawable.Draw(this);
+        ClearCurrentBatch();
 
-        ClearRenderBatch();
         graphics.PopProjectionMatrix();
     }
 
@@ -152,38 +152,36 @@ public abstract class Renderer<TDrawable, TCamera> : Renderer
     /// </summary>
     protected abstract IComparer<TDrawable> CreateComparer();
 
-    protected void AddRenderBatch<TPrimitive>(IRenderBatch<TPrimitive> batch)
-        where TPrimitive : unmanaged, IPrimitive
+    protected void AddBatch<T>(IRenderBatch batch)
+        where T : unmanaged
     {
-        if (batches.ContainsKey(typeof(TPrimitive)))
-            throw new ArgumentException(@"A render batch with the given key has already been added", nameof(TPrimitive));
+        if (batches.ContainsKey(typeof(T)))
+            throw new InvalidOperationException();
 
-        batches.Add(typeof(TPrimitive), batch);
+        batches.Add(typeof(T), batch);
     }
 
-    protected IRenderBatch<TPrimitive> GetRenderBatch<TPrimitive>()
-        where TPrimitive : unmanaged, IPrimitive
+    protected IRenderBatch<U> GetBatch<T, U>()
+        where T : unmanaged
+        where U : unmanaged, IVertex
     {
-        if (!batches.TryGetValue(typeof(TPrimitive), out var batch))
-            throw new Exception();
+        if (!batches.TryGetValue(typeof(T), out var batch))
+            throw new InvalidOperationException();
 
-        if (currentRenderBatch != batch)
+        if (currentBatch != batch)
         {
-            currentRenderBatch?.End();
-            currentRenderBatch = batch;
-            currentRenderBatch.Begin();
+            currentBatch?.End();
+            currentBatch = batch;
+            currentBatch.Begin();
         }
 
-        return (IRenderBatch<TPrimitive>)batch;
+        return (IRenderBatch<U>)batch;
     }
 
-    protected void ClearRenderBatch()
+    protected virtual void ClearCurrentBatch()
     {
-        if (currentRenderBatch is null)
-            return;
-
-        currentRenderBatch.End();
-        currentRenderBatch = null;
+        currentBatch?.End();
+        currentBatch = null;
     }
 }
 

@@ -37,7 +37,7 @@ public abstract class GraphicsObject : IDisposable
 
     public virtual void Dispose()
     {
-        if (isQueuedForDisposal)
+        if (IsDisposed || isQueuedForDisposal)
             return;
 
         isQueuedForDisposal = true;

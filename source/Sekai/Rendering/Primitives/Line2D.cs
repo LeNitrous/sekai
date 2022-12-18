@@ -3,7 +3,6 @@
 
 using System;
 using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Sekai.Rendering.Primitives;
@@ -12,7 +11,7 @@ namespace Sekai.Rendering.Primitives;
 /// A line in two-dimensional space.
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-public struct Line2D : IPrimitive<Vector2>, IEquatable<Line2D>
+public struct Line2D : IEquatable<Line2D>
 {
     /// <summary>
     /// The start point.
@@ -44,8 +43,6 @@ public struct Line2D : IPrimitive<Vector2>, IEquatable<Line2D>
     {
         return HashCode.Combine(Start, End);
     }
-
-    public ReadOnlySpan<Vector2> GetPoints() => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef(in Start), 2);
 
     public static bool operator ==(Line2D left, Line2D right)
     {

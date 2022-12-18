@@ -3,7 +3,6 @@
 
 using System;
 using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Sekai.Mathematics;
 
@@ -13,7 +12,7 @@ namespace Sekai.Rendering.Primitives;
 /// A polygon with 4 sides.
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-public struct Quad : IPrimitive<Vector2>, IEquatable<Quad>
+public struct Quad2D : IEquatable<Quad2D>
 {
     /// <summary>
     /// The quad's top left vertex position.
@@ -35,7 +34,7 @@ public struct Quad : IPrimitive<Vector2>, IEquatable<Quad>
     /// </summary>
     public Vector2 TopRight;
 
-    public Quad(Vector2 topLeft, Vector2 bottomLeft, Vector2 bottomRight, Vector2 topRight)
+    public Quad2D(Vector2 topLeft, Vector2 bottomLeft, Vector2 bottomRight, Vector2 topRight)
     {
         TopLeft = topLeft;
         BottomLeft = bottomLeft;
@@ -43,15 +42,12 @@ public struct Quad : IPrimitive<Vector2>, IEquatable<Quad>
         TopRight = topRight;
     }
 
-    public ReadOnlySpan<Vector2> GetPoints() => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef(in TopLeft), 4);
-
-
     public override bool Equals(object? obj)
     {
-        return obj is Quad quad && Equals(quad);
+        return obj is Quad2D quad && Equals(quad);
     }
 
-    public bool Equals(Quad other)
+    public bool Equals(Quad2D other)
     {
         return TopLeft.Equals(other.TopLeft) &&
                BottomLeft.Equals(other.BottomLeft) &&
@@ -64,17 +60,17 @@ public struct Quad : IPrimitive<Vector2>, IEquatable<Quad>
         return HashCode.Combine(TopLeft, BottomLeft, BottomRight, TopRight);
     }
 
-    public static bool operator ==(Quad left, Quad right)
+    public static bool operator ==(Quad2D left, Quad2D right)
     {
         return left.Equals(right);
     }
 
-    public static bool operator !=(Quad left, Quad right)
+    public static bool operator !=(Quad2D left, Quad2D right)
     {
         return !(left == right);
     }
 
-    public static implicit operator Quad(RectangleF rectangle) => new
+    public static implicit operator Quad2D(RectangleF rectangle) => new
     (
         new Vector2(rectangle.Left, rectangle.Top),
         new Vector2(rectangle.Right, rectangle.Top),
@@ -82,7 +78,7 @@ public struct Quad : IPrimitive<Vector2>, IEquatable<Quad>
         new Vector2(rectangle.Right, rectangle.Bottom)
     );
 
-    public static implicit operator Quad(Rectangle rectangle) => new
+    public static implicit operator Quad2D(Rectangle rectangle) => new
     (
         new Vector2(rectangle.Left, rectangle.Top),
         new Vector2(rectangle.Right, rectangle.Top),

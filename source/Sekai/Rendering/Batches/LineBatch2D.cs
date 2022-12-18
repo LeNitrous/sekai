@@ -1,15 +1,13 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-using System;
-using System.Numerics;
 using Sekai.Graphics.Shaders;
 using Sekai.Graphics.Vertices;
-using Sekai.Rendering.Primitives;
 
 namespace Sekai.Rendering.Batches;
 
-public sealed class LineBatch2D : LineBatch<Line2D, ColoredVertex2D, Vector2>, IRenderBatch2D<Line2D>
+public sealed class LineBatch2D<T> : LineBatch<T>
+    where T : unmanaged, IVertex2D, IColoredVertex
 {
     public LineBatch2D(int maxLineCount)
         : base(maxLineCount)
@@ -17,12 +15,6 @@ public sealed class LineBatch2D : LineBatch<Line2D, ColoredVertex2D, Vector2>, I
     }
 
     protected override Shader CreateShader() => new(shader);
-
-    protected override void CreateVertices(Span<ColoredVertex2D> vertices, ReadOnlySpan<Vector2> positions)
-    {
-        for (int i = 0; i < positions.Length; i++)
-            vertices[i] = new ColoredVertex2D { Position = positions[i], Color = Color };
-    }
 
     private static readonly string shader = @"
 attrib vec2 a_Position;

@@ -3,7 +3,6 @@
 
 using System;
 using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace Sekai.Rendering.Primitives;
@@ -12,7 +11,7 @@ namespace Sekai.Rendering.Primitives;
 /// A line in three-dimensional space.
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-public struct Line3D : IPrimitive<Vector3>, IEquatable<Line3D>
+public struct Line3D : IEquatable<Line3D>
 {
     /// <summary>
     /// The start point.
@@ -29,8 +28,6 @@ public struct Line3D : IPrimitive<Vector3>, IEquatable<Line3D>
         Start = start;
         End = end;
     }
-
-    public ReadOnlySpan<Vector3> GetPoints() => MemoryMarshal.CreateReadOnlySpan(ref Unsafe.AsRef(in Start), 2);
 
     public override bool Equals(object? obj)
     {

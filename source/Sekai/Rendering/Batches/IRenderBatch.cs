@@ -1,40 +1,20 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-using System;
-using Sekai.Rendering.Primitives;
+using Sekai.Graphics.Vertices;
 
 namespace Sekai.Rendering.Batches;
 
-/// <summary>
-/// Allows batching renderables to effectively reduce draw calls.
-/// </summary>
-public interface IRenderBatch : IDisposable
+public interface IRenderBatch
 {
-    /// <summary>
-    /// Starts the batcher.
-    /// </summary>
+    bool HasStarted { get; }
     void Begin();
-
-    /// <summary>
-    /// Ends the batcher flushing its current batch.
-    /// </summary>
+    void Flush();
     void End();
 }
 
-/// <inheritdoc cref="IRenderBatch"/>
 public interface IRenderBatch<T> : IRenderBatch
-    where T : unmanaged, IPrimitive
+    where T : unmanaged, IVertex
 {
-}
-
-/// <inheritdoc cref="IRenderBatch"/>
-public interface IRenderBatch<T, U> : IRenderBatch<T>
-    where T : unmanaged, IPrimitive<U>
-    where U : unmanaged, IEquatable<U>
-{
-    /// <summary>
-    /// Collects a primitive.
-    /// </summary>
-    void Collect(T primitive);
+    void Add(T vertex);
 }
