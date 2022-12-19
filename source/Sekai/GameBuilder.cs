@@ -18,12 +18,12 @@ namespace Sekai;
 public sealed class GameBuilder<T>
     where T : Game, new()
 {
-    private IView? view;
-    private IAudioSystem? audio;
-    private IGraphicsSystem? graphics;
     private readonly T game;
     private readonly GameOptions options;
     private GameRunner? runner;
+    private Lazy<IView>? view;
+    private Lazy<IAudioSystem>? audio;
+    private Lazy<IGraphicsSystem>? graphics;
     private readonly Queue<Action> preBuildAction = new();
     private readonly Queue<Action> postBuildAction = new();
 
@@ -36,7 +36,7 @@ public sealed class GameBuilder<T>
     public GameBuilder<T> UseAudio<U>()
         where U : IAudioSystem, new()
     {
-        audio = new U();
+        audio = new(() => new U());
         return this;
     }
 
@@ -46,7 +46,7 @@ public sealed class GameBuilder<T>
     public GameBuilder<T> UseView<U>()
         where U : IView, new()
     {
-        view = new U();
+        view = new(() => new U());
         return this;
     }
 
@@ -56,7 +56,7 @@ public sealed class GameBuilder<T>
     public GameBuilder<T> UseGraphics<U>()
         where U : IGraphicsSystem, new()
     {
-        graphics = new U();
+        graphics = new(() => new U());
         return this;
     }
 
@@ -134,10 +134,10 @@ public sealed class GameBuilder<T>
         Services.Current.Cache(game);
         Services.Current.Cache<Game>(game);
         Services.Current.Cache(options);
-        Services.Current.Cache(new GraphicsContext(graphics, view));
+        Services.Current.Cache(new GraphicsContext(graphics.Value, view.Value));
         Services.Current.Cache(runner = new());
 
-        if (view is IWindow window)
+        if (view.Value is IWindow window)
         {
             window.Size = options.Size;
             window.Title = options.Title;
@@ -165,7 +165,7 @@ public sealed class GameBuilder<T>
 
     private void showWindow()
     {
-        if (view is IWindow window)
+        if (view.Value is IWindow window)
             window.Visible = true;
 
         if (runner is not null)

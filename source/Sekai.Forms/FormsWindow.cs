@@ -10,7 +10,6 @@ using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using Microsoft.UI;
 using Microsoft.UI.Windowing;
-using Microsoft.Windows.ApplicationModel.DynamicDependency;
 using Sekai.Mathematics;
 using Sekai.Windowing;
 using Sekai.Windowing.OpenGL;
