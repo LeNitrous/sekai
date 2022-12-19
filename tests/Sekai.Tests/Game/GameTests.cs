@@ -10,6 +10,7 @@ using Sekai.SDL;
 
 namespace Sekai.Tests.Game;
 
+[Ignore("Always fail in headless.")]
 public class GameTests
 {
     private const int wait_time = 30000;
