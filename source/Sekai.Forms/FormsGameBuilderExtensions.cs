@@ -8,7 +8,10 @@ public static class FormsGameBuilderExtensions
     public static GameBuilder<T> UseForms<T>(this GameBuilder<T> builder)
         where T : Game, new()
     {
-        Installer.Install();
-        return builder.UseView<FormsWindow>();
+        return builder
+            .AddPreBuildAction(Installer.Install)
+            .AddLoadAction(() => Bootstrap.Initialize(0x00010000))
+            .AddExitAction(() => Bootstrap.Shutdown())
+            .UseView<FormsWindow>();
     }
 }

@@ -35,14 +35,14 @@ public class ServiceContainer : FrameworkObject, IReadOnlyServiceContainer
     /// <param name="type">The object's type to be cached.</param>
     /// <param name="func">The function creating the service.</param>
     /// <exception cref="ObjectDisposedException">Thrown when the service container is already disposed.</exception>
-    /// <exception cref="InvalidOperationException">Thrown when the type is already registered in this service container.</exception>
+    /// <exception cref="ServiceExistsException">Thrown when the type is already registered in this service container.</exception>
     public virtual void Cache(Type type, Func<object> func)
     {
         if (IsDisposed)
             throw new ObjectDisposedException(nameof(Services));
 
         if (cache.ContainsKey(type))
-            throw new InvalidOperationException();
+            throw new ServiceExistsException($"{type} is already registered in this service container.");
 
         cache.Add(type, func);
     }
@@ -53,7 +53,7 @@ public class ServiceContainer : FrameworkObject, IReadOnlyServiceContainer
     /// <param name="instance">The service to cache.</param>
     /// <exception cref="ArgumentNullException">Thrown when the instance is null.</exception>
     /// <exception cref="ObjectDisposedException">Thrown when the service container is already disposed.</exception>
-    /// <exception cref="InvalidOperationException">Thrown when the type is already registered in this service container.</exception>
+    /// <exception cref="ServiceExistsException">Thrown when the type is already registered in this service container.</exception>
     public void Cache(object instance)
     {
         if (instance is null)
@@ -79,7 +79,7 @@ public class ServiceContainer : FrameworkObject, IReadOnlyServiceContainer
     /// <param name="instance">The service to be cached.</param>
     /// <exception cref="ArgumentNullException"></exception>
     /// <exception cref="ObjectDisposedException">Thrown when the service container is already disposed.</exception>
-    /// <exception cref="InvalidOperationException">Thrown when the type is already registered in this service container.</exception>
+    /// <exception cref="ServiceExistsException">Thrown when the type is already registered in this service container.</exception>
     public void Cache<T>(T instance)
     {
         if (instance is null)
@@ -93,7 +93,7 @@ public class ServiceContainer : FrameworkObject, IReadOnlyServiceContainer
     /// </summary>
     /// <typeparam name="T">The service's type to be cached.</typeparam>
     /// <exception cref="ObjectDisposedException">Thrown when the service container is already disposed.</exception>
-    /// <exception cref="InvalidOperationException">Thrown when the type is already registered in this service container.</exception>
+    /// <exception cref="ServiceExistsException">Thrown when the type is already registered in this service container.</exception>
     public void Cache<T>()
         where T : new()
     {
@@ -138,7 +138,7 @@ public class ServiceContainer : FrameworkObject, IReadOnlyServiceContainer
 
     protected override void Destroy() => cache.Clear();
 
-    public class Global : ServiceContainer
+    internal class Global : ServiceContainer
     {
         private readonly List<Scoped> scopes = new();
 
@@ -159,6 +159,14 @@ public class ServiceContainer : FrameworkObject, IReadOnlyServiceContainer
 
         private void remove(Scoped services) => scopes.Remove(services);
 
+        protected override void Destroy()
+        {
+            foreach (var scoped in scopes)
+                scoped.Dispose();
+
+            base.Destroy();
+        }
+
         private class Scoped : ServiceContainer
         {
             private readonly Global global;
@@ -174,5 +182,21 @@ public class ServiceContainer : FrameworkObject, IReadOnlyServiceContainer
                 base.Destroy();
             }
         }
+    }
+}
+
+public class ServiceNotFoundException : Exception
+{
+    public ServiceNotFoundException(string? message)
+        : base(message)
+    {
+    }
+}
+
+public class ServiceExistsException : Exception
+{
+    public ServiceExistsException(string? message)
+        : base(message)
+    {
     }
 }

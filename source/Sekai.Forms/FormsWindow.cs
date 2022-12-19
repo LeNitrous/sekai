@@ -130,8 +130,6 @@ internal class FormsWindow : FrameworkObject, IWindow, INativeWindowSource, IOpe
 
     public FormsWindow()
     {
-        Bootstrap.Initialize(0x00010000);
-
         form = new()
         {
             Visible = false,
@@ -255,6 +253,5 @@ internal class FormsWindow : FrameworkObject, IWindow, INativeWindowSource, IOpe
         graphics.Dispose();
         form.Dispose();
         window.Destroy();
-        Bootstrap.Shutdown();
     }
 }

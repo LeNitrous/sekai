@@ -2,6 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Sekai.Allocation;
 using Sekai.Audio;
@@ -17,13 +18,14 @@ namespace Sekai;
 public sealed class GameBuilder<T>
     where T : Game, new()
 {
-
     private IView? view;
     private IAudioSystem? audio;
     private IGraphicsSystem? graphics;
     private readonly T game;
     private readonly GameOptions options;
     private GameRunner? runner;
+    private readonly Queue<Action> preBuildAction = new();
+    private readonly Queue<Action> postBuildAction = new();
 
     internal GameBuilder(T game, GameOptions? options = null)
     {
@@ -59,12 +61,53 @@ public sealed class GameBuilder<T>
     }
 
     /// <summary>
+    /// Adds an action invoked as the game is loaded.
+    /// </summary>
+    public GameBuilder<T> AddLoadAction(Action action)
+    {
+        game.OnLoaded += action;
+        return this;
+    }
+
+    /// <summary>
+    /// Adds an action invoked as the game exits.
+    /// </summary>
+    public GameBuilder<T> AddExitAction(Action action)
+    {
+        game.OnExiting += action;
+        return this;
+    }
+
+    /// <summary>
+    /// Adds an action invoked before <see cref="Build"/> is invoked.
+    /// </summary>
+    public GameBuilder<T> AddPreBuildAction(Action action)
+    {
+        preBuildAction.Enqueue(action);
+        return this;
+    }
+
+    /// <summary>
+    /// Adds an action invoked after <see cref="Build"/> is invoked.
+    /// </summary>
+    public GameBuilder<T> AddPostBuildAction(Action action)
+    {
+        postBuildAction.Enqueue(action);
+        return this;
+    }
+
+    /// <summary>
     /// Builds the game.
     /// </summary>
     public T Build()
     {
+        Services.Initialize();
+
         if (RuntimeInfo.IsDebug)
             Logger.OnMessageLogged += new LogListenerConsole();
+
+        while (preBuildAction.TryDequeue(out var preBuildMethod))
+            preBuildMethod.Invoke();
 
         var storage = new StorageContext();
         storage.Mount("/", new NativeStorage(AppDomain.CurrentDomain.BaseDirectory));
@@ -108,6 +151,9 @@ public sealed class GameBuilder<T>
 
         Services.Current.Cache<InputContext>();
         Services.Current.Cache<SceneCollection>();
+
+        while (postBuildAction.TryDequeue(out var postBuildMethod))
+            postBuildMethod.Invoke();
 
         return game;
     }

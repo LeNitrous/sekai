@@ -13,24 +13,26 @@ public static class Services
     /// <summary>
     /// The service container singleton.
     /// </summary>
-    public static ServiceContainer Current => current;
+    public static ServiceContainer Current => current is not null
+        ? current
+        : throw new InvalidOperationException(@"Service container is not yet initialized.");
 
     /// <summary>
     /// Creates a scoped service container.
     /// </summary>
     /// <remarks>
-    /// The scoped service containerinherits cached services from the global instance
+    /// The scoped service container inherits cached services from the global instance
     /// but it can also cache its own services without polluting the global instance.
     /// </remarks>
-    public static ServiceContainer CreateScoped() => current.CreateScoped();
+    public static ServiceContainer CreateScoped() => current is not null
+        ? current.CreateScoped()
+        : throw new InvalidOperationException(@"Service container is not yet initialized.");
 
-    private static readonly ServiceContainer.Global current = new();
-}
+    private static ServiceContainer.Global? current;
 
-public class ServiceNotFoundException : Exception
-{
-    public ServiceNotFoundException(string? message)
-        : base(message)
+    internal static void Initialize()
     {
+        current?.Dispose();
+        current = new();
     }
 }
