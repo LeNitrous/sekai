@@ -34,7 +34,7 @@ jobs:
           sudo systemctl status Xvfb
 
       - name: Build
-        run: dotnet build
+        run: dotnet build Sekai.sln
 
       - name: Test
         run: dotnet test Sekai.sln --logger "trx;LogFileName=${{ github.workspace }}/results.trx"
