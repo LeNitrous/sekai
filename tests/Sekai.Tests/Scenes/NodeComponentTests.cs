@@ -99,5 +99,7 @@ public class NodeComponentTests
         });
     }
 
-    private class TestComponent : Component {}
+    private class TestComponent : Component
+    {
+    }
 }
