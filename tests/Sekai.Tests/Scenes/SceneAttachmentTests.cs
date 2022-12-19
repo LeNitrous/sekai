@@ -12,7 +12,7 @@ public class SceneAttachmentTests
     public void TestSceneAttach()
     {
         var scenes = new SceneCollection();
-        var scene = new Scene2D();
+        var scene = new Scene();
 
         scenes.Add(scene);
 

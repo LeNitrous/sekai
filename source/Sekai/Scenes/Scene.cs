@@ -3,9 +3,7 @@
 
 using System;
 using Sekai.Allocation;
-using Sekai.Graphics;
 using Sekai.Processors;
-using Sekai.Rendering;
 
 namespace Sekai.Scenes;
 
@@ -85,25 +83,4 @@ public class Scene : ActivateableObject
     }
 
     protected virtual Node CreateRootNode() => new();
-}
-
-public abstract class Scene<T> : Scene
-    where T : Node
-{
-    public new T Root => (T)base.Root;
-}
-
-public abstract class RenderableScene<T> : Scene<T>, IRenderableScene
-    where T : Node, IRenderableNode
-{
-    internal Renderer Renderer { get; }
-
-    public RenderableScene()
-    {
-        Renderer = CreateRenderer();
-    }
-
-    public void Render(GraphicsContext graphics) => Renderer.Render(graphics);
-
-    protected abstract Renderer CreateRenderer();
 }
