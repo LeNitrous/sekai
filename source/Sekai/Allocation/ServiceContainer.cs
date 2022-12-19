@@ -161,7 +161,7 @@ public class ServiceContainer : FrameworkObject, IReadOnlyServiceContainer
 
         protected override void Destroy()
         {
-            foreach (var scoped in scopes)
+            foreach (var scoped in scopes.ToArray())
                 scoped.Dispose();
 
             base.Destroy();
