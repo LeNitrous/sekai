@@ -165,7 +165,7 @@ public sealed class GameBuilder<T>
 
     private void showWindow()
     {
-        if (view.Value is IWindow window)
+        if (view is not null && view.Value is IWindow window)
             window.Visible = true;
 
         if (runner is not null)
