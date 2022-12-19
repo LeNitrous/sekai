@@ -2,12 +2,19 @@
 // Licensed under MIT. See LICENSE for details.
 
 using NUnit.Framework;
+using Sekai.Allocation;
 using Sekai.Scenes;
 
 namespace Sekai.Tests.Scenes;
 
 public class NodeComponentTests
 {
+    [SetUp]
+    public void SetUp()
+    {
+        Services.Initialize();
+    }
+
     [Test]
     public void TestComponentAttachBeforeSceneAttach()
     {

@@ -236,7 +236,7 @@ public class Node : AttachableObject, IReferenceable, IProcessorAttachable, ICol
     /// </summary>
     public bool Remove(Component item)
     {
-        if (!indices.TryGetValue(components.GetType(), out int index))
+        if (!indices.TryGetValue(item.GetType(), out int index))
             return false;
 
         var temp = components[^1];
