@@ -2,51 +2,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name":"Launch Hello",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "build examples",
-            "program": "${workspaceFolder}/examples/hello/Hello/bin/Debug/net7.0/Hello.dll",
-            "args": [],
-            "cwd": "${workspaceFolder}/examples/hello/Hello",
-            "console": "internalConsole",
-            "stopAtEntry": false
-        },
-        {
             "name":"Launch Drawing",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build examples",
-            "program": "${workspaceFolder}/examples/drawing/Drawing/bin/Debug/net7.0/Drawing.dll",
+            "program": "${workspaceFolder}/examples/Example.Drawing/bin/Debug/net7.0/Example.Drawing.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/examples/drawing/Drawing",
-            "console": "internalConsole",
-            "stopAtEntry": false
-        },
-        {
-            "name": "Launch Triangle.SDL",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "build examples",
-            "program": "${workspaceFolder}/examples/triangle/Triangle.SDL/bin/Debug/net7.0/Triangle.SDL.dll",
-            "args": [],
-            "cwd": "${workspaceFolder}/examples/triangle/Triangle.SDL",
-            "console": "internalConsole",
-            "stopAtEntry": false
-        },
-        {
-            "name": "Launch Triangle.SDL.AOT",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "build examples",
-            "windows": {
-                "program": "${workspaceFolder}/examples/triangle/Triangle.SDL.AOT/bin/Debug/net7.0/win-x64/Triangle.SDL.AOT.dll",
-            },
-            "linux": {
-                "program": "${workspaceFolder}/examples/triangle/Triangle.SDL.AOT/bin/Debug/net7.0/linux-x64/Triangle.SDL.AOT.dll",
-            },
-            "args": [],
-            "cwd": "${workspaceFolder}/examples/triangle/Triangle.SDL.AOT",
+            "cwd": "${workspaceFolder}/examples/Example.Drawing",
             "console": "internalConsole",
             "stopAtEntry": false
         }

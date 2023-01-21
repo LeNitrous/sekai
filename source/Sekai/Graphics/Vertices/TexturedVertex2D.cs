@@ -21,4 +21,11 @@ public struct TexturedVertex2D : IVertex2D, ITexturedVertex, IColoredVertex
 
     [field: VertexMember("Color", 4)]
     public Color4 Color { get; set; }
+
+    public TexturedVertex2D(Vector2 position, Vector2 texCoord, Color4 color)
+    {
+        Position = position;
+        TexCoord = texCoord;
+        Color = color;
+    }
 }

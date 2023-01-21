@@ -5,73 +5,18 @@ using Sekai.Windowing.OpenGL;
 
 namespace Sekai.SDL;
 
-internal unsafe class SDLGLContext : FrameworkObject, IOpenGLContext
+internal class SDLGLContext : FrameworkObject, IOpenGLContext
 {
-    public nint Handle { get; }
+    private readonly nint handle;
+    private readonly SDLSurface view;
 
-    private readonly SDLView view;
-
-    public SDLGLContext(SDLView view)
+    public SDLGLContext(SDLSurface view, nint handle)
     {
         this.view = view;
-        Handle = CreateContext();
+        this.handle = handle;
     }
 
-    public void ClearCurrentContext()
-    {
-        if (view.Sdl.GLMakeCurrent(null, null) != 0)
-            view.Sdl.ThrowError();
-    }
+    public void MakeCurrent() => view.SetCurrentContext(handle);
 
-    public nint CreateContext()
-    {
-        void* context = view.Sdl.GLCreateContext(view.Window);
-
-        if (context == null)
-            view.Sdl.ThrowError();
-
-        return (nint)context;
-    }
-
-    public void DeleteContext(nint context)
-    {
-        view.Sdl.GLDeleteContext((void*)context);
-    }
-
-    public nint GetCurrentContext()
-    {
-        return (nint)view.Sdl.GLGetCurrentContext();
-    }
-
-    public nint GetProcAddress(string name)
-    {
-        return (nint)view.Sdl.GLGetProcAddress(name);
-    }
-
-    public void MakeCurrent(nint context)
-    {
-        if (view.Sdl.GLMakeCurrent(view.Window, (void*)context) != 0)
-            view.Sdl.ThrowError();
-    }
-
-    public void MakeCurrent()
-    {
-        MakeCurrent(Handle);
-    }
-
-    public void SetSyncToVerticalBlank(bool sync)
-    {
-        if (view.Sdl.GLSetSwapInterval(sync ? 1 : 0) != 0)
-            view.Sdl.ThrowError();
-    }
-
-    public void SwapBuffers()
-    {
-        view.Sdl.GLSwapWindow(view.Window);
-    }
-
-    protected override void Destroy()
-    {
-        DeleteContext(Handle);
-    }
+    protected override void Destroy() => view.DestroyContext(handle);
 }

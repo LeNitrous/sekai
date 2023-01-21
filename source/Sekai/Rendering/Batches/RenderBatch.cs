@@ -3,16 +3,18 @@
 
 using System;
 using Sekai.Allocation;
+using Sekai.Assets;
 using Sekai.Graphics;
 using Sekai.Graphics.Shaders;
 using Sekai.Graphics.Vertices;
 
 namespace Sekai.Rendering.Batches;
 
-public abstract class RenderBatch<T> : FrameworkObject, IRenderBatch<T>
+public abstract class RenderBatch<T> : DependencyObject, IRenderBatch<T>
     where T : unmanaged, IVertex
 {
     public bool HasStarted { get; private set; }
+    protected abstract string Shader { get; }
     protected abstract int PrimitiveIndexCount { get; }
     protected abstract int PrimitiveVertexCount { get; }
     protected abstract PrimitiveTopology Topology { get; }
@@ -24,7 +26,12 @@ public abstract class RenderBatch<T> : FrameworkObject, IRenderBatch<T>
     private readonly Shader shd;
     private readonly Graphics.Buffers.Buffer<T> vbo;
     private readonly Graphics.Buffers.Buffer<ushort> ibo;
-    private readonly GraphicsContext context = Services.Current.Resolve<GraphicsContext>();
+
+    [Resolved]
+    protected GraphicsContext Graphics { get; set; } = null!;
+
+    [Resolved]
+    private AssetLoader assets { get; set; } = null!;
 
     protected RenderBatch(int maxPrimitiveCount)
     {
@@ -36,7 +43,7 @@ public abstract class RenderBatch<T> : FrameworkObject, IRenderBatch<T>
 
         vertices = new T[maxVertexCount];
 
-        shd = CreateShader();
+        shd = assets.Load<Shader>(Shader);
         vbo = new(vertices.Length, true);
         ibo = new(indices.Length);
         ibo.SetData(indices);
@@ -47,9 +54,12 @@ public abstract class RenderBatch<T> : FrameworkObject, IRenderBatch<T>
         if (HasStarted)
             throw new InvalidOperationException(@"Batch has already begun.");
 
-        shd.Bind();
-        vbo.Bind();
-        ibo.Bind();
+        Graphics.Capture();
+        Graphics.SetShader(shd);
+        Graphics.SetBuffer(ibo);
+        Graphics.SetBuffer(vbo);
+
+        Prepare();
 
         HasStarted = true;
     }
@@ -61,14 +71,16 @@ public abstract class RenderBatch<T> : FrameworkObject, IRenderBatch<T>
 
         Flush();
 
-        shd.Unbind();
+        Graphics.Restore();
+
+        Cleanup();
 
         HasStarted = false;
     }
 
     public void Add(T vertex)
     {
-        ensureBound();
+        ensureBegun();
 
         if (currentVertexCount + 1 > maxVertexCount)
             Flush();
@@ -80,24 +92,37 @@ public abstract class RenderBatch<T> : FrameworkObject, IRenderBatch<T>
 
     public void Flush()
     {
-        ensureBound();
+        ensureBegun();
 
         if (currentVertexCount < PrimitiveVertexCount)
             return;
 
         vbo.SetData(vertices);
-        context.Draw(maxIndexCount, Topology);
+        Graphics.DrawIndexed((uint)maxIndexCount, Topology);
 
         currentVertexCount = 0;
     }
 
-    private void ensureBound()
+    private void ensureBegun()
     {
         if (!HasStarted)
             throw new InvalidOperationException($"Batch must call {nameof(Begin)} before collectiong primitives.");
     }
 
-    protected abstract Shader CreateShader();
+    protected virtual void Prepare()
+    {
+    }
+
+    protected virtual void Cleanup()
+    {
+    }
 
     protected abstract void CreateIndices(Span<ushort> buffer);
+
+    protected override void Destroy()
+    {
+        shd.Dispose();
+        ibo.Dispose();
+        vbo.Dispose();
+    }
 }

@@ -13,13 +13,16 @@ public partial class LogListenerConsole : LogListenerTextWriter
     protected override Func<Exception, string> FormatException => formatException;
     protected override Func<DateTime, string> FormatTimestamp => formatTimestamp;
     protected override Func<LogLevel, string> FormatLogLevel => formatLogLevel;
-    protected override Func<string, string> FormatMessage => formatMessage;
+    protected override Func<object?, string> FormatMessage => formatMessage;
 
     public LogListenerConsole()
         : base(Console.Out)
     {
         if (RuntimeInfo.OS == RuntimeInfo.Platform.Windows)
+        {
             AllocConsole();
+            SetConsoleOutputCP(65001);
+        }
     }
 
     protected override void Destroy()
@@ -32,7 +35,7 @@ public partial class LogListenerConsole : LogListenerTextWriter
 
     private string formatTimestamp(DateTime time) => base.FormatTimestamp(time).Pastel(gray3);
     private string formatLogLevel(LogLevel level) => "⬤".Pastel(getColorForLevel(level));
-    private string formatMessage(string message) => base.FormatMessage(message).Pastel(white);
+    private string formatMessage(object? message) => base.FormatMessage(message).Pastel(white);
     private string formatException(Exception exception) => string.Join('\n', exception.ToString().Split('\n').Select(line => line.Pastel(critical)));
 
     private static readonly string critical = @"#eb4034";
@@ -43,18 +46,15 @@ public partial class LogListenerConsole : LogListenerTextWriter
     private static readonly string gray3 = @"#828282";
     private static readonly string white = @"#ffffff";
 
-    private static string getColorForLevel(LogLevel level)
+    private static string getColorForLevel(LogLevel level) => level switch
     {
-        return level switch
-        {
-            LogLevel.Debug => gray2,
-            LogLevel.Verbose => verbose,
-            LogLevel.Information => gray3,
-            LogLevel.Warning => warning,
-            LogLevel.Error => critical,
-            _ => gray3,
-        };
-    }
+        LogLevel.Debug => gray2,
+        LogLevel.Verbose => verbose,
+        LogLevel.Information => gray3,
+        LogLevel.Warning => warning,
+        LogLevel.Error => critical,
+        _ => gray3,
+    };
 
 
     [LibraryImport("kernel32.dll", SetLastError = true)]
@@ -64,4 +64,8 @@ public partial class LogListenerConsole : LogListenerTextWriter
     [LibraryImport("kernel32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static partial bool FreeConsole();
+
+    [LibraryImport("kernel32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool SetConsoleOutputCP(uint wCodePageID);
 }

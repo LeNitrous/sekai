@@ -1,14 +1,19 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-using System;
-
 namespace Sekai.Graphics.Textures;
 
-public interface IRenderTarget : IDisposable
+public interface IRenderTarget
 {
+    /// <summary>
+    /// The render target's width.
+    /// </summary>
     int Width { get; }
+
+    /// <summary>
+    /// The render target's height.
+    /// </summary>
     int Height { get; }
-    void Bind();
-    void Unbind();
+
+    internal NativeRenderTarget Native { get; }
 }

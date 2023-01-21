@@ -4,7 +4,7 @@
 namespace Sekai.Windowing;
 
 /// <summary>
-/// Allows querying of the underlying native window of a given <see cref="IView"/>.
+/// Allows querying of the underlying native window of a given <see cref="Surface"/>.
 /// </summary>
 public interface INativeWindowSource
 {

@@ -10,8 +10,8 @@ public class LogListenerTextWriter : LogListener
     private readonly TextWriter writer;
 
     public LogListenerTextWriter(Stream stream)
+        : this(new StreamWriter(stream))
     {
-        writer = new StreamWriter(stream);
     }
 
     public LogListenerTextWriter(TextWriter writer)
@@ -34,9 +34,5 @@ public class LogListenerTextWriter : LogListener
             writer.Flush();
     }
 
-    protected override void Destroy()
-    {
-        if (!IsDisposed)
-            writer.Dispose();
-    }
+    protected override void Destroy() => writer.Dispose();
 }

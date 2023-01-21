@@ -7,7 +7,7 @@ using Sekai.Mathematics;
 
 namespace Sekai.Windowing;
 
-public interface IWindow : IView
+public interface IWindow : ISurface
 {
     /// <summary>
     /// Gets or sets the window title.

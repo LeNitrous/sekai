@@ -1,7 +1,7 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-using Sekai.Input;
+using Sekai.Input.Devices.Keyboards;
 using Sekai.Windowing;
 using Silk.NET.SDL;
 
@@ -109,7 +109,7 @@ internal static class SDLExtensions
             Scancode.ScancodeKP8 => numLockOn ? Key.Keypad8 : Key.Up,
             Scancode.ScancodeKP9 => numLockOn ? Key.Keypad9 : Key.PageUp,
             Scancode.ScancodeKP0 => numLockOn ? Key.Keypad0 : Key.Insert,
-            Scancode.ScancodeKPPeriod=> numLockOn ? Key.KeypadDecimal : Key.Delete,
+            Scancode.ScancodeKPPeriod => numLockOn ? Key.KeypadDecimal : Key.Delete,
             Scancode.ScancodeNonusbackslash => Key.BackSlash,
             Scancode.ScancodeMenu or Scancode.ScancodeApplication => Key.Menu,
             Scancode.ScancodeKPEquals => Key.KeypadEqual,

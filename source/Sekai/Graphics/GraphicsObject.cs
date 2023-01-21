@@ -1,58 +1,21 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-using System;
 using Sekai.Allocation;
 
 namespace Sekai.Graphics;
 
-/// <summary>
-/// The base class for all graphics-related objects used by Sekai which provides a general implementation of an <see cref="IDisposable"/>.
-/// </summary>
-public abstract class GraphicsObject : IDisposable
+public abstract class GraphicsObject : DependencyObject
 {
-    /// <summary>
-    /// Gets whether this object has been disposed or not.
-    /// </summary>
-    public bool IsDisposed { get; private set; }
+    [Resolved]
+    protected GraphicsSystem Graphics { get; set; } = null!;
 
-    /// <summary>
-    /// The graphics context.
-    /// </summary>
-    protected readonly GraphicsContext Context;
+    [Resolved]
+    private GraphicsContext context { get; set; } = null!;
 
-    private bool isQueuedForDisposal;
+    protected sealed override void Destroy() => context.Schedule(DestroyGraphics);
 
-    protected GraphicsObject(GraphicsContext context)
+    protected virtual void DestroyGraphics()
     {
-        Context = context;
-    }
-
-    protected GraphicsObject()
-        : this(Services.Current.Resolve<GraphicsContext>())
-    {
-    }
-
-    protected abstract void Destroy();
-
-    public virtual void Dispose()
-    {
-        if (IsDisposed || isQueuedForDisposal)
-            return;
-
-        isQueuedForDisposal = true;
-
-        Context.EnqueueDisposal(() =>
-        {
-            if (IsDisposed)
-                return;
-
-            Destroy();
-
-            IsDisposed = true;
-            isQueuedForDisposal = false;
-        });
-
-        GC.SuppressFinalize(this);
     }
 }

@@ -3,84 +3,72 @@
 
 using System;
 using Sekai.Allocation;
-using Sekai.Processors;
+using Sekai.Rendering;
+using Sekai.Serialization;
 
 namespace Sekai.Scenes;
 
 /// <summary>
-/// A container for all <see cref="Node"/>s.
+/// A collection of nodes where it can process and render its children's components.
 /// </summary>
-public class Scene : ActivateableObject
+[Serializable]
+public class Scene : NodeCollection, IReferenceable
 {
-    /// <summary>
-    /// The root node of this scene.
-    /// </summary>
-    public readonly Node Root;
+    public Guid Id { get; }
 
-    /// <summary>
-    /// The scene services.
-    /// </summary>
-    /// <remarks>
-    /// Services registered are only local to this scene and does not affect the global <see cref="Allocation.Services"/>.
-    /// </remarks>
-    public readonly ServiceContainer Services = Allocation.Services.CreateScoped();
+    [Resolved]
+    private Renderer renderer { get; set; } = null!;
 
-    /// <summary>
-    /// The scene collection where this scene is currently attached to.
-    /// </summary>
-    public SceneCollection? Scenes { get; private set; }
-
-    internal readonly ProcessorCollection Processors = new();
+    private readonly ComponentManager manager = new();
 
     public Scene()
     {
-        Root = CreateRootNode();
-        Initialize(Processors);
+        OnNodeAdded += handleNodeAdded;
+        OnNodeRemoved += handleNodeRemoved;
     }
 
-    protected virtual void Initialize(ProcessorCollection processors)
+    public void Update()
     {
-        processors.Register<ScriptProcessor>();
-        processors.Register<BehaviorProcessor>();
+        renderer.Begin();
+        manager.Update();
+        renderer.End();
     }
 
-    internal void Update(double delta)
+    public void Render()
     {
-        foreach (var processor in Processors)
-            processor.Update(delta);
+        renderer.Render();
     }
 
-    protected override void OnAttach() => Processors.Attach(this);
-
-    protected override void OnDetach() => Processors.Detach(this);
-
-    internal void Attach(SceneCollection scenes)
+    private void handleNodeAdded(object? sender, NodeEventArgs args)
     {
-        if (IsAttached)
-            return;
-
-        if (scenes is null)
-            throw new InvalidOperationException();
-
-        Scenes = scenes;
-
-        Attach();
-        Root.Attach(this);
+        args.Node.Scene = this;
+        args.Node.OnNodeAdded += handleNodeAdded;
+        args.Node.OnNodeRemoved += handleNodeRemoved;
+        args.Node.OnComponentAdded += handleComponentAdded;
+        args.Node.OnComponentRemoved += handleComponentRemoved;
+        manager.Add(args.Node);
     }
 
-    internal void Detach(SceneCollection scenes)
+    private void handleNodeRemoved(object? sender, NodeEventArgs args)
     {
-        if (!IsAttached)
-            return;
-
-        if (Scenes != scenes)
-            throw new InvalidOperationException();
-
-        Scenes = null;
-
-        Root.Detach(this);
-        Detach();
+        args.Node.Scene = null;
+        args.Node.OnNodeAdded -= handleNodeAdded;
+        args.Node.OnNodeRemoved -= handleNodeRemoved;
+        args.Node.OnComponentAdded -= handleComponentAdded;
+        args.Node.OnComponentRemoved -= handleComponentRemoved;
+        manager.Remove(args.Node);
     }
 
-    protected virtual Node CreateRootNode() => new();
+    private void handleComponentAdded(object? sender, ComponentEventArgs args)
+        => manager.Add(args.Component);
+
+    private void handleComponentRemoved(object? sender, ComponentEventArgs args)
+        => manager.Remove(args.Component);
+
+    protected sealed override void Destroy()
+    {
+        base.Destroy();
+        OnNodeAdded -= handleNodeAdded;
+        OnNodeRemoved -= handleNodeRemoved;
+    }
 }

@@ -1,0 +1,14 @@
+attrib vec2 a_position;
+attrib vec2 a_texCoord;
+attrib vec4 a_color;
+extern sampler2D m_texture;
+
+void vert()
+{
+    SK_POSITION = OBJECT_TO_CLIP * vec4(a_position.x, a_position.y, 0.0, 1.0);
+}
+
+void frag()
+{
+    SK_COLOR0 = texture(m_texture, a_texCoord) * a_color;
+}

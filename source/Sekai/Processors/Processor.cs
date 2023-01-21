@@ -1,90 +1,53 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-using System;
-using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Sekai.Scenes;
 
 namespace Sekai.Processors;
 
-public abstract class Processor : ActivateableObject
+public abstract class Processor : DependencyObject
 {
-    public Scene? Scene { get; private set; }
+    public virtual int Priority => 0;
 
-    public void Update(double delta)
+    public virtual void OnComponentAttach(Component component)
     {
-        if (Enabled)
-            Process(delta);
     }
 
-    protected abstract void Process(double delta);
-    internal abstract void Attach(IProcessorAttachable attachable);
-    internal abstract void Detach(IProcessorAttachable attachable);
-
-    internal void Attach(Scene scene)
+    public virtual void OnComponentDetach(Component component)
     {
-        if (IsAttached)
-            return;
-
-        if (scene is null)
-            throw new ArgumentNullException(nameof(scene));
-
-        Scene = scene;
-
-        Attach();
     }
 
-    internal void Detach(Scene scene)
+    public virtual void Update(Component component)
     {
-        if (!IsAttached)
-            return;
-
-        if (Scene != scene)
-            throw new InvalidOperationException(@"Cannot detach from a scene not owning this processor.");
-
-        Scene = null;
-
-        Detach();
     }
 }
 
 public abstract class Processor<T> : Processor
-    where T : IProcessorAttachable
+    where T : Component
 {
-    private readonly List<T> attached = new();
+    public sealed override void Update(Component component)
+        => Update(Unsafe.As<T>(component));
 
-    protected virtual void Process(double delta, T attachable)
+    public sealed override void OnComponentAttach(Component component)
+        => OnComponentAttach(Unsafe.As<T>(component));
+
+    public sealed override void OnComponentDetach(Component component)
+        => OnComponentDetach(Unsafe.As<T>(component));
+
+    protected virtual void OnComponentAttach(T component)
     {
     }
 
-    protected virtual void Attach(T attachable)
+    protected virtual void OnComponentDetach(T component)
     {
     }
 
-    protected virtual void Detach(T attachable)
+    protected virtual void Update(T component)
     {
     }
 
-    protected override void Process(double delta)
+    protected virtual void Render(T component)
     {
-        var attached = this.attached.ToArray();
-
-        foreach (var attachable in attached)
-            Process(delta, attachable);
-    }
-
-    internal sealed override void Attach(IProcessorAttachable attachable)
-    {
-        if (attachable is T attach && !attached.Contains(attach))
-        {
-            attached.Add(attach);
-            Attach(attach);
-        }
-    }
-
-    internal sealed override void Detach(IProcessorAttachable attachable)
-    {
-        if (attachable is T attach && attached.Remove(attach))
-            Detach(attach);
     }
 }

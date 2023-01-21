@@ -1,0 +1,12 @@
+attrib vec3 a_position;
+attrib vec4 a_color;
+
+void vert()
+{
+    SK_POSITION = OBJECT_TO_CLIP * vec4(a_position.x, a_position.y, a_position.y, 1.0);
+}
+
+void frag()
+{
+    SK_COLOR0 = a_color;
+}

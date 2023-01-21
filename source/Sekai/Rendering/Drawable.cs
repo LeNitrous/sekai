@@ -1,48 +1,38 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-using System;
 using Sekai.Mathematics;
 using Sekai.Scenes;
 
 namespace Sekai.Rendering;
 
 /// <summary>
-/// Base class for all <see cref="Component"/>s capable of drawing to the scene.
+/// Drawables are capable of drawing to the <see cref="Scene"/>.
 /// </summary>
-public abstract class Drawable : Script
+public abstract class Drawable : Scriptable
 {
     /// <summary>
     /// The drawable's sorting mode.
     /// </summary>
-    public SortMode SortMode = SortMode.FrontToBack;
+    public SortMode SortMode { get; set; } = SortMode.FrontToBack;
 
     /// <summary>
     /// The render groups where this drawable is visible to.
     /// </summary>
-    public RenderGroup Group = RenderGroup.Default;
+    public RenderGroup Group { get; set; } = RenderGroup.Default;
 
     /// <summary>
-    /// The drawable's bounding box used when being culled from rendering.
+    /// The drawable's bounding box used when <see cref="Culling"/> is <see cref="CullingMode.Frustum"/>.
     /// </summary>
-    public BoundingBox Bounds = BoundingBox.Empty;
+    public BoundingBox Bounds { get; set; } = BoundingBox.Empty;
 
     /// <summary>
-    /// The drawable's culling mode.
+    /// The culling method used on this drawable.
     /// </summary>
-    public CullingMode Culling = CullingMode.Frustum;
+    public CullingMode Culling { get; set; } = CullingMode.Frustum;
 
     /// <summary>
-    /// The drawable's transform obtained from the <see cref="Node"/> owning this drawable.
+    /// Performs draw operations to the render target.
     /// </summary>
-    public ITransform Transform => Owner is IRenderableNode owner
-        ? owner.Transform
-        : throw new InvalidOperationException(@"Component may not be attached or the owning node does not have a transform.");
-
-    /// <summary>
-    /// Performs drawing operations to the current scene.
-    /// </summary>
-    internal abstract void Draw(Renderer renderer);
-
-    internal override bool CanAttach(Node node) => node is IRenderableNode;
+    public abstract void Draw(RenderContext context);
 }

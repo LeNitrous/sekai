@@ -5,92 +5,63 @@ using System;
 
 namespace Sekai.Logging;
 
-public sealed partial class Logger : ILogger
+public sealed class Logger : FrameworkObject
 {
+    /// <summary>
+    /// The logger's name.
+    /// </summary>
     public string? Name { get; }
+
+    /// <summary>
+    /// Get or set whether logging is enabled or not.
+    /// </summary>
     public bool Enabled { get; set; } = true;
 
-    private event Action<LogMessage>? onMessageLogged;
-    event Action<LogMessage> ILogger.OnMessageLogged
-    {
-        add => onMessageLogged += value;
-        remove => onMessageLogged -= value;
-    }
+    /// <summary>
+    /// Called when a new message is being logged.
+    /// </summary>
+    public event Action<LogMessage>? OnMessageLogged;
 
-    private Logger(string? name = null)
+    internal Logger(string? name = null)
     {
         Name = name;
     }
 
-    void ILogger.Debug(object message)
-    {
-        log(new LogMessage(message, Name, LogLevel.Debug));
-    }
+    /// <summary>
+    /// Logs a message at a given level.
+    /// </summary>
+    public void Log(object? message, LogLevel level = LogLevel.Verbose) => log(new LogMessage(message, Name, level));
 
-    void ILogger.Error(object message, Exception? exception)
-    {
-        log(new LogMessage(message, Name, LogLevel.Error, exception));
-    }
+    /// <summary>
+    /// Logs an information level message.
+    /// </summary>
+    public void Info(object? message) => log(new LogMessage(message, Name, LogLevel.Information));
 
-    void ILogger.Info(object message)
-    {
-        log(new LogMessage(message, Name, LogLevel.Information));
-    }
+    /// <summary>
+    /// Logs a debug level message.
+    /// </summary>
+    public void Debug(object? message) => log(new LogMessage(message, Name, LogLevel.Debug));
 
-    void ILogger.Log(object message, LogLevel level)
-    {
-        log(new LogMessage(message, Name, level));
-    }
+    /// <summary>
+    /// Logs an error level message.
+    /// </summary>
+    public void Error(object? message, Exception? exception = null) => log(new LogMessage(message, Name, LogLevel.Error, exception));
 
-    void ILogger.Verbose(object message)
-    {
-        log(new LogMessage(message, Name, LogLevel.Verbose));
-    }
+    /// <summary>
+    /// Logs a verbose level message.
+    /// </summary>
+    public void Verbose(object? message) => log(new LogMessage(message, Name, LogLevel.Verbose));
 
-    void ILogger.Warning(object message)
-    {
-        log(new LogMessage(message, Name, LogLevel.Warning));
-    }
+    /// <summary>
+    /// Logs a warning level message.
+    /// </summary>
+    public void Warning(object? message) => log(new LogMessage(message, Name, LogLevel.Warning));
 
     private void log(LogMessage message)
     {
         if (!Enabled)
             return;
 
-        onMessageLogged?.Invoke(message);
         OnMessageLogged?.Invoke(message);
-    }
-}
-
-public static class LoggerExtensions
-{
-    public static void Log(this Logger logger, object message, LogLevel level = LogLevel.Verbose)
-    {
-        ((ILogger)logger).Log(message, level);
-    }
-
-    public static void Debug(this Logger logger, object message)
-    {
-        ((ILogger)logger).Debug(message);
-    }
-
-    public static void Error(this Logger logger, object message, Exception? exception = null)
-    {
-        ((ILogger)logger).Error(message, exception);
-    }
-
-    public static void Info(this Logger logger, object message)
-    {
-        ((ILogger)logger).Info(message);
-    }
-
-    public static void Verbose(this Logger logger, object message)
-    {
-        ((ILogger)logger).Verbose(message);
-    }
-
-    public static void Warning(this Logger logger, object message)
-    {
-        ((ILogger)logger).Warning(message);
     }
 }

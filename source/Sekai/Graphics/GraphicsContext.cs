@@ -4,566 +4,574 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using Sekai.Allocation;
 using Sekai.Graphics.Buffers;
 using Sekai.Graphics.Shaders;
 using Sekai.Graphics.Textures;
 using Sekai.Graphics.Vertices;
 using Sekai.Mathematics;
-using Sekai.Windowing;
 
 namespace Sekai.Graphics;
 
-public sealed class GraphicsContext : FrameworkObject
+public sealed class GraphicsContext : DependencyObject
 {
     /// <summary>
-    /// The current clear info.
+    /// The current depth state.
     /// </summary>
-    public ClearInfo CurrentClear { get; private set; }
+    public DepthInfo Depth
+    {
+        get => currentState.Depth;
+        set
+        {
+            if (currentState.Depth.Equals(value))
+                return;
+
+            graphics.SetDepth(currentState.Depth = value);
+        }
+    }
 
     /// <summary>
-    /// The current depth info.
+    /// The current blending state.
     /// </summary>
-    public DepthInfo CurrentDepth { get; private set; }
+    public BlendInfo Blend
+    {
+        get => currentState.Blend;
+        set
+        {
+            if (currentState.Blend.Equals(value))
+                return;
+
+            graphics.SetBlend(currentState.Blend = value);
+        }
+    }
 
     /// <summary>
-    /// The current stencil info.
+    /// The current stencil state.
     /// </summary>
-    public StencilInfo CurrentStencil { get; private set; }
+    public StencilInfo Stencil
+    {
+        get => currentState.Stencil;
+        set
+        {
+            if (currentState.Stencil.Equals(value))
+                return;
 
-    /// <summary>
-    /// The current viewport.
-    /// </summary>
-    public Viewport CurrentViewport { get; private set; }
-
-    /// <summary>
-    /// The current scissor rectangle.
-    /// </summary>
-    public Rectangle CurrentScissor { get; private set; }
+            graphics.SetStencil(currentState.Stencil = value);
+        }
+    }
 
     /// <summary>
     /// The current scissor state.
     /// </summary>
-    public bool CurrentScissorState { get; private set; }
+    public ScissorInfo Scissor
+    {
+        get => currentState.Scissor;
+        set
+        {
+            if (currentState.Scissor.Equals(value))
+                return;
+
+            graphics.SetScissor(currentState.Scissor = value);
+        }
+    }
 
     /// <summary>
-    /// The current blending mask.
+    /// The current viewport state.
     /// </summary>
-    public BlendingMask CurrentBlendMask { get; private set; }
+    public Viewport Viewport
+    {
+        get => currentState.Viewport;
+        set
+        {
+            if (currentState.Viewport.Equals(value))
+                return;
+
+            graphics.SetViewport(currentState.Viewport = value);
+        }
+    }
 
     /// <summary>
-    /// The current blending parameters.
+    /// The current face winding state.
     /// </summary>
-    public BlendingParameters CurrentBlend { get; private set; }
+    public FaceWinding FaceWinding
+    {
+        get => currentState.FaceWinding;
+        set
+        {
+            if (currentState.FaceWinding == value)
+                return;
+
+            graphics.SetFaceWinding(currentState.FaceWinding = value);
+        }
+    }
 
     /// <summary>
-    /// The current face winding.
+    /// The current face culling state.
     /// </summary>
-    public FaceWinding CurrentFaceWinding { get; private set; }
+    public FaceCulling FaceCulling
+    {
+        get => currentState.FaceCulling;
+        set
+        {
+            if (currentState.FaceCulling == value)
+                return;
 
-    /// <summary>
-    /// The current face culling.
-    /// </summary>
-    public FaceCulling CurrentFaceCulling { get; private set; }
-
-    /// <summary>
-    /// The current shader.
-    /// </summary>
-    public Shader? CurrentShader { get; private set; }
-
-    /// <summary>
-    /// The current vertex buffer.
-    /// </summary>
-    public Buffers.Buffer? CurrentVertexBuffer { get; private set; }
-
-    /// <summary>
-    /// The current index buffer.
-    /// </summary>
-    public Buffers.Buffer? CurrentIndexBuffer { get; private set; }
-
-    /// <summary>
-    /// The current frame buffer.
-    /// </summary>
-    public FrameBuffer? CurrentFrameBuffer { get; private set; }
-
-    /// <summary>
-    /// The current projection matrix.
-    /// </summary>
-    public Matrix4x4 CurrentProjectionMatrix  { get; private set; }
+            graphics.SetFaceCulling(currentState.FaceCulling = value);
+        }
+    }
 
     /// <summary>
     /// The default render target.
     /// </summary>
-    public IRenderTarget BackBufferTarget => new BackBufferRenderTarget(this);
+    public IRenderTarget BackBufferTarget => backBufferRenderTarget;
 
     /// <summary>
-    /// The default texture.
+    /// A white pixel texture.
     /// </summary>
-    public Texture WhitePixel { get; }
+    public Texture WhitePixel => whitePixelTexture.Value;
 
-    /// <summary>
-    /// The underlying windowing system.
-    /// </summary>
-    public readonly IView View;
+    [Resolved]
+    private GraphicsSystem graphics { get; set; } = null!;
 
-    /// <summary>
-    /// The underlying graphics system.
-    /// </summary>
-    public readonly IGraphicsSystem Graphics;
+    [Resolved]
+    private ShaderUniformManager uniforms { get; set; } = null!;
 
-    /// <summary>
-    /// The underlying graphics resource factory.
-    /// </summary>
-    public readonly IGraphicsFactory Factory;
+    private int stateStackDepth;
+    private GraphicsState currentState;
+    private BackBufferRenderTarget backBufferRenderTarget;
+    private readonly Lazy<Texture> whitePixelTexture;
+    private readonly Texture?[] textures = new Texture[16];
+    private readonly Stack<GraphicsState> stateStack = new();
+    private readonly Queue<Action> scheduledActions = new();
 
-    /// <summary>
-    /// The global uniforms for this graphics context.
-    /// </summary>
-    public readonly GlobalUniformManager Uniforms = new();
-
-    private readonly Queue<Action> disposals = new();
-    private readonly Stack<StencilInfo> stencilStack = new();
-    private readonly Stack<DepthInfo> depthStack = new();
-    private readonly Stack<Viewport> viewportStack = new();
-    private readonly Stack<Rectangle> scissorStack = new();
-    private readonly Stack<bool> scissorStateStack = new();
-    private readonly Stack<Shader> shaderStack = new();
-    private readonly Stack<FrameBuffer?> frameBufferStack = new();
-    private readonly Stack<Matrix4x4> projMatrixStack = new();
-    private readonly Texture[] boundTextures = new Texture[16];
-    private int prevBoundTextureUnit = -1;
-    private IndexFormat? prevBoundIndexFormat;
-    private IVertexLayout? prevBoundVertexLayout;
-
-    internal GraphicsContext(IGraphicsSystem graphics, IView view)
+    public GraphicsContext()
     {
-        View = view;
-
-        Graphics = graphics;
-        Graphics.Initialize(view);
-
-        Factory = graphics.CreateFactory();
-
-        WhitePixel = new Texture(this, Factory.CreateTexture(1, 1, 1, 1, 1, FilterMode.Nearest, FilterMode.Nearest, WrapMode.Repeat, WrapMode.Repeat, WrapMode.Repeat, TextureType.Texture2D, TextureUsage.Sampled, TextureSampleCount.Count1, PixelFormat.R8_G8_B8_A8_UNorm_SRgb));
-        WhitePixel.SetData(new byte[] { 255, 255, 255, 255 }, 0, 0, 0, 1, 1, 1, 0, 0);
+        whitePixelTexture = new(createWhitePixel);
     }
 
     /// <summary>
-    /// Prepare for the next frame.
+    /// Makes the calling thread the current context.
     /// </summary>
-    public void Prepare()
-    {
-        while (disposals.TryDequeue(out var dispose))
-            dispose();
+    internal void MakeCurrent() => graphics.MakeCurrent();
 
-        Reset();
-        Clear(new ClearInfo(new Color4(0, 0, 0, 1f)));
+    /// <summary>
+    /// Presents the current frame to the surface.
+    /// </summary>
+    internal void Present() => graphics.Present();
+
+    /// <summary>
+    /// Prepares the graphics context for the next frame.
+    /// </summary>
+    internal void Prepare(Size2 size)
+    {
+        while (scheduledActions.TryDequeue(out var action))
+            action();
+
+        graphics.Prepare();
+
+        stateStackDepth = 0;
+        stateStack.Clear();
+
+        currentState = new(backBufferRenderTarget = new(size));
+
+        Depth = new(true);
+        Blend = new(BlendingMask.None, new());
+        Stencil = new(false);
+        Scissor = new(true, new(0, 0, size.Width, size.Height));
+        Viewport = new(0, 0, size.Width, size.Height, 0, 1);
+        FaceCulling = FaceCulling.Back;
+        FaceWinding = FaceWinding.CounterClockwise;
+
+        stateStack.Push(currentState);
+
+        Clear(new ClearInfo(Color4.Black));
     }
 
     /// <summary>
-    /// Presents the current frame to the window.
+    /// Schedules an action to be invoked at the preparation step of the context.
     /// </summary>
-    public void Present()
-    {
-        Graphics.Present();
-    }
-
-    /// <summary>
-    /// Resets the state of the graphics context.
-    /// </summary>
-    public void Reset()
-    {
-        CurrentBlend = new();
-        CurrentShader = null;
-        CurrentScissor = Rectangle.Empty;
-        CurrentViewport = Viewport.Empty;
-        CurrentProjectionMatrix = Matrix4x4.Identity;
-        CurrentFrameBuffer = null;
-        CurrentIndexBuffer = null;
-        CurrentVertexBuffer = null;
-        CurrentScissorState = false;
-        prevBoundTextureUnit = -1;
-        prevBoundIndexFormat = null;
-        prevBoundVertexLayout = null;
-
-        depthStack.Clear();
-        shaderStack.Clear();
-        stencilStack.Clear();
-        scissorStack.Clear();
-        viewportStack.Clear();
-        projMatrixStack.Clear();
-        scissorStateStack.Clear();
-        boundTextures.AsSpan().Clear();
-
-        Graphics.Reset();
-
-        PushScissorState(true);
-        PushViewport(new Viewport(0, 0, View.Size.Width, View.Size.Height, 0, 1));
-        PushScissor(new Rectangle(0, 0, View.Size.Width, View.Size.Height));
-        PushDepth(new DepthInfo(true));
-        PushStencil(new StencilInfo(false));
-    }
+    /// <param name="obj">The graphics object to dispose.</param>
+    internal void Schedule(Action action) => scheduledActions.Enqueue(action);
 
     /// <summary>
     /// Clears the current framebuffer.
     /// </summary>
     public void Clear(ClearInfo info)
     {
-        PushDepth(new DepthInfo(writeDepth: true));
-        PushScissorState(false);
-
-        Graphics.Clear(info);
-
-        PopScissorState();
-        PopDepth();
-    }
-
-    /// <summary>
-    /// Sets the current blending parameters.
-    /// </summary>
-    public void SetBlend(BlendingParameters blend)
-    {
-        if (CurrentBlend == blend)
-            return;
-
-        Graphics.SetBlend(blend);
-        CurrentBlend = blend;
-    }
-
-    /// <summary>
-    /// Sets the current blending mask.
-    /// </summary>
-    public void SetBlendMask(BlendingMask mask)
-    {
-        if (CurrentBlendMask == mask)
-            return;
-
-        Graphics.SetBlendMask(mask);
-        CurrentBlendMask = mask;
-    }
-
-    /// <summary>
-    /// Sets the current face winding.
-    /// </summary>
-    public void SetFaceWinding(FaceWinding winding)
-    {
-        if (CurrentFaceWinding == winding)
-            return;
-
-        Graphics.SetFaceWinding(winding);
-        CurrentFaceWinding = winding;
-    }
-
-    /// <summary>
-    /// Sets the current face culling.
-    /// </summary>
-    public void SetFaceCulling(FaceCulling culling)
-    {
-        if (CurrentFaceCulling == culling)
-            return;
-
-        Graphics.SetFaceCulling(culling);
-        CurrentFaceCulling = culling;
-    }
-
-    /// <summary>
-    /// Applies new depth parameters.
-    /// </summary>
-    public void PushDepth(DepthInfo depth)
-    {
-        depthStack.Push(depth);
-        setDepth(depth);
-    }
-
-    /// <summary>
-    /// Restores the previous depth parameters.
-    /// </summary>
-    public void PopDepth()
-    {
-        depthStack.Pop();
-        setDepth(depthStack.Peek());
-    }
-
-    /// <summary>
-    /// Applies a new viewport rectangle.
-    /// </summary>
-    public void PushViewport(Viewport viewport)
-    {
-        viewportStack.Push(viewport);
-        setViewport(viewport);
-    }
-
-    /// <summary>
-    /// Restores the previous viewport rectangle.
-    /// </summary>
-    public void PopViewport()
-    {
-        viewportStack.Pop();
-        setViewport(viewportStack.Peek());
-    }
-
-    /// <summary>
-    /// Applies a new scissor rectangle.
-    /// </summary>
-    public void PushScissor(Rectangle scissor)
-    {
-        scissorStack.Push(scissor);
-        setScissor(scissor);
-    }
-
-    /// <summary>
-    /// Restores the previous scissor rectangle.
-    /// </summary>
-    public void PopScissor()
-    {
-        scissorStack.Pop();
-        setScissor(scissorStack.Peek());
-    }
-
-    /// <summary>
-    /// Applies a new scissor state.
-    /// </summary>
-    public void PushScissorState(bool enabled)
-    {
-        scissorStateStack.Push(enabled);
-        setScissorState(enabled);
-    }
-
-    /// <summary>
-    /// Restores the previous scissor state.
-    /// </summary>
-    public void PopScissorState()
-    {
-        scissorStateStack.Pop();
-        setScissorState(scissorStateStack.Peek());
-    }
-
-    /// <summary>
-    /// Applies the new stencil parameters.
-    /// </summary>
-    public void PushStencil(StencilInfo stencil)
-    {
-        stencilStack.Push(stencil);
-        setStencil(stencil);
-    }
-
-    /// <summary>
-    /// Restores the previous stencil parameters.
-    /// </summary>
-    public void PopStencil()
-    {
-        stencilStack.Pop();
-        setStencil(stencilStack.Peek());
-    }
-
-    /// <summary>
-    /// Draws vertices onto the current framebuffer.
-    /// </summary>
-    public void Draw(int count, PrimitiveTopology topology)
-    {
-        if (CurrentShader is null)
-            throw new InvalidOperationException(@"A shader must be bound before draw operations can begin.");
-
-        if (CurrentVertexBuffer is null || CurrentIndexBuffer is null)
-            throw new InvalidOperationException(@"A vertex buffer and index buffer must be bound before draw operations can begin.");
-
-        Graphics.Draw(count, topology);
-    }
-
-    public void PushProjectionMatrix(Matrix4x4 matrix)
-    {
-        projMatrixStack.Push(matrix);
-        setProjectionMatrix(matrix);
-    }
-
-    public void PopProjectionMatrix()
-    {
-        projMatrixStack.Pop();
-
-        if (!projMatrixStack.TryPeek(out var matrix))
-            matrix = Matrix4x4.Identity;
-
-        setProjectionMatrix(matrix);
-    }
-
-    internal void BindShader(Shader shader)
-    {
-        shaderStack.Push(shader);
-        setShader(shader);
-    }
-
-    internal void UnbindShader(Shader shader)
-    {
-        if (shaderStack.Count > 0 && shaderStack.Peek() != shader)
-            throw new InvalidOperationException(@"Attempting to unbind shader whilst not currently bound.");
-
-        shaderStack.Pop();
-
-        if (shaderStack.TryPeek(out var next))
+        using (BeginContext())
         {
-            setShader(next);
+            Depth = new(writeDepth: true);
+            Scissor = new(false);
+            graphics.Clear(info);
+        }
+    }
+
+    /// <summary>
+    /// Begins a new context where the existing state is captured and restored after disposal.
+    /// </summary>
+    public IDisposable BeginContext()
+    {
+        Capture();
+        return new ValueInvokeOnDisposal(Restore);
+    }
+
+    /// <summary>
+    /// The captures the current graphics state.
+    /// </summary>
+    /// <remarks>
+    /// The properties being captured and restored are as follows:
+    /// <list type="bullet">
+    /// <item>Depth</item>
+    /// <item>Blend</item>
+    /// <item>Scissor</item>
+    /// <item>Stencil</item>
+    /// <item>Viewport</item>
+    /// <item>Face Winding</item>
+    /// <item>Face Culling</item>
+    /// <item>Shader</item>
+    /// <item>Render Target</item>
+    /// <item>Index Buffer</item>
+    /// <item>Vertex Buffer</item>
+    /// <item>Transform</item>
+    /// </list>
+    /// </remarks>
+    public void Capture()
+    {
+        stateStack.Push(new(currentState));
+        stateStackDepth++;
+    }
+
+    /// <summary>
+    /// The restores the previous graphics state.
+    /// </summary>
+    public void Restore()
+    {
+        if (stateStackDepth <= 0 || !stateStack.TryPeek(out var prev))
+            throw new InvalidOperationException(@"Cannot have more restores than captures.");
+
+        Depth = prev.Depth;
+        Blend = prev.Blend;
+        Stencil = prev.Stencil;
+        Scissor = prev.Scissor;
+        Viewport = prev.Viewport;
+        FaceWinding = prev.FaceWinding;
+        FaceCulling = prev.FaceCulling;
+
+        SetShader(prev.Shader);
+        SetBuffer(prev.Index.Buffer, prev.Index.Format);
+        SetBuffer(prev.Vertex.Buffer, prev.Vertex.Layout);
+        SetTransform(prev.Transform.Model, prev.Transform.View, prev.Transform.Projection);
+        SetRenderTarget(prev.Target);
+
+        stateStackDepth--;
+        stateStack.Pop();
+    }
+
+    /// <summary>
+    /// Sets a texture at a given slot.
+    /// </summary>
+    /// <param name="texture">The texture to be set. If <see cref="null"/>, then the texture at that given slot is empty.</param>
+    /// <param name="slot">The texture slot to be replaced.</param>
+    public void SetTexture(Texture? texture, TextureUnit slot = 0)
+    {
+        if (!Enum.IsDefined(slot))
+            throw new ArgumentOutOfRangeException(nameof(slot));
+
+        if (ReferenceEquals(textures[(int)slot], texture))
+            return;
+
+        textures[(int)slot] = texture;
+        graphics.SetTexture(textures[(int)slot]?.Native, (int)slot);
+    }
+
+    /// <summary>
+    /// Sets the current render target where all draw operations will be blitted on to.
+    /// </summary>
+    /// <param name="target">The render target to be set.</param>
+    public void SetRenderTarget(IRenderTarget target)
+    {
+        if (ReferenceEquals(currentState.Target, target))
+            return;
+
+        currentState.Target = target;
+        graphics.SetRenderTarget(currentState.Target?.Native);
+    }
+
+    /// <summary>
+    /// Sets the current shader used for drawing operations.
+    /// </summary>
+    /// <param name="shader">The shader to be set. If <see cref="null"/>, then the current shader is unbound.</param>
+    public void SetShader(Shader? shader = null)
+    {
+        if (ReferenceEquals(currentState.Shader, shader))
+            return;
+
+        currentState.Shader = shader;
+        graphics.SetShader(currentState.Shader?.Native);
+    }
+
+    /// <summary>
+    /// Sets the current vertex buffer used for drawing operations.
+    /// </summary>
+    /// <param name="buffer">The buffer to be set.</param>
+    /// <param name="layout">The vertex layout this buffer is assumed to be using.</param>
+    public void SetBuffer(Buffers.Buffer? buffer = null, IVertexLayout? layout = null)
+    {
+        if (ReferenceEquals(currentState.Vertex.Buffer, buffer))
+            return;
+
+        currentState.Vertex = new(buffer, layout);
+        graphics.SetBuffer(buffer?.Native, layout);
+    }
+
+    /// <summary>
+    /// Sets the current index buffer used for drawing operations.
+    /// </summary>
+    /// <param name="buffer">The buffer to be set.</param>
+    /// <param name="format">The index format this buffer is assumed to be using.</param>
+    public void SetBuffer(Buffers.Buffer? buffer = null, IndexFormat format = IndexFormat.UInt16)
+    {
+        if (ReferenceEquals(currentState.Index.Buffer, buffer))
+            return;
+
+        currentState.Index = new(buffer, format);
+        graphics.SetBuffer(buffer?.Native, format);
+    }
+
+    /// <summary>
+    /// Sets the current vertex or index buffer whose binding type is determined from its type argument.
+    /// </summary>
+    /// <param name="buffer">The buffer to be set.</param>
+    /// <exception cref="NotSupportedException">Thrown when the buffer binding type is neither a vertex or an index buffer.</exception>
+    public void SetBuffer<T>(Buffer<T> buffer)
+        where T : unmanaged
+    {
+        if (typeof(T).IsAssignableTo(typeof(IVertex)))
+        {
+            SetBuffer(buffer, VertexLayout.GetLayout(typeof(T)));
+        }
+        else if (supported_index_formats.TryGetValue(typeof(T), out var format))
+        {
+            SetBuffer(buffer, format);
         }
         else
         {
-            setShader(null);
+            throw new NotSupportedException(@"Cannot determine buffer binding type from given buffer.");
         }
     }
 
-    internal void BindTexture(Texture texture, int unit)
+    /// <summary>
+    /// Sets the current model, view, and projection matrices.
+    /// </summary>
+    /// <param name="model">The model matrix</param>
+    /// <param name="view">The view matrix</param>
+    /// <param name="projection">The projection matrix</param>
+    public void SetTransform(Matrix4x4 model, Matrix4x4 view, Matrix4x4 projection)
     {
-        if (prevBoundTextureUnit == unit && boundTextures[unit] == texture)
+        if (model.Equals(currentState.Transform.Model) && view.Equals(currentState.Transform.View) && projection.Equals(currentState.Transform.Projection))
             return;
 
-        Graphics.SetTexture(texture.Native, unit);
-        boundTextures[unit] = texture;
-        prevBoundTextureUnit = unit;
+        setUniformValue(GlobalUniforms.View, currentState.Transform.View = view);
+        setUniformValue(GlobalUniforms.Model, currentState.Transform.Model = model);
+        setUniformValue(GlobalUniforms.Projection, currentState.Transform.Projection = projection);
     }
 
-    internal void UnbindTexture(Texture texture, int unit = 0)
+    /// <summary>
+    /// Draws using the currently bound vertex buffer to the currently bound render target.
+    /// </summary>
+    /// <param name="vertexCount">The number of vertices to be drawn.</param>
+    /// <param name="topology">The topology of the vertices.</param>
+    /// <param name="instanceCount">The number of instances to be drawn.</param>
+    /// <param name="baseVertex">The base vertex number for instanced rendering.</param>
+    /// <param name="baseInstance">The base instance number for instanced rendering.</param>
+    /// <exception cref="InvalidOperationException">Thrown when the context is in an invalid state.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when invalid arguments are specified.</exception>
+    public void Draw(uint vertexCount, PrimitiveTopology topology, uint instanceCount = 1, int baseVertex = 0, uint baseInstance = 0)
     {
-        if (boundTextures[unit] is null || boundTextures[unit] != texture)
-            return;
+        if (currentState.Shader is null)
+            throw new InvalidOperationException(@"A shader must be bound before draw operations can begin.");
 
-        Graphics.SetTexture(null, unit);
-        boundTextures[unit] = null!;
+        if (currentState.Vertex.Buffer is null)
+            throw new InvalidOperationException(@"A vertex buffer must be bound before draw operations can begin.");
+
+        graphics.Draw(vertexCount, topology, instanceCount, baseVertex, baseInstance);
     }
 
-    internal void BindIndexBuffer(Buffers.Buffer buffer, IndexFormat format)
+    /// <summary>
+    /// Draws using the currently bound vertex and index buffer to the currently bound render target.
+    /// </summary>
+    /// <param name="indexCount">The number of indices to be used for drawing.</param>
+    /// <param name="topology">The topology of the vertices.</param>
+    /// <param name="instanceCount">The number of instances to be drawn.</param>
+    /// <param name="indexOffset">The offset in the index buffer where to start.</param>
+    /// <param name="baseVertex">The base vertex number for instanced rendering.</param>
+    /// <param name="baseInstance">The base instance number for instanced rendering.</param>
+    /// <exception cref="InvalidOperationException">Thrown when the context is in an invalid state.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when invalid arguments are specified.</exception>
+    public void DrawIndexed(uint indexCount, PrimitiveTopology topology, uint instanceCount = 1, uint indexOffset = 0, int baseVertex = 0, uint baseInstance = 0)
     {
-        if (prevBoundIndexFormat.HasValue && prevBoundIndexFormat.Value == format && CurrentIndexBuffer == buffer)
-            return;
+        if (currentState.Shader is null)
+            throw new InvalidOperationException(@"A shader must be bound before draw operations can begin.");
 
-        Graphics.SetIndexBuffer(buffer.Native, format);
-        CurrentIndexBuffer = buffer;
-        prevBoundIndexFormat = format;
+        if (currentState.Vertex.Buffer is null || currentState.Index.Buffer is null)
+            throw new InvalidOperationException(@"A vertex and index buffer must be bound before draw operations can begin.");
+
+        graphics.DrawIndexed(indexCount, topology, instanceCount, indexOffset, baseVertex, baseInstance);
     }
 
-    internal void BindVertexBuffer(Buffers.Buffer buffer, IVertexLayout layout)
+    /// <summary>
+    /// Draws using an indirect buffer to the currently bound render target.
+    /// </summary>
+    /// <param name="buffer">The indirect buffer to be used.</param>
+    /// <param name="topology">The topology of the vertices</param>
+    /// <param name="offset">The offset in the indirect buffer.</param>
+    /// <param name="drawCount">The number of draw calls to be done.</param>
+    /// <param name="stride">The stride of the indirect buffer.</param>
+    /// <exception cref="InvalidOperationException">Thrown when the context is in an invalid state.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when invalid arguments are specified.</exception>
+    public void DrawIndirect(Buffer<IndirectDrawArguments> buffer, PrimitiveTopology topology, uint offset = 0, uint drawCount = 1)
     {
-        if ((prevBoundVertexLayout?.Equals(layout) ?? false) && CurrentVertexBuffer == buffer)
-            return;
+        if (currentState.Shader is null)
+            throw new InvalidOperationException(@"A shader must be bound before draw operations can begin.");
 
-        Graphics.SetVertexBuffer(buffer.Native, layout);
-        CurrentVertexBuffer = buffer;
-        prevBoundVertexLayout = layout;
+        if (currentState.Vertex.Buffer is null)
+            throw new InvalidOperationException(@"A vertex buffer must be bound before draw operations can begin.");
+
+        if (offset < 0)
+            throw new ArgumentOutOfRangeException(nameof(offset), @"Buffer offset cannot be less than 0.");
+
+        if (drawCount <= 0)
+            throw new ArgumentOutOfRangeException(nameof(drawCount), @"Draw count cannot be less than 1.");
+
+        graphics.DrawIndirect(buffer.Native, topology, offset, drawCount);
     }
 
-    internal void BindFrameBuffer(FrameBuffer? frameBuffer)
+    /// <summary>
+    /// Draws using an indirect buffer to the currently bound render target.
+    /// </summary>
+    /// <param name="buffer">The indirect buffer to be used.</param>
+    /// <param name="topology">The topology of the vertices</param>
+    /// <param name="offset">The offset in the indirect buffer.</param>
+    /// <param name="drawCount">The number of draw calls to be done.</param>
+    /// <param name="stride">The stride of the indirect buffer.</param>
+    /// <exception cref="InvalidOperationException">Thrown when the context is in an invalid state.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when invalid arguments are specified.</exception>
+    public void DrawIndexedIndirect(Buffer<IndirectDrawArguments> buffer, PrimitiveTopology topology, uint offset = 0, uint drawCount = 1)
     {
-        frameBufferStack.Push(frameBuffer);
-        setFrameBuffer(frameBuffer);
+        if (currentState.Shader is null)
+            throw new InvalidOperationException(@"A shader must be bound before draw operations can begin.");
+
+        if (currentState.Vertex.Buffer is null || currentState.Index.Buffer is null)
+            throw new InvalidOperationException(@"A vertex and index buffer must be bound before draw operations can begin.");
+
+        if (offset < 0)
+            throw new ArgumentOutOfRangeException(nameof(offset), @"Buffer offset cannot be less than 0.");
+
+        if (drawCount <= 0)
+            throw new ArgumentOutOfRangeException(nameof(drawCount), @"Draw count cannot be less than 1.");
+
+        graphics.DrawIndexedIndirect(buffer.Native, topology, offset, drawCount);
     }
 
-    internal void UnbindFrameBuffer(FrameBuffer? frameBuffer)
+    private void setUniformValue<T>(GlobalUniforms key, T value)
+        where T : unmanaged, IEquatable<T>
     {
-        if (CurrentFrameBuffer != frameBuffer)
-            throw new InvalidOperationException(@"Attempting to unbind framebuffer whilst currently not bound.");
-
-        frameBufferStack.Pop();
-        setFrameBuffer(frameBufferStack.Count > 0 ? frameBufferStack.Peek() : null);
+        ((GlobalUniform<T>)uniforms[key]).Value = value;
     }
 
-    internal void EnqueueDisposal(Action action)
+    private Texture createWhitePixel()
     {
-        disposals.Enqueue(action);
+        var texture = Texture.New2D(1, 1, PixelFormat.B8_G8_R8_A8_UNorm_SRgb);
+        texture.SetData(new byte[] { 255, 255, 255, 255 }, 0, 0, 0, 1, 1, 1, 0, 0);
+        return texture;
     }
 
-    private void setDepth(DepthInfo depth)
+    private static readonly Dictionary<Type, IndexFormat> supported_index_formats = new()
     {
-        if (CurrentDepth == depth)
-            return;
+        { typeof(int), IndexFormat.UInt32 },
+        { typeof(uint), IndexFormat.UInt32 },
+        { typeof(short), IndexFormat.UInt16 },
+        { typeof(ushort), IndexFormat.UInt16 },
+    };
 
-        Graphics.SetDepth(depth);
-        CurrentDepth = depth;
+    private struct GraphicsState
+    {
+        public DepthInfo Depth;
+        public BlendInfo Blend;
+        public ScissorInfo Scissor;
+        public StencilInfo Stencil;
+        public Viewport Viewport;
+        public FaceWinding FaceWinding;
+        public FaceCulling FaceCulling;
+        public Shader? Shader;
+        public IRenderTarget Target;
+        public IndexBufferInfo Index;
+        public VertexBufferInfo Vertex;
+        public TransformInfo Transform;
+
+        public GraphicsState(BackBufferRenderTarget backBufferRenderTarget)
+        {
+            Target = backBufferRenderTarget;
+        }
+
+        public GraphicsState(GraphicsState state)
+        {
+            Depth = state.Depth;
+            Blend = state.Blend;
+            Scissor = state.Scissor;
+            Stencil = state.Stencil;
+            Viewport = state.Viewport;
+            FaceWinding = state.FaceWinding;
+            FaceCulling = state.FaceCulling;
+            Shader = state.Shader;
+            Target = state.Target;
+            Index = state.Index;
+            Vertex = state.Vertex;
+        }
     }
 
-    private void setViewport(Viewport viewport)
+    private struct TransformInfo
     {
-        if (CurrentViewport == viewport)
-            return;
-
-        Graphics.SetViewport(viewport);
-        CurrentViewport = viewport;
+        public Matrix4x4 Model;
+        public Matrix4x4 View;
+        public Matrix4x4 Projection;
     }
 
-    private void setScissor(Rectangle scissor)
+    private struct IndexBufferInfo
     {
-        if (CurrentScissor == scissor)
-            return;
+        public IndexFormat Format;
+        public Buffers.Buffer? Buffer;
 
-        Graphics.SetScissor(scissor);
-        CurrentScissor = scissor;
+        public IndexBufferInfo(Buffers.Buffer? buffer, IndexFormat format)
+        {
+            Buffer = buffer;
+            Format = format;
+        }
     }
 
-    private void setScissorState(bool enabled)
+    private struct VertexBufferInfo
     {
-        if (CurrentScissorState == enabled)
-            return;
+        public IVertexLayout? Layout;
+        public Buffers.Buffer? Buffer;
 
-        Graphics.SetScissorState(enabled);
-        CurrentScissorState = enabled;
-    }
-
-    private void setStencil(StencilInfo stencil)
-    {
-        if (CurrentStencil == stencil)
-            return;
-
-        Graphics.SetStencil(stencil);
-        CurrentStencil = stencil;
-    }
-
-    private void setShader(Shader? shader)
-    {
-        if (CurrentShader == shader)
-            return;
-
-        Graphics.SetShader(shader?.Native);
-        shader?.Native.Update();
-
-        CurrentShader = shader;
-    }
-
-    private void setFrameBuffer(FrameBuffer? frameBuffer)
-    {
-        if (CurrentFrameBuffer == frameBuffer)
-            return;
-
-        Graphics.SetFrameBuffer(frameBuffer?.Native);
-        CurrentFrameBuffer = frameBuffer;
-    }
-
-    private void setProjectionMatrix(Matrix4x4 matrix)
-    {
-        if (CurrentProjectionMatrix == matrix)
-            return;
-
-        CurrentProjectionMatrix = matrix;
-        Uniforms.GetUniform<Matrix4x4>(GlobalUniforms.Projection).Value = matrix;
+        public VertexBufferInfo(Buffers.Buffer? buffer, IVertexLayout? layout)
+        {
+            Buffer = buffer;
+            Layout = layout;
+        }
     }
 
     private struct BackBufferRenderTarget : IRenderTarget
     {
-        public int Width => context.View.Size.Width;
-        public int Height => context.View.Size.Height;
-        private readonly GraphicsContext context;
+        public int Width { get; }
+        public int Height { get; }
 
-        public BackBufferRenderTarget(GraphicsContext context)
+        public BackBufferRenderTarget(Size2 size)
         {
-            this.context = context;
+            Width = size.Width;
+            Height = size.Height;
         }
 
-        public void Bind()
-        {
-            context.BindFrameBuffer(null);
-        }
-
-        public void Unbind()
-        {
-            context.UnbindFrameBuffer(null);
-        }
-
-        public void Dispose()
-        {
-        }
+        NativeRenderTarget IRenderTarget.Native => null!;
     }
 }

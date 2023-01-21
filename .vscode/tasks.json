@@ -7,8 +7,9 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/Sekai.Examples.slnf",
+                "${workspaceFolder}/Sekai.Universal.slnf",
                 "/property:GenerateFullPaths=true",
+                "/property:TargetFramework=net7.0",
                 "/consoleloggerparameters:NoSummary"
             ],
             "problemMatcher": "$msCompile"

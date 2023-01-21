@@ -3,6 +3,9 @@
 
 namespace Sekai.Windowing;
 
+/// <summary>
+/// Window Border
+/// </summary>
 public enum WindowBorder
 {
     /// <summary>

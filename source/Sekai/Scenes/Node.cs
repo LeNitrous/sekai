@@ -7,53 +7,27 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using Sekai.Processors;
 using Sekai.Serialization;
 
 namespace Sekai.Scenes;
 
 /// <summary>
-/// A node is a container for other child <see cref="Node"/>s or <see cref="Component"/>s which can extend functionality providing
-/// visual or logical representations of itself. These are contained in <see cref="Scenes.Scene"/>s which contain <see cref="Processor"/>s
-/// and the <see cref="Rendering.Renderer"/> which actually handle updating and drawing components which it owns.
+/// An entity that exists in a <see cref="Scenes.Scene"/>. It can contain its own children nodes or components which can extend its functionality.
 /// </summary>
-public class Node : AttachableObject, IReferenceable, IProcessorAttachable, ICollection<Node>, IReadOnlyList<Node>, IEnumerable<Component>
+[Serializable]
+public class Node : NodeCollection, IReferenceable, IEnumerable<Component>
 {
     public Guid Id { get; }
-    public Scene? Scene { get; private set; }
 
     /// <summary>
-    /// The parent where this node is attached to.
+    /// The node's parent.
     /// </summary>
     public Node? Parent { get; private set; }
 
     /// <summary>
-    /// Gets a child node at a given index.
+    /// The node's scene.
     /// </summary>
-    public Node this[int index] => children[index];
-
-    /// <summary>
-    /// The node's children.
-    /// </summary>
-    public IEnumerable<Node> Children
-    {
-        get => children;
-        set
-        {
-            Clear();
-            AddRange(value);
-        }
-    }
-
-    /// <summary>
-    /// The number of children this node has.
-    /// </summary>
-    public int Count => children.Count;
-
-    /// <summary>
-    /// Whether this node is read-only.
-    /// </summary>
-    public bool IsReadOnly => false;
+    public Scene? Scene { get; internal set; }
 
     /// <summary>
     /// The node's components.
@@ -63,140 +37,128 @@ public class Node : AttachableObject, IReferenceable, IProcessorAttachable, ICol
         get => components;
         set
         {
-            RemoveRange(components.ToArray());
-            AddRange(value);
+            ClearComponents();
+            AddComponentRange(value);
         }
     }
 
-    private int next = 16;
+    /// <summary>
+    /// Invoked when a component has been added to this node.
+    /// </summary>
+    public event EventHandler<ComponentEventArgs>? OnComponentAdded;
+
+    /// <summary>
+    /// Invoked when a component has been removed from this node.
+    /// </summary>
+    public event EventHandler<ComponentEventArgs>? OnComponentRemoved;
+
     private int current;
+    private int next = 16;
     private Component[] components = Array.Empty<Component>();
     private readonly Dictionary<Type, int> indices = new();
-    private readonly List<Node> children = new();
-    private IEnumerable<Component> componentsEnumerable => this;
 
-    /// <summary>
-    /// Adds a child node to this node.
-    /// </summary>
-    public void Add(Node item)
+    public Node()
     {
-        if (item == this)
-            throw new InvalidOperationException(@"Cannot add self as a child.");
-
-        if (item.IsAttached)
-            throw new InvalidOperationException(@"Node is already attached.");
-
-        if (children.Contains(item))
-            return;
-
-        children.Add(item);
-
-        if (IsAttached)
-            item.Attach(this);
+        OnNodeAdded += handleNodeAdded;
+        OnNodeRemoved += handleNodeRemoved;
     }
 
     /// <summary>
-    /// Adss a range of children nodes.
+    /// Gets the root node.
     /// </summary>
-    public void AddRange(IEnumerable<Node> items)
+    /// <remarks>
+    /// This is an expensive operation and should not be called frequently!
+    /// </remarks>
+    public Node GetRoot()
     {
-        foreach (var item in items)
-            Add(item);
+        var node = this;
+
+        while (node.Parent is not null)
+        {
+            node = node.Parent;
+        }
+
+        return node;
     }
 
     /// <summary>
-    /// Removes all children from this node.
+    /// Attempts to get a component of a given type.
     /// </summary>
-    public void Clear()
+    /// <param name="type">The type of component.</param>
+    /// <param name="component">The component retrieved.</param>
+    /// <returns>True if the component is found.</returns>
+    public bool TryGetComponent(Type type, [NotNullWhen(true)] out Component? component)
     {
-        foreach (var item in children)
-            Remove(item);
-    }
-
-    /// <summary>
-    /// Returns whether a node is a child of this node.
-    /// </summary>
-    public bool Contains(Node item)
-    {
-        return children.Contains(item);
-    }
-
-    /// <summary>
-    /// Copies the children to another array.
-    /// </summary>
-    public void CopyTo(Node[] array, int arrayIndex)
-    {
-        children.CopyTo(array, arrayIndex);
-    }
-
-    /// <summary>
-    /// Returns the child enumerator for this node.
-    /// </summary>
-    public IEnumerator<Node> GetEnumerator()
-    {
-        return children.GetEnumerator();
-    }
-
-    /// <summary>
-    /// Removes a child node from this node.
-    /// </summary>
-    public bool Remove(Node item)
-    {
-        if (item == this)
-            throw new InvalidOperationException(@"Cannot remove self from children.");
-
-        if (!item.IsAttached)
+        if (HasComponent(type))
+        {
+            component = GetComponent(type);
+            return true;
+        }
+        else
+        {
+            component = null;
             return false;
+        }
+    }
 
-        if (!children.Contains(item))
+    /// <summary>
+    /// Attempts to get a component of a given type.
+    /// </summary>
+    /// <typeparam name="T">The type of component.</typeparam>
+    /// <param name="component">The component retrieved.</param>
+    /// <returns>True if the component is found.</returns>
+    public bool TryGetComponent<T>([NotNullWhen(true)] out T? component)
+        where T : Component
+    {
+        if (HasComponent<T>())
+        {
+            component = GetComponent<T>();
+            return true;
+        }
+        else
+        {
+            component = null;
             return false;
-
-        children.Remove(item);
-
-        if (IsAttached)
-            item.Detach(this);
-
-        return true;
+        }
     }
 
     /// <summary>
-    /// Removes a range of children nodes from this node.
+    /// Gets a component of a given type.
     /// </summary>
-    public void RemoveRange(IEnumerable<Node> items)
+    /// <param name="type">The component's type.</param>
+    /// <returns>The component retrieved.</returns>
+    /// <exception cref="ComponentNotFoundException">Thrown if the component is not found.</exception>
+    public Component GetComponent(Type type)
     {
-        foreach (var item in items)
-            Remove(item);
-    }
+        if (!indices.TryGetValue(type, out int index))
+            throw new ComponentNotFoundException($"A component of type {type} is not present in this node.");
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
+        return components[index];
     }
 
     /// <summary>
-    /// Adds a component of a given type to this node.
+    /// Gets a component of a given type.
     /// </summary>
-    public void Add<U>()
-        where U : Component, new()
+    /// <typeparam name="T">The component's type.</typeparam>
+    /// <returns>The component retrieved.</returns>
+    public T GetComponent<T>()
+        where T : Component
     {
-        if (indices.ContainsKey(typeof(U)))
-            throw new InvalidOperationException($"A component of type {typeof(U)} already exists in this collection.");
-
-        Add(Activator.CreateInstance<U>());
+        return Unsafe.As<T>(GetComponent(typeof(T)));
     }
 
     /// <summary>
     /// Adds a component to this node.
     /// </summary>
-    public void Add(Component item)
+    /// <param name="item">The component to be added.</param>
+    /// <returns>The node itself.</returns>
+    /// <exception cref="ComponentExistsException">Thrown when a component of a given type already exists.</exception>
+    public Node AddComponent(Component item)
     {
         var type = item.GetType();
 
-        if (Contains(item))
-            throw new InvalidOperationException(@"The component already exists in this collection.");
-
-        if (indices.ContainsKey(type))
-            throw new InvalidOperationException($"A component of type {type} already exists in this collection.");
+        if (HasComponent(type))
+            throw new ComponentExistsException($"A component of type {type} already exists in this node.");
 
         if (current + 1 > components.Length)
             Array.Resize(ref components, next >>= 1);
@@ -205,191 +167,218 @@ public class Node : AttachableObject, IReferenceable, IProcessorAttachable, ICol
         components[current] = item;
 
         current++;
+        OnComponentAdded?.Invoke(this, new ComponentEventArgs(item));
 
-        if (IsAttached)
-            item.Attach(this);
+        item.Attach(this);
+
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a component of a given type.
+    /// </summary>
+    /// <param name="type">The type of component to be added.</param>
+    /// <returns>The node itself.</returns>
+    /// <exception cref="InvalidCastException">Thrown when the provided type is not a component.</exception>
+    /// <exception cref="TypeLoadException">Thrown when the provided type is abstract.</exception>
+    /// <exception cref="ComponentExistsException">Thrown when the provided type already exists in this node.</exception>
+    public Node AddComponent(Type type)
+    {
+        if (!type.IsSubclassOf(typeof(Component)))
+            throw new InvalidCastException($"{type} must be a subclass of {nameof(Component)}.");
+
+        if (type.IsAbstract)
+            throw new TypeLoadException($"{type} must not be abstract.");
+
+        if (HasComponent(type))
+            throw new ComponentExistsException($"A component of type {type} already exists in this node.");
+
+        return AddComponent((Component)Activator.CreateInstance(type)!);
+    }
+
+    /// <summary>
+    /// Adds a component of a given type.
+    /// </summary>
+    /// <typeparam name="T">The type of component to be added.</typeparam>
+    /// <returns>The node itself.</returns>
+    /// <exception cref="InvalidCastException">Thrown when the provided type is not a component.</exception>
+    /// <exception cref="TypeLoadException">Thrown when the provided type is abstract.</exception>
+    /// <exception cref="ComponentExistsException">Thrown when the provided type already exists in this node.</exception>
+    public Node AddComponent<T>()
+        where T : Component, new()
+    {
+        if (HasComponent(typeof(T)))
+            throw new ComponentExistsException($"A component of type {typeof(T)} already exists in this node.");
+
+        return AddComponent(new T());
     }
 
     /// <summary>
     /// Adds a range of components to this node.
     /// </summary>
-    public void AddRange(IEnumerable<Component> range)
+    /// <param name="collection">The collection of components to be added.</param>
+    /// <returns>The node itself.</returns>
+    public Node AddComponentRange(IEnumerable<Component> collection)
     {
-        foreach (var component in range)
-            Add(component);
+        foreach (var item in collection)
+            AddComponent(item);
+
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a range of component types to this node.
+    /// </summary>
+    /// <param name="collection">The collection of component types to be added.</param>
+    /// <returns>The node itself</returns>
+    public Node AddComponentRange(IEnumerable<Type> collection)
+    {
+        foreach (var type in collection)
+            AddComponent(type);
+
+        return this;
+    }
+
+    /// <summary>
+    /// Removes a component from this node.
+    /// </summary>
+    /// <param name="item">The component to be removed.</param>
+    /// <returns>True if the component has been removed.</returns>
+    public bool RemoveComponent(Component item)
+    {
+        var type = item.GetType();
+
+        if (!indices.TryGetValue(type, out int index))
+            return false;
+
+        if (item != components[index])
+            return false;
+
+        var temp = components[^1];
+
+        if (temp != item)
+        {
+            components[index] = temp;
+            components[^1] = null!;
+        }
+        else
+        {
+            components[index] = null!;
+        }
+
+        current--;
+        OnComponentRemoved?.Invoke(this, new ComponentEventArgs(item));
+
+        item.Detach(this);
+
+        return true;
     }
 
     /// <summary>
     /// Removes a component of a given type from this node.
     /// </summary>
-    public bool Remove<U>()
-        where U : Component, new()
+    /// <param name="type">The component type to be removed.</param>
+    /// <returns>True if the component has been removed.</returns>
+    public bool RemoveComponent(Type type)
     {
-        if (!TryGet<U>(out var component))
+        if (!TryGetComponent(type, out var component))
             return false;
 
-        return Remove(component);
+        return RemoveComponent(component);
     }
 
     /// <summary>
-    /// Removes the component from this node.
+    /// Removes a component of a given type from this node.
     /// </summary>
-    public bool Remove(Component item)
+    /// <typeparam name="T">The component type to be removed.</typeparam>
+    /// <returns>True if the component has been removed.</returns>
+    public bool RemoveComponent<T>()
+        where T : Component
     {
-        if (!indices.TryGetValue(item.GetType(), out int index))
-            return false;
-
-        var temp = components[^1];
-        components[index] = temp;
-        components[^1] = null!;
-
-        if (temp is not null && temp != item)
-            indices[temp.GetType()] = index;
-
-        current--;
-
-        if (IsAttached)
-            item.Detach(this);
-
-        return true;
+        return RemoveComponent(typeof(T));
     }
 
     /// <summary>
     /// Removes a range of components from this node.
     /// </summary>
-    public void RemoveRange(IEnumerable<Component> range)
+    /// <param name="collection">The collection of nodes to be removed.</param>
+    public void RemoveComponentRange(IEnumerable<Component> collection)
     {
-        foreach (var component in range)
-            Remove(component);
+        foreach (var item in collection)
+            RemoveComponent(item);
     }
 
     /// <summary>
-    /// Returns whether a component of a given type exists on this node.
+    /// Removes a range of component types from this node.
     /// </summary>
-    public bool Has<U>()
-        where U : Component, new()
+    /// <param name="collection">The collection of component types to be removed.</param>
+    public void RemoveComponentRange(IEnumerable<Type> collection)
     {
-        return indices.ContainsKey(typeof(U));
+        foreach (var type in collection)
+            RemoveComponent(type);
     }
 
     /// <summary>
-    /// Returns whether the component exists on this node.
+    /// Gets whether a component exists in this node.
     /// </summary>
-    public bool Contains(Component component)
+    /// <param name="item">The component to be checked against.</param>
+    /// <returns>True if the component is present in the node.</returns>
+    public bool HasComponent(Component item)
     {
-        return components.Contains(component);
-    }
-
-    /// <summary>
-    /// Returns the component of a given type from this node.
-    /// </summary>
-    public U Get<U>()
-        where U : Component, new()
-    {
-        if (!indices.TryGetValue(typeof(U), out int index))
-            throw new KeyNotFoundException();
-
-        return Unsafe.As<U>(components[index]);
-    }
-
-    /// <summary>
-    /// Returns the component of a given type from this node.
-    /// </summary>
-    public bool TryGet<U>([NotNullWhen(true)] out U? component)
-        where U : Component, new()
-    {
-        if (!Has<U>())
-        {
-            component = null;
+        if (!indices.TryGetValue(item.GetType(), out int index))
             return false;
+
+        return components[index] == item;
+    }
+
+    /// <summary>
+    /// Gets whether a component exists in this node.
+    /// </summary>
+    /// <param name="type">The component type to be checked against.</param>
+    /// <returns>True if the component type is present in the node.</returns>
+    public bool HasComponent(Type type)
+    {
+        return indices.ContainsKey(type);
+    }
+
+    /// <summary>
+    /// Gets whether a component exists in this node.
+    /// </summary>
+    /// <typeparam name="T">The component type to be checked against.</typeparam>
+    /// <returns>True if the component type is present in the node.</returns>
+    public bool HasComponent<T>()
+        where T : Component
+    {
+        return HasComponent(typeof(T));
+    }
+
+    /// <summary>
+    /// Removes all components in this node.
+    /// </summary>
+    public void ClearComponents()
+    {
+        foreach (var item in components.ToArray())
+        {
+            if (item is not null)
+                RemoveComponent(item);
         }
-
-        component = Get<U>();
-        return true;
     }
 
-    protected override void OnAttach()
+    protected sealed override void Destroy()
     {
-        foreach (var component in componentsEnumerable)
-            component.Attach(this);
+        base.Destroy();
 
-        foreach (var child in children)
-            child.Attach(this);
+        ClearComponents();
+        Parent?.Remove(this);
 
-        Scene?.Processors.Attach(this);
+        OnNodeAdded -= handleNodeAdded;
+        OnNodeRemoved -= handleNodeRemoved;
     }
 
-    protected override void OnDetach()
-    {
-        foreach (var component in componentsEnumerable)
-            component.Detach(this);
+    private void handleNodeAdded(object? sender, NodeEventArgs args) => args.Node.Parent = this;
+    private void handleNodeRemoved(object? sender, NodeEventArgs args) => args.Node.Parent = null;
 
-        foreach (var child in children)
-            child.Detach(this);
-
-        Scene?.Processors.Detach(this);
-    }
-
-    protected sealed override void Destroy() => Parent?.Remove(this);
-
-    internal void Attach(Scene scene)
-    {
-        if (IsAttached)
-            return;
-
-        if (!CanAttach(scene))
-            throw new InvalidOperationException();
-
-        Scene = scene;
-
-        Attach();
-    }
-
-    internal void Detach(Scene scene)
-    {
-        if (!IsAttached)
-            return;
-
-        if (Scene != scene)
-            throw new InvalidOperationException();
-
-        Scene = null;
-
-        Detach();
-    }
-
-    internal void Attach(Node node)
-    {
-        if (IsAttached)
-            return;
-
-        if (!CanAttach(node))
-            throw new InvalidOperationException();
-
-        Scene = node.Scene;
-        Parent = node;
-
-        Attach();
-    }
-
-    internal void Detach(Node node)
-    {
-        if (!IsAttached)
-            return;
-
-        if (Parent != node)
-            throw new InvalidOperationException();
-
-        Scene = null;
-        Parent = null;
-
-        Detach();
-    }
-
-    internal virtual bool CanAttach(Scene scene) => scene.GetType().Equals(typeof(Scene));
-    internal virtual bool CanAttach(Node parent) => parent.GetType().Equals(typeof(Node));
-
-    IEnumerator<Component> IEnumerable<Component>.GetEnumerator() => new Enumerator(this);
+    IEnumerator<Component> IEnumerable<Component>.GetEnumerator() => new Enumerator(this, current);
 
     private struct Enumerator : IEnumerator<Component>
     {
@@ -399,10 +388,10 @@ public class Node : AttachableObject, IReferenceable, IProcessorAttachable, ICol
         private readonly Node node;
         private readonly int length;
 
-        public Enumerator(Node node)
+        public Enumerator(Node node, int length)
         {
-            length = node.current;
             this.node = node;
+            this.length = length;
         }
 
         public bool MoveNext()
@@ -411,6 +400,7 @@ public class Node : AttachableObject, IReferenceable, IProcessorAttachable, ICol
                 throw new InvalidOperationException(@"The node's component collection has been modified during enumeration.");
 
             position++;
+
             return node.indices.ContainsValue(position);
         }
 
@@ -424,5 +414,21 @@ public class Node : AttachableObject, IReferenceable, IProcessorAttachable, ICol
         }
 
         object IEnumerator.Current => Current;
+    }
+}
+
+public class ComponentNotFoundException : Exception
+{
+    public ComponentNotFoundException(string message)
+        : base(message)
+    {
+    }
+}
+
+public class ComponentExistsException : Exception
+{
+    public ComponentExistsException(string message)
+        : base(message)
+    {
     }
 }

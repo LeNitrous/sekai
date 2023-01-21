@@ -12,12 +12,12 @@ namespace Sekai;
 public static class RuntimeInfo
 {
     /// <summary>
-    /// Whether execution is currently in debug moe.
+    /// Whether execution is currently in debug mode.
     /// </summary>
-    public static readonly bool IsDebug = Assembly
+    public static readonly bool IsDebug = !Assembly
         .GetExecutingAssembly()
         .GetCustomAttribute<AssemblyConfigurationAttribute>()
-        ?.Configuration.Contains("Debug", StringComparison.InvariantCultureIgnoreCase) ?? false;
+        ?.Configuration.Contains("Release", StringComparison.InvariantCultureIgnoreCase) ?? false;
 
     /// <summary>
     /// Gets the operating system currently in execution.

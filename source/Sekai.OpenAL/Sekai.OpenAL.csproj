@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Silk.NET.OpenAL" Version="2.16.0" />
+    <PackageReference Include="Silk.NET.OpenAL.Extensions.Creative" Version="2.16.0" />
+    <PackageReference Include="Silk.NET.OpenAL.Extensions.Enumeration" Version="2.16.0" />
+    <PackageReference Include="Silk.NET.OpenAL.Soft.Native" Version="1.21.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Sekai\Sekai.csproj" />
+  </ItemGroup>
+
+</Project>

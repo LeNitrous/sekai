@@ -18,7 +18,7 @@ internal readonly unsafe struct SDLNativeWindow : INativeWindow
     public (nint Display, nint Window)? Vivante { get; } = null!;
     public (nint Window, nint Surface)? Android { get; } = null!;
 
-    public SDLNativeWindow(SDLView view)
+    public SDLNativeWindow(SDLSurface view)
     {
         var info = new SysWMInfo();
         var vers = new Version();

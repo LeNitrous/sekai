@@ -2,9 +2,8 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Sekai.Graphics.Vertices;
+using Sekai.Allocation;
 
 namespace Sekai.Graphics.Buffers;
 
@@ -18,14 +17,14 @@ public class Buffer : GraphicsObject
     /// </summary>
     public int Capacity => Native.Capacity;
 
-    internal readonly INativeBuffer Native;
+    internal readonly NativeBuffer Native;
 
     public Buffer(int capacity, bool dynamic = false)
     {
         if (capacity <= 0)
             throw new ArgumentException(@"Capacity cannot be a zero or negative value.");
 
-        Native = Context.Factory.CreateBuffer(capacity, dynamic);
+        Native = Graphics.CreateBuffer(capacity, dynamic);
     }
 
     /// <summary>
@@ -58,25 +57,7 @@ public class Buffer : GraphicsObject
         Native.GetData(dest, size, offset);
     }
 
-    /// <summary>
-    /// Binds this buffer as an index buffer.
-    /// </summary>
-    /// <param name="format">The index format used.</param>
-    public void Bind(IndexFormat format)
-    {
-        Context.BindIndexBuffer(this, format);
-    }
-
-    /// <summary>
-    /// Binds this buffer as a vertex buffer.
-    /// </summary>
-    /// <param name="layout">The layout used to define this buffer.</param>
-    public void Bind(IVertexLayout layout)
-    {
-        Context.BindVertexBuffer(this, layout);
-    }
-
-    protected sealed override void Destroy() => Native.Dispose();
+    protected sealed override void DestroyGraphics() => Native.Dispose();
 }
 
 /// <summary>
@@ -85,28 +66,15 @@ public class Buffer : GraphicsObject
 public class Buffer<T> : Buffer
     where T : unmanaged
 {
+    /// <summary>
+    /// THe number of elements this buffer contains.
+    /// </summary>
+    public readonly int Count;
+
     public Buffer(int count, bool dynamic = false)
         : base(count * Unsafe.SizeOf<T>(), dynamic)
     {
-    }
-
-    /// <summary>
-    /// Binds this buffer with its usage determined by its type.
-    /// </summary>
-    public void Bind()
-    {
-        if (is_vertex_buffer)
-        {
-            Bind(layout.Value);
-        }
-        else if (supported_index_formats.TryGetValue(typeof(T), out var format))
-        {
-            Bind(format);
-        }
-        else
-        {
-            throw new NotSupportedException(@"Unable to determine type of buffer for binding.");
-        }
+        Count = count;
     }
 
     /// <inheritdoc cref="Buffer.SetData(nint, int, int)"/>
@@ -162,15 +130,4 @@ public class Buffer<T> : Buffer
     {
         GetData(dest.AsSpan(), offset);
     }
-
-    private static readonly Dictionary<Type, IndexFormat> supported_index_formats = new()
-    {
-        { typeof(int), IndexFormat.UInt32 },
-        { typeof(uint), IndexFormat.UInt32 },
-        { typeof(short), IndexFormat.UInt16 },
-        { typeof(ushort), IndexFormat.UInt16 },
-    };
-
-    private static readonly bool is_vertex_buffer = typeof(T).IsAssignableTo(typeof(IVertex));
-    private static readonly Lazy<IVertexLayout> layout = new(() => VertexLayout.From(typeof(T)));
 }

@@ -3,14 +3,18 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using Sekai.Allocation;
+using Sekai.Assets;
 using Sekai.Audio;
 using Sekai.Graphics;
+using Sekai.Graphics.Shaders;
+using Sekai.Graphics.Textures;
 using Sekai.Input;
 using Sekai.Logging;
-using Sekai.Scenes;
-using Sekai.Storage;
+using Sekai.Processors;
+using Sekai.Rendering;
+using Sekai.Rendering.Batches;
+using Sekai.Storages;
 using Sekai.Windowing;
 
 namespace Sekai;
@@ -18,35 +22,28 @@ namespace Sekai;
 public sealed class GameBuilder<T>
     where T : Game, new()
 {
-    private readonly T game;
+    private Lazy<Surface>? surface;
+    private Lazy<AudioSystem>? audio;
+    private Lazy<GraphicsSystem>? graphics;
+    private Action<ServiceLocator>? configureServicesAction;
     private readonly GameOptions options;
-    private GameRunner? runner;
-    private Lazy<IView>? view;
-    private Lazy<IAudioSystem>? audio;
-    private Lazy<IGraphicsSystem>? graphics;
-    private readonly Queue<Action> preBuildAction = new();
-    private readonly Queue<Action> postBuildAction = new();
+    private readonly Queue<Action> loadActionQueue = new();
+    private readonly Queue<Action> exitActionQueue = new();
+    private readonly Queue<Action> buildActionQueue = new();
+    private readonly List<Lazy<InputSystem>> inputs = new();
 
-    internal GameBuilder(T game, GameOptions? options = null)
+    internal GameBuilder(GameOptions? options = null)
     {
-        this.game = game;
         this.options = options ?? new();
     }
 
-    public GameBuilder<T> UseAudio<U>()
-        where U : IAudioSystem, new()
-    {
-        audio = new(() => new U());
-        return this;
-    }
-
     /// <summary>
-    /// Uses the view of a given type.
+    /// Uses the surface of a given type.
     /// </summary>
-    public GameBuilder<T> UseView<U>()
-        where U : IView, new()
+    public GameBuilder<T> UseSurface<U>()
+        where U : Surface, new()
     {
-        view = new(() => new U());
+        surface = new Lazy<Surface>(() => new U());
         return this;
     }
 
@@ -54,45 +51,68 @@ public sealed class GameBuilder<T>
     /// Uses the graphics system of a given type.
     /// </summary>
     public GameBuilder<T> UseGraphics<U>()
-        where U : IGraphicsSystem, new()
+        where U : GraphicsSystem, new()
     {
-        graphics = new(() => new U());
+        graphics = new Lazy<GraphicsSystem>(() => new U());
         return this;
     }
 
     /// <summary>
-    /// Adds an action invoked as the game is loaded.
+    /// Uses the audio system of a given type.
+    /// </summary>
+    public GameBuilder<T> UseAudio<U>()
+        where U : AudioSystem, new()
+    {
+        audio = new Lazy<AudioSystem>(() => new U());
+        return this;
+    }
+
+    /// <summary>
+    /// Uses the input system of a given type.
+    /// </summary>
+    /// <remarks>
+    /// This can be called multiple times to support multiple input systems.
+    /// </remarks>
+    public GameBuilder<T> UseInput<U>()
+        where U : InputSystem, new()
+    {
+        inputs.Add(new Lazy<InputSystem>(() => new U()));
+        return this;
+    }
+
+    /// <summary>
+    /// Registers an action for configuring services.
+    /// </summary>
+    public GameBuilder<T> ConfigureServices(Action<ServiceLocator> action)
+    {
+        configureServicesAction += action;
+        return this;
+    }
+
+    /// <summary>
+    /// Adds an action invoked during the game's build step.
+    /// </summary>
+    public GameBuilder<T> AddBuildAction(Action action)
+    {
+        buildActionQueue.Enqueue(action);
+        return this;
+    }
+
+    /// <summary>
+    /// Adds an action invoked during the game's load step.
     /// </summary>
     public GameBuilder<T> AddLoadAction(Action action)
     {
-        game.OnLoaded += action;
+        loadActionQueue.Enqueue(action);
         return this;
     }
 
     /// <summary>
-    /// Adds an action invoked as the game exits.
+    /// Adds an action invoked during the game's exit step.
     /// </summary>
     public GameBuilder<T> AddExitAction(Action action)
     {
-        game.OnExiting += action;
-        return this;
-    }
-
-    /// <summary>
-    /// Adds an action invoked before <see cref="Build"/> is invoked.
-    /// </summary>
-    public GameBuilder<T> AddPreBuildAction(Action action)
-    {
-        preBuildAction.Enqueue(action);
-        return this;
-    }
-
-    /// <summary>
-    /// Adds an action invoked after <see cref="Build"/> is invoked.
-    /// </summary>
-    public GameBuilder<T> AddPostBuildAction(Action action)
-    {
-        postBuildAction.Enqueue(action);
+        exitActionQueue.Enqueue(action);
         return this;
     }
 
@@ -101,59 +121,76 @@ public sealed class GameBuilder<T>
     /// </summary>
     public T Build()
     {
-        Services.Initialize();
+        ServiceLocator.Initialize();
+
+        var factory = new LoggerFactory();
 
         if (RuntimeInfo.IsDebug)
-            Logger.OnMessageLogged += new LogListenerConsole();
+            factory.Add(new LogListenerConsole());
 
-        while (preBuildAction.TryDequeue(out var preBuildMethod))
-            preBuildMethod.Invoke();
+        ServiceLocator.Current.Cache(options);
+        ServiceLocator.Current.Cache(factory);
+        ServiceLocator.Current.Cache<Time>();
+        ServiceLocator.Current.Cache<ProcessorManager>();
+        ServiceLocator.Current.Cache<ShaderUniformManager>();
 
         var storage = new StorageContext();
-        storage.Mount("/", new NativeStorage(AppDomain.CurrentDomain.BaseDirectory));
-        storage.Mount("/engine", new AssemblyBackedStorage(typeof(Game).Assembly, "Resources"));
+        storage.Mount(@"engine", new AssemblyBackedStorage(typeof(Game).Assembly, @"Resources"));
+        ServiceLocator.Current.Cache(storage);
 
-        Services.Current.Cache(storage);
+        var loader = new AssetLoader();
+        var loaderRegistry = (IAssetLoaderRegistry)loader;
+        loaderRegistry.Register(new TextureLoader());
+        loaderRegistry.Register(new ShaderLoader());
+        loaderRegistry.Register(new WaveAudioLoader());
 
-        var stream = storage.Open("/runtime.log");
-        var writer = new LogListenerTextWriter(stream);
-        Logger.OnMessageLogged += writer;
-        game.OnExiting += writer.Dispose;
+        ServiceLocator.Current.Cache(loader);
 
-        var entry = Assembly.GetEntryAssembly()?.GetName();
+        if (surface is null)
+            throw new InvalidOperationException($"A surface was not registered during setup.");
 
-        Logger.Log("----------------------------------------------------------");
-        Logger.Log($"Logging for {Environment.UserName}");
-        Logger.Log($"Running {entry?.Name ?? "Unknown"} {entry?.Version} on .NET {Environment.Version}");
-        Logger.Log($"Environment: {RuntimeInfo.OS} ({Environment.OSVersion.VersionString})");
-        Logger.Log("----------------------------------------------------------");
+        var surfaceValue = surface.Value;
+        ServiceLocator.Current.Cache(surfaceValue);
 
-        if (graphics is null || view is null)
-            throw new InvalidOperationException(@"Cannot build the game without a graphics system or view.");
+        if (surfaceValue is IWindow window)
+            ServiceLocator.Current.Cache(window);
 
-        Services.Current.Cache(game);
-        Services.Current.Cache<Game>(game);
-        Services.Current.Cache(options);
-        Services.Current.Cache(new GraphicsContext(graphics.Value, view.Value));
-        Services.Current.Cache(runner = new());
+        if (graphics is null)
+            throw new InvalidOperationException($"A graphics system was not registered during setup.");
 
-        if (view.Value is IWindow window)
-        {
-            window.Size = options.Size;
-            window.Title = options.Title;
-            window.Border = WindowBorder.Resizable;
-            window.OnClose += game.Exit;
-            runner.OnTick += showWindow;
-        }
+        ServiceLocator.Current.Cache(graphics.Value);
+        ServiceLocator.Current.Cache(graphics.Value.CreateShaderTranspiler());
+        ServiceLocator.Current.Cache<GraphicsContext>();
+        ServiceLocator.Current.Cache<Renderer>();
 
-        if (audio is not null)
-            Services.Current.Cache(new AudioContext());
+        if (audio is null)
+            throw new InvalidOperationException($"An audio system was not registered during setup.");
 
-        Services.Current.Cache<InputContext>();
-        Services.Current.Cache<SceneCollection>();
+        ServiceLocator.Current.Cache(audio.Value);
+        ServiceLocator.Current.Cache<AudioContext>();
 
-        while (postBuildAction.TryDequeue(out var postBuildMethod))
-            postBuildMethod.Invoke();
+        var inputContext = new InputContext();
+
+        foreach (var input in inputs)
+            inputContext.Attach(input.Value);
+
+        ServiceLocator.Current.Cache(inputContext);
+
+        var game = new T();
+
+        ServiceLocator.Current.Cache(game);
+        ServiceLocator.Current.Cache<Game>(game);
+
+        while (loadActionQueue.TryDequeue(out var action))
+            game.OnLoad += action;
+
+        while (exitActionQueue.TryDequeue(out var action))
+            game.OnExit += action;
+
+        while (buildActionQueue.TryDequeue(out var action))
+            action();
+
+        configureServicesAction?.Invoke(ServiceLocator.Current);
 
         return game;
     }
@@ -161,14 +198,9 @@ public sealed class GameBuilder<T>
     /// <summary>
     /// Builds then runs the game.
     /// </summary>
-    public void Run() => Build().Run();
-
-    private void showWindow()
+    public void Run()
     {
-        if (view is not null && view.Value is IWindow window)
-            window.Visible = true;
-
-        if (runner is not null)
-            runner.OnTick -= showWindow;
+        Build().Run();
+        ServiceLocator.Shutdown();
     }
 }

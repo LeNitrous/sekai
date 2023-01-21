@@ -2,17 +2,21 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using System.IO;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
+using Sekai.Assets;
+using Sekai.Mathematics;
 
 namespace Sekai.Graphics.Textures;
 
 /// <summary>
 /// A storage object containing color data which can be used to draw on the screen.
 /// </summary>
-public class Texture : GraphicsObject
+public class Texture : GraphicsObject, IAsset
 {
+    /// <summary>
+    /// The texture size.
+    /// </summary>
+    public Size2 Size => new(Width, Height);
+
     /// <inheritdoc cref="INativeTexture.Width"/>
     public int Width => Native.Width;
 
@@ -21,7 +25,6 @@ public class Texture : GraphicsObject
 
     /// <inheritdoc cref="INativeTexture.Depth"/>
     public int Depth => Native.Depth;
-
 
     /// <inheritdoc cref="INativeTexture.Levels"/>
     public int Level => Native.Levels;
@@ -76,34 +79,11 @@ public class Texture : GraphicsObject
     /// <inheritdoc cref="INativeTexture.SampleCount"/>
     public TextureSampleCount SampleCount => Native.SampleCount;
 
-    private int unit = -1;
-    internal readonly INativeTexture Native;
+    internal readonly NativeTexture Native;
 
     protected Texture(int width, int height, int depth, int level, int layers, FilterMode min, FilterMode mag, WrapMode wrapModeS, WrapMode wrapModeT, WrapMode wrapModeR, TextureType type, TextureUsage usage, TextureSampleCount sampleCount, PixelFormat format)
     {
-        Native = Context.Factory.CreateTexture(width, height, depth, level, layers, min, mag, wrapModeS, wrapModeT, wrapModeR, type, usage, sampleCount, format);
-    }
-
-    internal Texture(GraphicsContext context, INativeTexture native)
-        : base(context)
-    {
-        Native = native;
-    }
-
-    public void Bind(int unit = 0)
-    {
-        if (unit is < 0 or > 16)
-            throw new ArgumentOutOfRangeException(nameof(unit), @"Texture unit can only be between 0 and 15.");
-
-        Context.BindTexture(this, this.unit = unit);
-    }
-
-    public void Unbind()
-    {
-        if (unit != -1)
-            Context.UnbindTexture(this, unit);
-
-        unit = -1;
+        Native = Graphics.CreateTexture(width, height, depth, level, layers, min, mag, wrapModeS, wrapModeT, wrapModeR, type, usage, sampleCount, format);
     }
 
     /// <inheritdoc cref="INativeTexture.SetData"/>
@@ -130,10 +110,7 @@ public class Texture : GraphicsObject
         SetData<T>(data.AsSpan(), x, y, z, width, height, depth, layer, level);
     }
 
-    protected override void Destroy()
-    {
-        Native.Dispose();
-    }
+    protected override void DestroyGraphics() => Native.Dispose();
 
     /// <summary>
     /// Creates a new one-dimensional texture.
@@ -188,49 +165,5 @@ public class Texture : GraphicsObject
     public static Texture New3D(int width, int height, int depth, PixelFormat format, int levels = 1, FilterMode min = FilterMode.Linear, FilterMode mag = FilterMode.Linear, WrapMode wrapModeS = WrapMode.None, WrapMode wrapModeT = WrapMode.None, WrapMode wrapModeR = WrapMode.None, TextureUsage usage = TextureUsage.Sampled)
     {
         return new Texture(width, height, depth, levels, 1, min, mag, wrapModeS, wrapModeT, wrapModeR, TextureType.Texture3D, usage, TextureSampleCount.Count1, format);
-    }
-
-    /// <summary>
-    /// Loads a two-dimensional texture from an image.
-    /// </summary>
-    /// <param name="stream">The image data as a stream.</param>
-    public static Texture Load(Stream stream)
-    {
-        return Load(Image.Load<Rgba32>(stream));
-    }
-
-    /// <summary>
-    /// Loads a two-dimensional texture from bytes.
-    /// </summary>
-    /// <param name="data">The image data in a byte array.</param>
-    public static Texture Load(byte[] data)
-    {
-        return Load(Image.Load<Rgba32>(data));
-    }
-
-    /// <summary>
-    /// Loads a two-dimensional texture from bytes.
-    /// </summary>
-    /// <param name="data">The image data in a byte span.</param>
-    public static Texture Load(ReadOnlySpan<byte> data)
-    {
-        return Load(Image.Load<Rgba32>(data));
-    }
-
-    /// <summary>
-    /// Loads a two-dimensional texture from an image.
-    /// </summary>
-    /// <param name="image">The image data.</param>
-    public static unsafe Texture Load(Image<Rgba32> image)
-    {
-        var texture = New2D(image.Width, image.Height, PixelFormat.R8_G8_B8_A8_UNorm_SRgb);
-
-        Span<byte> data = stackalloc byte[image.Width * image.Height * 4];
-        image.CopyPixelDataTo(data);
-
-        fixed (byte* ptr = data)
-            texture.SetData((nint)ptr, 0, 0, 0, image.Width, image.Height, 1, 0, 0);
-
-        return texture;
     }
 }

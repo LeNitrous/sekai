@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Sekai.Mathematics;
 using Sekai.Windowing;
@@ -11,11 +12,11 @@ using Silk.NET.SDL;
 
 namespace Sekai.SDL;
 
-internal unsafe class SDLWindow : SDLView, IWindow
+internal unsafe class SDLWindow : SDLSurface, IWindow
 {
     public bool Focused { get; private set; }
     public IMonitor Monitor => getMonitorFromSDL(Sdl.GetWindowDisplayIndex(Window));
-    public IEnumerable<IMonitor> Monitors => Enumerable.Range(0, Sdl.GetNumVideoDisplays()).Select(getMonitorFromSDL);
+    public IEnumerable<IMonitor> Monitors { get; private set; }
     public event Action<Size2>? OnResize;
     public event Action<Mathematics.Point>? OnMoved;
     public event Action<string[]>? OnDataDropped;
@@ -32,7 +33,7 @@ internal unsafe class SDLWindow : SDLView, IWindow
                 return;
 
             title = value;
-            Sdl.SetWindowTitle(Window, title);
+            Invoke(() => Sdl.SetWindowTitle(Window, title));
         }
     }
 
@@ -50,11 +51,11 @@ internal unsafe class SDLWindow : SDLView, IWindow
 
             if (visible)
             {
-                Sdl.ShowWindow(Window);
+                Invoke(() => Sdl.ShowWindow(Window));
             }
             else
             {
-                Sdl.HideWindow(Window);
+                Invoke(() => Sdl.HideWindow(Window));
             }
         }
     }
@@ -70,20 +71,20 @@ internal unsafe class SDLWindow : SDLView, IWindow
                 return;
 
             icon = value;
-            updateWindowIcon();
+            Invoke(updateWindowIcon);
         }
     }
 
     public new Mathematics.Point Position
     {
         get => base.Position;
-        set => Sdl.SetWindowPosition(Window, value.X, value.Y);
+        set => Invoke(() => Sdl.SetWindowPosition(Window, value.X, value.Y));
     }
 
     public new Size2 Size
     {
         get => base.Size;
-        set => Sdl.SetWindowSize(Window, value.Width, value.Height);
+        set => Invoke(() => Sdl.SetWindowSize(Window, value.Width, value.Height));
     }
 
     public Size2 MaximumSize
@@ -95,7 +96,7 @@ internal unsafe class SDLWindow : SDLView, IWindow
             Sdl.GetWindowMaximumSize(Window, ref w, ref h);
             return new Size2(w, h);
         }
-        set => Sdl.SetWindowMaximumSize(Window, value.Width, value.Height);
+        set => Invoke(() => Sdl.SetWindowMaximumSize(Window, value.Width, value.Height));
     }
 
     public Size2 MinimumSize
@@ -107,69 +108,24 @@ internal unsafe class SDLWindow : SDLView, IWindow
             Sdl.GetWindowMinimumSize(Window, ref w, ref h);
             return new Size2(w, h);
         }
-        set => Sdl.SetWindowMinimumSize(Window, value.Width, value.Height);
+        set => Invoke(() => Sdl.SetWindowMinimumSize(Window, value.Width, value.Height));
     }
 
     public WindowState State
     {
         get => ((WindowFlags)Sdl.GetWindowFlags(Window)).ToWindowState();
-        set
-        {
-            switch (value)
-            {
-                case WindowState.Normal:
-                    Sdl.RestoreWindow(Window);
-                    break;
-
-                case WindowState.Minimized:
-                    Sdl.MinimizeWindow(Window);
-                    break;
-
-                case WindowState.Maximized:
-                    Sdl.MaximizeWindow(Window);
-                    break;
-
-                case WindowState.Fullscreen:
-                    {
-                        if (Sdl.SetWindowFullscreen(Window, (uint)WindowFlags.Fullscreen) > 0)
-                            Sdl.ThrowError();
-
-                        break;
-                    }
-            }
-        }
+        set => Invoke(() => updateWindowState(value));
     }
 
     public WindowBorder Border
     {
         get => ((WindowFlags)Sdl.GetWindowFlags(Window)).ToWindowBorder();
-        set
-        {
-            switch (value)
-            {
-                case WindowBorder.Resizable:
-                    {
-                        Sdl.SetWindowBordered(Window, SdlBool.True);
-                        Sdl.SetWindowResizable(Window,SdlBool.True);
-                        break;
-                    }
+        set => Invoke(() => updateWindowBorder(value));
+    }
 
-                case WindowBorder.Fixed:
-                    {
-                        Sdl.SetWindowBordered(Window, SdlBool.True);
-                        Sdl.SetWindowResizable(Window, SdlBool.False);
-                        break;
-                    }
-
-                case WindowBorder.Hidden:
-                    {
-                        Sdl.SetWindowBordered(Window, SdlBool.False);
-                        Sdl.SetWindowResizable(Window, SdlBool.False);
-                        break;
-                    }
-
-            }
-        }
+    public SDLWindow()
+    {
+        updateMonitors();
     }
 
     protected override void ProcessEvent(Event evt)
@@ -184,6 +140,10 @@ internal unsafe class SDLWindow : SDLView, IWindow
                 handleWindowEvent(evt.Window);
                 break;
 
+            case EventType.Displayevent:
+                updateMonitors();
+                break;
+
             case EventType.Dropfile:
             case EventType.Droptext:
             case EventType.Dropbegin:
@@ -191,6 +151,73 @@ internal unsafe class SDLWindow : SDLView, IWindow
                 handleDropEvent(evt.Drop);
                 break;
         }
+    }
+
+    [MemberNotNull(nameof(Monitors))]
+    private void updateMonitors() => Monitors = Enumerable.Range(0, Sdl.GetNumVideoDisplays()).Select(getMonitorFromSDL);
+
+    private void updateWindowState(WindowState state)
+    {
+        switch (state)
+        {
+            case WindowState.Normal:
+                Sdl.RestoreWindow(Window);
+                break;
+
+            case WindowState.Minimized:
+                Sdl.MinimizeWindow(Window);
+                break;
+
+            case WindowState.Maximized:
+                Sdl.MaximizeWindow(Window);
+                break;
+
+            case WindowState.Fullscreen:
+                {
+                    if (Sdl.SetWindowFullscreen(Window, (uint)WindowFlags.Fullscreen) > 0)
+                        Sdl.ThrowError();
+
+                    break;
+                }
+        }
+    }
+
+    private void updateWindowBorder(WindowBorder border)
+    {
+        switch (border)
+        {
+            case WindowBorder.Resizable:
+                {
+                    Sdl.SetWindowBordered(Window, SdlBool.True);
+                    Sdl.SetWindowResizable(Window, SdlBool.True);
+                    break;
+                }
+
+            case WindowBorder.Fixed:
+                {
+                    Sdl.SetWindowBordered(Window, SdlBool.True);
+                    Sdl.SetWindowResizable(Window, SdlBool.False);
+                    break;
+                }
+
+            case WindowBorder.Hidden:
+                {
+                    Sdl.SetWindowBordered(Window, SdlBool.False);
+                    Sdl.SetWindowResizable(Window, SdlBool.False);
+                    break;
+                }
+        }
+    }
+
+    private unsafe void updateWindowIcon()
+    {
+        Silk.NET.SDL.Surface* surface;
+
+        fixed (void* ptr = icon.Data.Span)
+            surface = Sdl.CreateRGBSurfaceFrom(ptr, icon.Width, icon.Height, 32, icon.Width * 4, 0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff);
+
+        Sdl.SetWindowIcon(Window, surface);
+        Sdl.FreeSurface(surface);
     }
 
     private void handleWindowEvent(WindowEvent evt)
@@ -243,17 +270,6 @@ internal unsafe class SDLWindow : SDLView, IWindow
         }
     }
 
-    private unsafe void updateWindowIcon()
-    {
-        Surface* surface;
-
-        fixed (void* ptr = icon.Data.Span)
-            surface = Sdl.CreateRGBSurfaceFrom(ptr, icon.Width, icon.Height, 32, icon.Width * 4, 0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff);
-
-        Sdl.SetWindowIcon(Window, surface);
-        Sdl.FreeSurface(surface);
-    }
-
     private IMonitor getMonitorFromSDL(int index)
     {
         var modes = Enumerable
@@ -262,7 +278,7 @@ internal unsafe class SDLWindow : SDLView, IWindow
             {
                 DisplayMode mode = default;
 
-                if (Sdl.GetDisplayMode(index, mi, ref mode) > 0)
+                if (Sdl.GetDisplayMode(index, mi, ref mode) < 0)
                     Sdl.ThrowError();
 
                 int bpp = 0;

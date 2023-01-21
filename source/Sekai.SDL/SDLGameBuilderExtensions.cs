@@ -8,7 +8,8 @@ public static class SDLGameBuilderExtensions
     public static GameBuilder<T> UseSDL<T>(this GameBuilder<T> builder)
         where T : Game, new()
     {
-        builder.UseView<SDLWindow>();
-        return builder;
+        return builder
+                .UseSurface<SDLWindow>()
+                .UseInput<SDLInputSystem>();
     }
 }

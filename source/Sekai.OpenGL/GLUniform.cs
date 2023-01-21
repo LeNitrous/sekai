@@ -6,13 +6,23 @@ using Sekai.Graphics.Shaders;
 
 namespace Sekai.OpenGL;
 
-internal class GLUniform<T> : INativeUniform, IUniform<T>
-    where T : unmanaged, IEquatable<T>
+internal abstract class GLUniform : IUniform
 {
-    public GLShader Owner { get; }
     public string Name { get; }
     public int Offset { get; }
+    public uint Owner { get; }
 
+    public GLUniform(uint owner, string name, int offset)
+    {
+        Name = name;
+        Owner = owner;
+        Offset = offset;
+    }
+}
+
+internal class GLUniform<T> : GLUniform, IUniform<T>
+    where T : unmanaged, IEquatable<T>
+{
     public T Value
     {
         get => value;
@@ -22,23 +32,18 @@ internal class GLUniform<T> : INativeUniform, IUniform<T>
                 return;
 
             this.value = value;
-
-            Update();
+            system.UpdateShaderUniform(this);
         }
     }
 
     private T value;
+    private readonly GLGraphicsSystem system;
 
-    public GLUniform(GLShader owner, string name, int offset)
+    public GLUniform(GLGraphicsSystem system, uint owner, string name, int offset)
+        : base(owner, name, offset)
     {
-        Name = name;
-        Owner = owner;
-        Offset = offset;
+        this.system = system;
     }
 
-    public void Update() => Owner.UpdateUniform(this);
-
     public ref T GetValueByRef() => ref value;
-
-    INativeShader INativeUniform.Owner => Owner;
 }

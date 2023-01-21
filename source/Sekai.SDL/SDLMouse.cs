@@ -5,48 +5,44 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using Sekai.Input;
+using Sekai.Input.Devices.Pointers;
 using Silk.NET.SDL;
 
 namespace Sekai.SDL;
 
 internal unsafe class SDLMouse : FrameworkObject, IMouse
 {
-    public IReadOnlyList<MouseButton> SupportedButtons { get; } = Enumerable.Range(0, 4).Select(n => (MouseButton)n).ToArray();
-    public IReadOnlyList<ScrollWheel> ScrollWheels => scrollWheels;
     public string Name { get; } = @"Mouse";
-    public int Index { get; } = 0;
-    public bool IsConnected { get; } = true;
-    public event Action<IMouse, MouseButton> OnMouseDown = null!;
-    public event Action<IMouse, MouseButton> OnMouseUp = null!;
-    public event Action<IMouse, ScrollWheel> OnScroll = null!;
-    public event Action<IPointer, Vector2> OnMove = null!;
-    private readonly SDLView view;
-    private readonly ScrollWheel[] scrollWheels = new[] { new ScrollWheel() };
-    private readonly List<MouseButton> pressedButtons = new();
+    public IReadOnlyList<ScrollWheel> ScrollWheels => scrollWheels;
+    public IReadOnlyList<MouseButton> Buttons { get; } = Enumerable.Range(0, 4).Select(n => (MouseButton)n).ToArray();
+
+    public event Action<IMouse, MouseButton>? OnButtonPressed;
+    public event Action<IMouse, MouseButton>? OnButtonRelease;
+    public event Action<IMouse, ScrollWheel>? OnScroll;
+    public event Action<IPointer, Vector2>? OnMove;
 
     private Vector2 position;
+    private readonly SDLSurface surface;
+    private readonly ScrollWheel[] scrollWheels = new ScrollWheel[1];
 
     public Vector2 Position
     {
         get => position;
         set
         {
-            if (view == null || position == value)
+            if (surface == null || position == value)
                 return;
 
             position = value;
-            view.Sdl.WarpMouseInWindow(view.Window, (int)position.X, (int)position.Y);
+            surface.Invoke(() => surface.Sdl.WarpMouseInWindow(surface.Window, (int)position.X, (int)position.Y));
         }
     }
 
-    public SDLMouse(SDLView view)
+    public SDLMouse(SDLSurface surface)
     {
-        this.view = view;
-        this.view.OnProcessEvent += onProcessEvent;
+        this.surface = surface;
+        this.surface.OnProcessEvent += onProcessEvent;
     }
-
-    public bool IsButtonPressed(MouseButton button) => contains(button);
 
     private void handleEvent(MouseButtonEvent mouseButtonEvent)
     {
@@ -56,21 +52,12 @@ internal unsafe class SDLMouse : FrameworkObject, IMouse
         switch (type)
         {
             case EventType.Mousebuttondown:
-                {
-                    if (!contains(button))
-                    {
-                        pressedButtons.Add(button);
-                        OnMouseDown?.Invoke(this, button);
-                    }
-                    break;
-                }
+                OnButtonPressed?.Invoke(this, button);
+                break;
 
             case EventType.Mousebuttonup:
-                {
-                    if (pressedButtons.Remove(button))
-                        OnMouseUp?.Invoke(this, (MouseButton)mouseButtonEvent.Button);
-                    break;
-                }
+                OnButtonRelease?.Invoke(this, button);
+                break;
         }
     }
 
@@ -84,17 +71,6 @@ internal unsafe class SDLMouse : FrameworkObject, IMouse
     {
         scrollWheels[0] = new ScrollWheel(mouseWheelEvent.X, mouseWheelEvent.Y);
         OnScroll?.Invoke(this, scrollWheels[0]);
-    }
-
-    private bool contains(MouseButton button)
-    {
-        for (int i = 0; i < pressedButtons.Count; i++)
-        {
-            if (pressedButtons[i] == button)
-                return true;
-        }
-
-        return false;
     }
 
     private void onProcessEvent(Event evt)
@@ -133,6 +109,6 @@ internal unsafe class SDLMouse : FrameworkObject, IMouse
 
     protected override void Destroy()
     {
-        view.OnProcessEvent -= onProcessEvent;
+        surface.OnProcessEvent -= onProcessEvent;
     }
 }

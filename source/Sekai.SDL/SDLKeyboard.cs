@@ -3,68 +3,59 @@
 
 using System;
 using System.Collections.Generic;
-using Sekai.Input;
+using System.Runtime.InteropServices;
+using Sekai.Input.Devices.Keyboards;
 using Silk.NET.SDL;
 
 namespace Sekai.SDL;
 
 internal class SDLKeyboard : FrameworkObject, IKeyboard
 {
-    public IReadOnlyList<Key> SupportedKeys { get; } = Enum.GetValues<Key>();
     public string Name { get; } = @"Keyboard";
-    public int Index { get; } = 0;
-    public bool IsConnected { get; } = true;
-    public event Action<IKeyboard, Key, int?> OnKeyDown = null!;
-    public event Action<IKeyboard, Key, int?> OnKeyUp = null!;
-    private readonly List<Scancode> pressedKeys = new();
+    public IReadOnlyList<Key> Keys { get; } = Enum.GetValues<Key>();
 
-    private readonly SDLView view;
+    public event Action<IKeyboard, Key>? OnKeyPressed;
+    public event Action<IKeyboard, Key>? OnKeyRelease;
+    public event Action<IKeyboard, KeyboardIME>? OnCompositionSubmit;
+    public event Action<IKeyboard, KeyboardIME>? OnCompositionChange;
 
-    public SDLKeyboard(SDLView view)
+    private readonly SDLSurface surface;
+
+    public SDLKeyboard(SDLSurface surface)
     {
-        this.view = view;
-        this.view.OnProcessEvent += onProcessEvent;
+        this.surface = surface;
+        this.surface.OnProcessEvent += onProcessEvent;
     }
 
-    public bool IsKeyPressed(Key key) => contains(key.ToScancode());
-
-    private bool contains(Scancode scancode)
-    {
-        for (int i = 0; i < pressedKeys.Count; i++)
-        {
-            if (pressedKeys[i] == scancode)
-                return true;
-        }
-
-        return false;
-    }
-
-    private void handleEvent(KeyboardEvent keyboardEvent)
+    private void handleKeyEvent(KeyboardEvent keyboardEvent)
     {
         var type = (EventType)keyboardEvent.Type;
 
         switch (type)
         {
             case EventType.Keydown:
-                {
-                    if (!contains(keyboardEvent.Keysym.Scancode))
-                    {
-                        pressedKeys.Add(keyboardEvent.Keysym.Scancode);
-                        OnKeyDown?.Invoke(this, keyboardEvent.Keysym.ToKey(), (int)keyboardEvent.Keysym.Scancode);
-                    }
-                    break;
-                }
+                OnKeyPressed?.Invoke(this, keyboardEvent.Keysym.ToKey());
+                break;
 
             case EventType.Keyup:
-                {
-                    if (pressedKeys.Remove(keyboardEvent.Keysym.Scancode))
-                        OnKeyUp?.Invoke(this, keyboardEvent.Keysym.ToKey(), (int)keyboardEvent.Keysym.Scancode);
-                    break;
-                }
+                OnKeyRelease?.Invoke(this, keyboardEvent.Keysym.ToKey());
+                break;
 
             default:
                 break;
         }
+    }
+
+    private unsafe void handleTextInputEvent(TextInputEvent textEvent)
+    {
+        string text = Marshal.PtrToStringUTF8((nint)textEvent.Text) ?? string.Empty;
+        OnCompositionSubmit?.Invoke(this, new(text, 0, text.Length));
+    }
+
+    private unsafe void handleTextEditingEvent(TextEditingEvent textEvent)
+    {
+        string text = Marshal.PtrToStringUTF8((nint)textEvent.Text) ?? string.Empty;
+        OnCompositionChange?.Invoke(this, new(text, textEvent.Start, textEvent.Length));
     }
 
     private void onProcessEvent(Event evt)
@@ -75,13 +66,31 @@ internal class SDLKeyboard : FrameworkObject, IKeyboard
         {
             case EventType.Keyup:
             case EventType.Keydown:
-                handleEvent(evt.Key);
+                handleKeyEvent(evt.Key);
+                break;
+
+            case EventType.Textinput:
+                handleTextInputEvent(evt.Text);
+                break;
+
+            case EventType.Textediting:
+                handleTextEditingEvent(evt.Edit);
                 break;
         }
     }
 
+    public void ShowIME()
+    {
+        surface.Invoke(surface.Sdl.StartTextInput);
+    }
+
+    public void HideIME()
+    {
+        surface.Invoke(surface.Sdl.StopTextInput);
+    }
+
     protected override void Destroy()
     {
-        view.OnProcessEvent -= onProcessEvent;
+        surface.OnProcessEvent -= onProcessEvent;
     }
 }

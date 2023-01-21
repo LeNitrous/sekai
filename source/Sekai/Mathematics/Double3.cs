@@ -191,7 +191,7 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     /// </summary>
     /// <returns>The length of the vector.</returns>
     /// <remarks>
-    /// <see cref="Double3.LengthSquared"/> may be preferred when only the relative length is needed
+    /// <see cref="LengthSquared"/> may be preferred when only the relative length is needed
     /// and speed is of the essence.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -205,7 +205,7 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     /// </summary>
     /// <returns>The squared length of the vector.</returns>
     /// <remarks>
-    /// This method may be preferred to <see cref="Double3.Length"/> when only a relative length is needed
+    /// This method may be preferred to <see cref="Length"/> when only a relative length is needed
     /// and speed is of the essence.
     /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -517,7 +517,7 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     /// <param name="value2">The second vector.</param>
     /// <param name="result">When the method completes, contains the distance between the two vectors.</param>
     /// <remarks>
-    /// <see cref="Double3.DistanceSquared(ref Double3, ref Double3, out double)"/> may be preferred when only the relative distance is needed
+    /// <see cref="DistanceSquared(ref Double3, ref Double3, out double)"/> may be preferred when only the relative distance is needed
     /// and speed is of the essence.
     /// </remarks>
     public static void Distance(ref Double3 value1, ref Double3 value2, out double result)
@@ -536,7 +536,7 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     /// <param name="value2">The second vector.</param>
     /// <returns>The distance between the two vectors.</returns>
     /// <remarks>
-    /// <see cref="Double3.DistanceSquared(Double3, Double3)"/> may be preferred when only the relative distance is needed
+    /// <see cref="DistanceSquared(Double3, Double3)"/> may be preferred when only the relative distance is needed
     /// and speed is of the essence.
     /// </remarks>
     public static double Distance(Double3 value1, Double3 value2)
@@ -1347,7 +1347,7 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     /// <returns>The equivation yaw/pitch/roll rotation</returns>
     public static Double3 RotationYawPitchRoll(Quaternion quaternion)
     {
-        QuaternionExtensions.RotationYawPitchRoll(quaternion, out double x , out double y, out double z);   
+        QuaternionExtensions.RotationYawPitchRoll(quaternion, out double x, out double y, out double z);
         return new Double3(x, y, z);
     }
 

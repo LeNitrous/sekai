@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net7.0;net7.0-windows10.0.19041.0</TargetFrameworks>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(TargetFramework)' == 'net7.0-windows10.0.19041.0' ">
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <RuntimeIdentifiers>win10-x86;win10-x64</RuntimeIdentifiers>
+    <WindowsPackageType>None</WindowsPackageType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\source\Sekai.OpenAL\Sekai.OpenAL.csproj" />
+    <ProjectReference Include="..\..\source\Sekai.OpenGL\Sekai.OpenGL.csproj" />
+    <ProjectReference Include="..\..\source\Sekai.SDL\Sekai.SDL.csproj" />
+    <ProjectReference Include="..\..\source\Sekai\Sekai.csproj" />
+    <ProjectReference Include="..\..\source\Sekai.Windows\Sekai.Windows.csproj" Condition=" '$(TargetFramework)' == 'net7.0-windows10.0.19041.0' " />
+  </ItemGroup>
+
+</Project>

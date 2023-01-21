@@ -73,13 +73,13 @@ public class VertexLayout : IVertexLayout
     /// </summary>
     /// <typeparam name="T">A type that impelements <see cref="IVertex"/>.</typeparam>
     /// <returns>A vertex layout from a type.</returns>
-    public static IVertexLayout From<T>()
+    public static IVertexLayout GetLayout<T>()
         where T : unmanaged, IVertex
     {
-        return From(typeof(T));
+        return GetLayout(typeof(T));
     }
 
-    internal static IVertexLayout From(Type type)
+    internal static IVertexLayout GetLayout(Type type)
     {
         if (cache.TryGetValue(type, out var layout))
             return layout;

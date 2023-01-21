@@ -14,7 +14,7 @@ public enum TextureUsage
     Sampled,
 
     /// <summary>
-    /// The texture can be used as a color taget of a <see cref="FrameBuffer"/>.
+    /// The texture can be used as a color taget of a <see cref="Graphics.RenderTarget"/>.
     /// </summary>
     RenderTarget,
 

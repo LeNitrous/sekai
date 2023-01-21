@@ -3,11 +3,7 @@
 
 namespace Sekai.Processors;
 
-public sealed class BehaviorProcessor : Processor<Behavior>
+internal sealed class BehaviorProcessor : Processor<Behavior>
 {
-    protected override void Process(double delta, Behavior behavior)
-    {
-        if (behavior.HasStarted)
-            behavior.Update(delta);
-    }
+    protected override void Update(Behavior component) => component.Update();
 }

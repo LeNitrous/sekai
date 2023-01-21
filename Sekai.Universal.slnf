@@ -1,0 +1,17 @@
+{
+    "solution": {
+        "path": "Sekai.sln",
+        "projects": [
+            "examples\\Example.Common\\Example.Common.csproj",
+            "examples\\Example.Drawing\\Example.Drawing.csproj",
+            "source\\Sekai\\Sekai.csproj",
+            "source\\Sekai.Null\\Sekai.Null.csproj",
+            "source\\Sekai.OpenAL\\Sekai.OpenAL.csproj",
+            "source\\Sekai.OpenGL\\Sekai.OpenGL.csproj",
+            "source\\Sekai.SDL\\Sekai.SDL.csproj",
+            "source\\Sekai.Skia\\Sekai.Skia.csproj",
+            "source\\Sekai.Xunit\\Sekai.Xunit.csproj",
+            "tests\\Sekai.Tests\\Sekai.Tests.csproj"
+        ]
+    }
+}

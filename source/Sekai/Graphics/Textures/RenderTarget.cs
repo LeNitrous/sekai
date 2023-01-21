@@ -2,40 +2,53 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using Sekai.Graphics.Buffers;
+using System.Collections.Generic;
+using System.Linq;
+using Sekai.Allocation;
 
 namespace Sekai.Graphics.Textures;
 
-public class RenderTarget : Texture, IRenderTarget
+/// <summary>
+/// Contains data necessary for blitting an image onto the screen.
+/// </summary>
+public sealed class RenderTarget : GraphicsObject, IRenderTarget
 {
-    private readonly Texture depth;
-    private readonly FrameBuffer framebuffer;
+    public int Width { get; }
 
-    public RenderTarget(int width, int height, FilterMode min = FilterMode.Linear, FilterMode mag = FilterMode.Linear, WrapMode wrapModeS = WrapMode.None, WrapMode wrapModeT = WrapMode.None, TextureSampleCount sampleCount = TextureSampleCount.Count1, PixelFormat format = PixelFormat.B8_G8_R8_A8_UNorm_SRgb)
-        : base(width, height, 1, 1, 1, min, mag, wrapModeS, wrapModeT, WrapMode.None, TextureType.Texture2D, TextureUsage.Sampled | TextureUsage.RenderTarget, sampleCount, format)
+    public int Height { get; }
+
+    /// <summary>
+    /// The depth attachment of this framebuffer.
+    /// </summary>
+    public readonly RenderBuffer? Depth;
+
+    /// <summary>
+    /// THe color attachments of this framebuffer.
+    /// </summary>
+    public readonly IReadOnlyList<RenderBuffer> Color;
+
+    private readonly NativeRenderTarget native;
+
+    public RenderTarget(RenderBuffer color, RenderBuffer? depth = null)
+        : this(new[] { color }, depth)
     {
-        if (format.IsDepthStencil())
-            throw new ArgumentException(@"Invalid Render Target pixel format.", nameof(format));
-
-        depth = New2D(width, height, PixelFormat.D24_UNorm_S8_UInt, usage: TextureUsage.DepthStencil);
-        framebuffer = new FrameBuffer(new FrameBufferAttachment(this, 1, 1), new FrameBufferAttachment(depth, 1, 1));
     }
 
-    void IRenderTarget.Bind()
+    public RenderTarget(IReadOnlyList<RenderBuffer> color, RenderBuffer? depth = null)
     {
-        framebuffer.Bind();
+        if (color.Count > 8)
+            throw new ArgumentException(@"There cannot be more than 8 color attachments in a framebuffer.", nameof(color));
+
+        native = Graphics.CreateRenderTarget(color.Cast<NativeRenderBuffer>().ToArray(), depth);
+
+        Color = color;
+        Depth = depth;
+
+        Width = Math.Max(Depth?.Target.Width ?? 0, Color.Max(b => b.Target.Width));
+        Height = Math.Max(Depth?.Target.Height ?? 0, Color.Max(b => b.Target.Height));
     }
 
-    void IRenderTarget.Unbind()
-    {
-        framebuffer.Unbind();
-    }
+    protected override void DestroyGraphics() => native.Dispose();
 
-    public override void Dispose()
-    {
-        framebuffer.Dispose();
-        depth.Dispose();
-        base.Dispose();
-        GC.SuppressFinalize(this);
-    }
+    NativeRenderTarget IRenderTarget.Native => native;
 }

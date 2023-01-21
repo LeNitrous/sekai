@@ -9,6 +9,6 @@
     </PropertyGroup>
     <ItemGroup Label="Code Analysis">
         <AdditionalFiles Include="$(MSBuildThisFileDirectory)analysis\BannedSymbols.txt"/>
-        <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.3" PrivateAssets="All"/>
+        <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.4" PrivateAssets="All"/>
     </ItemGroup>
 </Project>

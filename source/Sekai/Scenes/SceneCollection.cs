@@ -3,9 +3,6 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using Sekai.Graphics;
-using Sekai.Rendering;
 
 namespace Sekai.Scenes;
 
@@ -16,29 +13,25 @@ public class SceneCollection : FrameworkObject, ICollection<Scene>, IReadOnlyLis
 {
     public Scene this[int index] => scenes[index];
     public int Count => scenes.Count;
-    public bool IsReadOnly => false;
 
+    private readonly object syncLock = new();
     private readonly List<Scene> scenes = new();
 
-    internal void Update(double delta)
+    internal void Update()
     {
-        var scenes = this.scenes.ToArray();
-
-        foreach (var scene in scenes)
+        lock (syncLock)
         {
-            if (scene.Enabled)
-                scene.Update(delta);
+            foreach (var scene in scenes)
+                scene.Update();
         }
     }
 
-    internal void Render(GraphicsContext graphics)
+    internal void Render()
     {
-        var scenes = this.scenes.OfType<IRenderableScene>().ToArray();
-
-        foreach (var scene in scenes)
+        lock (syncLock)
         {
-            if (scene.Enabled)
-                scene.Render(graphics);
+            foreach (var scene in scenes)
+                scene.Render();
         }
     }
 
@@ -47,11 +40,8 @@ public class SceneCollection : FrameworkObject, ICollection<Scene>, IReadOnlyLis
     /// </summary>
     public void Add(Scene item)
     {
-        if (item.IsAttached)
-            return;
-
-        scenes.Add(item);
-        item.Attach(this);
+        lock (syncLock)
+            scenes.Add(item);
     }
 
     /// <summary>
@@ -59,10 +49,8 @@ public class SceneCollection : FrameworkObject, ICollection<Scene>, IReadOnlyLis
     /// </summary>
     public void Clear()
     {
-        foreach (var scene in scenes)
-            scene.Detach(this);
-
-        scenes.Clear();
+        lock (syncLock)
+            scenes.Clear();
     }
 
     /// <summary>
@@ -70,7 +58,8 @@ public class SceneCollection : FrameworkObject, ICollection<Scene>, IReadOnlyLis
     /// </summary>
     public bool Contains(Scene item)
     {
-        return scenes.Contains(item);
+        lock (syncLock)
+            return scenes.Contains(item);
     }
 
     /// <summary>
@@ -78,12 +67,8 @@ public class SceneCollection : FrameworkObject, ICollection<Scene>, IReadOnlyLis
     /// </summary>
     public void CopyTo(Scene[] array, int arrayIndex)
     {
-        scenes.CopyTo(array, arrayIndex);
-    }
-
-    public IEnumerator<Scene> GetEnumerator()
-    {
-        return scenes.GetEnumerator();
+        lock (syncLock)
+            scenes.CopyTo(array, arrayIndex);
     }
 
     /// <summary>
@@ -91,16 +76,17 @@ public class SceneCollection : FrameworkObject, ICollection<Scene>, IReadOnlyLis
     /// </summary>
     public bool Remove(Scene item)
     {
-        if (!item.IsAttached)
-            return false;
-
-        if (!scenes.Remove(item))
-            return false;
-
-        item.Detach(this);
-
-        return true;
+        lock (syncLock)
+            return scenes.Remove(item);
     }
+
+    public IEnumerator<Scene> GetEnumerator()
+    {
+        lock (syncLock)
+            return scenes.GetEnumerator();
+    }
+
+    bool ICollection<Scene>.IsReadOnly => false;
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }

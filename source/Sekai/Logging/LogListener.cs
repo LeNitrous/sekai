@@ -20,7 +20,7 @@ public abstract class LogListener : FrameworkObject
     /// <summary>
     /// Gets or sets the filtering function for this listener. Return true to filter the message.
     /// </summary>
-    public Func<LogMessage, bool> Filter = null!;
+    public Func<LogMessage, bool> Filter = m => false;
 
     private int logEveryCount = 1;
 
@@ -33,7 +33,6 @@ public abstract class LogListener : FrameworkObject
         set => logEveryCount = Math.Max(value, 1);
     }
 
-
     protected abstract void OnNewMessage(string message);
 
     protected virtual void Flush()
@@ -43,17 +42,17 @@ public abstract class LogListener : FrameworkObject
     protected virtual Func<DateTime, string> FormatTimestamp { get; } = t => t.ToString("dd/MM/yyyy hh:mm:ss tt");
     protected virtual Func<LogLevel, string> FormatLogLevel { get; } = l => l.ToString();
     protected virtual Func<string, string> FormatChannel { get; } = c => c;
-    protected virtual Func<string, string> FormatMessage { get; } = m => m;
+    protected virtual Func<object?, string> FormatMessage { get; } = m => m?.ToString() ?? "null";
     protected virtual Func<Exception, string> FormatException { get; } = e => e.ToString();
 
     protected virtual string GetTextFormatted(LogMessage message)
     {
-        return $"[{FormatTimestamp(message.Timestamp)}] [{FormatLogLevel(message.Level)}]{(string.IsNullOrEmpty(message.Channel) ? string.Empty : $" [{FormatChannel(message.Channel)}]")} {FormatMessage(message.Message.ToString()!)}{(message.Exception != null ? $"\n{FormatException(message.Exception)}" : string.Empty)}";
+        return $"[{FormatTimestamp(message.Timestamp)}] [{FormatLogLevel(message.Level)}]{(string.IsNullOrEmpty(message.Channel) ? string.Empty : $" [{FormatChannel(message.Channel)}]")} {FormatMessage(message.Message)}{(message.Exception != null ? $"\n{FormatException(message.Exception)}" : string.Empty)}";
     }
 
     private void handleNewMessage(LogMessage message)
     {
-        if (message.Level < Level || (Filter?.Invoke(message) ?? false))
+        if (message.Level < Level || Filter(message))
             return;
 
         OnNewMessage(GetTextFormatted(message));

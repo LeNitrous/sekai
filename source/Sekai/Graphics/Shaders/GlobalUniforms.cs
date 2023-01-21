@@ -13,6 +13,18 @@ public enum GlobalUniforms
     /// <summary>
     /// The projection matrix.
     /// </summary>
-    [Description("g_ProjMatrix")]
+    [Description("g_internal_ProjMatrix")]
     Projection,
+
+    /// <summary>
+    /// The view matrix.
+    /// </summary>
+    [Description("g_internal_ViewMatrix")]
+    View,
+
+    /// <summary>
+    /// The model matrix.
+    /// </summary>
+    [Description("g_internal_ModelMatrix")]
+    Model,
 }

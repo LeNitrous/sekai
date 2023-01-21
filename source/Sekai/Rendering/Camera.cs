@@ -9,22 +9,27 @@ using Sekai.Scenes;
 namespace Sekai.Rendering;
 
 /// <summary>
-/// The scene's camera where all visible objects can be rendered to when visible.
+/// The camera where all visible objects can be rendered to when visible.
 /// </summary>
 public abstract class Camera : Component
 {
     /// <summary>
-    /// The render groups where this camera is visisble to.
+    /// The render groups this camera can render on to.
     /// </summary>
-    public RenderGroup Groups = RenderGroup.Default;
+    public RenderGroup Groups { get; set; } = RenderGroup.Default;
 
     /// <summary>
     /// The camera's render target.
     /// </summary>
     /// <remarks>
-    /// If null, everything rendered in this camera is drawn to the backbuffer.
+    /// If null, the camera's contents will be drawn to the main back buffer.
     /// </remarks>
-    public RenderTarget? Target = null;
+    public RenderTarget? Target { get; set; } = null;
+
+    /// <summary>
+    /// The camera's frustum used for culling objects.
+    /// </summary>
+    public BoundingFrustum Frustum { get; internal set; }
 
     /// <summary>
     /// The camera's view matrix.
@@ -35,19 +40,4 @@ public abstract class Camera : Component
     /// The camera's projection matrix.
     /// </summary>
     public Matrix4x4 ProjMatrix { get; internal set; }
-
-    /// <summary>
-    /// The camera's view matrix inversed.
-    /// </summary>
-    public Matrix4x4 ViewMatrixInverse { get; internal set; }
-
-    /// <summary>
-    /// THe caerma's projection matrix inversed.
-    /// </summary>
-    public Matrix4x4 ProjMatrixInverse { get; internal set; }
-
-    /// <summary>
-    /// The camera's bounding frustum used for culling objects.
-    /// </summary>
-    public BoundingFrustum Frustum { get; internal set; }
 }

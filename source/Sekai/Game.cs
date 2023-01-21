@@ -3,18 +3,21 @@
 
 using System;
 using Sekai.Allocation;
+using Sekai.Assets;
 using Sekai.Audio;
 using Sekai.Graphics;
 using Sekai.Input;
 using Sekai.Scenes;
-using Sekai.Storage;
+using Sekai.Storages;
+using Sekai.Threading;
+using Sekai.Windowing;
 
 namespace Sekai;
 
 /// <summary>
 /// The game application and the entry point for Sekai.
 /// </summary>
-public abstract class Game : FrameworkObject
+public abstract class Game : DependencyObject
 {
     /// <summary>
     /// Prepares a game for running.
@@ -22,68 +25,145 @@ public abstract class Game : FrameworkObject
     public static GameBuilder<T> Setup<T>(GameOptions? options = null)
         where T : Game, new()
     {
-        return new GameBuilder<T>(new T(), options);
+        return new GameBuilder<T>(options);
     }
+
+    /// <summary>
+    /// Gets whether the game is loaded or not.
+    /// </summary>
+    public bool IsLoaded { get; private set; }
 
     /// <summary>
     /// Called when the game has loaded.
     /// </summary>
-    public event Action? OnLoaded;
+    public event Action? OnLoad;
 
     /// <summary>
     /// Called as the game is being closed.
     /// </summary>
-    public event Action? OnExiting;
+    public event Action? OnExit;
 
     /// <summary>
-    /// The game's scenes.
+    /// Called after the game has updated a frame.
     /// </summary>
-    public SceneCollection Scenes { get; private set; } = null!;
+    public event Action? OnUpdate;
+
+    /// <summary>
+    /// Called after the game has rendered a frame.
+    /// </summary>
+    public event Action? OnRender;
+
+    /// <inheritdoc cref="GameRunner.ExecutionMode"/>
+    public ExecutionMode ExecutionMode
+    {
+        get => runner.ExecutionMode;
+        set => runner.ExecutionMode = value;
+    }
+
+    /// <inheritdoc cref="GameRunner.UpdatePerSecond"/>
+    public double UpdatePerSecond
+    {
+        get => runner.UpdatePerSecond;
+        set => runner.UpdatePerSecond = value;
+    }
+
+    /// <inheritdoc cref="GameRunner.OnException"/>
+    public event Func<Exception, bool> OnException
+    {
+        add => runner.OnException += value;
+        remove => runner.OnException -= value;
+    }
+
+    /// <summary>
+    /// The game options passed during construction.
+    /// </summary>
+    [Resolved]
+    protected GameOptions Options { get; set; } = null!;
 
     /// <summary>
     /// The game's graphics context.
     /// </summary>
-    public GraphicsContext Graphics { get; private set; } = null!;
-
-    /// <summary>
-    /// The game's storage context.
-    /// </summary>
-    public StorageContext? Storage { get; private set; }
+    [Resolved]
+    protected GraphicsContext Graphics { get; set; } = null!;
 
     /// <summary>
     /// The game's audio context.
     /// </summary>
-    public AudioContext? Audio { get; private set; }
+    [Resolved]
+    protected AudioContext Audio { get; set; } = null!;
+
+    /// <summary>
+    /// The game's storage context.
+    /// </summary>
+    [Resolved]
+    protected StorageContext Storage { get; set; } = null!;
+
+    /// <summary>
+    /// The game's asset loader.
+    /// </summary>
+    [Resolved]
+    protected AssetLoader Content { get; set; } = null!;
 
     /// <summary>
     /// The game's input context.
     /// </summary>
-    public InputContext? Input { get; private set; }
+    [Resolved]
+    protected InputContext Input { get; set; } = null!;
 
-    private bool hasStarted;
-    private GameRunner? runner;
+    /// <summary>
+    /// The game's rendering surface.
+    /// </summary>
+    [Resolved]
+    protected Surface Surface { get; set; } = null!;
+
+    /// <summary>
+    /// The game time.
+    /// </summary>
+    [Resolved]
+    protected Time Time { get; set; } = null!;
+
+    /// <summary>
+    /// The game's scene collection.
+    /// </summary>
+    protected SceneCollection Scenes { get; } = new();
+
+    private readonly GameRunner runner = new();
+
+    public Game()
+    {
+        OnUpdate += Time.Update;
+        OnUpdate += Input.Update;
+        OnUpdate += Update;
+        OnRender += Render;
+        OnUpdate += Scenes.Update;
+        OnRender += Scenes.Render;
+    }
 
     /// <summary>
     /// Called as the game starts.
     /// </summary>
-    public virtual void Load()
+    protected virtual void Load()
     {
     }
 
     /// <summary>
     /// Called every frame.
     /// </summary>
-    public virtual void Render() => Scenes.Render(Graphics);
+    protected virtual void Render()
+    {
+    }
 
     /// <summary>
     /// Called every frame.
     /// </summary>
-    public virtual void Update(double delta) => Scenes.Update(delta);
+    protected virtual void Update()
+    {
+    }
 
     /// <summary>
     /// Called before the game exits.
     /// </summary>
-    public virtual void Unload()
+    protected virtual void Unload()
     {
     }
 
@@ -92,22 +172,32 @@ public abstract class Game : FrameworkObject
     /// </summary>
     public void Run()
     {
-        if (hasStarted)
-            return;
+        var update = new WorkerThread("Update", null, false);
+        update.OnNewFrame += onWorkerLoop;
+        update.OnStart += onWorkerInit;
+        update.OnExit += onWorkerExit;
 
-        hasStarted = true;
+        var audio = new WorkerThread("Audio", null, false);
+        audio.OnNewFrame += Audio.Update;
+        audio.OnExit += Audio.Dispose;
 
-        runner = Services.Current.Resolve<GameRunner>();
-        Audio = Services.Current.Resolve<AudioContext>(false);
-        Input = Services.Current.Resolve<InputContext>(false);
-        Scenes = Services.Current.Resolve<SceneCollection>();
-        Storage = Services.Current.Resolve<StorageContext>(false);
-        Graphics = Services.Current.Resolve<GraphicsContext>();
+        runner.UpdatePerSecond = Options.UpdatePerSecond;
+        runner.ExecutionMode = Options.ExecutionMode;
+        runner.Add(update);
+        runner.Add(audio);
 
-        Load();
-        OnLoaded?.Invoke();
+        if (Surface is IWindow window)
+        {
+            window.Visible = false;
+            window.Size = Options.Size;
+            window.Title = Options.Title;
+            window.State = Options.State;
+            window.Border = Options.Border;
+        }
 
-        runner.Start();
+        Surface.OnUpdate += runner.Update;
+        Surface.OnClose += Dispose;
+        Surface.Run();
     }
 
     /// <summary>
@@ -115,15 +205,51 @@ public abstract class Game : FrameworkObject
     /// </summary>
     public void Exit()
     {
-        runner?.Stop();
+        Surface.Close();
+        Surface.OnUpdate -= runner.Update;
+        Surface.OnClose -= Dispose;
     }
 
-    protected sealed override void Destroy()
+    private void onWorkerInit()
     {
-        if (!hasStarted)
-            return;
+        Graphics.MakeCurrent();
+        IsLoaded = true;
+        Load();
+        OnLoad?.Invoke();
+    }
 
-        OnExiting?.Invoke();
+    private bool hasShownWindow = false;
+
+    private void onWorkerLoop()
+    {
+        OnUpdate?.Invoke();
+        Graphics.Prepare(Surface.Size);
+        OnRender?.Invoke();
+        Graphics.Present();
+
+        if (!hasShownWindow && Surface is IWindow window)
+        {
+            window.Visible = true;
+            hasShownWindow = true;
+        }
+    }
+
+    private void onWorkerExit()
+    {
         Unload();
+        OnExit?.Invoke();
+        IsLoaded = false;
+    }
+
+    protected override void Destroy()
+    {
+        OnUpdate -= Time.Update;
+        OnUpdate -= Input.Update;
+        OnUpdate -= Update;
+        OnRender -= Render;
+        OnUpdate -= Scenes.Update;
+        OnRender -= Scenes.Render;
+        Scenes.Dispose();
+        runner.Dispose();
     }
 }

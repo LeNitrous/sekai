@@ -10,7 +10,7 @@ namespace Sekai.Rendering;
 /// A camera capable of rendering three-dimensional objects.
 /// </summary>
 [Processor<Camera3DProcessor>]
-public class Camera3D : Camera
+public class Camera3D : Camera, ICamera
 {
     /// <summary>
     /// The camera's near plane distance.
@@ -33,33 +33,28 @@ public class Camera3D : Camera
     public float FieldOfView = 60;
 
     /// <summary>
-    /// The camera projection mode.
+    /// The camera's mode of projection.
     /// </summary>
-    public CameraProjectionMode Projection;
+    public CameraProjectionMode Projection = CameraProjectionMode.Perspective;
 
-    /// <inheritdoc cref="Component.Owner"/>
-    public new Node3D? Owner => (Node3D?)base.Owner;
+    [Bind]
+    internal Transform3D Transform { get; private set; } = null!;
 
-    /// <inheritdoc cref="Component.Scene"/>
-    public new Scene3D? Scene => (Scene3D?)base.Scene;
-
-    protected override void OnActivate()
-    {
-        base.OnActivate();
-        Scene?.Renderer.Add(this);
-    }
-
-    protected override void OnDeactivate()
-    {
-        base.OnDeactivate();
-        Scene?.Renderer.Remove(this);
-    }
-
-    internal override bool CanAttach(Node node) => node is Node3D;
+    Transform ICamera.Transform => Transform;
 }
 
+/// <summary>
+/// Determines the projection mode of a <see cref="Camera3D"/>.
+/// </summary>
 public enum CameraProjectionMode
 {
+    /// <summary>
+    /// Perspective projection.
+    /// </summary>
     Perspective,
+
+    /// <summary>
+    /// Orthographic projection.
+    /// </summary>
     Orthographic,
 }

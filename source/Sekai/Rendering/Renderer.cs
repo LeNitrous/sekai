@@ -3,185 +3,180 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using Sekai.Allocation;
 using Sekai.Graphics;
-using Sekai.Graphics.Vertices;
 using Sekai.Mathematics;
 using Sekai.Rendering.Batches;
 
 namespace Sekai.Rendering;
 
-public abstract class Renderer : FrameworkObject
+public sealed class Renderer : DependencyObject
 {
-    internal abstract void Render(GraphicsContext graphics);
-}
+    [Resolved]
+    private GraphicsContext graphics { get; set; } = null!;
 
-public abstract class Renderer<TDrawable, TCamera> : Renderer
-    where TDrawable : Drawable
-    where TCamera : Camera
-{
-    private IRenderBatch? currentBatch;
-    private readonly List<TCamera> cameras = new();
-    private readonly List<TDrawable> drawables = new();
-    private readonly IComparer<TDrawable> comparer;
-    private readonly Dictionary<Type, IRenderBatch> batches = new();
+    private RenderBatchManager? batches;
 
-    public Renderer()
+    private bool canFlush;
+    private bool canCollect;
+    private readonly List<ICamera> cameras = new();
+    private readonly List<IDrawable> drawables = new();
+    private readonly List<IDrawable> frontToBack = new();
+    private readonly List<IDrawable> backToFront = new();
+
+    /// <summary>
+    /// Begins collection phase.
+    /// </summary>
+    public void Begin()
     {
-        comparer = CreateComparer();
+        if (canCollect || canFlush)
+            return;
+
+        batches ??= new();
+
+        cameras.Clear();
+        drawables.Clear();
+        frontToBack.Clear();
+        backToFront.Clear();
+
+        canCollect = true;
     }
 
-    internal sealed override void Render(GraphicsContext graphics)
+    /// <summary>
+    /// Ends collection phase.
+    /// </summary>
+    public void End()
     {
-        // This will be unsafe once we delve into multithreading!
-        var cameras = CollectionsMarshal.AsSpan(this.cameras);
-        var drawables = CollectionsMarshal.AsSpan(this.drawables);
+        if (!canCollect || canFlush)
+            return;
 
-        var frontToBack = new List<TDrawable>();
-        var backToFront = new List<TDrawable>();
+        canCollect = false;
+        canFlush = true;
+    }
 
-        foreach (var drawable in drawables)
+    /// <summary>
+    /// Collects a camera for rendering.
+    /// </summary>
+    public void Collect(ICamera camera)
+    {
+        ensureCanCollect();
+        cameras.Add(camera);
+    }
+
+    /// <summary>
+    /// Collects a drawable for rendering.
+    /// </summary>
+    public void Collect(IDrawable drawable)
+    {
+        ensureCanCollect();
+        drawables.Add(drawable);
+    }
+
+    private void ensureCanCollect()
+    {
+        if (!canCollect)
+            throw new InvalidOperationException(@"Cannot collect renderer objects at this current state.");
+    }
+
+    /// <summary>
+    /// Flushes the collected renderer objects and renders them to the specified targets.
+    /// </summary>
+    public void Render()
+    {
+        if (!canFlush)
+            throw new InvalidOperationException(@"Cannot flush at this current state.");
+
+        foreach (var camera in CollectionsMarshal.AsSpan(cameras))
         {
-            if (!drawable.Enabled || !drawable.HasStarted || drawable.Transform is null)
-                continue;
+            var visible = drawables.Where(d => !isCulled(camera, d));
+            frontToBack.AddRange(visible.Where(d => d.SortMode == SortMode.FrontToBack));
+            backToFront.AddRange(visible.Where(d => d.SortMode == SortMode.BackToFront));
 
-            switch (drawable.SortMode)
-            {
-                case SortMode.BackToFront:
-                    backToFront.Add(drawable);
-                    break;
-
-                default:
-                    frontToBack.Add(drawable);
-                    break;
-            }
-        }
-
-        backToFront.Sort(comparer);
-
-        foreach (var camera in cameras)
-        {
             var target = camera.Target ?? graphics.BackBufferTarget;
-
-            target.Bind();
 
             if (frontToBack.Count > 0)
             {
-                foreach (var drawable in frontToBack)
-                    renderDrawable(graphics, camera, drawable);
+                var comparer = new DrawableComparer(camera, false);
+                frontToBack.Sort(comparer);
+
+                foreach (var drawable in CollectionsMarshal.AsSpan(frontToBack))
+                    renderDrawable(camera, drawable);
             }
 
             if (backToFront.Count > 0)
             {
-                for (int i = backToFront.Count - 1; i <= 0; i--)
-                {
-                    var drawable = backToFront[i];
-                    renderDrawable(graphics, camera, drawable);
-                }
-            }
+                var comparer = new DrawableComparer(camera, true);
+                backToFront.Sort(comparer);
 
-            target.Unbind();
+                foreach (var drawable in CollectionsMarshal.AsSpan(backToFront))
+                    renderDrawable(camera, drawable);
+            }
+        }
+
+        canFlush = false;
+    }
+
+    private void renderDrawable(ICamera camera, IDrawable drawable)
+    {
+        using (graphics.BeginContext())
+        {
+            graphics.SetTransform(drawable.Transform.WorldMatrix, camera.ViewMatrix, camera.ProjMatrix);
+            drawable.Draw(new(camera, graphics, batches!));
+            batches!.EndCurrentBatch();
         }
     }
 
-    internal void Add(TDrawable drawable)
-    {
-        if (drawables.Contains(drawable))
-            return;
-
-        drawables.Add(drawable);
-    }
-
-    internal void Remove(TDrawable drawable)
-    {
-        drawables.Remove(drawable);
-    }
-
-    internal void Add(TCamera camera)
-    {
-        if (cameras.Contains(camera))
-            return;
-
-        cameras.Add(camera);
-    }
-
-    internal void Remove(TCamera camera)
-    {
-        cameras.Remove(camera);
-    }
-
-    private void renderDrawable(GraphicsContext graphics, TCamera camera, TDrawable drawable)
-    {
-        if (IsCulled(camera, drawable))
-            return;
-
-        var matrix = camera.ProjMatrix * camera.ViewMatrix * (drawable.Transform?.WorldMatrix ?? Matrix4x4.Identity);
-        graphics.PushProjectionMatrix(matrix);
-
-        drawable.Draw(this);
-        ClearCurrentBatch();
-
-        graphics.PopProjectionMatrix();
-    }
-
-    /// <summary>
-    /// Returns whether a given drawable is culled from rendering.
-    /// </summary>
-    /// <remarks>
-    /// By default it checks whether a given drawable is in the same render group the camera is in and
-    /// if the drawable has a non-empty bounding box, is inside the camera's frustum. Otherwise, it is
-    /// never culled from rendering.
-    /// </remarks>
-    protected virtual bool IsCulled(TCamera camera, TDrawable drawable)
+    private static bool isCulled(ICamera camera, IDrawable drawable)
     {
         if ((camera.Groups & drawable.Group) != 0)
             return true;
 
         if (drawable.Bounds != BoundingBox.Empty && drawable.Culling == CullingMode.Frustum)
         {
-            var boundingBox = (BoundingBoxExt)drawable.Bounds;
-            return !camera.Frustum.Contains(ref boundingBox);
+            var bounds = (BoundingBoxExt)drawable.Bounds;
+            return !camera.Frustum.Contains(ref bounds);
         }
 
         return false;
     }
 
-    /// <summary>
-    /// Creates an <see cref="IComparer{T}"/> for depth-comparison.
-    /// </summary>
-    protected abstract IComparer<TDrawable> CreateComparer();
+    protected override void Destroy() => batches?.Dispose();
 
-    protected void AddBatch<T>(IRenderBatch batch)
-        where T : unmanaged
+    private class DrawableComparer : Comparer<IDrawable>
     {
-        if (batches.ContainsKey(typeof(T)))
-            throw new InvalidOperationException();
+        private readonly bool invert;
+        private readonly ICamera camera;
 
-        batches.Add(typeof(T), batch);
-    }
-
-    protected IRenderBatch<U> GetBatch<T, U>()
-        where T : unmanaged
-        where U : unmanaged, IVertex
-    {
-        if (!batches.TryGetValue(typeof(T), out var batch))
-            throw new InvalidOperationException();
-
-        if (currentBatch != batch)
+        public DrawableComparer(ICamera camera, bool invert)
         {
-            currentBatch?.End();
-            currentBatch = batch;
-            currentBatch.Begin();
+            this.invert = invert;
+            this.camera = camera;
         }
 
-        return (IRenderBatch<U>)batch;
-    }
+        public override int Compare(IDrawable? x, IDrawable? y)
+        {
+            if (ReferenceEquals(x, y))
+                return 0;
 
-    protected virtual void ClearCurrentBatch()
-    {
-        currentBatch?.End();
-        currentBatch = null;
+            if (x is null)
+                return -1;
+
+            if (y is null)
+                return 1;
+
+            float distanceX = Vector3.Distance(x.Transform.WorldMatrix.Translation, camera.Transform.WorldMatrix.Translation);
+            float distanceY = Vector3.Distance(y.Transform.WorldMatrix.Translation, camera.Transform.WorldMatrix.Translation);
+
+            if (invert)
+            {
+                distanceX = -distanceX;
+                distanceY = -distanceY;
+            }
+
+            return distanceX.CompareTo(distanceY);
+        }
     }
 }
-

@@ -6,14 +6,13 @@ using Sekai.Processors;
 namespace Sekai;
 
 /// <summary>
-/// Logical scripts that have an <see cref="Update"/> method called every frame.
+/// A scriptable that allows repeated calls through its update method.
 /// </summary>
 [Processor<BehaviorProcessor>]
-public abstract class Behavior : Script
+public abstract class Behavior : Scriptable
 {
     /// <summary>
-    /// Called every frame to perform custom logic.
+    /// Called every frame to perform updates.
     /// </summary>
-    /// <param name="delta">Time taken between frames.</param>
-    public abstract void Update(double delta);
+    public abstract void Update();
 }

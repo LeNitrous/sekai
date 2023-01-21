@@ -2,41 +2,26 @@
 // Licensed under MIT. See LICENSE for details.
 
 using Sekai.Graphics.Buffers;
-using Silk.NET.OpenGL;
 
 namespace Sekai.OpenGL;
 
-internal unsafe class GLBuffer : GLResource, INativeBuffer
+internal class GLBuffer : NativeBuffer
 {
-    public int Capacity { get; }
     private readonly uint bufferId;
+    private readonly GLGraphicsSystem system;
 
-    public GLBuffer(GLGraphicsSystem context, int capacity, bool dynamic)
-        : base(context)
+    public GLBuffer(GLGraphicsSystem system, uint bufferId, int capacity, bool dynamic)
+        : base(capacity, dynamic)
     {
-        Capacity = capacity;
-        bufferId = GL.GenBuffer();
-
-        GL.BindBuffer(BufferTargetARB.CopyWriteBuffer, bufferId);
-        GL.BufferData(BufferTargetARB.CopyWriteBuffer, (nuint)capacity, null, dynamic ? BufferUsageARB.DynamicDraw : BufferUsageARB.StaticDraw);
+        this.system = system;
+        this.bufferId = bufferId;
     }
 
-    public void GetData(nint dest, int size, int offset = 0)
-    {
-        GL.BindBuffer(BufferTargetARB.CopyWriteBuffer, bufferId);
-        GL.GetBufferSubData(BufferTargetARB.CopyWriteBuffer, offset, (nuint)size, (void*)dest);
-    }
+    public override void GetData(nint dest, int size, int offset = 0) => system.GetBufferData(bufferId, dest, size, offset);
 
-    public void SetData(nint data, int size, int offset = 0)
-    {
-        GL.BindBuffer(BufferTargetARB.CopyWriteBuffer, bufferId);
-        GL.BufferSubData(BufferTargetARB.CopyWriteBuffer, offset, (nuint)size, (void*)data);
-    }
+    public override void SetData(nint data, int size, int offset = 0) => system.SetBufferData(bufferId, data, size, offset);
 
-    protected override void Destroy()
-    {
-        GL.DeleteBuffer(bufferId);
-    }
+    protected override void Destroy() => system.DestroyBuffer(bufferId);
 
     public static implicit operator uint(GLBuffer buffer) => buffer.bufferId;
 }

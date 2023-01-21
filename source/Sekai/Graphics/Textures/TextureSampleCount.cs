@@ -1,3 +1,6 @@
+// Copyright (c) The Vignette Authors
+// Licensed under MIT. See LICENSE for details.
+
 namespace Sekai.Graphics.Textures;
 
 public enum TextureSampleCount

@@ -1,6 +1,8 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
+using System;
+
 namespace Sekai.Audio;
 
 /// <summary>
@@ -27,4 +29,53 @@ public enum AudioFormat
     /// 16-bit dual channel audio.
     /// </summary>
     Stereo16,
+}
+
+public static class AudioFormatExtensions
+{
+    /// <summary>
+    /// Gets whether the audio format is stereo.
+    /// </summary>
+    public static bool IsStereo(this AudioFormat format)
+    {
+        switch (format)
+        {
+            case AudioFormat.Mono8:
+            case AudioFormat.Mono16:
+            default:
+                return false;
+
+            case AudioFormat.Stereo8:
+            case AudioFormat.Stereo16:
+                return true;
+        }
+    }
+
+    /// <summary>
+    /// Gets the number of channels of the given format.
+    /// </summary>
+    public static int GetChannelCount(this AudioFormat format)
+    {
+        return IsStereo(format) ? 2 : 1;
+    }
+
+    /// <summary>
+    /// Gets the bits per sample of the given format.
+    /// </summary>
+    public static int GetBitsPerSample(this AudioFormat format)
+    {
+        switch (format)
+        {
+            case AudioFormat.Mono8:
+            case AudioFormat.Stereo8:
+                return 8;
+
+            case AudioFormat.Mono16:
+            case AudioFormat.Stereo16:
+                return 16;
+
+            default:
+                throw new NotSupportedException($@"Audio format ""{format}"" is not supported.");
+        }
+    }
 }

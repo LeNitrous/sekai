@@ -5,12 +5,18 @@ Sekai's source has been split into multiple folders and C# projects (`.csproj`),
 ## Projects
 - **Sekai**
     - Implements core functionality.
-- **Sekai.Testing**
-    - Implements test functionality for NUnit.
+- **Sekai.Null**
+    - Implements null services for headless integration.
 - **Sekai.OpenGL**
-    - Provides [**OpenGL**](https://github.com/dotnet/Silk.NET) graphics support.
-- **Sekai.Forms**
-    - Provides [**Windows Forms**](https://github.com/dotnet/winforms) windowing and input support.
-    - **Note**: This requires Visual Studio and Windows with the appropriate workloads. See [this article](https://learn.microsoft.com/en-us/windows/apps/windows-app-sdk/set-up-your-development-environment) for more details on how to set up your environment.
+    - Provides [**OpenGL**](https://github.com/dotnet/Silk.NET) graphics services.
+- **Sekai.OpenAL**
+    - Provides [**OpenAL**](https://github.com/dotnet/Silk.NET) audio services.
 - **Sekai.SDL**
-    - Provides [**SDL2**](https://github.com/dotnet/Silk.NET) windowing and input support.
+    - Provides [**SDL2**](https://github.com/dotnet/Silk.NET) windowing and input services.
+- **Sekai.Skia**
+    - Provides [**Skia**](https://github.com/google/skia) support via [**SkiaSharp**](https://github.com/mono/SkiaSharp).
+- **Sekai.Xunit**
+    - Implements a custom Xunit test framework for Sekai.
+- **Sekai.Windows**
+    - Provides [**Windows Apps SDK**](https://github.com/microsoft/WindowsAppSDK) support.
+    - **Note**: This requires Visual Studio and Windows with the appropriate workloads. See [this article](https://learn.microsoft.com/en-us/windows/apps/windows-app-sdk/set-up-your-development-environment) for more details on how to set up your environment.
