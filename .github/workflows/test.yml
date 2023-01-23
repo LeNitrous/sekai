@@ -39,6 +39,17 @@ jobs:
       - name: Build
         run: dotnet build -f net7.0 --no-restore -v n -c Debug Sekai.Universal.slnf
 
+      - name: Pack
+        run: |
+          dotnet pack --include-symbols -o release source/Sekai
+          dotnet pack --include-symbols -o release source/Sekai.Null
+          dotnet pack --include-symbols -o release source/Sekai.OpenAL
+          dotnet pack --include-symbols -o release source/Sekai.OpenGL
+          dotnet pack --include-symbols -o release source/Sekai.SDL
+          dotnet pack --include-symbols -o release source/Sekai.Skia
+          dotnet pack --include-symbols -o release source/Sekai.Windows
+          dotnet pack --include-symbols -o release source/Sekai.Xunit
+
 # TODO: We disabled tests since we haven't migrated them all to XUnit. This should be done soon.
 #      - name: Test
 #        run: dotnet test Sekai.sln --logger "trx;LogFileName=${{ github.workspace }}/results.trx"
@@ -49,6 +60,12 @@ jobs:
 #          SDL_AUDIODRIVER: dummy
 #          # Use Xvfb display
 #          DISPLAY: :99
+
+      - name: Upload Nuget package artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: sekai-dbg-nuget
+          path: ${{ github.workspace }}/release/*.nupkg
 
       - name: Upload Results
         uses: actions/upload-artifact@v2
