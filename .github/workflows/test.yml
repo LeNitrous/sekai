@@ -34,7 +34,8 @@ jobs:
           sudo systemctl status Xvfb
 
       - name: Build
-        run: dotnet build -c Debug Sekai.Universal.slnf
+        run: dotnet build -c Debug Sekai.Universal.slnf /property:TargetFramework=net7.0
+
 # TODO: We disabled tests since we haven't migrated them all to XUnit. This should be done soon.
 #      - name: Test
 #        run: dotnet test Sekai.sln --logger "trx;LogFileName=${{ github.workspace }}/results.trx"
