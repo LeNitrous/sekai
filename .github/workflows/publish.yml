@@ -1,0 +1,27 @@
+name: Publish
+on:
+ workflow_run:
+    workflows: [ 'Test' ]
+    types:
+      - completed
+ release:
+     types: [ prereleased, released ]
+
+jobs:
+  publish:
+    runs-on: windows-latest
+    if: ${{ github.event.workflow_run.conclusion != 'cancelled' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: "7.0.x"
+
+      - name: Pack
+        run: dotnet pack --include-symbols Sekai.sln -o release
+
+      - name: Publish packages
+        run: dotnet nuget push release/*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "https://nuget.pkg.github.com/vignetteapp/index.json"

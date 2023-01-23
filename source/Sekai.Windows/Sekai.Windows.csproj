@@ -11,7 +11,7 @@
   <ItemGroup>
     <ProjectReference Include="../Sekai/Sekai.csproj" />
   </ItemGroup>
-
+  
   <ItemGroup>
     <PackageReference Include="InteropCompositor" Version="1.0.0" />
     <PackageReference Include="Microsoft.Windows.CsWin32" Version="0.2.164-beta">
@@ -22,4 +22,21 @@
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.755" />
   </ItemGroup>
 
+  <ItemGroup Label="Documents">
+    <None Include="..\..\LICENSE" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+  <PropertyGroup Label="Nuget">
+    <IsPackable>true</IsPackable>
+    <PackageId>Sekai.Windows</PackageId>
+    <Version>0.0.1</Version>
+    <Authors>Vignette</Authors>
+    <PackageTags>Game;Game Engine;Framework</PackageTags>
+    <Title>Sekai.Windows</Title>
+    <Description>Windows-native backend support for Sekai Game Engine</Description>
+    <Copyright>2023 Vignette</Copyright>
+    <RepositoryUrl>https://github.com/vignetteapp/sekai</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/vignetteapp/sekai</PackageProjectUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+  </PropertyGroup>
 </Project>

@@ -17,4 +17,21 @@
     <ProjectReference Include="..\Sekai\Sekai.csproj" />
   </ItemGroup>
 
+  <ItemGroup Label="Documents">
+    <None Include="..\..\LICENSE" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+  <PropertyGroup Label="Nuget">
+    <IsPackable>true</IsPackable>
+    <PackageId>Sekai.OpenAL</PackageId>
+    <Version>0.0.1</Version>
+    <Authors>Vignette</Authors>
+    <PackageTags>Audio;Game;Game Engine;Framework</PackageTags>
+    <Title>Sekai.OpenAL</Title>
+    <Description>OpenAL support for the Sekai Game Engine</Description>
+    <Copyright>2023 Vignette</Copyright>
+    <RepositoryUrl>https://github.com/vignetteapp/sekai</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/vignetteapp/sekai</PackageProjectUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+  </PropertyGroup>
 </Project>

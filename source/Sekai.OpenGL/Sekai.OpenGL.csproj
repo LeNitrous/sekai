@@ -14,4 +14,21 @@
     <PackageReference Include="Silk.NET.OpenGL" Version="2.16.0" />
   </ItemGroup>
 
+  <ItemGroup Label="Documents">
+    <None Include="..\..\LICENSE" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+  <PropertyGroup Label="Nuget">
+    <IsPackable>true</IsPackable>
+    <PackageId>Sekai.OpenGL</PackageId>
+    <Version>0.0.1</Version>
+    <Authors>Vignette</Authors>
+    <PackageTags>Graphics;Game;Game Engine;Framework</PackageTags>
+    <Title>Sekai.OpenGL</Title>
+    <Description>OpenGL backend for the Sekai Game Engine, using the Silk.NET API</Description>
+    <Copyright>2023 Vignette</Copyright>
+    <RepositoryUrl>https://github.com/vignetteapp/sekai</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/vignetteapp/sekai</PackageProjectUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+  </PropertyGroup>
 </Project>

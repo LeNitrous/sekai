@@ -20,4 +20,22 @@
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.3" />
   </ItemGroup>
 
+  <ItemGroup Label="Documents">
+    <None Include="..\..\LICENSE" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+  <PropertyGroup Label="Nuget">
+    <IsPackable>true</IsPackable>
+    <PackageId>Sekai</PackageId>
+    <Version>0.0.1</Version>
+    <Authors>Vignette</Authors>
+    <PackageTags>Graphics;Audio;Game;Game Engine;Framework</PackageTags>
+    <Title>Sekai</Title>
+    <Description>A highly-modular game engine written for .NET, inspired of osu!framework and LÖVE</Description>
+    <Copyright>2023 Vignette</Copyright>
+    <RepositoryUrl>https://github.com/vignetteapp/sekai</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/vignetteapp/sekai</PackageProjectUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+  </PropertyGroup>
+
 </Project>
