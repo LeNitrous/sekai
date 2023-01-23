@@ -1,9 +1,5 @@
 name: Publish
 on:
- workflow_run:
-    workflows: [ 'Test' ]
-    types:
-      - completed
  release:
      types: [ prereleased, released ]
 
@@ -23,6 +19,7 @@ jobs:
       - name: Pack
         run: |
           dotnet pack --include-symbols -o release source/Sekai
+          dotnet pack --include-symbols -o release source/Sekai.Null
           dotnet pack --include-symbols -o release source/Sekai.OpenAL
           dotnet pack --include-symbols -o release source/Sekai.OpenGL
           dotnet pack --include-symbols -o release source/Sekai.SDL
