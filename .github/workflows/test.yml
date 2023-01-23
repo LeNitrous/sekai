@@ -47,7 +47,6 @@ jobs:
           dotnet pack --include-symbols -o release source/Sekai.OpenGL
           dotnet pack --include-symbols -o release source/Sekai.SDL
           dotnet pack --include-symbols -o release source/Sekai.Skia
-          dotnet pack --include-symbols -o release source/Sekai.Windows
           dotnet pack --include-symbols -o release source/Sekai.Xunit
 
 # TODO: We disabled tests since we haven't migrated them all to XUnit. This should be done soon.
