@@ -21,7 +21,14 @@ jobs:
           dotnet-version: "7.0.x"
 
       - name: Pack
-        run: dotnet pack --include-symbols Sekai.sln -o release
+        run: |
+          dotnet pack --include-symbols -o release source/Sekai
+          dotnet pack --include-symbols -o release source/Sekai.OpenAL
+          dotnet pack --include-symbols -o release source/Sekai.OpenGL
+          dotnet pack --include-symbols -o release source/Sekai.SDL
+          dotnet pack --include-symbols -o release source/Sekai.Skia
+          dotnet pack --include-symbols -o release source/Sekai.Windows
+          dotnet pack --include-symbols -o release source/Sekai.Xunit
 
       - name: Publish packages
         run: dotnet nuget push release/*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "https://nuget.pkg.github.com/vignetteapp/index.json"

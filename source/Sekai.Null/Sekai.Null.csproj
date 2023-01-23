@@ -13,4 +13,22 @@
     <Folder Include="Input\" />
   </ItemGroup>
 
+  <ItemGroup Label="Documents">
+    <None Include="..\..\LICENSE" Pack="true" PackagePath="" />
+  </ItemGroup>
+
+  <PropertyGroup Label="Nuget">
+    <IsPackable>true</IsPackable>
+    <PackageId>Sekai.Null</PackageId>
+    <Version>0.0.1</Version>
+    <Authors>Vignette</Authors>
+    <PackageTags>Graphics;Audio;Game;Game Engine;Framework</PackageTags>
+    <Title>Sekai.Null</Title>
+    <Description>Dummy devices for the Sekai Game Engine, for testing and headless purposes.</Description>
+    <Copyright>2023 Vignette</Copyright>
+    <RepositoryUrl>https://github.com/vignetteapp/sekai</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/vignetteapp/sekai</PackageProjectUrl>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
 </Project>

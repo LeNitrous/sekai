@@ -16,6 +16,7 @@
 
   <ItemGroup Label="Documents">
     <None Include="..\..\LICENSE" Pack="true" PackagePath="" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="" />
   </ItemGroup>
 
   <PropertyGroup Label="Nuget">
@@ -30,5 +31,6 @@
     <RepositoryUrl>https://github.com/vignetteapp/sekai</RepositoryUrl>
     <PackageProjectUrl>https://github.com/vignetteapp/sekai</PackageProjectUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 </Project>
