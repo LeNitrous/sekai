@@ -33,8 +33,11 @@ jobs:
           sudo systemctl start Xvfb
           sudo systemctl status Xvfb
 
+      - name: Restore
+        run: dotnet restore -v n Sekai.Universal.slnf /property:TargetFramework=net7.0
+
       - name: Build
-        run: dotnet build -c Debug Sekai.Universal.slnf /property:TargetFramework=net7.0
+        run: dotnet build -f net7.0 --no-restore -v n -c Debug Sekai.Universal.slnf
 
 # TODO: We disabled tests since we haven't migrated them all to XUnit. This should be done soon.
 #      - name: Test
