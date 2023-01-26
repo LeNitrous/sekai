@@ -27,13 +27,19 @@ public sealed class AssetLoader : DependencyObject, IAssetLoaderRegistry
     {
         ArgumentException.ThrowIfNullOrEmpty(path, nameof(path));
 
-        string ext = Path.GetExtension(path);
+        IAssetLoader? loader = null;
 
-        if (string.IsNullOrEmpty(ext))
-            throw new ArgumentException("Unable to determine file extension of the provided path.", nameof(path));
+        foreach ((string extension, var assetLoader) in loaders)
+        {
+            if (path.EndsWith(extension))
+            {
+                loader = assetLoader;
+                break;
+            }
+        }
 
-        if (!loaders.TryGetValue(ext, out var loader))
-            throw new NotSupportedException($@"Loading of asset type ""{typeof(T)}"" is not supported.");
+        if (loader is null)
+            throw new ArgumentException($@"There is no asset loader that can load ""{typeof(T)}"" objects.", nameof(T));
 
         if (loader is not IAssetLoader<T> typedLoader)
             throw new InvalidCastException($@"The asset loader is unable to load ""{typeof(T)}"" objects.");
