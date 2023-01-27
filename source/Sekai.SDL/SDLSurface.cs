@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Threading;
 using Sekai.Mathematics;
 using Sekai.Windowing;
 using Sekai.Windowing.OpenGL;
@@ -64,7 +66,7 @@ internal unsafe class SDLSurface : Windowing.Surface, INativeWindowSource, IOpen
         Window = Sdl.CreateWindow("Sekai", Sdl.WindowposCentered, Sdl.WindowposCentered, 1280, 720, (uint)(WindowFlags.Hidden | WindowFlags.Opengl));
         native = new(() => new SDLNativeWindow(this));
 
-        Sdl.SetEventFilter(filter = handleSdlEvent, null);
+        Sdl.SetEventFilter(filter = filterSdlEvent, null);
 
         updateWindowSize();
         updateWindowPosition();
@@ -130,6 +132,18 @@ internal unsafe class SDLSurface : Windowing.Surface, INativeWindowSource, IOpen
 
         switch (type)
         {
+            case EventType.Windowevent:
+                handleWindowEvent(evt.Window);
+                break;
+
+            case EventType.AppDidenterbackground:
+                OnStateChanged?.Invoke(active = false);
+                break;
+
+            case EventType.AppDidenterforeground:
+                OnStateChanged?.Invoke(active = true);
+                break;
+            
             case EventType.Quit:
             case EventType.AppTerminating:
                 handleQuitEvent();
@@ -177,31 +191,12 @@ internal unsafe class SDLSurface : Windowing.Surface, INativeWindowSource, IOpen
         position = new Mathematics.Point(x, y);
     }
 
-    private int handleSdlEvent(void* data, Event* evt)
+    private int filterSdlEvent(void* data, Event* evt)
     {
-        var type = (EventType)evt->Type;
-
-        switch (type)
+        if (evt->Type == (uint)EventType.Windowevent && evt->Window.Event == (byte)WindowEventID.Resized)
         {
-            case EventType.Windowevent:
-                {
-                    handleWindowEvent(evt->Window);
-                    break;
-                }
-
-            case EventType.AppDidenterbackground:
-                {
-                    active = false;
-                    OnStateChanged?.Invoke(Active);
-                    break;
-                }
-
-            case EventType.AppDidenterforeground:
-                {
-                    active = true;
-                    OnStateChanged?.Invoke(Active);
-                    break;
-                }
+            ProcessEvent(Unsafe.Read<Event>(evt));
+            return 0;
         }
 
         return 1;
