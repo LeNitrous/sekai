@@ -2,8 +2,11 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
+using System.IO;
 using Sekai.Assets;
 using Sekai.Mathematics;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace Sekai.Graphics.Textures;
 
@@ -165,5 +168,32 @@ public class Texture : GraphicsObject, IAsset
     public static Texture New3D(int width, int height, int depth, PixelFormat format, int levels = 1, FilterMode min = FilterMode.Linear, FilterMode mag = FilterMode.Linear, WrapMode wrapModeS = WrapMode.None, WrapMode wrapModeT = WrapMode.None, WrapMode wrapModeR = WrapMode.None, TextureUsage usage = TextureUsage.Sampled)
     {
         return new Texture(width, height, depth, levels, 1, min, mag, wrapModeS, wrapModeT, wrapModeR, TextureType.Texture3D, usage, TextureSampleCount.Count1, format);
+    }
+
+    public static Texture Load(Stream stream)
+    {
+        Span<byte> buffer = stackalloc byte[(int)stream.Length];
+        stream.Read(buffer);
+        return Load(buffer);
+    }
+
+    public static Texture Load(byte[] buffer)
+    {
+        return Load(buffer);
+    }
+
+    public static unsafe Texture Load(ReadOnlySpan<byte> buffer)
+    {
+        var image = Image.Load<Rgba32>(buffer);
+
+        var texture = New2D(image.Width, image.Height, PixelFormat.R8_G8_B8_A8_UNorm);
+
+        Span<byte> data = new byte[image.Width * image.Height * 4];
+        image.CopyPixelDataTo(data);
+
+        fixed (byte* ptr = data)
+            texture.SetData((nint)ptr, 0, 0, 0, image.Width, image.Height, 1, 0, 0);
+
+        return texture;
     }
 }
