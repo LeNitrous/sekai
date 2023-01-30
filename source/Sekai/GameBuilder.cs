@@ -13,7 +13,6 @@ using Sekai.Input;
 using Sekai.Logging;
 using Sekai.Processors;
 using Sekai.Rendering;
-using Sekai.Rendering.Batches;
 using Sekai.Storages;
 using Sekai.Windowing;
 
@@ -130,6 +129,7 @@ public sealed class GameBuilder<T>
 
         ServiceLocator.Current.Cache(options);
         ServiceLocator.Current.Cache(factory);
+        ServiceLocator.Current.Cache(factory.GetLogger());
         ServiceLocator.Current.Cache<Time>();
         ServiceLocator.Current.Cache<ProcessorManager>();
         ServiceLocator.Current.Cache<ShaderUniformManager>();
