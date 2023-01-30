@@ -188,7 +188,9 @@ public class Texture : GraphicsObject, IAsset
 
         var texture = New2D(image.Width, image.Height, PixelFormat.R8_G8_B8_A8_UNorm);
 
-        Span<byte> data = new byte[image.Width * image.Height * 4];
+        int size = image.Width * image.Height * 4;
+
+        Span<byte> data = size > RuntimeInfo.MaximumStackCapacity ? new byte[size] : stackalloc byte[size];
         image.CopyPixelDataTo(data);
 
         fixed (byte* ptr = data)

@@ -46,7 +46,8 @@ public sealed class AssetLoader : DependencyObject, IAssetLoaderRegistry
 
         using var stream = storage.Open(path, FileMode.Open, FileAccess.Read);
 
-        Span<byte> data = stackalloc byte[(int)stream.Length];
+        int streamLength = (int)stream.Length;
+        Span<byte> data = streamLength > RuntimeInfo.MaximumStackCapacity ? new byte[streamLength] : stackalloc byte[streamLength];
 
         if (stream.Read(data) <= 0)
             throw new InvalidOperationException(@"Failed to read stream.");

@@ -49,6 +49,11 @@ public static class RuntimeInfo
     /// </summary>
     public static bool IsApple => OS is Platform.iOS or Platform.macOS;
 
+    /// <summary>
+    /// The maximum stack capacity in bytes.
+    /// </summary>
+    internal static int MaximumStackCapacity => Environment.Is64BitProcess ? 400000 : 100000;
+
     static RuntimeInfo()
     {
         if (OperatingSystem.IsWindows())
