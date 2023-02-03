@@ -96,7 +96,7 @@ public abstract class Game : DependencyObject
     /// The game's storage context.
     /// </summary>
     [Resolved]
-    protected StorageContext Storage { get; set; } = null!;
+    protected VirtualStorage Storage { get; set; } = null!;
 
     /// <summary>
     /// The game's asset loader.

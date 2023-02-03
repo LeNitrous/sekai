@@ -14,7 +14,7 @@ public abstract class RenderBatch<T> : DependencyObject, IRenderBatch<T>
     where T : unmanaged, IVertex
 {
     public bool HasStarted { get; private set; }
-    protected abstract string Shader { get; }
+    protected abstract Uri Shader { get; }
     protected abstract int PrimitiveIndexCount { get; }
     protected abstract int PrimitiveVertexCount { get; }
     protected abstract PrimitiveTopology Topology { get; }

@@ -1,31 +1,33 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Sekai.Storages;
 
 /// <summary>
-/// Storaged backed by the user's file system.
+/// Storage backed by physical media.
 /// </summary>
 public class NativeStorage : Storage
 {
-    public readonly string LocalBasePath;
+    public override Uri Uri { get; }
 
-    public NativeStorage(string localBasePath)
+    public NativeStorage(Uri uri)
     {
-        LocalBasePath = localBasePath;
+        if (!uri.IsAbsoluteUri)
+            throw new ArgumentException("URI must be absolute.", nameof(uri));
 
-        if (!Directory.Exists(localBasePath))
-            Directory.CreateDirectory(localBasePath);
+        Uri = uri;
     }
 
-    public override bool CreateDirectory(string path)
+    protected override bool BaseCreateDirectory(Uri uri)
     {
         try
         {
-            Directory.CreateDirectory(getFullPath(path));
+            Directory.CreateDirectory(uri.AbsolutePath);
             return true;
         }
         catch
@@ -34,43 +36,54 @@ public class NativeStorage : Storage
         }
     }
 
-    public override void Delete(string path)
+    protected override bool BaseDelete(Uri uri)
     {
-        File.Delete(getFullPath(path));
+        try
+        {
+            File.Delete(uri.AbsolutePath);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
-    public override void DeleteDirectory(string path)
+    protected override bool BaseDeleteDirectory(Uri uri)
     {
-        Directory.Delete(getFullPath(path));
+        try
+        {
+            Directory.Delete(uri.AbsolutePath);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
-    public override IEnumerable<string> EnumerateDirectories(string path, string pattern = "*")
+    protected override IEnumerable<Uri> BaseEnumerateDirectories(Uri uri)
     {
-        return Directory.EnumerateDirectories(getFullPath(path), pattern);
+        return Directory.EnumerateDirectories(uri.AbsolutePath).Select(p => new Uri(p));
     }
 
-    public override IEnumerable<string> EnumerateFiles(string path, string pattern = "*", SearchOption searchOption = SearchOption.TopDirectoryOnly)
+    protected override IEnumerable<Uri> BaseEnumerateFiles(Uri uri)
     {
-        return Directory.EnumerateFiles(getFullPath(path), pattern, searchOption);
+        return Directory.EnumerateFiles(uri.AbsolutePath).Select(p => new Uri(p));
     }
 
-    public override bool Exists(string path)
+    protected override bool BaseExists(Uri uri)
     {
-        return File.Exists(getFullPath(path));
+        return File.Exists(uri.AbsolutePath);
     }
 
-    public override bool ExistsDirectory(string path)
+    protected override bool BaseExistsDirectory(Uri uri)
     {
-        return Directory.Exists(getFullPath(path));
+        return Directory.Exists(uri.AbsolutePath);
     }
 
-    public override Stream Open(string path, FileMode mode = FileMode.OpenOrCreate, FileAccess access = FileAccess.ReadWrite)
+    protected override Stream BaseOpen(Uri uri, FileMode mode = FileMode.OpenOrCreate, FileAccess access = FileAccess.ReadWrite)
     {
-        return File.Open(getFullPath(path), mode, access);
-    }
-
-    private string getFullPath(string path)
-    {
-        return Path.Combine(LocalBasePath, path).Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        return File.Open(uri.AbsolutePath, mode, access);
     }
 }

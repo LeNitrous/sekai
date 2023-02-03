@@ -28,7 +28,7 @@ internal class SkiaContext : DependencyObject
             context = GRContext.CreateGl(GRGlInterface.Create(source.GetProcAddress));
     }
 
-    public Shader GetShader() => shader ??= content.Load<Shader>("engine/shaders/batches/quad.sksl");
+    public Shader GetShader() => shader ??= content.Load<Shader>("./engine/shaders/batches/quad.sksl");
 
     public SKSurface CreateSurface(Size2 size) => context is not null
         ? SKSurface.Create(context, false, new(size.Width, size.Height))

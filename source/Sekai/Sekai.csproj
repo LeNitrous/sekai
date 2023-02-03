@@ -17,11 +17,6 @@
     <PackageReference Include="SixLabors.ImageSharp" Version="2.1.3" />
   </ItemGroup>
 
-  <ItemGroup Label="Documents">
-    <None Include="..\..\LICENSE" Pack="true" PackagePath="" />
-    <None Include="..\..\README.md" Pack="true" PackagePath="" />
-  </ItemGroup>
-
   <PropertyGroup Label="Nuget">
     <IsPackable>true</IsPackable>
     <PackageId>Sekai</PackageId>

@@ -134,8 +134,8 @@ public sealed class GameBuilder<T>
         ServiceLocator.Current.Cache<ProcessorManager>();
         ServiceLocator.Current.Cache<ShaderUniformManager>();
 
-        var storage = new StorageContext();
-        storage.Mount(@"engine", new AssemblyBackedStorage(typeof(Game).Assembly, @"Resources"));
+        var storage = new VirtualStorage();
+        storage.Mount("./engine/", new AssemblyStorage(typeof(Game).Assembly).GetStorage("./Resources/"));
         ServiceLocator.Current.Cache(storage);
 
         var loader = new AssetLoader();

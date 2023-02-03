@@ -15,23 +15,35 @@ namespace Sekai.Assets;
 public sealed class AssetLoader : DependencyObject, IAssetLoaderRegistry
 {
     [Resolved]
-    private StorageContext storage { get; set; } = null!;
+    private VirtualStorage storage { get; set; } = null!;
 
     private readonly Dictionary<string, IAssetLoader> loaders = new();
 
-    /// <summary>
-    /// Loads an asset from the given path using the current <see cref="StorageContext"/>.
-    /// </summary>
+    /// <inheritdoc cref="Load{T}(Uri)"/>
+    /// <param name="path">The path to the file.</param>
     public T Load<T>(string path)
         where T : notnull, IAsset
     {
-        ArgumentException.ThrowIfNullOrEmpty(path, nameof(path));
+        return Load<T>(new Uri(path, UriKind.RelativeOrAbsolute));
+    }
 
+    /// <summary>
+    /// Loads an asset from the given path using the current <see cref="VirtualStorage"/>.
+    /// </summary>
+    /// <typeparam name="T">The type of asset to load as.</typeparam>
+    /// <param name="uri">The URI to the file.</param>
+    /// <returns>The loaded asset.</returns>
+    /// <exception cref="ArgumentException">Thrown when no asset loader can load <typeparamref name="T"/> objects.</exception>
+    /// <exception cref="InvalidCastException">Thrown when an invalid <typeparamref name="T"/> is used against the URI's extension.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when the stream failed to be read.</exception>
+    public T Load<T>(Uri uri)
+        where T : notnull, IAsset
+    {
         IAssetLoader? loader = null;
 
         foreach ((string extension, var assetLoader) in loaders)
         {
-            if (path.EndsWith(extension))
+            if (uri.OriginalString.EndsWith(extension))
             {
                 loader = assetLoader;
                 break;
@@ -44,7 +56,7 @@ public sealed class AssetLoader : DependencyObject, IAssetLoaderRegistry
         if (loader is not IAssetLoader<T> typedLoader)
             throw new InvalidCastException($@"The asset loader is unable to load ""{typeof(T)}"" objects.");
 
-        using var stream = storage.Open(path, FileMode.Open, FileAccess.Read);
+        using var stream = storage.Open(uri, FileMode.Open, FileAccess.Read);
 
         int streamLength = (int)stream.Length;
         Span<byte> data = streamLength > RuntimeInfo.MaximumStackCapacity ? new byte[streamLength] : stackalloc byte[streamLength];
