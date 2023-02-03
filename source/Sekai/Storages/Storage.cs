@@ -1,8 +1,12 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
+using DotNet.Globbing;
 
 namespace Sekai.Storages;
 
@@ -12,132 +16,314 @@ namespace Sekai.Storages;
 public abstract class Storage : FrameworkObject
 {
     /// <summary>
-    /// Opens a file given its file path as a stream.
+    /// The storage's base URI.
     /// </summary>
-    /// <param name="path">The path to the file.</param>
-    /// <param name="mode">The mode of access to the file.</param>
-    /// <param name="access">The nature of access to the file.</param>
-    public abstract Stream Open(string path, FileMode mode = FileMode.OpenOrCreate, FileAccess access = FileAccess.ReadWrite);
+    public virtual Uri Uri { get; } = new Uri(@"file:///", UriKind.Absolute);
 
     /// <summary>
-    /// Gets whether a file exists on the given path.
+    /// Gets whether this storage is readable or not.
     /// </summary>
-    /// <param name="path">The path to the file.</param>
-    public abstract bool Exists(string path);
+    public virtual bool CanRead { get; } = true;
 
     /// <summary>
-    /// Deletes a file on the given path.
+    /// Gets whether this storage is writable or not.
     /// </summary>
-    /// <param name="path">The file to be deleted.</param>
-    public abstract void Delete(string path);
+    public virtual bool CanWrite { get; } = true;
 
-    /// <summary>
-    /// Enumerates all files on the given path.
-    /// </summary>
-    /// <param name="path">The path to enumerate files.</param>
-    /// <param name="pattern">The search pattern to use for filtering results.</param>
-    /// <param name="searchOptions">The search options to use to filter results.</param>
-    public abstract IEnumerable<string> EnumerateFiles(string path, string pattern = "*", SearchOption searchOptions = SearchOption.TopDirectoryOnly);
-
-    /// <summary>
-    /// Gets whether a directory exists on a given path.
-    /// </summary>
-    /// <param name="path">A path to the directory.</param>
-    public abstract bool ExistsDirectory(string path);
-
-    /// <summary>
-    /// Creates a directory on the given path.
-    /// </summary>
-    /// <param name="path">The path where the directory will be created.</param>
-    public abstract bool CreateDirectory(string path);
-
-    /// <summary>
-    /// Deletes a directory on the given path.
-    /// </summary>
-    /// <param name="path">The path where the directory will be deleted.</param>
-    public abstract void DeleteDirectory(string path);
-
-    /// <summary>
-    /// Enumerates all directories on a given path.
-    /// </summary>
-    /// <param name="path">The path to enumerate directories.</param>
-    /// <param name="pattern">The search pattern to use for filtering results</param>
-    public abstract IEnumerable<string> EnumerateDirectories(string path, string pattern = "*");
-
-    /// <summary>
-    /// Gets a <see cref="Storage"/> for a given sub directory.
-    /// </summary>
-    /// <param name="path">The directory's path relative to this storage.</param>
-    /// <param name="createIfNotExist">Create the directory if it doesn't exist.</param>
-    /// <returns>A storage for the given directory</returns>
-    /// <exception cref="DirectoryNotFoundException">Thrown when the directory does not exist.</exception>
-    public Storage GetStorageForDirectory(string path, bool createIfNotExist = false)
+    /// <inheritdoc cref="Open(Uri, FileMode, FileAccess)"/>
+    /// <param name="path">An absolute or relative path to the file.</param>
+    public Stream Open(string path, FileMode mode = FileMode.OpenOrCreate, FileAccess access = FileAccess.ReadWrite)
     {
-        if (!ExistsDirectory(path))
-        {
-            if (!createIfNotExist)
-                throw new DirectoryNotFoundException();
-
-            CreateDirectory(path);
-        }
-
-        return new SubPathStorage(this, path);
+        return Open(new Uri(path, UriKind.RelativeOrAbsolute), mode, access);
     }
 
-    private class SubPathStorage : Storage
+    /// <inheritdoc cref="Exists(Uri)"/>
+    /// <param name="path">An absolute or relative path to the file.</param>
+    public bool Exists(string path)
     {
-        private readonly string path;
-        private readonly Storage parent;
+        return Exists(new Uri(path, UriKind.RelativeOrAbsolute));
+    }
 
-        public SubPathStorage(Storage parent, string path)
+    /// <inheritdoc cref="Delete(Uri)"/>
+    /// <param name="path">An absolute or relative path to the file.</param>
+    public bool Delete(string path)
+    {
+        return Delete(new Uri(path, UriKind.RelativeOrAbsolute));
+    }
+
+    /// <inheritdoc cref="EnumerateFiles(Uri, string, SearchOption)"/>
+    /// <param name="path">An absolute or relative path to the file.</param>
+    public IEnumerable<Uri> EnumerateFiles(string path, string pattern = "*", SearchOption options = SearchOption.AllDirectories)
+    {
+        return EnumerateFiles(new Uri(path, UriKind.RelativeOrAbsolute), pattern, options);
+    }
+
+    /// <inheritdoc cref="ExistsDirectory(Uri)"/>
+    /// <param name="path">An absolute or relative path to the directory.</param>
+    public bool ExistsDirectory(string path)
+    {
+        return ExistsDirectory(new Uri(path, UriKind.RelativeOrAbsolute));
+    }
+
+    /// <inheritdoc cref="DeleteDirectory(Uri)"/>
+    /// <param name="path">An absolute or relative path to the directory.</param>
+    public bool DeleteDirectory(string path)
+    {
+        return DeleteDirectory(new Uri(path, UriKind.RelativeOrAbsolute));
+    }
+
+    /// <inheritdoc cref="CreateDirectory(Uri)"/>
+    /// <param name="path">An absolute or relative path to the directory.</param>
+    public bool CreateDirectory(string path)
+    {
+        return CreateDirectory(new Uri(path, UriKind.RelativeOrAbsolute));
+    }
+
+    /// <inheritdoc cref="EnumerateDirectories(Uri, string)"/>
+    /// <param name="path">An absolute or relative path to the directory.</param>
+    public IEnumerable<Uri> EnumerateDirctories(string path, string pattern = "*")
+    {
+        return EnumerateDirectories(new Uri(path, UriKind.RelativeOrAbsolute), pattern);
+    }
+
+    /// <inheritdoc cref="GetStorage"/>
+    /// <param name="path">An absolute relative path to the storage.</param>
+    public Storage GetStorage(string path)
+    {
+        path = path[^1] != Path.AltDirectorySeparatorChar ? path + Path.AltDirectorySeparatorChar : path;
+
+        if (!Uri.IsWellFormedUriString(path, UriKind.Relative))
+            throw new ArgumentException("Path must be a relative path.", nameof(path));
+
+        var uri = new Uri(path, UriKind.RelativeOrAbsolute);
+
+        if (uri.IsAbsoluteUri && !Uri.IsBaseOf(uri))
+            throw new ArgumentException("Path must be a relative path.");
+
+        return GetStorage(uri);
+    }
+
+    /// <summary>
+    /// Opens a file as a stream from the given URI.
+    /// </summary>
+    /// <param name="uri">The URI to the file/</param>
+    /// <param name="mode">The mode of access to the file.</param>
+    /// <param name="access">The nature of access to the file.</param>
+    /// <returns>The file stream.</returns>
+    /// <exception cref="UnauthorizedAccessException">Thrown when there are insufficent authorizations when attempting to open a file.</exception>
+    public Stream Open(Uri uri, FileMode mode = FileMode.OpenOrCreate, FileAccess access = FileAccess.ReadWrite)
+    {
+        if (!CanRead && access != FileAccess.Write)
+            throw new UnauthorizedAccessException("Storage is not available for read access.");
+
+        if (!CanWrite && access != FileAccess.Read)
+            throw new UnauthorizedAccessException("Storage is not available for write access.");
+
+        return BaseOpen(GetFullPath(uri), mode, access);
+    }
+
+    /// <summary>
+    /// Determines whether a file exists on a given URI.
+    /// </summary>
+    /// <param name="uri">The URI to check from.</param>
+    /// <returns>True if the file exists. False otherwise.</returns>
+    public bool Exists(Uri uri)
+    {
+        return BaseExists(GetFullPath(uri));
+    }
+
+    /// <summary>
+    /// Deletes a file on a given URI.
+    /// </summary>
+    /// <param name="uri">The URI to delete a file from.</param>
+    /// <returns>True if the file was deleted. False otherwise.</returns>
+    public bool Delete(Uri uri)
+    {
+        if (!CanWrite)
+            return false;
+
+        return BaseDelete(GetFullPath(uri));
+    }
+
+    /// <summary>
+    /// Enumerates all files on a given directory.
+    /// </summary>
+    /// <param name="uri">The URI to enumerate files from.</param>
+    /// <param name="pattern">A glob pattern that affects the result of the enumeration.</param>
+    /// <param name="option">Search options that affect the result of the enumeration.</param>
+    /// <returns>An enumeration of file URIs.</returns>
+    public IEnumerable<Uri> EnumerateFiles(Uri uri, string pattern = "*", SearchOption option = SearchOption.AllDirectories)
+    {
+        var enumeration = BaseEnumerateFiles(GetFullPath(uri));
+
+        if (pattern != patternWildcard)
+            enumeration = enumeration.Where(p => Glob.Parse(pattern).IsMatch(p.AbsolutePath));
+
+        if (option == SearchOption.TopDirectoryOnly)
+            enumeration = enumeration.Where(p => Path.HasExtension(p.AbsolutePath));
+
+        return enumeration;
+    }
+
+    /// <summary>
+    /// Determines whether a directory exists on the given URI.
+    /// </summary>
+    /// <param name="uri">The URI to check from.</param>
+    /// <returns>True if the directory exists. False otherwise.</returns>
+    public bool ExistsDirectory(Uri uri)
+    {
+        return BaseExistsDirectory(GetFullPath(uri));
+    }
+
+    /// <summary>
+    /// Deletes a directory on the given URI.
+    /// </summary>
+    /// <param name="uri">The URI to delete a directory from.</param>
+    /// <returns>True if the directory was created. False otherwise.</returns>
+    public bool DeleteDirectory(Uri uri)
+    {
+        return BaseDeleteDirectory(GetFullPath(uri));
+    }
+
+    /// <summary>
+    /// Creates a directory on the given URI.
+    /// </summary>
+    /// <param name="uri">The URI to create a new directory from.</param>
+    /// <returns>True if the directory was created. False otherwise.</returns>
+    public bool CreateDirectory(Uri uri)
+    {
+        return BaseCreateDirectory(GetFullPath(uri));
+    }
+
+    /// <summary>
+    /// Enumerates all directories on a given URI.
+    /// </summary>
+    /// <param name="uri">The URI to enumerate directories from.</param>
+    /// <param name="pattern">The search pattern used to filter results.</param>
+    /// <returns>An enumeration of directory URIs.</returns>
+    public IEnumerable<Uri> EnumerateDirectories(Uri uri, string pattern = "*")
+    {
+        var enumeration = BaseEnumerateDirectories(GetFullPath(uri));
+
+        if (pattern != patternWildcard)
+            enumeration = enumeration.Where(p => Glob.Parse(pattern).IsMatch(p.AbsolutePath));
+
+        return enumeration;
+    }
+
+    /// <summary>
+    /// Creates a <see cref="Storage"/> for a relative URI.
+    /// </summary>
+    /// <param name="uri">A URI relative to this storage.</param>
+    /// <returns>A new storage for the given directory.</returns>
+    public Storage GetStorage(Uri uri)
+    {
+        if (uri.OriginalString[^1] != Path.AltDirectorySeparatorChar)
+            throw new ArgumentException("URI must have a trailing slash.", nameof(uri));
+
+        return new SubStorage(this, GetFullPath(uri));
+    }
+
+    /// <summary>
+    /// Gets a well-formed absolute URI from a relative URI.
+    /// </summary>
+    /// <param name="uri">A relative URI.</param>
+    /// <returns>An absolute URI that is rooted from <see cref="Uri"/>.</returns>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="uri"/> is an absolute URI that is not rooted from <see cref="Uri"/>.</exception>
+    public Uri GetFullPath(Uri uri)
+    {
+        if (uri.IsAbsoluteUri)
         {
-            this.path = path;
-            this.parent = parent;
+            if (!Uri.IsBaseOf(uri))
+                throw new ArgumentException(@"URI is not relative to the base URI.", nameof(uri));
+
+            return uri;
         }
 
-        public override bool CreateDirectory(string path)
+        return new Uri(Uri, uri);
+    }
+
+    protected abstract Stream BaseOpen(Uri uri, FileMode mode = FileMode.OpenOrCreate, FileAccess access = FileAccess.ReadWrite);
+
+    protected abstract bool BaseExists(Uri uri);
+
+    protected abstract bool BaseDelete(Uri uri);
+
+    protected abstract IEnumerable<Uri> BaseEnumerateFiles(Uri uri);
+
+    protected abstract bool BaseExistsDirectory(Uri uri);
+
+    protected abstract bool BaseDeleteDirectory(Uri uri);
+
+    protected abstract bool BaseCreateDirectory(Uri uri);
+
+    protected abstract IEnumerable<Uri> BaseEnumerateDirectories(Uri uri);
+
+    private static readonly string patternWildcard = "*";
+
+    protected class UriEqualityComparer : EqualityComparer<Uri>
+    {
+        public override bool Equals(Uri? x, Uri? y)
         {
-            return parent.CreateDirectory(getFullPath(path));
+            return x == y;
         }
 
-        public override void Delete(string path)
+        public override int GetHashCode([DisallowNull] Uri obj)
         {
-            parent.Delete(getFullPath(path));
+            return obj.GetHashCode();
+        }
+    }
+
+    private class SubStorage : Storage
+    {
+        public override Uri Uri { get; }
+
+        private readonly Storage storage;
+
+        public SubStorage(Storage storage, Uri uri)
+        {
+            Uri = uri;
+            this.storage = storage;
         }
 
-        public override void DeleteDirectory(string path)
+        protected override Stream BaseOpen(Uri uri, FileMode mode = FileMode.OpenOrCreate, FileAccess access = FileAccess.ReadWrite)
         {
-            parent.DeleteDirectory(getFullPath(path));
+            return storage.BaseOpen(GetFullPath(uri), mode, access);
         }
 
-        public override IEnumerable<string> EnumerateDirectories(string path, string pattern = "*")
+        protected override bool BaseExists(Uri uri)
         {
-            return parent.EnumerateDirectories(getFullPath(path), pattern);
+            return storage.BaseExists(uri);
         }
 
-        public override IEnumerable<string> EnumerateFiles(string path, string pattern = "*", SearchOption searchOptions = SearchOption.TopDirectoryOnly)
+        protected override bool BaseDelete(Uri uri)
         {
-            return parent.EnumerateFiles(getFullPath(path));
+            return storage.BaseDelete(uri);
         }
 
-        public override bool Exists(string path)
+        protected override IEnumerable<Uri> BaseEnumerateFiles(Uri uri)
         {
-            return parent.Exists(getFullPath(path));
+            return storage.BaseEnumerateFiles(uri);
         }
 
-        public override bool ExistsDirectory(string path)
+        protected override bool BaseExistsDirectory(Uri uri)
         {
-            return parent.ExistsDirectory(getFullPath(path));
+            return storage.BaseExistsDirectory(uri);
         }
 
-        public override Stream Open(string path, FileMode mode = FileMode.OpenOrCreate, FileAccess access = FileAccess.ReadWrite)
+        protected override bool BaseDeleteDirectory(Uri uri)
         {
-            return parent.Open(getFullPath(path), mode, access);
+            return storage.BaseDeleteDirectory(uri);
         }
 
-        private string getFullPath(string path)
+        protected override bool BaseCreateDirectory(Uri uri)
         {
-            return Path.Combine(this.path, path).Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            return storage.BaseCreateDirectory(uri);
+        }
+
+        protected override IEnumerable<Uri> BaseEnumerateDirectories(Uri uri)
+        {
+            return storage.BaseEnumerateDirectories(uri);
         }
     }
 }

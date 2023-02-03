@@ -18,7 +18,7 @@ public class DrawingGame : Game
     protected override void Load()
     {
         // Mount the assembly to the virtual file system under the "game" directory.
-        Storage.Mount("/game", new AssemblyBackedStorage(typeof(DrawingGame).Assembly, @"Resources"));
+        Storage.Mount("./game", new AssemblyStorage(typeof(DrawingGame).Assembly).GetStorage("./Resources"));
 
         // Create the scene.
         var scene = new Scene

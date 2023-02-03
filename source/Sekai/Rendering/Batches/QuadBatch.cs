@@ -9,7 +9,7 @@ namespace Sekai.Rendering.Batches;
 
 public sealed class QuadBatch : RenderBatch<TexturedVertex2D>
 {
-    protected override string Shader => @"engine/shaders/batches/quad.sksl";
+    protected override Uri Shader { get; } = new Uri(@"./engine/shaders/batches/quad.sksl", UriKind.Relative);
     protected override int PrimitiveIndexCount => 6;
     protected override int PrimitiveVertexCount => 4;
     protected override PrimitiveTopology Topology => PrimitiveTopology.Triangles;
