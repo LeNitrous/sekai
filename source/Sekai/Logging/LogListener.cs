@@ -5,6 +5,9 @@ using System;
 
 namespace Sekai.Logging;
 
+/// <summary>
+/// Listens to <see cref="Logger"/> output.
+/// </summary>
 public abstract class LogListener : FrameworkObject
 {
     /// <summary>
@@ -33,19 +36,58 @@ public abstract class LogListener : FrameworkObject
         set => logEveryCount = Math.Max(value, 1);
     }
 
-    protected abstract void OnNewMessage(string message);
+    /// <summary>
+    /// Clears messages logged by this listener.
+    /// </summary>
+    public virtual void Clear()
+    {
+        MessagesLogged = 0;
+    }
 
+    /// <summary>
+    /// Writes the <paramref name="message"/> to its output.
+    /// </summary>
+    /// <param name="message">The formatted message.</param>
+    protected abstract void Write(string message);
+
+    /// <summary>
+    /// Flushes written messages to its output.
+    /// </summary>
     protected virtual void Flush()
     {
     }
 
+    /// <summary>
+    /// The <see cref="DateTime"/> formatter.
+    /// </summary>
     protected virtual Func<DateTime, string> FormatTimestamp { get; } = t => t.ToString("dd/MM/yyyy hh:mm:ss tt");
+
+    /// <summary>
+    /// The <see cref="LogLevel"/> formatter.
+    /// </summary>
     protected virtual Func<LogLevel, string> FormatLogLevel { get; } = l => l.ToString();
+
+    /// <summary>
+    /// The channel text formatter.
+    /// </summary>
     protected virtual Func<string, string> FormatChannel { get; } = c => c;
+
+    /// <summary>
+    /// The message formatter.
+    /// </summary>
     protected virtual Func<object?, string> FormatMessage { get; } = m => m?.ToString() ?? "null";
+
+    /// <summary>
+    /// The <see cref="Exception"/> formatter.
+    /// </summary>
     protected virtual Func<Exception, string> FormatException { get; } = e => e.ToString();
 
-    protected virtual string GetTextFormatted(LogMessage message)
+    /// <summary>
+    /// Formats a <see cref="LogMessage"/>.
+    /// </summary>
+    /// <param name="message">The message to be formatted.</param>
+    /// <returns></returns>
+    protected virtual string GetMessageFormatted(LogMessage message)
     {
         return $"[{FormatTimestamp(message.Timestamp)}] [{FormatLogLevel(message.Level)}]{(string.IsNullOrEmpty(message.Channel) ? string.Empty : $" [{FormatChannel(message.Channel)}]")} {FormatMessage(message.Message)}{(message.Exception != null ? $"\n{FormatException(message.Exception)}" : string.Empty)}";
     }
@@ -55,7 +97,7 @@ public abstract class LogListener : FrameworkObject
         if (message.Level < Level || Filter(message))
             return;
 
-        OnNewMessage(GetTextFormatted(message));
+        Write(GetMessageFormatted(message));
         MessagesLogged++;
 
         if ((MessagesLogged % LogEveryCount) == 0)

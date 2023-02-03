@@ -22,9 +22,17 @@ public sealed class Logger : FrameworkObject
     /// </summary>
     public event Action<LogMessage>? OnMessageLogged;
 
-    internal Logger(string? name = null)
+    private readonly LoggerFactory? factory;
+
+    internal Logger()
+    {
+        // Default parameterless constructor required for global logger.
+    }
+
+    internal Logger(LoggerFactory factory, string name)
     {
         Name = name;
+        this.factory = factory;
     }
 
     /// <summary>
@@ -64,4 +72,6 @@ public sealed class Logger : FrameworkObject
 
         OnMessageLogged?.Invoke(message);
     }
+
+    protected override void Destroy() => factory?.RemoveLogger(this);
 }

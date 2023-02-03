@@ -2,12 +2,17 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 using Pastel;
 
 namespace Sekai.Logging;
 
+/// <summary>
+/// A log listener that writes to <see cref="Console"/>.
+/// </summary>
 public partial class LogListenerConsole : LogListenerTextWriter
 {
     protected override Func<Exception, string> FormatException => formatException;
@@ -15,23 +20,42 @@ public partial class LogListenerConsole : LogListenerTextWriter
     protected override Func<LogLevel, string> FormatLogLevel => formatLogLevel;
     protected override Func<object?, string> FormatMessage => formatMessage;
 
+    private static LogListenerConsole? current;
+    private readonly Encoding consoleOutEncoding;
+    private readonly TextWriter consoleOutStream;
+
     public LogListenerConsole()
-        : base(Console.Out)
+        : base(Console.OpenStandardOutput())
     {
+        if (current is not null)
+            throw new InvalidOperationException($"There is an existing instance of a {nameof(LogListenerConsole)} active.");
+
         if (RuntimeInfo.OS == RuntimeInfo.Platform.Windows)
-        {
             AllocConsole();
-            SetConsoleOutputCP(65001);
-        }
+
+        consoleOutStream = Console.Out;
+        consoleOutEncoding = Console.OutputEncoding;
+
+        Console.SetOut(Writer);
+        Console.OutputEncoding = Encoding.UTF8;
+
+        current = this;
     }
 
     protected override void Destroy()
     {
+        base.Destroy();
+
         if (RuntimeInfo.OS == RuntimeInfo.Platform.Windows)
             FreeConsole();
+
+        Console.SetOut(consoleOutStream);
+        Console.OutputEncoding = consoleOutEncoding;
+
+        current = null;
     }
 
-    protected override string GetTextFormatted(LogMessage message) => base.GetTextFormatted(message).Pastel(gray1);
+    protected override string GetMessageFormatted(LogMessage message) => base.GetMessageFormatted(message).Pastel(gray1);
 
     private string formatTimestamp(DateTime time) => base.FormatTimestamp(time).Pastel(gray3);
     private string formatLogLevel(LogLevel level) => "⬤".Pastel(getColorForLevel(level));
@@ -64,8 +88,4 @@ public partial class LogListenerConsole : LogListenerTextWriter
     [LibraryImport("kernel32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static partial bool FreeConsole();
-
-    [LibraryImport("kernel32.dll", SetLastError = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static partial bool SetConsoleOutputCP(uint wCodePageID);
 }

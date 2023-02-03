@@ -5,34 +5,38 @@ using System.IO;
 
 namespace Sekai.Logging;
 
-public class LogListenerTextWriter : LogListener
+/// <summary>
+/// A log listener backed by a <see cref="Stream"/> with an underlying <see cref="TextWriter"/>.
+/// </summary>
+public class LogListenerTextWriter : LogListenerStream
 {
-    private readonly TextWriter writer;
+    protected readonly TextWriter Writer;
 
     public LogListenerTextWriter(Stream stream)
-        : this(new StreamWriter(stream))
+        : base(stream)
     {
+        Writer = new StreamWriter(stream);
     }
 
-    public LogListenerTextWriter(TextWriter writer)
-    {
-        this.writer = writer;
-    }
-
-    protected override void OnNewMessage(string message)
+    protected override void Write(string message)
     {
         if (!IsDisposed)
         {
-            lock (writer)
-                writer.WriteLine(message);
+            lock (Writer)
+                Writer.WriteLine(message);
         }
     }
 
     protected override void Flush()
     {
+        // Intentionally not calling base implementation as the writer flushes its underlying stream internally.
         if (!IsDisposed)
-            writer.Flush();
+            Writer.Flush();
     }
 
-    protected override void Destroy() => writer.Dispose();
+    protected override void Destroy()
+    {
+        Writer.Dispose();
+        base.Destroy();
+    }
 }
