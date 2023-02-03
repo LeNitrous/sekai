@@ -20,25 +20,25 @@ public class DrawingGame : Game
         // Mount the assembly to the virtual file system under the "game" directory.
         Storage.Mount("./game", new AssemblyStorage(typeof(DrawingGame).Assembly).GetStorage("./Resources"));
 
-        // Create the scene.
-        var scene = new Scene
+        // Create the root node.
+        var root = new Node
         {
-            Nodes = new[]
-            {
-                // Attaching a 2D transform tells that this node can be drawn in 2D space.
-                // Cameras require a 2D transform or else nothing will be rendered to the screen.
-                new Node()
-                    .AddComponent<Transform2D>()
-                    .AddComponent<Camera2D>(),
+            // Attaching a 2D transform tells that this node can be drawn in 2D space.
+            // Cameras require a 2D transform or else nothing will be rendered to the screen.
+            new Node()
+                .AddComponent<Transform2D>()
+                .AddComponent<Camera2D>(),
 
-                // Drawables also require 2D transforms attached to the owning node or else the
-                // drawable itself would not be drawn to the scene.
-                new Node()
-                    .AddComponent<Transform2D>()
-                    .AddComponent<TextureProvider>()
-                    .AddComponent<TextureDrawingDrawable>()
-            }
+            // Drawables also require 2D transforms attached to the owning node or else the
+            // drawable itself would not be drawn to the scene.
+            new Node()
+                .AddComponent<Transform2D>()
+                .AddComponent<TextureProvider>()
+                .AddComponent<TextureDrawingDrawable>()
         };
+
+        // Create the scene and attach the root
+        var scene = new Scene(root);
 
         Scenes.Add(scene);
     }
