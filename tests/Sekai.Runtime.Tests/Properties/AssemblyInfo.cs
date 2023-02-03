@@ -1,7 +1,7 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-using Sekai.Tests;
+using Sekai.Runtime.Tests;
 using Sekai.Xunit;
 using Xunit;
 

@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
-
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -21,11 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../source/Sekai/Sekai.csproj" />
-    <ProjectReference Include="../../source/Sekai.SDL/Sekai.SDL.csproj" />
-    <ProjectReference Include="../../source/Sekai.OpenGL/Sekai.OpenGL.csproj" />
-    <ProjectReference Include="../../source/Sekai.Xunit/Sekai.Xunit.csproj" />
-    <ProjectReference Include="../../source/Sekai.Null/Sekai.Null.csproj" />
+    <ProjectReference Include="..\..\source\Sekai.Xunit\Sekai.Xunit.csproj" />
   </ItemGroup>
 
 </Project>
