@@ -1,20 +1,22 @@
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./assets/logo-dark.png"/>
-  <source media="(prefers-color-scheme: light)" srcset="./assets/logo-light.png"/>
-  <img alt="Sekai" src="./assets/logo-light.png"/>
-</picture>
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./assets/logo-dark.png"/>
+    <source media="(prefers-color-scheme: light)" srcset="./assets/logo-light.png"/>
+    <img alt="Sekai" src="./assets/logo-light.png"/>
+  </picture>
+</p>
 
-<p style="text-align: center">Sekai is the game engine that powers <a href="https://github.com/vignetteapp/vignette">Vignette</a>.</p>
+<p align="center">Sekai is the game engine that powers <a href="https://github.com/vignetteapp/vignette">Vignette</a>.</p>
 
 <br/>
 
-<p style="text-align: center">
+<p align="center">
   <img src="https://img.shields.io/github/stars/vignetteapp/sekai?style=flat-square"/>
   <img alt="GitHub" src="https://img.shields.io/github/license/vignetteapp/sekai?color=c850c1&style=flat-square">
   <img src="https://img.shields.io/discord/871618277258960896?logo=discord&color=5865f2&style=flat-square"/>
   <img src="https://img.shields.io/static/v1?label=website&message=vignetteapp.org&color=ea1a72&style=flat-square"/>
 </p>
-<p style="text-align: center">
+<p align="center">
   <img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/vignetteapp/sekai/test.yml?label=test&style=flat-square">
   <img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/vignetteapp/sekai/lint.yml?label=lint&style=flat-square">
 </p>
