@@ -261,19 +261,6 @@ public abstract class Storage : FrameworkObject
 
     private static readonly string patternWildcard = "*";
 
-    protected class UriEqualityComparer : EqualityComparer<Uri>
-    {
-        public override bool Equals(Uri? x, Uri? y)
-        {
-            return x == y;
-        }
-
-        public override int GetHashCode([DisallowNull] Uri obj)
-        {
-            return obj.GetHashCode();
-        }
-    }
-
     private class SubStorage : Storage
     {
         public override Uri Uri { get; }
