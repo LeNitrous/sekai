@@ -1,6 +1,7 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
+using System;
 using System.Collections.Generic;
 
 namespace Sekai.Logging;
@@ -48,7 +49,7 @@ public sealed class LoggerFactory : FrameworkObject
 
         if (!loggers.TryGetValue(name, out var logger))
         {
-            logger = new Logger(name);
+            logger = new Logger(this, name);
             loggers.Add(name, logger);
 
             foreach (var listener in listeners)
@@ -56,6 +57,18 @@ public sealed class LoggerFactory : FrameworkObject
         }
 
         return logger;
+    }
+
+    internal void RemoveLogger(Logger logger)
+    {
+        if (string.IsNullOrEmpty(logger.Name))
+            throw new ArgumentException(@"Failed to remove logger.", nameof(logger));
+
+        if (!loggers.Remove(logger.Name))
+            return;
+
+        foreach (var listener in listeners)
+            logger.OnMessageLogged -= listener;
     }
 
     protected override void Destroy()
