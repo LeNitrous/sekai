@@ -81,7 +81,7 @@ public abstract class Storage : FrameworkObject
 
     /// <inheritdoc cref="EnumerateDirectories(Uri, string)"/>
     /// <param name="path">An absolute or relative path to the directory.</param>
-    public IEnumerable<Uri> EnumerateDirctories(string path, string pattern = "*")
+    public IEnumerable<Uri> EnumerateDirectories(string path, string pattern = "*")
     {
         return EnumerateDirectories(new Uri(path, UriKind.RelativeOrAbsolute), pattern);
     }
