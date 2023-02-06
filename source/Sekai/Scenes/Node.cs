@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Sekai.Serialization;
@@ -15,9 +16,19 @@ namespace Sekai.Scenes;
 /// An entity that exists in a <see cref="Scenes.Scene"/>. It can contain its own children nodes or components which can extend its functionality.
 /// </summary>
 [Serializable]
-public class Node : NodeCollection, IReferenceable, IEnumerable<Component>
+public sealed class Node : FrameworkObject, IReferenceable, ICollection<Node>, IReadOnlyList<Node>
 {
-    public Guid Id { get; }
+    public Guid Id { get; private set; }
+
+    /// <summary>
+    /// The node's name.
+    /// </summary>
+    public string Name { get; }
+
+    /// <summary>
+    /// The node's URI.
+    /// </summary>
+    public Uri Uri { get; private set; }
 
     /// <summary>
     /// The node's parent.
@@ -34,13 +45,60 @@ public class Node : NodeCollection, IReferenceable, IEnumerable<Component>
     /// </summary>
     public IEnumerable<Component> Components
     {
-        get => components;
+        get => new ComponentEnumerable(this, current);
         set
         {
             ClearComponents();
             AddComponentRange(value);
         }
     }
+
+    /// <summary>
+    /// The node's children.
+    /// </summary>
+    public IEnumerable<Node> Children
+    {
+        get => this;
+        set
+        {
+            Clear();
+            AddRange(value);
+        }
+    }
+
+    /// <summary>
+    /// The node's tags.
+    /// </summary>
+    public IEnumerable<string> Tags
+    {
+        get => tags;
+        set
+        {
+            tags.Clear();
+            tags.AddRange(value);
+        }
+    }
+
+    /// <summary>
+    /// The number of nodes in this node.
+    /// </summary>
+    public int Count => nodes.Count;
+
+    /// <summary>
+    /// Gets the node at a specified index.
+    /// </summary>
+    /// <returns>The node at a specified index.</returns>
+    public Node this[int index] => nodes[index];
+
+    /// <summary>
+    /// Invoked when a node has been added to this node
+    /// </summary>
+    public event EventHandler<NodeEventArgs>? OnNodeAdded;
+
+    /// <summary>
+    /// Invoked when a node has been removed from this node.
+    /// </summary>
+    public event EventHandler<NodeEventArgs>? OnNodeRemoved;
 
     /// <summary>
     /// Invoked when a component has been added to this node.
@@ -55,30 +113,142 @@ public class Node : NodeCollection, IReferenceable, IEnumerable<Component>
     private int current;
     private int next = 16;
     private Component[] components = Array.Empty<Component>();
+    private readonly List<Node> nodes = new();
+    private readonly List<string> tags = new();
     private readonly Dictionary<Type, int> indices = new();
+    private static readonly string node_default_name = @"Node-";
+
+    internal static readonly string Scheme = "node";
+    private static readonly Uri node_default_uri = new(Scheme + Uri.SchemeDelimiter, UriKind.Absolute);
 
     public Node()
+        : this(null, Guid.NewGuid())
     {
+    }
+
+    public Node(string name)
+        : this(name, Guid.NewGuid())
+    {
+    }
+
+    private Node(string? name, Guid guid)
+    {
+        Id = guid;
+        Uri = node_default_uri;
+        Name = name ?? node_default_name + guid;
         OnNodeAdded += handleNodeAdded;
         OnNodeRemoved += handleNodeRemoved;
     }
 
     /// <summary>
-    /// Gets the root node.
+    /// Adds a node to this collection.
     /// </summary>
-    /// <remarks>
-    /// This is an expensive operation and should not be called frequently!
-    /// </remarks>
-    public Node GetRoot()
+    /// <param name="item">The node to be added.</param>
+    /// <returns>The node collection itself.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when attempting to add a node who is already present in another collection.</exception>
+    public void Add(Node item)
     {
-        var node = this;
+        if (item.Parent is not null || item.Scene is not null)
+            throw new InvalidOperationException(@"Attempting to add a node that already has a parent.");
 
-        while (node.Parent is not null)
-        {
-            node = node.Parent;
-        }
+        nodes.Add(item);
 
-        return node;
+        OnNodeAdded?.Invoke(this, new NodeEventArgs(item));
+    }
+
+    /// <summary>
+    /// Adds a collection of nodes to this collection.
+    /// </summary>
+    /// <param name="collection">The collection of nodes to be added.</param>
+    /// <returns>The node collection itself.</returns>
+    public void AddRange(IEnumerable<Node> collection)
+    {
+        foreach (var item in collection)
+            Add(item);
+    }
+
+    /// <summary>
+    /// Removes all nodes from this collection.
+    /// </summary>
+    public void Clear()
+    {
+        if (nodes.Count > 0)
+            RemoveRange(nodes.ToArray());
+    }
+
+    /// <summary>
+    /// Gets whether a given node is present in this collection.
+    /// </summary>
+    /// <param name="item">The node to be searched for.</param>
+    /// <returns>True if the node is present in this collection.</returns>
+    public bool Contains(Node item)
+    {
+        return nodes.BinarySearch(item) > -1;
+    }
+
+    /// <summary>
+    /// Copies the entire node collection to a compatible one-dimensional array, starting at the specified index of the target array.
+    /// </summary>
+    /// <param name="array">The array to be copied to.</param>
+    /// <param name="arrayIndex">The starting index where copying will begin.</param>
+    public void CopyTo(Node[] array, int arrayIndex)
+    {
+        nodes.CopyTo(array, arrayIndex);
+    }
+
+    /// <summary>
+    /// Removes a node from this collection.
+    /// </summary>
+    /// <param name="item">The node to be removed from this collection.</param>
+    /// <returns>True if the node was successfully removed.</returns>
+    public bool Remove(Node item)
+    {
+        if (!nodes.Remove(item))
+            return false;
+
+        OnNodeRemoved?.Invoke(this, new NodeEventArgs(item));
+
+        return true;
+    }
+
+    /// <summary>
+    /// Removes a range of nodes from this collection.
+    /// </summary>
+    /// <param name="collection">The collection of nodes to be removed.</param>
+    public void RemoveRange(IEnumerable<Node> collection)
+    {
+        foreach (var item in collection)
+            Remove(item);
+    }
+
+    /// <summary>
+    /// Gets a node using its path.
+    /// </summary>
+    /// <param name="path">The path to the node.</param>
+    /// <returns>The node with the given path.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the node is not attached to a scene.</exception>
+    /// <exception cref="ArgumentException">Thrown when the path is invalid.</exception>
+    public Node GetNode(string path)
+    {
+        if (!Uri.TryCreate(path, UriKind.RelativeOrAbsolute, out var uri))
+            throw new ArgumentException(@"Invalid path.", nameof(path));
+
+        return GetNode(uri);
+    }
+
+    /// <summary>
+    /// Gets a node using its URI.
+    /// </summary>
+    /// <param name="uri">The URI to the node.</param>
+    /// <returns>The node with the given URI.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the node is not attached to a scene.</exception>
+    /// <exception cref="ArgumentException">Thrown when the URI has an invalid scheme.</exception>
+    public Node GetNode(Uri uri)
+    {
+        if (Scene is null)
+            throw new InvalidOperationException(@"The node is not attached to a scene.");
+
+        return Scene.GetNode(new Uri(Uri, uri));
     }
 
     /// <summary>
@@ -364,56 +534,90 @@ public class Node : NodeCollection, IReferenceable, IEnumerable<Component>
         }
     }
 
+    /// <summary>
+    /// Gets the enumerator that iterates through this collection.
+    /// </summary>
+    public IEnumerator<Node> GetEnumerator() => nodes.GetEnumerator();
+
     protected sealed override void Destroy()
     {
         base.Destroy();
 
-        ClearComponents();
         Parent?.Remove(this);
 
+        Clear();
+        ClearComponents();
+        
         OnNodeAdded -= handleNodeAdded;
         OnNodeRemoved -= handleNodeRemoved;
     }
 
-    private void handleNodeAdded(object? sender, NodeEventArgs args) => args.Node.Parent = this;
-    private void handleNodeRemoved(object? sender, NodeEventArgs args) => args.Node.Parent = null;
-
-    IEnumerator<Component> IEnumerable<Component>.GetEnumerator() => new Enumerator(this, current);
-
-    private struct Enumerator : IEnumerator<Component>
+    private void handleNodeAdded(object? sender, NodeEventArgs args)
     {
-        public Component Current => node.components[position];
+        args.Node.Uri = new Uri(new Uri(Uri == node_default_uri ? Uri.AbsoluteUri : Uri.AbsoluteUri + Path.AltDirectorySeparatorChar), args.Node.Name);
+        args.Node.Parent = this;
+    }
 
-        private int position = -1;
+    private void handleNodeRemoved(object? sender, NodeEventArgs args)
+    {
+        args.Node.Uri = node_default_uri;
+        args.Node.Parent = null;
+    }
+
+    bool ICollection<Node>.IsReadOnly => false;
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    private readonly struct ComponentEnumerable : IEnumerable<Component>
+    {
         private readonly Node node;
         private readonly int length;
 
-        public Enumerator(Node node, int length)
+        public ComponentEnumerable(Node node, int length)
         {
             this.node = node;
             this.length = length;
         }
 
-        public bool MoveNext()
+        public IEnumerator<Component> GetEnumerator() => new Enumerator(node, length);
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        private struct Enumerator : IEnumerator<Component>
         {
-            if (length != node.current)
-                throw new InvalidOperationException(@"The node's component collection has been modified during enumeration.");
+            public Component Current => node.components[position];
 
-            position++;
+            private int position = -1;
+            private readonly Node node;
+            private readonly int length;
 
-            return node.indices.ContainsValue(position);
+            public Enumerator(Node node, int length)
+            {
+                this.node = node;
+                this.length = length;
+            }
+
+            public bool MoveNext()
+            {
+                if (length != node.current)
+                    throw new InvalidOperationException(@"The node's component collection has been modified during enumeration.");
+
+                position++;
+
+                return node.indices.ContainsValue(position);
+            }
+
+            public void Reset()
+            {
+                position = -1;
+            }
+
+            public void Dispose()
+            {
+            }
+
+            object IEnumerator.Current => Current;
         }
-
-        public void Reset()
-        {
-            position = -1;
-        }
-
-        public void Dispose()
-        {
-        }
-
-        object IEnumerator.Current => Current;
     }
 }
 

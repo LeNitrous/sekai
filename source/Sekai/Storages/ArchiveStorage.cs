@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using Sekai.Collections;
 
 namespace Sekai.Storages;
 
@@ -61,7 +62,7 @@ public class ArchiveStorage : Storage
 
     protected override bool BaseExists(Uri uri)
     {
-        return EnumerateFiles(uri).Contains(uri);
+        return EnumerateFiles(uri).Contains(uri, UriEqualityComparer.Default);
     }
 
     protected override bool BaseExistsDirectory(Uri uri)

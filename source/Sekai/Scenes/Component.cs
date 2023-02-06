@@ -42,8 +42,14 @@ public abstract class Component : DependencyObject, IReferenceable
     private readonly List<ComponentBinding> bindings = new();
 
     protected Component()
+        : this(Guid.NewGuid())
     {
         initialize(this);
+    }
+
+    private Component(Guid id)
+    {
+        Id = id;
     }
 
     internal void Attach(Node node)
