@@ -15,6 +15,14 @@ public class NativeStorage : Storage
 {
     public override Uri Uri { get; }
 
+    public NativeStorage(string path)
+    {
+        if (!Uri.TryCreate(path, UriKind.Absolute, out var uri))
+            throw new ArgumentException("Invalid path.", nameof(path));
+
+        Uri = uri;
+    }
+
     public NativeStorage(Uri uri)
     {
         if (!uri.IsAbsoluteUri)
