@@ -110,4 +110,11 @@ public interface IHostBuilder
     /// <param name="action">The action to invoke.</param>
     /// <returns>The host builder.</returns>
     IHostBuilder UseExit(Action<IHost> action);
+
+    /// <summary>
+    /// Uses an action that is called during host building.
+    /// </summary>
+    /// <param name="action">The action to invoke.</param>
+    /// <returns>The host builder.</returns>
+    IHostBuilder UseAction(Action<IHostBuilder> action);
 }

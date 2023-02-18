@@ -28,6 +28,7 @@ internal class HostBuilder : IHostBuilder
     private InputContext? input;
     private Action<IHost>? onInitAction;
     private Action<IHost>? onExitAction;
+    private Action<IHostBuilder>? onBuildAction;
     private Func<Surface, GraphicsSystem>? graphicsFactory;
     private readonly Func<Game> creator;
     private readonly GameOptions options;
@@ -150,6 +151,12 @@ internal class HostBuilder : IHostBuilder
         return this;
     }
 
+    public IHostBuilder UseAction(Action<IHostBuilder> action)
+    {
+        onBuildAction += action;
+        return this;
+    }
+
     public IHostStartup Build()
     {
         if (surface is null)
@@ -198,6 +205,8 @@ internal class HostBuilder : IHostBuilder
             .AddConstant<ILogger>(logger)
             .AddConstant<Storage>(storage)
             .AddConstant<ISurface>(surface);
+
+        onBuildAction?.Invoke(this);
 
         var host = new Host(creator, options, logger, surface, storage, audio, input, graphics, services, threads, onInitAction, onExitAction);
 
