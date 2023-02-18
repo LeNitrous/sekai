@@ -8,7 +8,7 @@ namespace Sekai.Graphics.Shaders;
 /// <summary>
 /// A shader graphics device.
 /// </summary>
-public abstract class NativeShader : FrameworkObject
+public abstract class NativeShader : DisposableObject
 {
     /// <summary>
     /// The shader type.

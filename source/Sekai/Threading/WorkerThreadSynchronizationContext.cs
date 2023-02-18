@@ -10,21 +10,23 @@ namespace Sekai.Threading;
 
 internal class WorkerThreadSynchronizationContext : SynchronizationContext
 {
-    private readonly bool isMainThread;
+    private readonly WorkerThread worker;
     private readonly ConcurrentQueue<WorkItem> queue = new();
 
-    internal WorkerThreadSynchronizationContext(bool isMainThread = false)
+    internal WorkerThreadSynchronizationContext(WorkerThread worker)
     {
-        this.isMainThread = isMainThread;
+        this.worker = worker;
     }
 
     public override void Send(SendOrPostCallback d, object? state)
     {
-        var work = new WorkItem(d, state);
+        WorkItem work;
+
+        queue.Enqueue(work = new WorkItem(d, state));
 
         while (!work.IsCompleted)
         {
-            if (isMainThread)
+            if (worker.IsCurrent)
             {
                 DoWork();
             }

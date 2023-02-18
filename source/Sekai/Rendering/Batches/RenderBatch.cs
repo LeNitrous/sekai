@@ -2,7 +2,6 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using Sekai.Allocation;
 using Sekai.Assets;
 using Sekai.Graphics;
 using Sekai.Graphics.Shaders;
@@ -10,10 +9,11 @@ using Sekai.Graphics.Vertices;
 
 namespace Sekai.Rendering.Batches;
 
-public abstract class RenderBatch<T> : DependencyObject, IRenderBatch<T>
+public abstract class RenderBatch<T> : DisposableObject, IRenderBatch<T>
     where T : unmanaged, IVertex
 {
     public bool HasStarted { get; private set; }
+    protected GraphicsContext Graphics { get; }
     protected abstract Uri Shader { get; }
     protected abstract int PrimitiveIndexCount { get; }
     protected abstract int PrimitiveVertexCount { get; }
@@ -27,14 +27,10 @@ public abstract class RenderBatch<T> : DependencyObject, IRenderBatch<T>
     private readonly Graphics.Buffers.Buffer<T> vbo;
     private readonly Graphics.Buffers.Buffer<ushort> ibo;
 
-    [Resolved]
-    protected GraphicsContext Graphics { get; set; } = null!;
-
-    [Resolved]
-    private AssetLoader assets { get; set; } = null!;
-
-    protected RenderBatch(int maxPrimitiveCount)
+    protected RenderBatch(GraphicsContext graphics, AssetLoader assets, int maxPrimitiveCount)
     {
+        Graphics = graphics;
+
         maxIndexCount = maxPrimitiveCount * PrimitiveIndexCount;
         maxVertexCount = maxPrimitiveCount * PrimitiveVertexCount;
 
@@ -119,8 +115,11 @@ public abstract class RenderBatch<T> : DependencyObject, IRenderBatch<T>
 
     protected abstract void CreateIndices(Span<ushort> buffer);
 
-    protected override void Destroy()
+    protected override void Dispose(bool disposing)
     {
+        if (!disposing)
+            return;
+
         shd.Dispose();
         ibo.Dispose();
         vbo.Dispose();

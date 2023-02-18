@@ -16,7 +16,7 @@ public class RenderContext
     /// <summary>
     /// The current camera.
     /// </summary>
-    public readonly ICamera Camera;
+    public readonly Camera Camera;
 
     /// <summary>
     /// The current graphics context.
@@ -26,7 +26,7 @@ public class RenderContext
     private Texture? currentTexture;
     private readonly RenderBatchManager batches;
 
-    internal RenderContext(ICamera camera, GraphicsContext graphics, RenderBatchManager batches)
+    internal RenderContext(Camera camera, GraphicsContext graphics, RenderBatchManager batches)
     {
         Camera = camera;
         Graphics = graphics;
@@ -93,7 +93,8 @@ public class RenderContext
     /// <inheritdoc cref="Draw(Quad, Texture, RectangleF, Color4)"/>
     public void Draw(Quad quad, Color4 color)
     {
-        Draw(quad, Graphics.WhitePixel, new RectangleF(0, 0, 1, 1), color);
+        // TODO: Create white pixel!
+        //Draw(quad, Graphics.WhitePixel, new RectangleF(0, 0, 1, 1), color);
     }
 
     /// <inheritdoc cref="Draw(Quad, Texture, RectangleF, Color4)"/>

@@ -17,7 +17,7 @@ namespace Sekai.Network;
 /// <summary>
 /// An object that performs web requests.
 /// </summary>
-public class WebRequest : FrameworkObject
+public class WebRequest : DisposableObject
 {
     /// <summary>
     /// The URL defined in the constructor.
@@ -377,8 +377,11 @@ public class WebRequest : FrameworkObject
         }
     }
 
-    protected override void Destroy()
+    protected override void Dispose(bool disposing)
     {
+        if (!disposing)
+            return;
+
         if (files is not null)
         {
             foreach (var fileBuffer in files.Values)

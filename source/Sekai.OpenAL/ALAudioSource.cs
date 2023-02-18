@@ -96,7 +96,11 @@ internal sealed class ALAudioSource : NativeAudioSource
 
     public override NativeAudioBuffer Dequeue() => system.SourceDequeue(this);
 
-    protected override void Destroy() => system.DestroySource(this);
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+            system.DestroySource(this);
+    }
 
     public static implicit operator uint(ALAudioSource source) => source.sourceId;
 }

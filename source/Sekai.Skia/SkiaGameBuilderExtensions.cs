@@ -1,13 +1,18 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
+using Sekai.Allocation;
+
 namespace Sekai.Skia;
 
 public static class SkiaGameBuilderExtensions
 {
-    public static GameBuilder<T> UseSkia<T>(this GameBuilder<T> builder)
-        where T : Game, new()
+    /// <summary>
+    /// Adds Skia rendering support to the game.
+    /// </summary>
+    /// <returns>The service collection.</returns>
+    public static IServiceCollection UseSkia(this IServiceCollection services)
     {
-        return builder.ConfigureServices(services => services.Cache<SkiaContext>());
+        return services.AddSingleton<SkiaContext>();
     }
 }

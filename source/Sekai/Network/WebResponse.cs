@@ -13,7 +13,7 @@ namespace Sekai.Network;
 /// <summary>
 /// A web response.
 /// </summary>
-public sealed class WebResponse : FrameworkObject
+public sealed class WebResponse : DisposableObject
 {
     /// <summary>
     /// The status code of this response.
@@ -54,5 +54,9 @@ public sealed class WebResponse : FrameworkObject
     /// <returns>The response content as a stream.</returns>
     public Stream AsStream() => Body.AsStream();
 
-    protected override void Destroy() => buffer.Dispose();
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+            buffer.Dispose();
+    }
 }

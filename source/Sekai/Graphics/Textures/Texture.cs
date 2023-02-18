@@ -13,7 +13,7 @@ namespace Sekai.Graphics.Textures;
 /// <summary>
 /// A storage object containing color data which can be used to draw on the screen.
 /// </summary>
-public class Texture : GraphicsObject, IAsset
+public class Texture : ServiceableGraphicsObject<NativeTexture>, IAsset
 {
     /// <summary>
     /// The texture size.
@@ -82,11 +82,9 @@ public class Texture : GraphicsObject, IAsset
     /// <inheritdoc cref="INativeTexture.SampleCount"/>
     public TextureSampleCount SampleCount => Native.SampleCount;
 
-    internal readonly NativeTexture Native;
-
     protected Texture(int width, int height, int depth, int level, int layers, FilterMode min, FilterMode mag, WrapMode wrapModeS, WrapMode wrapModeT, WrapMode wrapModeR, TextureType type, TextureUsage usage, TextureSampleCount sampleCount, PixelFormat format)
+        : base(context => context.CreateTexture(width, height, depth, level, layers, min, mag, wrapModeS, wrapModeT, wrapModeR, format, type, usage, sampleCount))
     {
-        Native = Graphics.CreateTexture(width, height, depth, level, layers, min, mag, wrapModeS, wrapModeT, wrapModeR, type, usage, sampleCount, format);
     }
 
     /// <inheritdoc cref="INativeTexture.SetData"/>
@@ -112,8 +110,6 @@ public class Texture : GraphicsObject, IAsset
     {
         SetData<T>(data.AsSpan(), x, y, z, width, height, depth, layer, level);
     }
-
-    protected override void DestroyGraphics() => Native.Dispose();
 
     /// <summary>
     /// Creates a new one-dimensional texture.
@@ -190,7 +186,7 @@ public class Texture : GraphicsObject, IAsset
 
         int size = image.Width * image.Height * 4;
 
-        Span<byte> data = size > RuntimeInfo.MaximumStackCapacity ? new byte[size] : stackalloc byte[size];
+        Span<byte> data = new byte[size];
         image.CopyPixelDataTo(data);
 
         fixed (byte* ptr = data)

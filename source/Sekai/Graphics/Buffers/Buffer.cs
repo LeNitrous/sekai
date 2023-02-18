@@ -3,28 +3,22 @@
 
 using System;
 using System.Runtime.CompilerServices;
-using Sekai.Allocation;
 
 namespace Sekai.Graphics.Buffers;
 
 /// <summary>
 /// A storage object capable of storing arbitrary contents in the GPU.
 /// </summary>
-public class Buffer : GraphicsObject
+public class Buffer : ServiceableGraphicsObject<NativeBuffer>
 {
     /// <summary>
     /// The number in bytes of how much this buffer can store.
     /// </summary>
     public int Capacity => Native.Capacity;
 
-    internal readonly NativeBuffer Native;
-
     public Buffer(int capacity, bool dynamic = false)
+        : base(context => context.CreateBuffer(capacity, dynamic))
     {
-        if (capacity <= 0)
-            throw new ArgumentException(@"Capacity cannot be a zero or negative value.");
-
-        Native = Graphics.CreateBuffer(capacity, dynamic);
     }
 
     /// <summary>
@@ -56,8 +50,6 @@ public class Buffer : GraphicsObject
 
         Native.GetData(dest, size, offset);
     }
-
-    protected sealed override void DestroyGraphics() => Native.Dispose();
 }
 
 /// <summary>

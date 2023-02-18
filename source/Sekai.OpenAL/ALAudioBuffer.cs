@@ -49,10 +49,14 @@ internal sealed class ALAudioBuffer : NativeAudioBuffer
     }
 
     public override void SetData(nint data, int size, AudioFormat format, int sampleRate)
-        => system.SetBufferData(this, data, size, format, sampleRate);
+    {
+        system.SetBufferData(this, data, size, format, sampleRate);
+    }
 
-    protected override void Destroy()
-        => system.DestroyBuffer(this);
+    protected override void Dispose(bool disposing)
+    {
+        system.DestroyBuffer(this);
+    }
 
     public static implicit operator uint(ALAudioBuffer buffer) => buffer.bufferId;
 }

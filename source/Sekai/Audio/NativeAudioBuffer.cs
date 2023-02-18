@@ -6,7 +6,7 @@ namespace Sekai.Audio;
 /// <summary>
 /// A write-only audio buffer.
 /// </summary>
-public abstract class NativeAudioBuffer : FrameworkObject
+public abstract class NativeAudioBuffer : DisposableObject
 {
     /// <summary>
     /// The buffer's size.

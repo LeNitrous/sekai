@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using DotNet.Globbing;
@@ -13,7 +12,7 @@ namespace Sekai.Storages;
 /// <summary>
 /// Base class for all storages.
 /// </summary>
-public abstract class Storage : FrameworkObject
+public abstract class Storage : DisposableObject
 {
     /// <summary>
     /// The storage's base URI.
@@ -221,7 +220,7 @@ public abstract class Storage : FrameworkObject
         if (uri.OriginalString[^1] != Path.AltDirectorySeparatorChar)
             throw new ArgumentException("URI must have a trailing slash.", nameof(uri));
 
-        return new SubStorage(this, GetFullPath(uri));
+        return CreateSubPathStorage(GetFullPath(uri));
     }
 
     /// <summary>
@@ -259,15 +258,17 @@ public abstract class Storage : FrameworkObject
 
     protected abstract IEnumerable<Uri> BaseEnumerateDirectories(Uri uri);
 
+    protected virtual Storage CreateSubPathStorage(Uri uri) => new SubPathStorage(this, uri);
+
     private static readonly string patternWildcard = "*";
 
-    private class SubStorage : Storage
+    private class SubPathStorage : Storage
     {
         public override Uri Uri { get; }
 
         private readonly Storage storage;
 
-        public SubStorage(Storage storage, Uri uri)
+        public SubPathStorage(Storage storage, Uri uri)
         {
             Uri = uri;
             this.storage = storage;

@@ -25,7 +25,10 @@ internal unsafe class GLTexture : NativeTexture
     public override void SetData(nint data, int x, int y, int z, int width, int height, int depth, int layer, int level)
         => system.SetTextureData(textureId, Width, Height, Depth, Target, Format, data, x, y, z, width, height, depth, layer, level);
 
-    protected override void Destroy() => system.DestroyTexture(textureId);
+    protected override void Dispose(bool disposing)
+    {
+        system.DestroyTexture(textureId);
+    }
 
     public static implicit operator uint(GLTexture texture) => texture.textureId;
 }

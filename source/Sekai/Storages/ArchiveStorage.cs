@@ -113,6 +113,10 @@ public class ArchiveStorage : Storage
         return memory;
     }
 
-    protected override void Destroy() => archive.Dispose();
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+            archive.Dispose();
+    }
 
 }

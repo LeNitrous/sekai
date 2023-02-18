@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
+using Sekai.Collections;
 
 namespace Sekai.Storages;
 
@@ -13,7 +15,7 @@ namespace Sekai.Storages;
 /// </summary>
 public class VirtualStorage : Storage
 {
-    private readonly Dictionary<Uri, Storage> storages = new();
+    private readonly Dictionary<Uri, Storage> storages = new(UriEqualityComparer.Default);
 
     /// <inheritdoc cref="Mount(Uri, Storage)"/>
     /// <param name="path">A relative path where the storage will be mounted to.</param>
@@ -57,6 +59,9 @@ public class VirtualStorage : Storage
     /// <exception cref="InvalidOperationException">Thrown when a storage is already mounted at a given URI.</exception>
     public void Mount(Uri uri, Storage storage)
     {
+        if (storages.ContainsKey(uri))
+            throw new ArgumentException($"There is a storage already mounted at {uri}.", nameof(uri));
+
         if (uri.OriginalString[^1] != Path.AltDirectorySeparatorChar)
             throw new ArgumentException("URI must have a trailing slash.", nameof(uri));
 
@@ -135,7 +140,7 @@ public class VirtualStorage : Storage
 
     private (Uri, Storage) resolve(Uri uri)
     {
-        foreach (var entry in storages)
+        foreach (var entry in storages.OrderByDescending(p => p.Key.Segments.Length))
         {
             if (!entry.Key.IsBaseOf(uri))
                 continue;
@@ -146,8 +151,11 @@ public class VirtualStorage : Storage
         throw new DirectoryNotFoundException();
     }
 
-    protected override void Destroy()
+    protected override void Dispose(bool disposing)
     {
+        if (!disposing)
+            return;
+
         foreach (var storage in storages.Values)
             storage.Dispose();
 

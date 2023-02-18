@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Sekai.Allocation;
 using Sekai.Graphics;
 using Sekai.Graphics.Buffers;
 using Sekai.Graphics.Shaders;
@@ -22,8 +21,13 @@ namespace Sekai.OpenGL;
 
 internal unsafe class GLGraphicsSystem : GraphicsSystem
 {
-    [Resolved]
-    private Surface surface { get; set; } = null!;
+    public override string Name { get; } = @"OpenGL";
+
+    public override Version Version { get; }
+
+    public override string Device { get; }
+
+    public override IReadOnlyList<string> Extensions { get; }
 
     private uint enabledAttributeCount;
     private Viewport currentViewport;
@@ -35,7 +39,8 @@ internal unsafe class GLGraphicsSystem : GraphicsSystem
     private readonly IOpenGLContextSource source;
     private readonly Queue<Action> deferredActionQueue = new();
 
-    public GLGraphicsSystem()
+    public GLGraphicsSystem(Surface surface)
+        : base(surface)
     {
         if (surface is not IOpenGLContextSource source)
             throw new ArgumentException($"Surface must implement {nameof(IOpenGLContextSource)}.");
@@ -51,6 +56,21 @@ internal unsafe class GLGraphicsSystem : GraphicsSystem
         vao = api.GenVertexArray();
         api.BindVertexArray(vao);
 
+        Device = $"{api.GetStringS(StringName.Vendor)} {api.GetStringS(StringName.Renderer)}";
+
+        api.GetInteger(GetPName.MajorVersion, out int major);
+        api.GetInteger(GetPName.MinorVersion, out int minor);
+
+        Version = new Version(major, minor);
+
+        api.GetInteger(GetPName.NumExtensions, out int num);
+        var extensions = new List<string>(num);
+
+        for (uint i = 0; i < num; i++)
+            extensions.Add(api.GetStringS(StringName.Extensions, i));
+
+        Extensions = extensions;
+
         source.ClearCurrentContext();
     }
 
@@ -60,7 +80,7 @@ internal unsafe class GLGraphicsSystem : GraphicsSystem
             throw new GLException($@"An OpenGL exception has occured: {Encoding.UTF8.GetString((byte*)data, length)}");
     }
 
-    public override ShaderTranspiler CreateShaderTranspiler() => new GLShaderTranspiler();
+    protected override ShaderTranspiler CreateShaderTranspiler() => new GLShaderTranspiler();
 
     public override void Present()
     {
@@ -386,7 +406,7 @@ internal unsafe class GLGraphicsSystem : GraphicsSystem
 
     #region Shaders
 
-    public override NativeShader CreateShader(ShaderTranspileResult result)
+    protected override NativeShader CreateShader(ShaderTranspileResult result)
     {
         uint[]? shaderIds = null;
 

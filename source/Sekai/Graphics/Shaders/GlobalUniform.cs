@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Sekai.Graphics.Shaders;
 
-internal abstract class GlobalUniform : FrameworkObject, IUniform
+internal abstract class GlobalUniform : DisposableObject, IUniform
 {
     protected IReadOnlySet<IUniform> Uniforms => uniforms;
     private readonly HashSet<IUniform> uniforms = new();
@@ -21,7 +21,11 @@ internal abstract class GlobalUniform : FrameworkObject, IUniform
     public abstract void Reset();
     public virtual void Attach(IUniform uniform) => uniforms.Add(uniform);
     public virtual void Detach(IUniform uniform) => uniforms.Remove(uniform);
-    protected sealed override void Destroy() => uniforms.Clear();
+    protected sealed override void Dispose(bool disposing)
+    {
+        if (disposing)
+            uniforms.Clear();
+    }
 }
 
 internal class GlobalUniform<T> : GlobalUniform, IUniform<T>

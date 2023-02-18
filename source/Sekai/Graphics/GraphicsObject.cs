@@ -1,21 +1,35 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-using Sekai.Allocation;
+using System;
 
 namespace Sekai.Graphics;
 
-public abstract class GraphicsObject : DependencyObject
+public abstract class GraphicsObject : DisposableObject
 {
-    [Resolved]
-    protected GraphicsSystem Graphics { get; set; } = null!;
+    private readonly IDisposable token;
 
-    [Resolved]
-    private GraphicsContext context { get; set; } = null!;
-
-    protected sealed override void Destroy() => context.Schedule(DestroyGraphics);
-
-    protected virtual void DestroyGraphics()
+    public GraphicsObject(IDisposable token)
     {
+        this.token = token;
+    }
+
+    protected sealed override void Dispose(bool disposing)
+    {
+        if (!disposing)
+            return;
+
+        token.Dispose();
+    }
+}
+
+public sealed class GraphicsObject<T> : GraphicsObject
+{
+    public T Native { get; }
+
+    public GraphicsObject(IDisposable token, T native)
+        : base(token)
+    {
+        Native = native;
     }
 }

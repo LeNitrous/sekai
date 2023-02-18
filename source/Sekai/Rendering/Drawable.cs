@@ -35,4 +35,15 @@ public abstract class Drawable : Scriptable
     /// Performs draw operations to the render target.
     /// </summary>
     public abstract void Draw(RenderContext context);
+
+    /// <summary>
+    /// The kind of scene this drawable is allowed to be part of.
+    /// </summary>
+    internal abstract SceneKind Kind { get; }
+
+    /// <summary>
+    /// Gets this drawable's transform.
+    /// </summary>
+    /// <returns>The drawable's ransform.</returns>
+    internal abstract Transform GetTransform();
 }

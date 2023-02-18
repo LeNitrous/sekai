@@ -6,7 +6,7 @@ namespace Sekai.Graphics.Buffers;
 /// <summary>
 /// A buffer graphics device.
 /// </summary>
-public abstract class NativeBuffer : FrameworkObject
+public abstract class NativeBuffer : DisposableObject
 {
     /// <summary>
     /// The number in bytes of how much this buffer can store.

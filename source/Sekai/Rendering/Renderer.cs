@@ -6,43 +6,46 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using Sekai.Allocation;
+using Sekai.Assets;
 using Sekai.Graphics;
 using Sekai.Mathematics;
 using Sekai.Rendering.Batches;
+using Sekai.Scenes;
 
 namespace Sekai.Rendering;
 
-public sealed class Renderer : DependencyObject
+public sealed class Renderer : DisposableObject
 {
-    [Resolved]
-    private GraphicsContext graphics { get; set; } = null!;
-
-    private RenderBatchManager? batches;
+    private readonly GraphicsContext graphics;
+    private readonly RenderBatchManager batches;
 
     private bool canFlush;
-    private bool canCollect;
-    private readonly List<ICamera> cameras = new();
-    private readonly List<IDrawable> drawables = new();
-    private readonly List<IDrawable> frontToBack = new();
-    private readonly List<IDrawable> backToFront = new();
+    private SceneKind? kind;
+    private readonly List<Camera> cameras = new();
+    private readonly List<Drawable> drawables = new();
+    private readonly List<Drawable> frontToBack = new();
+    private readonly List<Drawable> backToFront = new();
+
+    public Renderer(GraphicsContext graphics, AssetLoader assets)
+    {
+        batches = new(graphics, assets);
+        this.graphics = graphics;
+    }
 
     /// <summary>
     /// Begins collection phase.
     /// </summary>
-    public void Begin()
+    public void Begin(SceneKind kind)
     {
-        if (canCollect || canFlush)
+        if (this.kind.HasValue || canFlush)
             return;
 
-        batches ??= new();
+        this.kind = kind;
 
         cameras.Clear();
         drawables.Clear();
         frontToBack.Clear();
         backToFront.Clear();
-
-        canCollect = true;
     }
 
     /// <summary>
@@ -50,35 +53,39 @@ public sealed class Renderer : DependencyObject
     /// </summary>
     public void End()
     {
-        if (!canCollect || canFlush)
+        if (!kind.HasValue || canFlush)
             return;
 
-        canCollect = false;
         canFlush = true;
+        kind = null;
     }
 
     /// <summary>
     /// Collects a camera for rendering.
     /// </summary>
-    public void Collect(ICamera camera)
+    public void Collect(Camera camera)
     {
-        ensureCanCollect();
+        if (!kind.HasValue)
+            throw new InvalidOperationException(@"Cannot collect renderer objects at this current state.");
+
+        if (camera.Kind != kind.Value)
+            throw new ArgumentException("Camera cannot be collected by this renderer.");
+
         cameras.Add(camera);
     }
 
     /// <summary>
     /// Collects a drawable for rendering.
     /// </summary>
-    public void Collect(IDrawable drawable)
+    public void Collect(Drawable drawable)
     {
-        ensureCanCollect();
-        drawables.Add(drawable);
-    }
-
-    private void ensureCanCollect()
-    {
-        if (!canCollect)
+        if (!kind.HasValue)
             throw new InvalidOperationException(@"Cannot collect renderer objects at this current state.");
+
+        if (drawable.Kind != kind.Value)
+            throw new ArgumentException("Drawable cannot be collected by this renderer.");
+
+        drawables.Add(drawable);
     }
 
     /// <summary>
@@ -95,7 +102,7 @@ public sealed class Renderer : DependencyObject
             frontToBack.AddRange(visible.Where(d => d.SortMode == SortMode.FrontToBack));
             backToFront.AddRange(visible.Where(d => d.SortMode == SortMode.BackToFront));
 
-            var target = camera.Target ?? graphics.BackBufferTarget;
+            var target = camera.Target ?? graphics.DefaultRenderTarget;
 
             if (frontToBack.Count > 0)
             {
@@ -119,17 +126,17 @@ public sealed class Renderer : DependencyObject
         canFlush = false;
     }
 
-    private void renderDrawable(ICamera camera, IDrawable drawable)
+    private void renderDrawable(Camera camera, Drawable drawable)
     {
         using (graphics.BeginContext())
         {
-            graphics.SetTransform(drawable.Transform.WorldMatrix, camera.ViewMatrix, camera.ProjMatrix);
+            graphics.SetTransform(drawable.GetTransform().WorldMatrix, camera.ViewMatrix, camera.ProjMatrix);
             drawable.Draw(new(camera, graphics, batches!));
             batches!.EndCurrentBatch();
         }
     }
 
-    private static bool isCulled(ICamera camera, IDrawable drawable)
+    private static bool isCulled(Camera camera, Drawable drawable)
     {
         if ((camera.Groups & drawable.Group) != 0)
             return true;
@@ -143,20 +150,24 @@ public sealed class Renderer : DependencyObject
         return false;
     }
 
-    protected override void Destroy() => batches?.Dispose();
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+            batches.Dispose();
+    }
 
-    private class DrawableComparer : Comparer<IDrawable>
+    private class DrawableComparer : Comparer<Drawable>
     {
         private readonly bool invert;
-        private readonly ICamera camera;
+        private readonly Camera camera;
 
-        public DrawableComparer(ICamera camera, bool invert)
+        public DrawableComparer(Camera camera, bool invert)
         {
             this.invert = invert;
             this.camera = camera;
         }
 
-        public override int Compare(IDrawable? x, IDrawable? y)
+        public override int Compare(Drawable? x, Drawable? y)
         {
             if (ReferenceEquals(x, y))
                 return 0;
@@ -167,8 +178,8 @@ public sealed class Renderer : DependencyObject
             if (y is null)
                 return 1;
 
-            float distanceX = Vector3.Distance(x.Transform.WorldMatrix.Translation, camera.Transform.WorldMatrix.Translation);
-            float distanceY = Vector3.Distance(y.Transform.WorldMatrix.Translation, camera.Transform.WorldMatrix.Translation);
+            float distanceX = Vector3.Distance(x.GetTransform().WorldMatrix.Translation, camera.GetTransform().WorldMatrix.Translation);
+            float distanceY = Vector3.Distance(y.GetTransform().WorldMatrix.Translation, camera.GetTransform().WorldMatrix.Translation);
 
             if (invert)
             {

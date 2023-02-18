@@ -10,7 +10,7 @@ using Silk.NET.SDL;
 
 namespace Sekai.SDL;
 
-internal unsafe class SDLMouse : FrameworkObject, IMouse
+internal unsafe class SDLMouse : DisposableObject, IMouse
 {
     public string Name { get; } = @"Mouse";
     public IReadOnlyList<ScrollWheel> ScrollWheels => scrollWheels;
@@ -107,7 +107,7 @@ internal unsafe class SDLMouse : FrameworkObject, IMouse
         };
     }
 
-    protected override void Destroy()
+    protected override void Dispose(bool disposing)
     {
         surface.OnProcessEvent -= onProcessEvent;
     }

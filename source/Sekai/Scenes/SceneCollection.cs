@@ -1,28 +1,56 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using Sekai.Allocation;
+using Sekai.Assets;
+using Sekai.Graphics;
+using Sekai.Processors;
+using Sekai.Rendering;
 
 namespace Sekai.Scenes;
 
 /// <summary>
 /// A collection of scenes.
 /// </summary>
-public class SceneCollection : FrameworkObject, ICollection<Scene>, IReadOnlyList<Scene>
+public partial class SceneCollection : ServiceableObject, ICollection<Scene>, IReadOnlyList<Scene>
 {
+    [Resolved]
+    private GraphicsContext graphics { get; set; } = null!;
+
+    [Resolved]
+    private AssetLoader assets { get; set; } = null!;
+
     public Scene this[int index] => scenes[index];
     public int Count => scenes.Count;
+    internal Renderer Renderer { get; }
+    internal IEnumerable<Processor> Processors => processors;
 
     private readonly object syncLock = new();
     private readonly List<Scene> scenes = new();
+    private readonly List<Processor> processors = new();
+    private readonly Dictionary<Type, Processor> processorMapping = new();
+    private readonly Dictionary<Type, ProcessorAttribute[]> processorsForComponent = new();
+
+    internal SceneCollection()
+    {
+        Renderer = new(graphics, assets);
+    }
 
     internal void Update()
     {
         lock (syncLock)
         {
             foreach (var scene in scenes)
-                scene.Update();
+            {
+                Renderer.Begin(scene.Kind);
+                scene.Update(this);
+                Renderer.End();
+            }
         }
     }
 
@@ -31,7 +59,7 @@ public class SceneCollection : FrameworkObject, ICollection<Scene>, IReadOnlyLis
         lock (syncLock)
         {
             foreach (var scene in scenes)
-                scene.Render();
+                Renderer.Render();
         }
     }
 
@@ -86,7 +114,34 @@ public class SceneCollection : FrameworkObject, ICollection<Scene>, IReadOnlyLis
             return scenes.GetEnumerator();
     }
 
+    internal IEnumerable<Processor> GetProcessors(Component component)
+    {
+        var type = component.GetType();
+
+        if (!processorsForComponent.TryGetValue(type, out var attribs))
+        {
+            attribs = type.GetCustomAttributes<ProcessorAttribute>(true).ToArray();
+            processorsForComponent.Add(type, attribs);
+        }
+
+        foreach (var attrib in attribs)
+        {
+            if (!processorMapping.TryGetValue(attrib.Type, out var processor))
+            {
+                processor = attrib.CreateInstance();
+                processorMapping.Add(attrib.Type, processor);
+
+                processors.Add(processor);
+                processors.Sort(processorComparer);
+            }
+
+            yield return processor;
+        }
+    }
+
     bool ICollection<Scene>.IsReadOnly => false;
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    private static readonly IComparer<Processor> processorComparer = Comparer<Processor>.Create((a, b) => a.Priority.CompareTo(b.Priority));
 }

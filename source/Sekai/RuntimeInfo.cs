@@ -49,11 +49,6 @@ public static class RuntimeInfo
     /// </summary>
     public static bool IsApple => OS is Platform.iOS or Platform.macOS;
 
-    /// <summary>
-    /// The maximum stack capacity in bytes.
-    /// </summary>
-    internal static int MaximumStackCapacity => Environment.Is64BitProcess ? 400000 : 100000;
-
     static RuntimeInfo()
     {
         if (OperatingSystem.IsWindows())
@@ -72,12 +67,39 @@ public static class RuntimeInfo
             OS = Platform.iOS;
     }
 
+    /// <summary>
+    /// The operating system platform.
+    /// </summary>
     public enum Platform
     {
+        /// <summary>
+        /// Unknown.
+        /// </summary>
+        Unknown = 0,
+
+        /// <summary>
+        /// Windows.
+        /// </summary>
         Windows = 1,
+
+        /// <summary>
+        /// Linux.
+        /// </summary>
         Linux = 2,
+
+        /// <summary>
+        /// MacOS.
+        /// </summary>
         macOS = 3,
+
+        /// <summary>
+        /// iOS.
+        /// </summary>
         iOS = 4,
+
+        /// <summary>
+        /// Android.
+        /// </summary>
         Android = 5,
     }
 }

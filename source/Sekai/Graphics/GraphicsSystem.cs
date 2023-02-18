@@ -1,16 +1,54 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
+using System;
 using System.Collections.Generic;
 using Sekai.Graphics.Buffers;
 using Sekai.Graphics.Shaders;
 using Sekai.Graphics.Textures;
 using Sekai.Graphics.Vertices;
+using Sekai.Windowing;
 
 namespace Sekai.Graphics;
 
-public abstract class GraphicsSystem : DependencyObject
+/// <summary>
+/// The system responsible for interacting with low level graphics-related functionality.
+/// </summary>
+public abstract class GraphicsSystem : DisposableObject
 {
+    /// <summary>
+    /// The name of the graphics system.
+    /// </summary>
+    public abstract string Name { get; }
+
+    /// <summary>
+    /// The version of the graphics system.
+    /// </summary>
+    public abstract Version Version { get; }
+
+    /// <summary>
+    /// The name of the current graphics device.
+    /// </summary>
+    public abstract string Device { get; }
+
+    /// <summary>
+    /// A list of all extensions the graphics device supports.
+    /// </summary>
+    public abstract IReadOnlyList<string> Extensions { get; }
+
+    /// <summary>
+    /// The underlying surface backing the graphics system.
+    /// </summary>
+    protected readonly Surface Surface;
+
+    private readonly ShaderTranspiler transpiler;
+
+    public GraphicsSystem(Surface surface)
+    {
+        Surface = surface;
+        transpiler = CreateShaderTranspiler();
+    }
+
     /// <summary>
     /// Clears the current framebuffer.
     /// </summary>
@@ -22,14 +60,22 @@ public abstract class GraphicsSystem : DependencyObject
     public abstract void MakeCurrent();
 
     /// <summary>
-    /// Creates a shader transpiler for this graphics system.
-    /// </summary>
-    public abstract ShaderTranspiler CreateShaderTranspiler();
-
-    /// <summary>
     /// Creates a shader.
     /// </summary>
-    public abstract NativeShader CreateShader(ShaderTranspileResult result);
+    public NativeShader CreateShader(string code)
+    {
+        return CreateShader(transpiler.Transpile(code));
+    }
+
+    /// <summary>
+    /// Creates a shader transpiler for this graphics system.
+    /// </summary>
+    protected abstract ShaderTranspiler CreateShaderTranspiler();
+
+    /// <summary>
+    /// Creaes a shader.
+    /// </summary>
+    protected abstract NativeShader CreateShader(ShaderTranspileResult result);
 
     /// <summary>
     /// Creates a buffer.

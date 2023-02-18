@@ -9,17 +9,12 @@ using System.Threading;
 
 namespace Sekai.Threading;
 
-public partial class WorkerThread : FrameworkObject
+public partial class WorkerThread : DisposableObject
 {
     /// <summary>
     /// The thread name.
     /// </summary>
     public readonly string Name;
-
-    /// <summary>
-    /// Gets or sets the update rate for this thread.
-    /// </summary>
-    public double UpdatePerSecond { get; set; } = DEFAULT_UPDATE_PER_SECOND;
 
     /// <summary>
     /// Whether this thread is currently running.
@@ -34,12 +29,7 @@ public partial class WorkerThread : FrameworkObject
     /// <summary>
     /// Whether this thread is the current thread.
     /// </summary>
-    public bool IsCurrent => thread is not null && Thread.CurrentThread == thread;
-
-    /// <summary>
-    /// The thread synchronization context.
-    /// </summary>
-    public SynchronizationContext SyncContext => syncContext;
+    public bool IsCurrent => thread is null || Thread.CurrentThread == thread;
 
     /// <summary>
     /// Invoked when on a new frame.
@@ -62,48 +52,69 @@ public partial class WorkerThread : FrameworkObject
     public event Action? OnExit;
 
     /// <summary>
+    /// Gets or sets the update rate for this thread.
+    /// </summary>
+    internal double UpdatePerSecond { get; set; } = DEFAULT_UPDATE_PER_SECOND;
+
+    /// <summary>
     /// Invoked when an exception is thrown.
     /// </summary>
-    public event UnhandledExceptionEventHandler? OnUnhandledException;
+    internal event UnhandledExceptionEventHandler? OnUnhandledException;
 
+    /// <summary>
+    /// The thread synchronization context.
+    /// </summary>
+    internal SynchronizationContext SyncContext => syncContext;
+
+    /// <summary>
+    /// The default update rate.
+    /// </summary>
     internal const double DEFAULT_UPDATE_PER_SECOND = 60;
 
     private Thread? thread;
     private bool throttling;
     private WorkerThreadState currentState;
-    private readonly bool isMainThread;
     private volatile bool exitRequested;
     private volatile bool pauseRequested;
     private readonly object syncLock = new();
     private readonly Stopwatch stopwatch = new();
-    private readonly WorkerThreadSynchronizationContext syncContext = new();
+    private readonly WorkerThreadSynchronizationContext syncContext;
 
-    public WorkerThread(string name = "Worker Thread", Action? onNewFrame = null)
-        : this(name, onNewFrame, false)
-    {
-    }
-
-    internal WorkerThread(string name = "Worker Thread", Action? onNewFrame = null, bool isMainThread = false)
+    internal WorkerThread(string name = "Worker Thread")
     {
         Name = name;
-        OnNewFrame += onNewFrame;
 
         if (RuntimeInfo.OS == RuntimeInfo.Platform.Windows)
             createWaitableTimer();
 
-        this.isMainThread = isMainThread;
+        syncContext = new(this);
     }
 
     /// <summary>
     /// Sends a synchronous action to this thread. The thread is blocked until the action is performed.
     /// </summary>
-    public void Send(Action action) => syncContext.Send(_ => action(), null);
+    public void Send(Action action)
+    {
+        if (!IsActive)
+            throw new InvalidOperationException("The worker thread is not active.");
+
+        syncContext.Send(_ => action(), null);
+    }
 
     /// <summary>
-    /// Posts an asynchronous action to this thread. The thread will not be blocked.
+    /// Posts an asynchronous action to this thread. The thread will not be blocked and the action will be performed asynchronously.
     /// </summary>
-    public void Post(Action action) => syncContext.Post(_ => action(), null);
+    public void Post(Action action)
+    {
+        if (!IsActive)
+            throw new InvalidOperationException("The worker thread is not active.");
 
+        syncContext.Post(_ => action(), null);
+    }
+
+    /// <summary>
+    /// Starts the worker in another thread.
+    /// </summary>
     internal void Start()
     {
         if (IsActive)
@@ -127,6 +138,9 @@ public partial class WorkerThread : FrameworkObject
         }
     }
 
+    /// <summary>
+    /// Pauses the thread from execution.
+    /// </summary>
     internal void Pause()
     {
         lock (syncLock)
@@ -140,6 +154,10 @@ public partial class WorkerThread : FrameworkObject
         WaitForState(WorkerThreadState.Paused);
     }
 
+    /// <summary>
+    /// Initializes the worker.
+    /// </summary>
+    /// <param name="throttled"></param>
     internal void Initialize(bool throttled = true)
     {
         MakeCurrent();
@@ -149,6 +167,10 @@ public partial class WorkerThread : FrameworkObject
         OnStart?.Invoke();
     }
 
+    /// <summary>
+    /// Blocks the calling thread until the specified <paramref name="state"/>.
+    /// </summary>
+    /// <param name="state">The expected state.</param>
     internal void WaitForState(WorkerThreadState state)
     {
         if (currentState == state)
@@ -170,8 +192,14 @@ public partial class WorkerThread : FrameworkObject
         }
     }
 
+    /// <summary>
+    /// Makes this thread the current.
+    /// </summary>
     internal void MakeCurrent() => SynchronizationContext.SetSynchronizationContext(syncContext);
 
+    /// <summary>
+    /// Performs work.
+    /// </summary>
     internal void DoWork()
     {
         var next = processFrame();
@@ -180,8 +208,11 @@ public partial class WorkerThread : FrameworkObject
             handleStateChangeFromActive(next.Value);
     }
 
-    protected sealed override void Destroy()
+    protected sealed override void Dispose(bool disposing)
     {
+        if (!disposing)
+            return;
+
         lock (syncLock)
         {
             if (!IsActive)
@@ -241,7 +272,7 @@ public partial class WorkerThread : FrameworkObject
         }
         catch (Exception e)
         {
-            if (!isMainThread)
+            if (thread is not null)
             {
                 OnUnhandledException?.Invoke(this, new UnhandledExceptionEventArgs(e, false));
             }

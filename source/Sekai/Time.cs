@@ -6,7 +6,10 @@ using System.Diagnostics;
 
 namespace Sekai;
 
-public sealed class Time : FrameworkObject
+/// <summary>
+/// A helper class used to keep track of time.
+/// </summary>
+public sealed class Time
 {
     /// <summary>
     /// The number of frames since running the game.
@@ -31,19 +34,9 @@ public sealed class Time : FrameworkObject
         if (!stopwatch.IsRunning)
             stopwatch.Start();
 
-        FrameCount++;
         previous = Current;
         Current = stopwatch.Elapsed;
         Delta = Current - previous;
-    }
-
-    internal void Reset()
-    {
-        Delta = TimeSpan.Zero;
-        Current = TimeSpan.Zero;
-        FrameCount = 0;
-
-        previous = TimeSpan.Zero;
-        stopwatch.Reset();
+        FrameCount++;
     }
 }

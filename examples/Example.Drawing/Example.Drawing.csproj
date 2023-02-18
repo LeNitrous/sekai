@@ -22,4 +22,8 @@
     <ProjectReference Include="..\Example.Common\Example.Common.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\source\Sekai.Analyzers\Sekai.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
 </Project>

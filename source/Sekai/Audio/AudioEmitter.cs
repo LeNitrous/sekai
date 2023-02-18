@@ -12,7 +12,7 @@ namespace Sekai.Audio;
 /// A component that can emit audio.
 /// </summary>
 [Processor<AudioEmitterProcessor>]
-public class AudioEmitter : Component
+public partial class AudioEmitter : Component
 {
     /// <inheritdoc cref="IAudioController.Loop"/>
     public bool Loop

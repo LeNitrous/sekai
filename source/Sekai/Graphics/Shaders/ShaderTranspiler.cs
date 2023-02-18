@@ -9,7 +9,7 @@ using Sekai.Extensions;
 
 namespace Sekai.Graphics.Shaders;
 
-public abstract partial class ShaderTranspiler : FrameworkObject
+public abstract partial class ShaderTranspiler : DisposableObject
 {
     protected abstract string Header { get; }
 

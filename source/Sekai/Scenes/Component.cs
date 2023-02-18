@@ -1,12 +1,11 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
+#pragma warning disable 0618
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using Sekai.Extensions;
+using System.ComponentModel;
 using Sekai.Serialization;
 
 namespace Sekai.Scenes;
@@ -15,7 +14,7 @@ namespace Sekai.Scenes;
 /// A building block for <see cref="Scenes.Node"/> to define properties and behaviors for the given node that hosts this component.
 /// </summary>
 [Serializable]
-public abstract class Component : DependencyObject, IReferenceable
+public abstract partial class Component : ServiceableObject, IReferenceable
 {
     public Guid Id { get; }
 
@@ -30,26 +29,38 @@ public abstract class Component : DependencyObject, IReferenceable
     public Scene? Scene => Node?.Scene;
 
     /// <summary>
-    /// Gets whether this component has all bindings resolved or not.
+    /// Gets whether this component is loaded or not.
     /// </summary>
-    internal bool IsReady { get; private set; }
+    public bool IsLoaded
+    {
+        get => isLoaded;
+        set
+        {
+            if (isLoaded == value)
+                return;
+
+            isLoaded = value;
+            OnStateChanged?.Invoke(this, isLoaded);
+        }
+    }
 
     /// <summary>
     /// Invoked when the ready state has changed.
     /// </summary>
-    internal event Action<Component, bool>? OnStateChanged;
+    public event Action<Component, bool>? OnStateChanged;
 
-    private readonly List<ComponentBinding> bindings = new();
+    private bool isLoaded;
+    private readonly ComponentBinder binder;
 
     protected Component()
         : this(Guid.NewGuid())
     {
-        initialize(this);
     }
 
     private Component(Guid id)
     {
         Id = id;
+        binder = CreateBinder();
     }
 
     internal void Attach(Node node)
@@ -59,16 +70,17 @@ public abstract class Component : DependencyObject, IReferenceable
 
         Node = node;
         Node.OnComponentAdded += handleComponentAdded;
+        Node.OnComponentRemoved += handleComponentRemoved;
 
-        foreach ((var type, var info) in typeBindingMap[GetType()])
+        foreach (var component in Node.Components)
         {
-            if (!Node.TryGetComponent(type, out var comp))
+            if (component == this)
                 continue;
 
-            info.Create(this, comp).Bind();
+            binder.Bind(component);
         }
 
-        updateReadyState();
+        IsLoaded = binder.IsComponentValid();
     }
 
     internal void Detach(Node node)
@@ -79,144 +91,155 @@ public abstract class Component : DependencyObject, IReferenceable
         if (Node != node)
             throw new InvalidOperationException($"Attempted to detach from a node that doesn't own this {nameof(Component)}.");
 
-        foreach (var binding in bindings)
-            binding.Unbind();
-
         Node.OnComponentAdded -= handleComponentAdded;
+        Node.OnComponentRemoved -= handleComponentRemoved;
         Node = null;
+
+        IsLoaded = false;
     }
 
     private void handleComponentAdded(object? sender, ComponentEventArgs args)
     {
-        if (!typeBindingMap[GetType()].TryGetValue(args.Component.GetType(), out var info))
-            return;
-
-        info.Create(this, args.Component).Bind();
-
-        updateReadyState();
+        if (args.Component != this)
+        {
+            binder.Bind(args.Component);
+        }
+        
+        IsLoaded = binder.IsComponentValid();
     }
 
-    private void updateReadyState()
+    private void handleComponentRemoved(object? sender, ComponentEventArgs args)
     {
-        bool current = stateEvaluators[GetType()].Invoke(this);
-
-        if (current != IsReady)
+        if (args.Component != this)
         {
-            IsReady = current;
-            OnStateChanged?.Invoke(this, IsReady);
+            binder.Unbind(args.Component);
+        }
+        
+        IsLoaded = binder.IsComponentValid();
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+            Node?.RemoveComponent(this);
+
+        base.Dispose(disposing);
+    }
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [Obsolete("Overridden by source generators")]
+    protected virtual ComponentBinder CreateBinder() => new DefaultComponentBinder(this);
+
+    private class DefaultComponentBinder : ComponentBinder
+    {
+        public DefaultComponentBinder(Component owner)
+            : base(owner, null!)
+        {
+        }
+
+        public override bool Bind(Component other)
+        {
+            // Intentionally no-ops to prevent calling the base implementation.
+            return false;
+        }
+
+        public override bool Unbind(Component other)
+        {
+            // Intentionally no-ops to prevent calling the base implementation.
+            return false;
+        }
+
+        public override bool IsComponentValid()
+        {
+            // Intentionally no-ops to prevent calling the base implementation.
+            return true;
+        }
+
+        protected override bool Update(Component other, bool isBinding)
+        {
+            // Intentionally no-ops to prevent calling the base implementation.
+            return false;
         }
     }
 
-    protected override void Destroy() => Node?.RemoveComponent(this);
-
-    private static void initialize(Component component)
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [Obsolete("Used by source generators")]
+    protected abstract class ComponentBinder : DisposableObject
     {
-        var type = component.GetType();
+        public readonly Component Owner;
 
-        if (typeBindingMap.ContainsKey(type))
-            return;
+        private List<Component>? bindings;
+        private readonly ComponentBinder binder;
 
-        var curr = type;
-        var info = new List<PropertyInfo>();
-
-        do
+        protected ComponentBinder(Component owner, ComponentBinder binder)
         {
-            info.AddRange
-            (
-                curr
-                    .GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly)
-                    .Where(info => info.CanWrite && info.PropertyType.IsAssignableTo(typeof(Component)) && info.GetCustomAttribute<BindAttribute>(true) is not null)
-            );
-        }
-        while ((curr = curr?.BaseType) is not null);
-
-        var self = Expression.Parameter(typeof(Component), "this");
-
-        Expression<Func<Component, bool>> lmbd;
-
-        if (info.Count > 0)
-        {
-            var cond = info
-                .Where(p => !p.IsNullable())
-                .Select(i => Expression.IsTrue(Expression.NotEqual(Expression.Property(Expression.Convert(self, i.DeclaringType!), i), Expression.Constant(null))))
-                .Aggregate<Expression>(Expression.And);
-
-            lmbd = Expression.Lambda<Func<Component, bool>>(cond, false, self);
-        }
-        else
-        {
-            lmbd = Expression.Lambda<Func<Component, bool>>(Expression.Constant(true), false, self);
+            Owner = owner;
+            this.binder = binder;
         }
 
-        stateEvaluators.Add(type, lmbd.Compile());
-        typeBindingMap.Add(type, info.ToDictionary(k => k.PropertyType, v => new BindingInfo(v)));
-    }
-
-    private static readonly Dictionary<Type, Func<Component, bool>> stateEvaluators = new();
-    private static readonly Dictionary<Type, IReadOnlyDictionary<Type, BindingInfo>> typeBindingMap = new();
-
-    private class BindingInfo
-    {
-        public Type SourceType => info.DeclaringType!;
-        public Type TargetType => info.PropertyType;
-        public bool Required => !info.IsNullable();
-
-        private readonly PropertyInfo info;
-
-        public BindingInfo(PropertyInfo info)
+        public virtual bool Bind(Component other)
         {
-            this.info = info;
-        }
+            if (other == Owner)
+                throw new ArgumentException("Cannot bind with itself.", nameof(other));
 
-        public ComponentBinding Create(Component source, Component target)
-            => new(this, source, target);
+            if (binder.Bind(other))
+                return true;
 
-        public Action<Component, Component?> GetSetterAction()
-        {
-            if (!setterMap.TryGetValue(SourceType, out var targetMap))
-                setterMap.Add(SourceType, targetMap = new());
+            bindings ??= new();
 
-            if (!targetMap.TryGetValue(TargetType, out var action))
+            if (bindings.Contains(other))
+                return false;
+
+            if (Update(other, true))
             {
-                var self = Expression.Parameter(typeof(Component), "this");
-                var arg0 = Expression.Parameter(typeof(Component), "arg0");
-                var prop = Expression.Property(Expression.Convert(self, SourceType), info);
-                var body = Expression.Assign(prop, Expression.Convert(arg0, TargetType));
-                var lmbd = Expression.Lambda<Action<Component, Component?>>(Expression.Block(body, Expression.Empty()), false, self, arg0);
-                action = lmbd.Compile();
+                bindings.Add(other);
+                return true;
             }
-
-            return action;
+            else
+            {
+                return false;
+            }
+            
         }
 
-        private static readonly Dictionary<Type, Dictionary<Type, Action<Component, Component?>>> setterMap = new();
+        public virtual bool Unbind(Component other)
+        {
+            if (other == Owner)
+                throw new ArgumentException("Cannot unbind from itself.", nameof(other));
+
+            if (binder.Bind(other))
+                return true;
+
+            if (bindings is null)
+                return false;
+
+            if (!bindings.Remove(other))
+                return false;
+
+            return Update(other, false);
+        }
+
+        public virtual bool IsComponentValid()
+        {
+            return binder.IsComponentValid();
+        }
+
+        protected virtual bool Update(Component other, bool isBinding)
+        {
+            return binder.Update(other, isBinding);
+        }
     }
 
-    private class ComponentBinding
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [Obsolete("Used by source generators")]
+    protected abstract class ComponentBinder<T> : ComponentBinder
+            where T : Component
     {
-        private readonly Component source;
-        private readonly Component target;
-        private readonly BindingInfo info;
+        public new T Owner => (T)base.Owner;
 
-        public ComponentBinding(BindingInfo info, Component source, Component target)
+        protected ComponentBinder(T owner, ComponentBinder binder)
+            : base(owner, binder)
         {
-            this.info = info;
-            this.source = source;
-            this.target = target;
-        }
-
-        public void Bind()
-        {
-            source.bindings.Add(this);
-            target.bindings.Add(this);
-            info.GetSetterAction().Invoke(source, target);
-        }
-
-        public void Unbind()
-        {
-            source.bindings.Remove(this);
-            target.bindings.Remove(this);
-            info.GetSetterAction().Invoke(source, null);
         }
     }
 }

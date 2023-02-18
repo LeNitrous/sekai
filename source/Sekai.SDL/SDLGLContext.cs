@@ -5,7 +5,7 @@ using Sekai.Windowing.OpenGL;
 
 namespace Sekai.SDL;
 
-internal class SDLGLContext : FrameworkObject, IOpenGLContext
+internal class SDLGLContext : DisposableObject, IOpenGLContext
 {
     private readonly nint handle;
     private readonly SDLSurface view;
@@ -18,5 +18,8 @@ internal class SDLGLContext : FrameworkObject, IOpenGLContext
 
     public void MakeCurrent() => view.SetCurrentContext(handle);
 
-    protected override void Destroy() => view.DestroyContext(handle);
+    protected override void Dispose(bool dispose)
+    {
+        view.DestroyContext(handle);
+    }
 }

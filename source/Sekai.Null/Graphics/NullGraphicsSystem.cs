@@ -24,11 +24,9 @@ internal class NullGraphicsSystem : GraphicsSystem
         return new NullRenderTarget(color, depth);
     }
 
-    public override NativeShader CreateShader(ShaderTranspileResult result)
-        => new NullShader();
+    protected override NativeShader CreateShader(ShaderTranspileResult result) => new NullShader();
 
-    public override ShaderTranspiler CreateShaderTranspiler()
-        => new NullShaderTranspiler();
+    protected override ShaderTranspiler CreateShaderTranspiler() => new NullShaderTranspiler();
 
     public override NativeTexture CreateTexture(int width, int height, int depth, int levels, int layers, FilterMode min, FilterMode mag, WrapMode wrapModeS, WrapMode wrapModeT, WrapMode wrapModeR, TextureType type, TextureUsage usage, TextureSampleCount sampleCount, PixelFormat format)
         => new NullTexture(width, height, depth, layers, levels, min, mag, wrapModeS, wrapModeT, wrapModeR, format, type, usage, sampleCount);

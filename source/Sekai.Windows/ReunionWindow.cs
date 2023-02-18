@@ -5,7 +5,6 @@ using System;
 using System.Runtime.CompilerServices;
 using Microsoft.UI;
 using Microsoft.UI.Windowing;
-using Sekai.Allocation;
 using Sekai.Windowing;
 using Windows.UI.ViewManagement;
 using Windows.Win32;
@@ -15,18 +14,15 @@ using Windows.Win32.Graphics.Dwm;
 namespace Sekai.Windows;
 
 /// <summary>
-/// A <see cref="Surface"/> wrapper that enables Windows App SDK functionality.
+/// A helper class that enables Windows App SDK functionality.
 /// </summary>
-public class ReunionWindow : DependencyObject
+internal sealed class ReunionWindow : DisposableObject
 {
-    [Resolved]
-    private Surface surface { get; set; } = null!;
-
     private readonly HWND hwnd;
     private readonly AppWindow window;
     private readonly UISettings settings;
 
-    public ReunionWindow()
+    public ReunionWindow(Surface surface)
     {
         if (surface is not INativeWindowSource source)
             throw new InvalidOperationException($"Surface must implement {nameof(INativeWindowSource)}.");

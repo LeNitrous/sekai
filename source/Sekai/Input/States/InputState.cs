@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Sekai.Input.States;
 
-public abstract class InputState<T> : FrameworkObject
+public abstract class InputState<T> : DisposableObject
     where T : struct, Enum
 {
     private readonly HashSet<T> buttons = new();

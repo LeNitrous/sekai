@@ -3,8 +3,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using Sekai.Allocation;
+using Sekai.Extensions;
 using Sekai.Graphics.Buffers;
 using Sekai.Graphics.Shaders;
 using Sekai.Graphics.Textures;
@@ -13,7 +15,7 @@ using Sekai.Mathematics;
 
 namespace Sekai.Graphics;
 
-public sealed class GraphicsContext : DependencyObject
+public sealed class GraphicsContext : DisposableObject
 {
     /// <summary>
     /// The current depth state.
@@ -123,51 +125,113 @@ public sealed class GraphicsContext : DependencyObject
     /// <summary>
     /// The default render target.
     /// </summary>
-    public IRenderTarget BackBufferTarget => backBufferRenderTarget;
+    public IRenderTarget DefaultRenderTarget => backBufferRenderTarget;
 
     /// <summary>
-    /// A white pixel texture.
+    /// The name of the current graphics device.
     /// </summary>
-    public Texture WhitePixel => whitePixelTexture.Value;
+    public string Device => graphics.Device;
 
-    [Resolved]
-    private GraphicsSystem graphics { get; set; } = null!;
+    /// <summary>
+    /// The name of the current graphics system.
+    /// </summary>
+    public string System => graphics.Name;
 
-    [Resolved]
-    private ShaderUniformManager uniforms { get; set; } = null!;
+    /// <summary>
+    /// The version of the current graphics system.
+    /// </summary>
+    public Version Version => graphics.Version;
+
+    /// <summary>
+    /// A list of supported extensions the graphics device supports.
+    /// </summary>
+    public IReadOnlyList<string> Extensions => graphics.Extensions;
 
     private int stateStackDepth;
     private GraphicsState currentState;
     private BackBufferRenderTarget backBufferRenderTarget;
-    private readonly Lazy<Texture> whitePixelTexture;
+    private readonly GraphicsSystem graphics;
     private readonly Texture?[] textures = new Texture[16];
     private readonly Stack<GraphicsState> stateStack = new();
-    private readonly Queue<Action> scheduledActions = new();
+    private readonly Queue<Action> actions = new();
+    private readonly GlobalUniform[] uniforms = new GlobalUniform[Enum.GetValues<GlobalUniforms>().Length];
+    private readonly Dictionary<string, GlobalUniform> uniformMap = new();
 
-    public GraphicsContext()
+    internal GraphicsContext(GraphicsSystem graphics)
     {
-        whitePixelTexture = new(createWhitePixel);
+        this.graphics = graphics;
+        addUniform(GlobalUniforms.Projection, Matrix4x4.Identity);
+        addUniform(GlobalUniforms.Model, Matrix4x4.Identity);
+        addUniform(GlobalUniforms.View, Matrix4x4.Identity);
     }
 
-    /// <summary>
-    /// Makes the calling thread the current context.
-    /// </summary>
     internal void MakeCurrent() => graphics.MakeCurrent();
 
-    /// <summary>
-    /// Presents the current frame to the surface.
-    /// </summary>
     internal void Present() => graphics.Present();
+
+    internal GraphicsObject<NativeRenderTarget> CreateRenderTarget(IReadOnlyList<RenderBuffer> color, RenderBuffer? depth = null)
+    {
+        var target = graphics.CreateRenderTarget(color.Cast<NativeRenderBuffer>().ToArray(), depth);
+        return new(enqueueOnDispose(target.Dispose), target);
+    }
+
+    internal GraphicsObject<NativeTexture> CreateTexture(int width, int height, int depth, int layers, int levels, FilterMode min, FilterMode mag, WrapMode wrapModeS, WrapMode wrapModeT, WrapMode wrapModeR, PixelFormat format, TextureType type, TextureUsage usage, TextureSampleCount sampleCount)
+    {
+        var texture = graphics.CreateTexture(width, height, depth, levels, layers, min, mag, wrapModeS, wrapModeT, wrapModeR, type, usage, sampleCount, format);
+        return new(enqueueOnDispose(texture.Dispose), texture);
+    }
+
+    internal GraphicsObject<NativeBuffer> CreateBuffer(int capacity, bool dynamic)
+    {
+        var buffer = graphics.CreateBuffer(capacity, dynamic);
+        return new(enqueueOnDispose(buffer.Dispose), buffer);
+    }
+
+    internal GraphicsObject<NativeShader> CreateShader(string code)
+    {
+        var shader = graphics.CreateShader(code);
+
+        foreach (var uniform in shader.Uniforms)
+        {
+            if (!uniformMap.TryGetValue(uniform.Name, out var uniformGlobal))
+                continue;
+
+            uniformGlobal.Attach(uniform);
+        }
+
+        var invoke = enqueueOnDispose(() =>
+        {
+            foreach (var uniform in shader.Uniforms)
+            {
+                if (!uniformMap.TryGetValue(uniform.Name, out var uniformGlobal))
+                    continue;
+
+                uniformGlobal.Detach(uniform);
+            }
+
+            shader.Dispose();
+        });
+
+        return new(invoke, shader);
+    }
+
+    private IDisposable enqueueOnDispose(Action dispose)
+    {
+        return new ValueInvokeOnDisposal(() => actions.Enqueue(dispose));
+    }
 
     /// <summary>
     /// Prepares the graphics context for the next frame.
     /// </summary>
     internal void Prepare(Size2 size)
     {
-        while (scheduledActions.TryDequeue(out var action))
+        while (actions.TryDequeue(out var action))
             action();
 
         graphics.Prepare();
+
+        foreach (var uniform in uniforms)
+            uniform.Reset();
 
         stateStackDepth = 0;
         stateStack.Clear();
@@ -191,7 +255,7 @@ public sealed class GraphicsContext : DependencyObject
     /// Schedules an action to be invoked at the preparation step of the context.
     /// </summary>
     /// <param name="obj">The graphics object to dispose.</param>
-    internal void Schedule(Action action) => scheduledActions.Enqueue(action);
+    internal void Schedule(Action action) => actions.Enqueue(action);
 
     /// <summary>
     /// Clears the current framebuffer.
@@ -371,9 +435,9 @@ public sealed class GraphicsContext : DependencyObject
         if (model.Equals(currentState.Transform.Model) && view.Equals(currentState.Transform.View) && projection.Equals(currentState.Transform.Projection))
             return;
 
-        setUniformValue(GlobalUniforms.View, currentState.Transform.View = view);
-        setUniformValue(GlobalUniforms.Model, currentState.Transform.Model = model);
-        setUniformValue(GlobalUniforms.Projection, currentState.Transform.Projection = projection);
+        setUniform(GlobalUniforms.View, currentState.Transform.View = view);
+        setUniform(GlobalUniforms.Model, currentState.Transform.Model = model);
+        setUniform(GlobalUniforms.Projection, currentState.Transform.Projection = projection);
     }
 
     /// <summary>
@@ -473,17 +537,17 @@ public sealed class GraphicsContext : DependencyObject
         graphics.DrawIndexedIndirect(buffer.Native, topology, offset, drawCount);
     }
 
-    private void setUniformValue<T>(GlobalUniforms key, T value)
+    private void setUniform<T>(GlobalUniforms key, T value)
         where T : unmanaged, IEquatable<T>
     {
-        ((GlobalUniform<T>)uniforms[key]).Value = value;
+        ((GlobalUniform<T>)uniforms[(int)key]).Value = value;
     }
 
-    private Texture createWhitePixel()
+    private void addUniform<T>(GlobalUniforms key, T defaultValue = default)
+        where T : unmanaged, IEquatable<T>
     {
-        var texture = Texture.New2D(1, 1, PixelFormat.B8_G8_R8_A8_UNorm_SRgb);
-        texture.SetData(new byte[] { 255, 255, 255, 255 }, 0, 0, 0, 1, 1, 1, 0, 0);
-        return texture;
+        string name = key.GetDescription();
+        uniformMap.Add(name, uniforms[(int)key] = new GlobalUniform<T>(name, defaultValue));
     }
 
     private static readonly Dictionary<Type, IndexFormat> supported_index_formats = new()
@@ -561,7 +625,7 @@ public sealed class GraphicsContext : DependencyObject
         }
     }
 
-    private struct BackBufferRenderTarget : IRenderTarget
+    private readonly struct BackBufferRenderTarget : IRenderTarget
     {
         public int Width { get; }
         public int Height { get; }
@@ -572,6 +636,6 @@ public sealed class GraphicsContext : DependencyObject
             Height = size.Height;
         }
 
-        NativeRenderTarget IRenderTarget.Native => null!;
+        NativeRenderTarget? IRenderTarget.Native => null;
     }
 }

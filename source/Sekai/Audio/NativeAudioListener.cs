@@ -5,7 +5,7 @@ using System.Numerics;
 
 namespace Sekai.Audio;
 
-public abstract class NativeAudioListener : FrameworkObject
+public abstract class NativeAudioListener : DisposableObject
 {
     /// <summary>
     /// Gets or sets the listener volume.
