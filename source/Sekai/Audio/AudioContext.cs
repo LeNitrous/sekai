@@ -9,13 +9,43 @@ using Sekai.Allocation;
 
 namespace Sekai.Audio;
 
-public sealed class AudioContext : DependencyObject
+public sealed class AudioContext : DisposableObject
 {
+    /// <summary>
+    /// Gets the audio system's name.
+    /// </summary>
+    public string System => system.Name;
+
+    /// <summary>
+    /// Gets the audio system's version.
+    /// </summary>
+    public Version Version => system.Version;
+
+    /// <summary>
+    /// Gets or sets the current audio device.
+    /// </summary>
+    public string Device
+    {
+        get => system.Device;
+        set => system.Device = value;
+    }
+
+    /// <summary>
+    /// Gets an enumeration of available audio devices.
+    /// </summary>
+    public IEnumerable<string> Devices => system.Devices;
+
+    /// <summary>
+    /// Gets a list of all available audio system extensions.
+    /// </summary>
+    public IReadOnlyList<string> Extensions => system.Extensions;
+
     private readonly ConcurrentQueue<Action> controllerMutationQueue = new();
     private readonly List<LeasedAudioController> controllers = new();
     private readonly ObjectPool<NativeAudioSource> sourcePool; 
     private readonly ObjectPool<NativeAudioBuffer> bufferPool;
     private readonly NativeAudioListener nativeListener;
+    private readonly AudioSystem system;
 
     internal const int MAX_SOURCES = 500;
     internal const int MAX_BUFFERS = 500;
@@ -26,16 +56,14 @@ public sealed class AudioContext : DependencyObject
     /// <summary>
     /// The current audio listener.
     /// </summary>
-    internal IAudioListener? Current { get; private set; }
+    internal IAudioListener Current { get; private set; } = DefaultAudioListener.Default;
 
-    [Resolved]
-    private AudioSystem audio { get; set; } = null!;
-
-    public AudioContext()
+    internal AudioContext(AudioSystem system)
     {
-        nativeListener = audio.CreateListener();
-        sourcePool = new ObjectPool<NativeAudioSource>(MAX_SOURCES, new AudioSourcePoolingStrategy(audio));
-        bufferPool = new ObjectPool<NativeAudioBuffer>(MAX_BUFFERS, new AudioBufferPoolingStrategy(audio));
+        nativeListener = system.CreateListener();
+        sourcePool = new ObjectPool<NativeAudioSource>(MAX_SOURCES, new AudioSourcePoolingStrategy(system));
+        bufferPool = new ObjectPool<NativeAudioBuffer>(MAX_BUFFERS, new AudioBufferPoolingStrategy(system));
+        this.system = system;
     }
 
     /// <summary>
@@ -47,9 +75,10 @@ public sealed class AudioContext : DependencyObject
         if (Current == listener)
             return;
 
-        nativeListener.Position = listener.Position;
-        nativeListener.Velocity = listener.Velocity;
-        nativeListener.Orientation = listener.Orientation;
+        Current = listener;
+        nativeListener.Position = Current.Position;
+        nativeListener.Velocity = Current.Velocity;
+        nativeListener.Orientation = Current.Orientation;
     }
 
     /// <summary>
@@ -61,9 +90,7 @@ public sealed class AudioContext : DependencyObject
         if (Current != listener)
             return;
 
-        nativeListener.Position = Vector3.Zero;
-        nativeListener.Velocity = Vector3.Zero;
-        nativeListener.Orientation = ListenerOrientation.Default;
+        MakeCurrent(DefaultAudioListener.Default);
     }
 
     /// <summary>
@@ -93,14 +120,26 @@ public sealed class AudioContext : DependencyObject
             controller.Update();
     }
 
-    protected override void Destroy()
+    protected override void Dispose(bool disposing)
     {
+        if (!disposing)
+            return;
+
         foreach (var controller in controllers)
             controller.Dispose();
 
         controllers.Clear();
         sourcePool.Dispose();
         bufferPool.Dispose();
+    }
+
+    private readonly struct DefaultAudioListener : IAudioListener
+    {
+        public static readonly DefaultAudioListener Default = new();
+        public bool IsCurrent => true;
+        public Vector3 Position => Vector3.Zero;
+        public Vector3 Velocity => Vector3.Zero;
+        public ListenerOrientation Orientation => ListenerOrientation.Default;
     }
 
     private class AudioSourcePoolingStrategy : ObjectPoolingStrategy<NativeAudioSource>

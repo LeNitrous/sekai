@@ -15,5 +15,8 @@ public interface IRenderTarget
     /// </summary>
     int Height { get; }
 
-    internal NativeRenderTarget Native { get; }
+    /// <summary>
+    /// The render target's native graphics object.
+    /// </summary>
+    internal NativeRenderTarget? Native { get; }
 }

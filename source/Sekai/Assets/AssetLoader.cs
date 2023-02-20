@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Sekai.Allocation;
+using System.Linq;
 using Sekai.Storages;
 
 namespace Sekai.Assets;
@@ -12,12 +12,18 @@ namespace Sekai.Assets;
 /// <summary>
 /// Loads <see cref="IAsset"/>s.
 /// </summary>
-public sealed class AssetLoader : DependencyObject, IAssetLoaderRegistry
+public sealed class AssetLoader : DisposableObject
 {
-    [Resolved]
-    private VirtualStorage storage { get; set; } = null!;
+    private readonly Storage storage;
+    private readonly IReadOnlyList<IAssetLoader> loaders;
+    private readonly IReadOnlyList<IReadOnlyList<string>> extensions;
 
-    private readonly Dictionary<string, IAssetLoader> loaders = new();
+    internal AssetLoader(Storage storage, IReadOnlyList<IAssetLoader> loaders, IReadOnlyList<IReadOnlyList<string>> extensions)
+    {
+        this.storage = storage;
+        this.loaders = loaders;
+        this.extensions = extensions;
+    }
 
     /// <inheritdoc cref="Load{T}(Uri)"/>
     /// <param name="path">The path to the file.</param>
@@ -28,7 +34,7 @@ public sealed class AssetLoader : DependencyObject, IAssetLoaderRegistry
     }
 
     /// <summary>
-    /// Loads an asset from the given path using the current <see cref="VirtualStorage"/>.
+    /// Loads an asset from the given path.
     /// </summary>
     /// <typeparam name="T">The type of asset to load as.</typeparam>
     /// <param name="uri">The URI to the file.</param>
@@ -39,44 +45,34 @@ public sealed class AssetLoader : DependencyObject, IAssetLoaderRegistry
     public T Load<T>(Uri uri)
         where T : notnull, IAsset
     {
+        string? extension = Path.GetExtension(uri.OriginalString);
+
+        if (string.IsNullOrEmpty(extension))
+            throw new ArgumentException("URI must have an extension.", nameof(uri));
+
         IAssetLoader? loader = null;
 
-        foreach ((string extension, var assetLoader) in loaders)
+        for (int i = 0; i < loaders.Count; i++)
         {
-            if (uri.OriginalString.EndsWith(extension))
-            {
-                loader = assetLoader;
+            loader = loaders[i];
+
+            if (extensions[i].Contains(extension))
                 break;
-            }
         }
 
         if (loader is null)
             throw new ArgumentException($@"There is no asset loader that can load ""{typeof(T)}"" objects.", nameof(T));
 
-        if (loader is not IAssetLoader<T> typedLoader)
-            throw new InvalidCastException($@"The asset loader is unable to load ""{typeof(T)}"" objects.");
+        if (loader is not IAssetLoader<T>)
+            throw new InvalidCastException($@"The ""{typeof(T)}"" asset loader is unable to load ""{extension}"".");
 
         using var stream = storage.Open(uri, FileMode.Open, FileAccess.Read);
 
-        int streamLength = (int)stream.Length;
-        Span<byte> data = streamLength > RuntimeInfo.MaximumStackCapacity ? new byte[streamLength] : stackalloc byte[streamLength];
+        Span<byte> data = new byte[stream.Length];
 
         if (stream.Read(data) <= 0)
             throw new InvalidOperationException(@"Failed to read stream.");
 
-        return typedLoader.Load(data);
-    }
-
-    void IAssetLoaderRegistry.Register<T>(IAssetLoader<T> loader)
-    {
-        foreach (string ext in loader.Extensions)
-        {
-            string extension = ext[0] != '.' ? '.' + ext : ext;
-
-            if (loaders.ContainsKey(extension))
-                throw new InvalidOperationException(@$"There is an asset loader that already handles the ""{extension}"" extension.");
-
-            loaders.Add(extension, loader);
-        }
+        return ((IAssetLoader<T>)loader).Load(data);
     }
 }

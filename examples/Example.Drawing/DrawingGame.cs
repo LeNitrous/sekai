@@ -8,18 +8,14 @@ using Sekai.Assets;
 using Sekai.Graphics.Textures;
 using Sekai.Rendering;
 using Sekai.Scenes;
-using Sekai.Storages;
 using Sekai.Windowing;
 
 namespace Example.Drawing;
 
-public class DrawingGame : Game
+public partial class DrawingGame : Game
 {
-    protected override void Load()
+    public override void Load()
     {
-        // Mount the assembly to the virtual file system under the "game" directory.
-        Storage.Mount("./game", new AssemblyStorage(typeof(DrawingGame).Assembly).GetStorage("./Resources"));
-
         // Create the root node.
         var root = new Node
         {
@@ -38,14 +34,14 @@ public class DrawingGame : Game
         };
 
         // Create the scene and attach the root
-        var scene = new Scene(root);
+        var scene = new Scene2D(root);
 
         Scenes.Add(scene);
     }
 }
 
 // "Scriptable"s are basic components which expose a "Load" method.
-public class TextureProvider : Scriptable
+public partial class TextureProvider : Scriptable
 {
     // The "Resolved" attribute resolves dependencies of any property with a getter
     // and setter. The type defined in the property is the type that will be used in
@@ -73,11 +69,11 @@ public class TextureProvider : Scriptable
 // "Drawable"s are components which provide access to a "Draw" method. As a "Drawable2D",
 // It requires a "Transform2D" component attached to the owning node when it is added to
 // the scene. 2D drawing operations are performed here.
-public class TextureDrawingDrawable : Drawable2D
+public partial class TextureDrawingDrawable : Drawable2D
 {
     // Request the surface.
     [Resolved]
-    private Surface surface { get; set; } = null!;
+    private ISurface surface { get; set; } = null!;
 
     // The "Bind" attribute works similarly to the "Resolved" attribute. However, unlike
     // the "Resolved" attribute which resolves dependencies from the service locator, the

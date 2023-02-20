@@ -12,7 +12,7 @@ using Silk.NET.SDL;
 
 namespace Sekai.SDL;
 
-internal unsafe class SDLWindow : SDLSurface, IWindow
+internal unsafe class SDLWindow : SDLSurface, IWindow, IWindowEvents
 {
     public bool Focused { get; private set; }
     public IMonitor Monitor => getMonitorFromSDL(Sdl.GetWindowDisplayIndex(Window));

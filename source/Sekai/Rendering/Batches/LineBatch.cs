@@ -2,6 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
+using Sekai.Assets;
 using Sekai.Graphics;
 using Sekai.Graphics.Vertices;
 
@@ -14,8 +15,8 @@ public abstract class LineBatch<T> : RenderBatch<T>
     protected override int PrimitiveVertexCount => 2;
     protected override PrimitiveTopology Topology => PrimitiveTopology.Lines;
 
-    protected LineBatch(int maxLineCount)
-        : base(maxLineCount)
+    protected LineBatch(GraphicsContext graphics, AssetLoader assets, int maxLineCount)
+        : base(graphics, assets, maxLineCount)
     {
     }
 

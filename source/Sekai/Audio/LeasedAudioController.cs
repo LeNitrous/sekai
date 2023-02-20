@@ -10,7 +10,7 @@ namespace Sekai.Audio;
 /// <summary>
 /// A leased audio controller provided by the <see cref="AudioContext"/>.
 /// </summary>
-internal sealed class LeasedAudioController : FrameworkObject, IAudioController
+internal sealed class LeasedAudioController : DisposableObject, IAudioController
 {
     public TimeSpan Position
     {
@@ -150,8 +150,11 @@ internal sealed class LeasedAudioController : FrameworkObject, IAudioController
         return true;
     }
 
-    protected override void Destroy()
+    protected override void Dispose(bool disposing)
     {
+        if (!disposing)
+            return;
+
         stream.Dispose();
         stop();
 

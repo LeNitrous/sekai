@@ -40,4 +40,15 @@ public abstract class Camera : Component
     /// The camera's projection matrix.
     /// </summary>
     public Matrix4x4 ProjMatrix { get; internal set; }
+
+    /// <summary>
+    /// The kind of scene this camera is allowed to be collected into.
+    /// </summary>
+    internal abstract SceneKind Kind { get; }
+
+    /// <summary>
+    /// Gets this camera's transform.
+    /// </summary>
+    /// <returns>The camera's transform.</returns>
+    internal abstract Transform GetTransform();
 }

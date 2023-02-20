@@ -11,7 +11,7 @@ using Sekai.Threading;
 
 namespace Sekai.Network.Hosting;
 
-public abstract class WebSocketConnection : FrameworkObject
+public abstract class WebSocketConnection : DisposableObject
 {
     /// <summary>
     /// Invoked when the websocket has started.
@@ -187,8 +187,11 @@ public abstract class WebSocketConnection : FrameworkObject
         }
     }
 
-    protected override void Destroy()
+    protected override void Dispose(bool disposing)
     {
+        if (!disposing)
+            return;
+
         Close();
         Socket.Dispose();
     }

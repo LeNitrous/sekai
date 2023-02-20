@@ -6,7 +6,7 @@ namespace Sekai.Graphics.Textures;
 /// <summary>
 /// A texture graphics device.
 /// </summary>
-public abstract class NativeTexture : FrameworkObject
+public abstract class NativeTexture : DisposableObject
 {
     /// <summary>
     /// The texture width.

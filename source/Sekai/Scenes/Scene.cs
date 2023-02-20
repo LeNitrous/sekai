@@ -3,9 +3,6 @@
 
 using System.Collections.Generic;
 using System;
-using Sekai.Allocation;
-using Sekai.Processors;
-using Sekai.Rendering;
 using System.Runtime.InteropServices;
 using System.Linq;
 using Sekai.Collections;
@@ -15,7 +12,7 @@ namespace Sekai.Scenes;
 /// <summary>
 /// A collection of nodes where it can process and render its children's components.
 /// </summary>
-public sealed class Scene : DependencyObject
+public abstract class Scene : DisposableObject
 {
     /// <summary>
     /// The root node.
@@ -38,22 +35,21 @@ public sealed class Scene : DependencyObject
         }
     }
 
-    [Resolved]
-    private Renderer renderer { get; set; } = null!;
-
-    [Resolved]
-    private ProcessorManager processors { get; set; } = null!;
+    /// <summary>
+    /// The scene kind.
+    /// </summary>
+    internal abstract SceneKind Kind { get; }
 
     private Node? root;
     private readonly Dictionary<Uri, Node> nodes = new();
     private readonly Queue<ComponentEvent> events = new();
     private readonly Dictionary<Type, List<Component>> componentMapping = new();
 
-    public Scene()
+    protected Scene()
     {
     }
 
-    public Scene(Node root)
+    protected Scene(Node root)
     {
         Root = root;
     }
@@ -112,25 +108,23 @@ public sealed class Scene : DependencyObject
         }
     }
 
-    internal void Update()
+    internal void Update(SceneCollection scenes)
     {
-        renderer.Begin();
-
         while (events.TryDequeue(out var e))
         {
             switch (e.Type)
             {
                 case ComponentEventType.Attach:
-                    attachComponent(e.Component);
+                    attachComponent(scenes, e.Component);
                     break;
 
                 case ComponentEventType.Detach:
-                    detachComponent(e.Component);
+                    detachComponent(scenes, e.Component);
                     break;
             }
         }
 
-        foreach (var processor in processors.Processors)
+        foreach (var processor in scenes.Processors)
         {
             var components = componentMapping[processor.GetType()];
 
@@ -138,15 +132,8 @@ public sealed class Scene : DependencyObject
                 continue;
 
             foreach (var component in CollectionsMarshal.AsSpan(components))
-                processor.Update(component);
+                processor.Update(scenes, component);
         }
-
-        renderer.End();
-    }
-
-    internal void Render()
-    {
-        renderer.Render();
     }
 
     private void attachNode(Node node)
@@ -155,9 +142,9 @@ public sealed class Scene : DependencyObject
     private void detachNode(Node node)
         => handleNodeRemoved(this, new(node));
 
-    private void attachComponent(Component item)
+    private void attachComponent(SceneCollection scenes, Component item)
     {
-        foreach (var processor in processors.GetComponentProcessors(item))
+        foreach (var processor in scenes.GetProcessors(item))
         {
             var type = processor.GetType();
 
@@ -172,9 +159,9 @@ public sealed class Scene : DependencyObject
         }
     }
 
-    private void detachComponent(Component item)
+    private void detachComponent(SceneCollection scenes, Component item)
     {
-        foreach (var processor in processors.GetComponentProcessors(item))
+        foreach (var processor in scenes.GetProcessors(item))
         {
             if (!componentMapping.TryGetValue(processor.GetType(), out var components))
                 continue;
@@ -225,7 +212,7 @@ public sealed class Scene : DependencyObject
         node.OnComponentRemoved += handleComponentRemoved;
 
         foreach (var component in node.Components)
-            addComponent(component, component.IsReady);
+            addComponent(component, component.IsLoaded);
 
         nodes.Add(node.Uri, node);
 
@@ -235,7 +222,7 @@ public sealed class Scene : DependencyObject
                 continue;
 
             foreach (var component in child.Components)
-                addComponent(component, component.IsReady);
+                addComponent(component, component.IsLoaded);
 
             nodes.Add(child.Uri, child);
         }
@@ -257,7 +244,7 @@ public sealed class Scene : DependencyObject
                 continue;
 
             foreach (var component in child.Components)
-                remComponent(component, component.IsReady);
+                remComponent(component, component.IsLoaded);
         }
 
         foreach (var component in node.Components)
@@ -272,8 +259,11 @@ public sealed class Scene : DependencyObject
     private void handleComponentRemoved(object? sender, ComponentEventArgs args)
         => remComponent(args.Component);
 
-    protected override void Destroy()
+    protected override void Dispose(bool disposing)
     {
+        if (!disposing)
+            return;
+
         if (root is not null)
             detachNode(root);
     }

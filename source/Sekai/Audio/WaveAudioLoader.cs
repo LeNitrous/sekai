@@ -7,7 +7,7 @@ using Sekai.Assets;
 
 namespace Sekai.Audio;
 
-internal sealed class WaveAudioLoader : FrameworkObject, IAssetLoader<AudioStream>
+internal sealed class WaveAudioLoader : DisposableObject, IAssetLoader<AudioStream>
 {
     public string[] Extensions { get; } = { @".wav" };
 
@@ -23,7 +23,7 @@ internal sealed class WaveAudioLoader : FrameworkObject, IAssetLoader<AudioStrea
             throw new ArgumentException(@"Failed to find ""fmt "" header at position 12.", nameof(bytes));
 
         if (!MemoryExtensions.SequenceEqual(bytes[36..40], header_data))
-            throw new ArgumentException(@"Failed to find ""RIFF"" header at position 36.", nameof(bytes));
+            throw new ArgumentException(@"Failed to find ""data"" header at position 36.", nameof(bytes));
 
         short numChannels = BitConverter.ToInt16(bytes[22..24]);
         short bitsPerSamp = BitConverter.ToInt16(bytes[34..36]);

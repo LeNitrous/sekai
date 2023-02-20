@@ -9,7 +9,7 @@ using Silk.NET.SDL;
 
 namespace Sekai.SDL;
 
-internal class SDLKeyboard : FrameworkObject, IKeyboard
+internal class SDLKeyboard : DisposableObject, IKeyboard
 {
     public string Name { get; } = @"Keyboard";
     public IReadOnlyList<Key> Keys { get; } = Enum.GetValues<Key>();
@@ -89,7 +89,7 @@ internal class SDLKeyboard : FrameworkObject, IKeyboard
         surface.Invoke(surface.Sdl.StopTextInput);
     }
 
-    protected override void Destroy()
+    protected override void Dispose(bool disposing)
     {
         surface.OnProcessEvent -= onProcessEvent;
     }

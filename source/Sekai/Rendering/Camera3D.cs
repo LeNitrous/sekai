@@ -10,7 +10,7 @@ namespace Sekai.Rendering;
 /// A camera capable of rendering three-dimensional objects.
 /// </summary>
 [Processor<Camera3DProcessor>]
-public class Camera3D : Camera, ICamera
+public partial class Camera3D : Camera
 {
     /// <summary>
     /// The camera's near plane distance.
@@ -40,7 +40,9 @@ public class Camera3D : Camera, ICamera
     [Bind]
     internal Transform3D Transform { get; private set; } = null!;
 
-    Transform ICamera.Transform => Transform;
+    internal sealed override SceneKind Kind => SceneKind.Scene3D;
+
+    internal sealed override Transform GetTransform() => Transform;
 }
 
 /// <summary>

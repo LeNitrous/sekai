@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Roslyn Component Debugging": {
+      "commandName": "DebugRoslynComponent",
+      "targetProject": "..\\Sekai\\Sekai.csproj"
+    }
+  }
+}

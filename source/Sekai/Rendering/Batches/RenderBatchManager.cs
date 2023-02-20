@@ -5,20 +5,22 @@ using System.Collections.Generic;
 using System;
 using Sekai.Graphics.Vertices;
 using Sekai.Rendering.Primitives;
+using Sekai.Graphics;
+using Sekai.Assets;
 
 namespace Sekai.Rendering.Batches;
 
-internal class RenderBatchManager : FrameworkObject
+internal sealed class RenderBatchManager : DisposableObject
 {
     private IRenderBatch? currentBatch;
     private const int max_primitives_per_batch = 1000;
     private readonly Dictionary<Type, IRenderBatch> batches = new();
 
-    public RenderBatchManager()
+    public RenderBatchManager(GraphicsContext graphics, AssetLoader assets)
     {
-        addBatch<Quad, TexturedVertex2D>(new QuadBatch(max_primitives_per_batch));
-        addBatch<Line2D, ColoredVertex2D>(new LineBatch2D(max_primitives_per_batch));
-        addBatch<Line3D, ColoredVertex3D>(new LineBatch3D(max_primitives_per_batch));
+        addBatch<Quad, TexturedVertex2D>(new QuadBatch(graphics, assets, max_primitives_per_batch));
+        addBatch<Line2D, ColoredVertex2D>(new LineBatch2D(graphics, assets, max_primitives_per_batch));
+        addBatch<Line3D, ColoredVertex3D>(new LineBatch3D(graphics, assets, max_primitives_per_batch));
     }
 
     /// <summary>
@@ -70,8 +72,11 @@ internal class RenderBatchManager : FrameworkObject
         batches.Add(typeof(T), batch);
     }
 
-    protected override void Destroy()
+    protected override void Dispose(bool disposing)
     {
+        if (!disposing)
+            return;
+
         foreach (var batch in batches.Values)
             batch.Dispose();
     }

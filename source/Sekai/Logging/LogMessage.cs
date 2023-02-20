@@ -2,25 +2,82 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
+using System.Collections.Generic;
 
 namespace Sekai.Logging;
 
-public struct LogMessage
+/// <summary>
+/// Represents a logged message.
+/// </summary>
+public readonly struct LogMessage : IEquatable<LogMessage>
 {
-    public readonly DateTime Timestamp;
-    public readonly LogLevel Level;
-    public readonly string? Channel;
+    /// <summary>
+    /// The template message logged.
+    /// </summary>
     public readonly object? Message;
-    public readonly CallerInfo CallerInfo;
+
+    /// <summary>
+    /// The arguments passed.
+    /// </summary>
+    public readonly object?[] Arguments;
+
+    /// <summary>
+    /// The level this message was logged under.
+    /// </summary>
+    public readonly LogLevel Level;
+
+    /// <summary>
+    /// The message timestamp.
+    /// </summary>
+    public readonly DateTime Timestamp;
+
+    /// <summary>
+    /// The exception containing this message.
+    /// </summary>
     public readonly Exception? Exception;
 
-    public LogMessage(object? message, string? channel = null, LogLevel level = LogLevel.Verbose, Exception? exception = null, CallerInfo callerInfo = default)
+    /// <summary>
+    /// The log message's tags.
+    /// </summary>
+    public readonly string[] Tags;
+
+    public LogMessage(object? message, object?[]? arguments = null, LogLevel level = LogLevel.Verbose, string[]? tags = null, Exception? exception = null)
     {
-        Level = level;
-        Channel = channel;
+        Tags = tags ?? Array.Empty<string>();
         Message = message;
+        Arguments = arguments ?? Array.Empty<object>();
+        Level = level;
         Timestamp = DateTime.Now;
         Exception = exception;
-        CallerInfo = callerInfo;
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return obj is LogMessage message && Equals(message);
+    }
+
+    public bool Equals(LogMessage other)
+    {
+        return EqualityComparer<object?>.Default.Equals(Message, other.Message) &&
+               EqualityComparer<object[]>.Default.Equals(Arguments, other.Arguments) &&
+               Level == other.Level &&
+               Timestamp == other.Timestamp &&
+               EqualityComparer<Exception?>.Default.Equals(Exception, other.Exception);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Message, Arguments, Level, Timestamp, Exception);
+    }
+
+    public static bool operator ==(LogMessage left, LogMessage right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(LogMessage left, LogMessage right)
+    {
+        return !(left == right);
     }
 }
+

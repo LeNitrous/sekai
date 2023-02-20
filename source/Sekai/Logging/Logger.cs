@@ -2,76 +2,48 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Sekai.Logging;
 
-public sealed class Logger : FrameworkObject
+internal sealed class Logger : DisposableObject, ILogger
 {
-    /// <summary>
-    /// The logger's name.
-    /// </summary>
-    public string? Name { get; }
+    private readonly string[] tags;
+    private readonly IReadOnlyList<LogSink> sinks;
 
-    /// <summary>
-    /// Get or set whether logging is enabled or not.
-    /// </summary>
-    public bool Enabled { get; set; } = true;
-
-    /// <summary>
-    /// Called when a new message is being logged.
-    /// </summary>
-    public event Action<LogMessage>? OnMessageLogged;
-
-    private readonly LoggerFactory? factory;
-
-    internal Logger()
+    public Logger(IReadOnlyList<LogSink> sinks)
+        : this(sinks, Array.Empty<string>())
     {
-        // Default parameterless constructor required for global logger.
     }
 
-    internal Logger(LoggerFactory factory, string name)
+    private Logger(IReadOnlyList<LogSink> sinks, string[] tags)
     {
-        Name = name;
-        this.factory = factory;
+        this.tags = tags;
+        this.sinks = sinks;
     }
 
-    /// <summary>
-    /// Logs a message at a given level.
-    /// </summary>
-    public void Log(object? message, LogLevel level = LogLevel.Verbose) => log(new LogMessage(message, Name, level));
+    public ILogger GetLogger(string category) => new Logger(sinks, tags.Concat(new[] { category }).ToArray());
 
-    /// <summary>
-    /// Logs an information level message.
-    /// </summary>
-    public void Info(object? message) => log(new LogMessage(message, Name, LogLevel.Information));
+    public void Log(object? message, params object?[] args) => log(new(message, args, LogLevel.Verbose, tags));
 
-    /// <summary>
-    /// Logs a debug level message.
-    /// </summary>
-    public void Debug(object? message) => log(new LogMessage(message, Name, LogLevel.Debug));
+    public void Debug(object? message, params object?[] args) => log(new(message, args, LogLevel.Debug, tags));
 
-    /// <summary>
-    /// Logs an error level message.
-    /// </summary>
-    public void Error(object? message, Exception? exception = null) => log(new LogMessage(message, Name, LogLevel.Error, exception));
+    public void Info(object? message, params object?[] args) => log(new(message, args, LogLevel.Information, tags));
 
-    /// <summary>
-    /// Logs a verbose level message.
-    /// </summary>
-    public void Verbose(object? message) => log(new LogMessage(message, Name, LogLevel.Verbose));
+    public void Warn(object? message, params object?[] args) => log(new(message, args, LogLevel.Warning, tags));
 
-    /// <summary>
-    /// Logs a warning level message.
-    /// </summary>
-    public void Warning(object? message) => log(new LogMessage(message, Name, LogLevel.Warning));
+    public void Error(object? message, Exception? exception = null, params object?[] args) => log(new(message, args, LogLevel.Error, tags, exception));
 
     private void log(LogMessage message)
     {
-        if (!Enabled)
-            return;
-
-        OnMessageLogged?.Invoke(message);
+        foreach (var sink in sinks)
+            sink.Write(message);
     }
 
-    protected override void Destroy() => factory?.RemoveLogger(this);
+    protected override void Dispose(bool disposing)
+    {
+        foreach (var sink in sinks)
+            sink.Dispose();
+    }
 }

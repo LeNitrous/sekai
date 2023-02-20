@@ -12,7 +12,7 @@ using Sekai.Threading;
 
 namespace Sekai.Network.Hosting;
 
-public class WebSocketServer : FrameworkObject
+public class WebSocketServer : DisposableObject
 {
     /// <summary>
     /// Invoked when the server starts.
@@ -189,7 +189,11 @@ public class WebSocketServer : FrameworkObject
         await (OnClientMessage?.InvokeAsync(this, new(ws.Guid, ws, e)) ?? Task.CompletedTask);
     }
 
-    protected override void Destroy() => Close();
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+            Close();
+    }
 
     private class WebSocketServerConnection : WebSocketConnection
     {

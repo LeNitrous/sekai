@@ -1,12 +1,26 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
+using System;
 using System.Collections.Generic;
 
 namespace Sekai.Audio;
 
-public abstract class AudioSystem : FrameworkObject
+/// <summary>
+/// The system responsible for interacting with low level audio-related functionality.
+/// </summary>
+public abstract class AudioSystem : DisposableObject
 {
+    /// <summary>
+    /// Gets the audio system's name.
+    /// </summary>
+    public abstract string Name { get; }
+
+    /// <summary>
+    /// Gets the audio system's version.
+    /// </summary>
+    public abstract Version Version { get; }
+
     /// <summary>
     /// Gets or sets the audio output device.
     /// </summary>
@@ -19,6 +33,11 @@ public abstract class AudioSystem : FrameworkObject
     /// Enumerates all available devices on this system.
     /// </summary>
     public abstract IEnumerable<string> Devices { get; }
+
+    /// <summary>
+    /// Gets all available extensions for the audio system.
+    /// </summary>
+    public abstract IReadOnlyList<string> Extensions { get; }
 
     /// <summary>
     /// Creates an audio buffer.

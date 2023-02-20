@@ -21,7 +21,10 @@ internal class GLBuffer : NativeBuffer
 
     public override void SetData(nint data, int size, int offset = 0) => system.SetBufferData(bufferId, data, size, offset);
 
-    protected override void Destroy() => system.DestroyBuffer(bufferId);
+    protected override void Dispose(bool disposing)
+    {
+        system.DestroyBuffer(bufferId);
+    }
 
     public static implicit operator uint(GLBuffer buffer) => buffer.bufferId;
 }

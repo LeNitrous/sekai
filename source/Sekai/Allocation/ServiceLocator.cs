@@ -5,161 +5,80 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Runtime.CompilerServices;
 
 namespace Sekai.Allocation;
 
-public class ServiceLocator : FrameworkObject
+/// <summary>
+/// Contains an immutable list of resolvable services.
+/// </summary>
+public sealed class ServiceLocator : DisposableObject
 {
-    /// <summary>
-    /// The current active instance of the service locator.
-    /// </summary>
-    internal static ServiceLocator Current => current ?? throw new InvalidOperationException(@"The service locator is currently not initialized.");
+    private readonly IReadOnlyList<ServiceDescriptor> services;
 
-    private static ServiceLocator? current;
-
-    /// <summary>
-    /// Initializes the service locator.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">Thrown when attempting to initialize a new service locator.</exception>
-    internal static void Initialize()
+    internal ServiceLocator(IReadOnlyList<ServiceDescriptor> services)
     {
-        if (current is not null)
-            throw new InvalidOperationException(@"An instance is currently initialized.");
-
-        current = new();
+        this.services = services;
     }
 
     /// <summary>
-    /// Shuts down the service locator.
+    /// Retrieves the contract of <paramref name="type"/>.
     /// </summary>
-    internal static void Shutdown()
+    /// <param name="type">The service type to retrieve.</param>
+    /// <param name="required">Whether the service is required to be not <see cref="null"/> when returned.</param>
+    /// <returns>The resolved service.</returns>
+    /// <exception cref="ServiceNotFoundException">Thrown when the service was not found and <paramref name="required"/> is true.</exception>
+    /// <exception cref="InvalidOperationException">Thrown when there are multiple services of <paramref name="type"/> that were found.</exception>
+    public ServiceContract? Locate(Type type, [DoesNotReturnIf(true)] bool required = true)
     {
-        current?.Dispose();
-        current = null;
+        var resolved = LocateAll(type).SingleOrDefault();
+
+        if (resolved is null && required)
+            throw new ServiceNotFoundException(type);
+
+        return resolved;
     }
 
-    private readonly Dictionary<Type, object> cached;
-
-    private ServiceLocator()
-    {
-        cached = new();
-    }
-
-    private void cache(Type type, object instance)
-    {
-        ObjectDisposedException.ThrowIf(IsDisposed, this);
-        ArgumentNullException.ThrowIfNull(instance);
-
-        lock (cached)
-        {
-            if (cached.ContainsKey(type))
-                throw new ServiceExistsException($"{type} is already registered in this service container.");
-
-            cached.Add(type, instance);
-        }
-    }
-
-    /// <summary>
-    /// Caches a service.
-    /// </summary>
-    /// <param name="instance">The service to cache.</param>
-    /// <exception cref="ArgumentNullException">Thrown when the instance is null.</exception>
-    /// <exception cref="ObjectDisposedException">Thrown when the service container is already disposed.</exception>
-    /// <exception cref="ServiceExistsException">Thrown when the type is already registered in this service container.</exception>
-    public void Cache(object instance) => cache(instance.GetType(), instance);
-
-    /// <summary>
-    /// Caches a service of a given type as a singleton.
-    /// </summary>
-    /// <typeparam name="T">The service's type to be cached.</typeparam>
-    /// <param name="instance">The service to be cached.</param>
-    /// <exception cref="ArgumentNullException"></exception>
-    /// <exception cref="ObjectDisposedException">Thrown when the service container is already disposed.</exception>
-    /// <exception cref="ServiceExistsException">Thrown when the type is already registered in this service container.</exception>
-    public void Cache<T>(T instance)
+    /// <inheritdoc cref="Locate(Type, bool)"/>
+    public ServiceContract? Locate<T>([DoesNotReturnIf(true)] bool required = true)
         where T : class
     {
-        cache(typeof(T), instance);
+        return Locate(typeof(T), required)!;
     }
 
     /// <summary>
-    /// Caches a service of a given type as a singleton.
+    /// Retrieves all contracts of <paramref name="type"/>.
     /// </summary>
-    /// <typeparam name="T">The service's type to be cached.</typeparam>
-    /// <exception cref="ObjectDisposedException">Thrown when the service container is already disposed.</exception>
-    /// <exception cref="ServiceExistsException">Thrown when the type is already registered in this service container.</exception>
-    public void Cache<T>()
-        where T : class, new()
+    /// <param name="type">The service type to retrieve.</param>
+    /// <returns>An enumeration of service instances.</returns>
+    public IEnumerable<ServiceContract> LocateAll(Type type)
     {
-        Cache(Activator.CreateInstance<T>());
+        return services.Where(d => d.Type.IsAssignableTo(type)).Select(static d => d.Resolve());
     }
 
-    /// <summary>
-    ///Resolves a service of a given type.
-    /// </summary>
-    /// <param name="type">The service's type to resolve.</param>
-    /// <param name="required">>Whether to throw or return null if not found.</param>
-    /// <returns>The resolved service or null if not found when not required.</returns>
-    /// <exception cref="ObjectDisposedException">Thrown when the service container is already disposed.</exception>
-    /// <exception cref="ServiceNotFoundException">Thrown when the service of a given type is not found.</exception>
-    public object? Resolve(Type type, [DoesNotReturnIf(true)] bool required = true)
-    {
-        ObjectDisposedException.ThrowIf(IsDisposed, this);
-
-        lock (cached)
-        {
-            if (cached.TryGetValue(type, out object? obj))
-                return obj;
-        }
-
-        if (required)
-            throw new ServiceNotFoundException($"A service with the type {type} was not found.");
-
-        return null;
-    }
-
-    /// <summary>
-    /// Resolves a service of a given type.
-    /// </summary>
-    /// <typeparam name="T">The service's type to resolve.</typeparam>
-    /// <param name="required">Whether to throw or return null if not found.</param>
-    /// <returns>The resolved service or null if not found when not required.</returns>
-    /// <exception cref="ObjectDisposedException">Thrown when the service container is already disposed.</exception>
-    /// <exception cref="ServiceNotFoundException">Thrown when the service of a given type is not found.</exception>
-    public T? Resolve<T>([DoesNotReturnIf(true)] bool required = true)
+    /// <inheritdoc cref="LocateAll(Type)"/>
+    public IEnumerable<ServiceContract> LocateAll<T>()
         where T : class
     {
-        return Unsafe.As<T>(Resolve(typeof(T), required));
+        return LocateAll(typeof(T));
     }
 
-    protected override void Destroy()
+    protected override void Dispose(bool disposing)
     {
-        lock (cached)
-        {
-            foreach (object obj in cached.Values.Reverse())
-            {
-                if (obj is IDisposable disposable)
-                    disposable.Dispose();
-            }
+        if (!disposing)
+            return;
 
-            cached.Clear();
-        }
+        foreach (var service in services)
+            service.Dispose();
     }
 }
 
+/// <summary>
+/// Represents errors that occure when a service was not found.
+/// </summary>
 public class ServiceNotFoundException : Exception
 {
-public ServiceNotFoundException(string? message)
-    : base(message)
-{
-}
-}
-
-public class ServiceExistsException : Exception
-{
-public ServiceExistsException(string? message)
-    : base(message)
-{
-}
+    public ServiceNotFoundException(Type type)
+        : base($"The required service {type} was not found.")
+    {
+    }
 }

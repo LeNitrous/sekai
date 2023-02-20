@@ -3,9 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using Sekai.Allocation;
 using Sekai.Input;
-using Sekai.Windowing;
 
 namespace Sekai.SDL;
 
@@ -13,19 +11,22 @@ internal sealed class SDLInputSystem : InputSystem
 {
     public override IReadOnlyList<IInputDevice> Connected => connected;
 
+    public override string Name => surface.Name;
+
+    public override Version Version => surface.Version;
+
+    // TODO: Support SDL Controllers
+#pragma warning disable 0067
     public override event Action<IInputDevice, bool>? OnConnectionChanged;
+#pragma warning restore 0067
 
-    [Resolved]
-    private Surface gameSurface { get; set; }
-
+    private readonly SDLSurface surface;
     private readonly List<IInputDevice> connected = new();
 
-    public SDLInputSystem()
+    public SDLInputSystem(SDLSurface surface)
     {
-        if (gameSurface is not SDLSurface s)
-            throw new InvalidOperationException($"Surface must be an {nameof(SDLSurface)}.");
-
-        connected.Add(new SDLMouse(s));
-        connected.Add(new SDLKeyboard(s));
+        this.surface = surface;
+        connected.Add(new SDLMouse(surface));
+        connected.Add(new SDLKeyboard(surface));
     }
 }

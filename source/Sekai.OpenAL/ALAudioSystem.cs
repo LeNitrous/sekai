@@ -14,6 +14,12 @@ namespace Sekai.OpenAL;
 
 internal sealed unsafe class ALAudioSystem : AudioSystem
 {
+    public override string Name { get; } = @"OpenAL";
+
+    public override Version Version { get; }
+
+    public override IReadOnlyList<string> Extensions { get; }
+
     public override string Device
     {
         get => deviceName ?? DEFAULT_DEVICE;
@@ -57,6 +63,14 @@ internal sealed unsafe class ALAudioSystem : AudioSystem
         device = alc.OpenDevice(deviceName);
         context = alc.CreateContext(device, null);
         alc.MakeContextCurrent(context);
+
+        int major = 0;
+        int minor = 0;
+        alc.GetContextProperty(device, GetContextInteger.MajorVersion, 1, &major);
+        alc.GetContextProperty(device, GetContextInteger.MinorVersion, 1, &minor);
+        Version = new(major, minor);
+
+        Extensions = alc.GetContextProperty(device, GetContextString.Extensions).Split(' ');
 
         updateAvailableDevices();
     }
@@ -409,9 +423,10 @@ internal sealed unsafe class ALAudioSystem : AudioSystem
             throw new ALException(error);
     }
 
-    protected override void Destroy()
+    protected override void Dispose(bool disposing)
     {
         enumeration?.Dispose();
+        enumerateAll?.Dispose();
         alc.DestroyContext(context);
         alc.CloseDevice(device);
         alc.Dispose();

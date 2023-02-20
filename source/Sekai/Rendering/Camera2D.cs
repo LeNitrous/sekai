@@ -11,12 +11,14 @@ namespace Sekai.Rendering;
 /// A camera capable of rendering two-dimensional objects.
 /// </summary>
 [Processor<Camera2DProcessor>]
-public class Camera2D : Camera, ICamera
+public partial class Camera2D : Camera
 {
     public Vector2 OrthoSize = Vector2.One;
 
     [Bind]
     internal Transform2D Transform { get; private set; } = null!;
 
-    Transform ICamera.Transform => Transform;
+    internal sealed override SceneKind Kind => SceneKind.Scene2D;
+
+    internal sealed override Transform GetTransform() => Transform;
 }

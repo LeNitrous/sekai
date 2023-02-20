@@ -2,6 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
+using Sekai.Assets;
 using Sekai.Graphics;
 using Sekai.Graphics.Vertices;
 
@@ -14,8 +15,8 @@ public sealed class QuadBatch : RenderBatch<TexturedVertex2D>
     protected override int PrimitiveVertexCount => 4;
     protected override PrimitiveTopology Topology => PrimitiveTopology.Triangles;
 
-    public QuadBatch(int maxQuadCount)
-        : base(maxQuadCount)
+    public QuadBatch(GraphicsContext graphics, AssetLoader assets, int maxQuadCount)
+        : base(graphics, assets, maxQuadCount)
     {
     }
 

@@ -10,7 +10,7 @@ namespace Sekai.Allocation;
 /// A collection of objects that can contain a certain amount but can never exceed its capacity allowing reusal of objects.
 /// </summary>
 /// <typeparam name="T">The object type to pool.</typeparam>
-public class ObjectPool<T> : FrameworkObject
+public class ObjectPool<T> : DisposableObject
     where T : notnull
 {
     private readonly int capacity;
@@ -65,8 +65,11 @@ public class ObjectPool<T> : FrameworkObject
         items.Add(obj);
     }
 
-    protected override void Destroy()
+    protected override void Dispose(bool disposing)
     {
+        if (!disposing)
+            return;
+
         foreach (var item in items)
         {
             if (item is IDisposable disposable)

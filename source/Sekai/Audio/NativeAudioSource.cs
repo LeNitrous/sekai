@@ -7,7 +7,7 @@ using System.Numerics;
 
 namespace Sekai.Audio;
 
-public abstract class NativeAudioSource : FrameworkObject
+public abstract class NativeAudioSource : DisposableObject
 {
     /// <summary>
     /// Gets or sets whether this source should loop.

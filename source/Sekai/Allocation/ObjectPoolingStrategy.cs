@@ -6,7 +6,7 @@ namespace Sekai.Allocation;
 /// <summary>
 /// Determines the strategy for an <see cref="ObjectPool{T}"/>.
 /// </summary>
-public abstract class ObjectPoolingStrategy<T> : FrameworkObject
+public abstract class ObjectPoolingStrategy<T> : DisposableObject
     where T : notnull
 {
     /// <summary>

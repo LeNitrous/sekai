@@ -6,11 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Sekai/Sekai.csproj" />
+    <Compile Remove="Input\**" />
+    <EmbeddedResource Remove="Input\**" />
+    <None Remove="Input\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Input\" />
+    <ProjectReference Include="../Sekai/Sekai.csproj" />
   </ItemGroup>
 
   <ItemGroup Label="Documents">

@@ -16,8 +16,18 @@ using Sekai.Input.States;
 
 namespace Sekai.Input;
 
-public sealed class InputContext : DependencyObject
+public sealed class InputContext : DisposableObject
 {
+    /// <summary>
+    /// A read-only collection of all available <see cref="InputSystem"/>.
+    /// </summary>
+    public IReadOnlyCollection<InputSystem> Systems => systems;
+
+    /// <summary>
+    /// Invoked when a device connection state has changed.
+    /// </summary>
+    public event Action<InputContext, IInputDevice, bool> OnDeviceConnectionChange;
+
     private const int max_controller_count = 8;
 
     private IPen? pen;
@@ -37,8 +47,25 @@ public sealed class InputContext : DependencyObject
     private readonly HashSet<InputSystem> systems = new();
     private readonly ConcurrentQueue<DeviceEvent> events = new();
 
+    internal InputContext(IEnumerable<InputSystem> systems)
+    {
+        foreach (var system in systems)
+        {
+            if (!this.systems.Add(system))
+                continue;
+
+            system.OnConnectionChanged += handleDeviceConnectionChange;
+        }
+    }
+
+    /// <summary>
+    /// Gets the position of the pen.
+    /// </summary>
     public Vector2 GetPenPosition() => penState.Position;
 
+    /// <summary>
+    /// 
+    /// </summary>
     public Vector2 GetMousePosition() => mouseState.Position;
 
     public Vector2 GetTouchPosition(TouchSource source) => touchState.Positions[(int)source];
@@ -173,29 +200,20 @@ public sealed class InputContext : DependencyObject
         }
     }
 
-    internal void Attach(InputSystem system)
+    protected override void Dispose(bool disposing)
     {
-        if (!systems.Add(system))
+        if (!disposing)
             return;
 
-        system.OnConnectionChanged += handleDeviceConnectionChange;
+        foreach (var system in systems)
+        {
+            if (!systems.Remove(system))
+                continue;
 
-        foreach (var device in system.Connected)
-            attach(device);
-    }
+            system.OnConnectionChanged -= handleDeviceConnectionChange;
+        }
 
-    internal void Detach(InputSystem system)
-    {
-        if (!systems.Remove(system))
-            return;
-
-        system.OnConnectionChanged -= handleDeviceConnectionChange;
-    }
-
-    protected override void Destroy()
-    {
-        foreach (var system in systems.ToArray())
-            Detach(system);
+        systems.Clear();
     }
 
     private void handleDeviceConnectionChange(IInputDevice device, bool state)
@@ -212,6 +230,8 @@ public sealed class InputContext : DependencyObject
 
     private bool attach(IInputDevice device)
     {
+        OnDeviceConnectionChange?.Invoke(this, device, true);
+
         switch (device)
         {
             case IPen pen:
@@ -239,6 +259,8 @@ public sealed class InputContext : DependencyObject
 
     private bool detach(IInputDevice device)
     {
+        OnDeviceConnectionChange?.Invoke(this, device, false);
+
         switch (device)
         {
             case IPen pen:

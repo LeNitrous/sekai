@@ -11,7 +11,7 @@ using SkiaSharp;
 
 namespace Sekai.Skia;
 
-internal class SkiaContext : DependencyObject
+internal class SkiaContext : ServiceableObject
 {
     [Resolved]
     private Surface surface { get; set; } = null!;
@@ -34,5 +34,11 @@ internal class SkiaContext : DependencyObject
         ? SKSurface.Create(context, false, new(size.Width, size.Height))
         : SKSurface.Create(new SKImageInfo(size.Width, size.Height));
 
-    protected override void Destroy() => context?.Dispose();
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+            context?.Dispose();
+
+        base.Dispose(disposing);
+    }
 }

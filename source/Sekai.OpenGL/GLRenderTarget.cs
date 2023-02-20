@@ -18,7 +18,10 @@ internal class GLRenderTarget : NativeRenderTarget
         this.frameBufferId = frameBufferId;
     }
 
-    protected override void Destroy() => system.DestroyRenderTarget(frameBufferId);
+    protected override void Dispose(bool disposing)
+    {
+        system.DestroyRenderTarget(frameBufferId);
+    }
 
     public static implicit operator uint(GLRenderTarget framebuffer) => framebuffer.frameBufferId;
 }

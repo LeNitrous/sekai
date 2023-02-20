@@ -16,7 +16,7 @@ namespace Sekai.Scenes;
 /// An entity that exists in a <see cref="Scenes.Scene"/>. It can contain its own children nodes or components which can extend its functionality.
 /// </summary>
 [Serializable]
-public sealed class Node : FrameworkObject, IReferenceable, ICollection<Node>, IReadOnlyList<Node>
+public sealed class Node : DisposableObject, IReferenceable, ICollection<Node>, IReadOnlyList<Node>
 {
     public Guid Id { get; private set; }
 
@@ -539,9 +539,10 @@ public sealed class Node : FrameworkObject, IReferenceable, ICollection<Node>, I
     /// </summary>
     public IEnumerator<Node> GetEnumerator() => nodes.GetEnumerator();
 
-    protected sealed override void Destroy()
+    protected sealed override void Dispose(bool disposing)
     {
-        base.Destroy();
+        if (!disposing)
+            return;
 
         Parent?.Remove(this);
 

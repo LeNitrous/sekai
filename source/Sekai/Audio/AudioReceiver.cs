@@ -11,7 +11,7 @@ namespace Sekai.Audio;
 /// <summary>
 /// A component that receives audio output.
 /// </summary>
-public class AudioReceiver : Component, IAudioListener
+public partial class AudioReceiver : Component, IAudioListener
 {
     /// <summary>
     /// Gets whether this receiver is the current.
@@ -35,10 +35,12 @@ public class AudioReceiver : Component, IAudioListener
         audio.MakeCurrent(this);
     }
 
-    protected override void Destroy()
+    protected override void Dispose(bool disposing)
     {
-        audio.ClearCurrent(this);
-        base.Destroy();
+        if (disposing)
+            audio.ClearCurrent(this);
+
+        base.Dispose(disposing);
     }
 
     Vector3 IAudioListener.Position

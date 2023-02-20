@@ -4,14 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Sekai.Allocation;
 
 namespace Sekai.Graphics.Textures;
 
 /// <summary>
 /// Contains data necessary for blitting an image onto the screen.
 /// </summary>
-public sealed class RenderTarget : GraphicsObject, IRenderTarget
+public sealed class RenderTarget : ServiceableGraphicsObject<NativeRenderTarget>, IRenderTarget
 {
     public int Width { get; }
 
@@ -27,20 +26,14 @@ public sealed class RenderTarget : GraphicsObject, IRenderTarget
     /// </summary>
     public readonly IReadOnlyList<RenderBuffer> Color;
 
-    private readonly NativeRenderTarget native;
-
     public RenderTarget(RenderBuffer color, RenderBuffer? depth = null)
         : this(new[] { color }, depth)
     {
     }
 
     public RenderTarget(IReadOnlyList<RenderBuffer> color, RenderBuffer? depth = null)
+        : base(context => context.CreateRenderTarget(color, depth))
     {
-        if (color.Count > 8)
-            throw new ArgumentException(@"There cannot be more than 8 color attachments in a framebuffer.", nameof(color));
-
-        native = Graphics.CreateRenderTarget(color.Cast<NativeRenderBuffer>().ToArray(), depth);
-
         Color = color;
         Depth = depth;
 
@@ -48,7 +41,5 @@ public sealed class RenderTarget : GraphicsObject, IRenderTarget
         Height = Math.Max(Depth?.Target.Height ?? 0, Color.Max(b => b.Target.Height));
     }
 
-    protected override void DestroyGraphics() => native.Dispose();
-
-    NativeRenderTarget IRenderTarget.Native => native;
+    NativeRenderTarget? IRenderTarget.Native => Native;
 }

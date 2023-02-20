@@ -17,6 +17,9 @@ public class NativeStorage : Storage
 
     public NativeStorage(string path)
     {
+        if (path[^1] != Path.AltDirectorySeparatorChar || path[^1] != Path.DirectorySeparatorChar)
+            path += Path.AltDirectorySeparatorChar;
+
         if (!Uri.TryCreate(path, UriKind.Absolute, out var uri))
             throw new ArgumentException("Invalid path.", nameof(path));
 
@@ -93,5 +96,13 @@ public class NativeStorage : Storage
     protected override Stream BaseOpen(Uri uri, FileMode mode = FileMode.OpenOrCreate, FileAccess access = FileAccess.ReadWrite)
     {
         return File.Open(uri.AbsolutePath, mode, access);
+    }
+
+    protected override Storage CreateSubPathStorage(Uri uri)
+    {
+        if (!ExistsDirectory(uri))
+            CreateDirectory(uri);
+
+        return new NativeStorage(uri);
     }
 }

@@ -23,7 +23,10 @@ internal class GLShader : NativeShader
         this.shaderIds = shaderIds;
     }
 
-    protected override void Destroy() => system.DestroyShader(programId, shaderIds);
+    protected override void Dispose(bool disposing)
+    {
+        system.DestroyShader(programId, shaderIds);
+    }
 
     public static implicit operator uint(GLShader shader) => shader.programId;
 }

@@ -108,8 +108,11 @@ public class MemoryStorage : Storage
         return new MemoryStorageStream(memory, mode, access);
     }
 
-    protected override void Destroy()
+    protected override void Dispose(bool disposing)
     {
+        if (!disposing)
+            return;
+
         foreach (var stream in streams.Values)
             stream.Dispose();
 

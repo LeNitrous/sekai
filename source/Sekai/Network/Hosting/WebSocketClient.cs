@@ -37,9 +37,11 @@ public class WebSocketClient : WebSocketConnection
         await Socket.ConnectAsync(uri, timeout.Token);
     }
 
-    protected override void Destroy()
+    protected override void Dispose(bool disposing)
     {
-        OnStart -= handleStartup;
-        base.Destroy();
+        if (disposing)
+            OnStart -= handleStartup;
+
+        base.Dispose(disposing);
     }
 }

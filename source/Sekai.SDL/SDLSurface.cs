@@ -5,7 +5,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using Sekai.Mathematics;
 using Sekai.Windowing;
 using Sekai.Windowing.OpenGL;
@@ -15,6 +14,8 @@ namespace Sekai.SDL;
 
 internal unsafe class SDLSurface : Windowing.Surface, INativeWindowSource, IOpenGLContextSource
 {
+    public override string Name { get; } = @"SDL";
+    public override System.Version Version { get; }
     public INativeWindow Native => native.Value;
     public override bool Active => active;
     public override event Action<bool>? OnStateChanged;
@@ -67,6 +68,10 @@ internal unsafe class SDLSurface : Windowing.Surface, INativeWindowSource, IOpen
         native = new(() => new SDLNativeWindow(this));
 
         Sdl.SetEventFilter(filter = filterSdlEvent, null);
+
+        Silk.NET.SDL.Version version = new();
+        Sdl.GetVersion(ref version);
+        Version = new(version.Major, version.Minor, version.Patch);
 
         updateWindowSize();
         updateWindowPosition();

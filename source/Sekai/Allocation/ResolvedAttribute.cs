@@ -6,7 +6,7 @@ using System;
 namespace Sekai.Allocation;
 
 /// <summary>
-/// A attribute used in properties of <see cref="DependencyObject"/> derived classes to resolve a dependency from a <see cref="ServiceLocator"/>.
+/// A attribute used in properties of <see cref="ServiceableObject"/> derived classes to resolve a dependency from a <see cref="ServiceLocator"/>.
 /// </summary>
 /// <remarks>
 /// Dependency resolution occurs during object construction. The service resolved depends on the property's type. The dependency type depends on

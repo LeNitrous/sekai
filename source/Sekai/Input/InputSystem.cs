@@ -6,8 +6,21 @@ using System.Collections.Generic;
 
 namespace Sekai.Input;
 
-public abstract class InputSystem : DependencyObject
+/// <summary>
+/// The system responsible for interacting with low level input related functionality.
+/// </summary>
+public abstract class InputSystem : DisposableObject
 {
+    /// <summary>
+    /// The input system name.
+    /// </summary>
+    public abstract string Name { get; }
+
+    /// <summary>
+    /// The input system version.
+    /// </summary>
+    public abstract Version Version { get; }
+
     /// <summary>
     /// A list of all available input devices.
     /// </summary>

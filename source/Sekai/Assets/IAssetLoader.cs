@@ -10,10 +10,6 @@ namespace Sekai.Assets;
 /// </summary>
 public interface IAssetLoader
 {
-    /// <summary>
-    /// The extensions this asset loader can load.
-    /// </summary>
-    string[] Extensions { get; }
 }
 
 /// <summary>
