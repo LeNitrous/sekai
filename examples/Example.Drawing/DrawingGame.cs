@@ -14,6 +14,8 @@ namespace Example.Drawing;
 
 public partial class DrawingGame : Game
 {
+    private Scene? scene;
+
     public override void Load()
     {
         // Create the root node.
@@ -34,9 +36,19 @@ public partial class DrawingGame : Game
         };
 
         // Create the scene and attach the root
-        var scene = new Scene2D(root);
+        scene = new Scene2D(root);
+    }
 
-        Scenes.Add(scene);
+    public override void Update()
+    {
+        // Update our scene.
+        scene?.Update();
+    }
+
+    public override void Render()
+    {
+        // Render our scene.
+        scene?.Render();
     }
 }
 

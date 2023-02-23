@@ -14,7 +14,7 @@ namespace Sekai.Scenes;
 /// A building block for <see cref="Scenes.Node"/> to define properties and behaviors for the given node that hosts this component.
 /// </summary>
 [Serializable]
-public abstract partial class Component : ServiceableObject, IReferenceable
+public abstract class Component : ServiceableObject, IReferenceable
 {
     public Guid Id { get; }
 

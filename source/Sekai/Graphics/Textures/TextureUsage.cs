@@ -14,12 +14,12 @@ public enum TextureUsage
     Sampled,
 
     /// <summary>
-    /// The texture can be used as a color taget of a <see cref="Graphics.RenderTarget"/>.
+    /// The texture can be used as a color taget of a <see cref="Textures.RenderTarget"/>.
     /// </summary>
     RenderTarget,
 
     /// <summary>
-    /// The texture can be used as a depth target of a <see cref="Framebuffer"/>.
+    /// The texture can be used as a depth target of a <see cref="Textures.RenderTarget"/>.
     /// </summary>
     DepthStencil,
 

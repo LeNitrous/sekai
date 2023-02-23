@@ -3,7 +3,6 @@
 
 using Sekai.Allocation;
 using Sekai.Audio;
-using Sekai.Scenes;
 
 namespace Sekai.Processors;
 
@@ -24,7 +23,7 @@ internal sealed partial class AudioEmitterProcessor : Processor<AudioEmitter>
         emitter.Controller = null;
     }
 
-    protected override void Update(SceneCollection scenes, AudioEmitter emitter)
+    protected override void Update(AudioEmitter emitter)
     {
         if (emitter.Controller is null || emitter.Transform is null)
             return;

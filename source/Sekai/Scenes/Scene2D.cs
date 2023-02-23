@@ -1,4 +1,4 @@
-﻿// Copyright (c) The Vignette Authors
+// Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
 namespace Sekai.Scenes;
@@ -8,7 +8,7 @@ namespace Sekai.Scenes;
 /// </summary>
 public sealed class Scene2D : Scene
 {
-    internal override SceneKind Kind => SceneKind.Scene2D;
+    internal override RenderKind Kind => RenderKind.Render2D;
 
     public Scene2D()
     {

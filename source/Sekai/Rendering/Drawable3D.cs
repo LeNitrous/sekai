@@ -10,12 +10,12 @@ namespace Sekai.Rendering;
 /// Three-dimensional drawables capable of drawing to the <see cref="Scene"/>.
 /// </summary>
 [Processor<Drawable3DProcessor>]
-public abstract partial class Drawable3D : Drawable
+public abstract partial class Drawable3D : Drawable, IRenderObject
 {
     [Bind]
     internal Transform3D Transform { get; private set; } = null!;
 
-    internal sealed override SceneKind Kind => SceneKind.Scene3D;
-
     internal sealed override Transform GetTransform() => Transform;
+
+    RenderKind IRenderObject.Kind => RenderKind.Render2D;
 }

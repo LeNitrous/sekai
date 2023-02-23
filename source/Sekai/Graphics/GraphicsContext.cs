@@ -171,7 +171,7 @@ public sealed class GraphicsContext : DisposableObject
 
     internal GraphicsObject<NativeRenderTarget> CreateRenderTarget(IReadOnlyList<RenderBuffer> color, RenderBuffer? depth = null)
     {
-        var target = graphics.CreateRenderTarget(color.Cast<NativeRenderBuffer>().ToArray(), depth);
+        var target = graphics.CreateRenderTarget(color.Select(b => (NativeRenderBuffer)b).ToArray(), depth);
         return new(enqueueOnDispose(target.Dispose), target);
     }
 
