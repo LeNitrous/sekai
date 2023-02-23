@@ -59,7 +59,7 @@ public readonly struct LogMessage : IEquatable<LogMessage>
     public bool Equals(LogMessage other)
     {
         return EqualityComparer<object?>.Default.Equals(Message, other.Message) &&
-               EqualityComparer<object[]>.Default.Equals(Arguments, other.Arguments) &&
+               EqualityComparer<object?[]>.Default.Equals(Arguments, other.Arguments) &&
                Level == other.Level &&
                Timestamp == other.Timestamp &&
                EqualityComparer<Exception?>.Default.Equals(Exception, other.Exception);

@@ -9,6 +9,8 @@ namespace Sekai.Null.Windowing;
 
 internal class NullSurface : Surface
 {
+    public override string Name { get; } = @"Null";
+    public override Version Version { get; } = new Version();
     public override bool Active => active;
     public override Size2 Size => new(1, 1);
     public override Point Position => Point.Zero;

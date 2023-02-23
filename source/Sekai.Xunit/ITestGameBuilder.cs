@@ -5,5 +5,5 @@ namespace Sekai.Xunit;
 
 public interface ITestGameBuilder
 {
-    Game Build();
+    GameBuilder Build();
 }
