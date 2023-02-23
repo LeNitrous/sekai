@@ -1,17 +1,32 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
+using System;
 using System.Collections.Generic;
 using Sekai.Graphics;
 using Sekai.Graphics.Buffers;
 using Sekai.Graphics.Shaders;
 using Sekai.Graphics.Textures;
 using Sekai.Graphics.Vertices;
+using Sekai.Windowing;
 
 namespace Sekai.Null.Graphics;
 
 internal class NullGraphicsSystem : GraphicsSystem
 {
+    public override string Name { get; } = @"Null";
+
+    public override string Device { get; } = @"Null";
+
+    public override Version Version { get; } = new Version();
+
+    public override IReadOnlyList<string> Extensions { get; } = Array.Empty<string>();
+
+    public NullGraphicsSystem(Surface surface)
+        : base(surface)
+    {
+    }
+
     public override void Clear(ClearInfo clear)
     {
     }

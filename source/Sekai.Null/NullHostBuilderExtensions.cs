@@ -28,7 +28,7 @@ public static class NullHostBuilderExtensions
     /// </returns>
     public static IHostBuilder UseNullGraphics(this IHostBuilder builder)
     {
-        return builder.UseGraphics<NullGraphicsSystem>();
+        return builder.UseGraphics(surface => new NullGraphicsSystem(surface));
     }
 
     /// <summary>

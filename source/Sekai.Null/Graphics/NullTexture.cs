@@ -12,6 +12,10 @@ internal class NullTexture : NativeTexture
     {
     }
 
+    public override void GetData(nint data, int level)
+    {
+    }
+
     public override void SetData(nint data, int x, int y, int z, int width, int height, int depth, int layer, int level)
     {
     }

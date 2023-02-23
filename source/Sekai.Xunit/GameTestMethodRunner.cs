@@ -1,7 +1,6 @@
 // Copyright (c) The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,50 +21,53 @@ internal class GameTestMethodRunner : XunitTestMethodRunner
 
     protected override Task<RunSummary> RunTestCaseAsync(IXunitTestCase testCase)
     {
-        var source = new TaskCompletionSource<RunSummary>();
-        var game = builder.Build();
+        // FIXME: Run game isolated for tests.
+        //var source = new TaskCompletionSource<RunSummary>();
+        //var game = builder.Build();
 
-        game.OnLoad += () =>
-        {
-            try
-            {
-                var task = base.RunTestCaseAsync(testCase);
+        //game.OnLoad += () =>
+        //{
+        //    try
+        //    {
+        //        var task = base.RunTestCaseAsync(testCase);
 
-                Task.Run(async () =>
-                {
-                    try
-                    {
-                        await task;
-                    }
-                    catch (Exception e)
-                    {
-                        source.SetException(e);
-                    }
-                });
+        //        Task.Run(async () =>
+        //        {
+        //            try
+        //            {
+        //                await task;
+        //            }
+        //            catch (Exception e)
+        //            {
+        //                source.SetException(e);
+        //            }
+        //        });
 
-                if (task.IsFaulted)
-                {
-                    source.SetException(task.Exception!);
-                }
-                else if (task.IsCanceled)
-                {
-                    source.SetCanceled();
-                }
-                else
-                {
-                    source.SetResult(task.Result);
-                }
+        //        if (task.IsFaulted)
+        //        {
+        //            source.SetException(task.Exception!);
+        //        }
+        //        else if (task.IsCanceled)
+        //        {
+        //            source.SetCanceled();
+        //        }
+        //        else
+        //        {
+        //            source.SetResult(task.Result);
+        //        }
 
-                game.Exit();
-            }
-            catch (Exception e)
-            {
-                source.SetException(e);
-            }
-        };
+        //        game.Exit();
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        source.SetException(e);
+        //    }
+        //};
 
-        Task.Run(game.Run);
+        //Task.Run(game.Run);
 
-        return source.Task;
+        //return source.Task;
+
+        return base.RunTestCaseAsync(testCase);
     }
 }
