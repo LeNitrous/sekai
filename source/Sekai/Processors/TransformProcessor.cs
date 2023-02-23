@@ -3,7 +3,6 @@
 
 using System.Numerics;
 using Sekai.Rendering;
-using Sekai.Scenes;
 
 namespace Sekai.Processors;
 
@@ -12,7 +11,7 @@ internal abstract class TransformProcessor<T> : Processor<T>
 {
     public sealed override int Priority => int.MinValue;
 
-    protected sealed override void Update(SceneCollection scenes, T transform)
+    protected sealed override void Update(T transform)
     {
         T? parent = null;
         transform.Node?.Parent?.TryGetComponent(out parent);

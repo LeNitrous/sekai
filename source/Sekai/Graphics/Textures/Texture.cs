@@ -87,7 +87,10 @@ public class Texture : ServiceableGraphicsObject<NativeTexture>, IAsset
     {
     }
 
-    /// <inheritdoc cref="INativeTexture.SetData"/>
+    /// <inheritdoc cref="NativeTexture.SetData"/>
+    /// <remarks>
+    /// This assumes that <paramref name="data"/> has enough room to fill in the contents.
+    /// </remarks>
     public void SetData(nint data, int x, int y, int z, int width, int height, int depth, int layer, int level)
     {
         if (x + width > Width || y + height > Height || z + depth > Depth || layer > Layers || level > Level)
@@ -96,19 +99,49 @@ public class Texture : ServiceableGraphicsObject<NativeTexture>, IAsset
         Native.SetData(data, x, y, z, width, height, depth, layer, level);
     }
 
-    /// <inheritdoc cref="INativeTexture.SetData"/>
+    /// <inheritdoc cref="NativeTexture.SetData"/>
     public unsafe void SetData<T>(ReadOnlySpan<T> data, int x, int y, int z, int width, int height, int depth, int layer, int level)
         where T : unmanaged
     {
+        if (data.Length < (width * height * Format.SizeOfFormat()))
+            throw new ArgumentException(@"Cannot set data to destination.", nameof(data));
+
         fixed (T* ptr = data)
             SetData((nint)ptr, x, y, z, width, height, depth, layer, level);
     }
 
-    /// <inheritdoc cref="INativeTexture.SetData"/>
+    /// <inheritdoc cref="NativeTexture.SetData"/>
     public void SetData<T>(T[] data, int x, int y, int z, int width, int height, int depth, int layer, int level)
         where T : unmanaged
     {
         SetData<T>(data.AsSpan(), x, y, z, width, height, depth, layer, level);
+    }
+
+    /// <inheritdoc cref="NativeTexture.GetData"/>
+    /// <remarks>
+    /// This assumes that <paramref name="data"/> has enough room to fill in the contents.
+    /// </remarks>
+    public void GetData(nint data, int level)
+    {
+        Native.GetData(data, level);
+    }
+
+    /// <inheritdoc cref="NativeTexture.GetData"/>
+    public unsafe void GetData<T>(Span<T> data, int level)
+        where T : unmanaged
+    {
+        if (data.Length < (Width * Height * Format.SizeOfFormat()))
+            throw new ArgumentException(@"Cannot set data to destination.", nameof(data));
+
+        fixed (T* ptr = data)
+            GetData((nint)ptr, level);
+    }
+
+    /// <inheritdoc cref="NativeTexture.GetData"/>
+    public void GetData<T>(T[] data, int level)
+        where T : unmanaged
+    {
+        GetData(data.AsSpan(), level);
     }
 
     /// <summary>
@@ -181,12 +214,10 @@ public class Texture : ServiceableGraphicsObject<NativeTexture>, IAsset
     public static unsafe Texture Load(ReadOnlySpan<byte> buffer)
     {
         var image = Image.Load<Rgba32>(buffer);
+        var format = PixelFormat.R8_G8_B8_A8_UNorm;
+        var texture = New2D(image.Width, image.Height, format);
 
-        var texture = New2D(image.Width, image.Height, PixelFormat.R8_G8_B8_A8_UNorm);
-
-        int size = image.Width * image.Height * 4;
-
-        Span<byte> data = new byte[size];
+        Span<byte> data = new byte[image.Width * image.Height * format.SizeOfFormat()];
         image.CopyPixelDataTo(data);
 
         fixed (byte* ptr = data)

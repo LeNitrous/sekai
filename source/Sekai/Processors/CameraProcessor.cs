@@ -7,7 +7,6 @@ using Sekai.Allocation;
 using Sekai.Graphics;
 using Sekai.Graphics.Textures;
 using Sekai.Rendering;
-using Sekai.Scenes;
 
 namespace Sekai.Processors;
 
@@ -15,16 +14,19 @@ internal abstract partial class CameraProcessor<T> : Processor<T>
     where T : Camera
 {
     [Resolved]
+    private Renderer renderer { get; set; } = null!;
+
+    [Resolved]
     private GraphicsContext graphics { get; set; } = null!;
 
-    protected sealed override void Update(SceneCollection scenes, T camera)
+    protected sealed override void Update(T camera)
     {
         var target = camera.Target ?? graphics.DefaultRenderTarget;
         var position = GetPosition(camera);
         var rotation = GetRotation(camera);
         camera.ViewMatrix = Matrix4x4.CreateLookAt(position, position + Vector3.Transform(-Vector3.UnitZ, rotation), Vector3.UnitY);
         camera.ProjMatrix = GetProjMatrix(target, camera);
-        scenes.Renderer.Collect(camera);
+        renderer.Collect((IRenderObject)camera);
     }
 
     protected abstract Vector3 GetPosition(T camera);

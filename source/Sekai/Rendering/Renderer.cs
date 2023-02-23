@@ -14,13 +14,13 @@ using Sekai.Scenes;
 
 namespace Sekai.Rendering;
 
-public sealed class Renderer : DisposableObject
+internal sealed class Renderer : DisposableObject
 {
     private readonly GraphicsContext graphics;
     private readonly RenderBatchManager batches;
 
-    private bool canFlush;
-    private SceneKind? kind;
+    private RenderKind allowedCollectionKind;
+    private RendererPhase phase;
     private readonly List<Camera> cameras = new();
     private readonly List<Drawable> drawables = new();
     private readonly List<Drawable> frontToBack = new();
@@ -35,95 +35,98 @@ public sealed class Renderer : DisposableObject
     /// <summary>
     /// Begins collection phase.
     /// </summary>
-    public void Begin(SceneKind kind)
+    public void Begin(RenderKind kind)
     {
-        if (this.kind.HasValue || canFlush)
-            return;
+        if (phase != RendererPhase.Idle)
+            throw new InvalidOperationException(@"The renderer is not ready to begin a new context.");
 
-        this.kind = kind;
+        phase = RendererPhase.Collect;
+
+        allowedCollectionKind = kind;
+    }
+
+    /// <summary>
+    /// Ends the collection phase.
+    /// </summary>
+    public void End()
+    {
+        if (phase != RendererPhase.Collect)
+            throw new InvalidOperationException(@"The renderer cannot end the current phase at this state.");
+
+        phase = RendererPhase.Ready;
+
+        allowedCollectionKind = RenderKind.Unknown;
+    }
+
+    /// <summary>
+    /// Collects a <see cref="IRenderObject"/> object.
+    /// </summary>
+    /// <param name="renderObject">The render object.</param>
+    public void Collect(IRenderObject renderObject)
+    {
+        if (phase != RendererPhase.Collect)
+            throw new InvalidOperationException(@"The renderer is not ready for collecting scene objects.");
+
+        if (renderObject.Kind != allowedCollectionKind)
+            throw new ArgumentException("This object cannot be collected by the renderer at this state.", nameof(renderObject));
+
+        switch (renderObject)
+        {
+            case Camera camera:
+                cameras.Add(camera);
+                break;
+
+            case Drawable drawable:
+                drawables.Add(drawable);
+                break;
+        }
+    }
+
+    /// <summary>
+    /// Flushes the collected collectibles.
+    /// </summary>
+    public void Flush()
+    {
+        if (phase != RendererPhase.Ready)
+            throw new InvalidOperationException(@"The renderer is not ready to flush scene objects.");
+
+        foreach (var camera in CollectionsMarshal.AsSpan(cameras))
+        {
+            var visible = drawables.Where(d => !isCulled(camera, d));
+            frontToBack.AddRange(visible.Where(static d => d.SortMode == SortMode.FrontToBack));
+            backToFront.AddRange(visible.Where(static d => d.SortMode == SortMode.BackToFront));
+
+            using (graphics.BeginContext())
+            {
+                var target = camera.Target ?? graphics.DefaultRenderTarget;
+
+                graphics.SetRenderTarget(target);
+                graphics.Viewport = new(0, 0, target.Width, target.Height, 0, 1);
+
+                if (frontToBack.Count > 0)
+                {
+                    frontToBack.Sort(new DrawableComparer(camera, false));
+
+                    foreach (var drawable in CollectionsMarshal.AsSpan(frontToBack))
+                        renderDrawable(camera, drawable);
+                }
+
+                if (backToFront.Count > 0)
+                {
+                    backToFront.Sort(new DrawableComparer(camera, true));
+
+                    foreach (var drawable in CollectionsMarshal.AsSpan(backToFront))
+                        renderDrawable(camera, drawable);
+                }
+            }
+        }
 
         cameras.Clear();
         drawables.Clear();
         frontToBack.Clear();
         backToFront.Clear();
-    }
 
-    /// <summary>
-    /// Ends collection phase.
-    /// </summary>
-    public void End()
-    {
-        if (!kind.HasValue || canFlush)
-            return;
-
-        canFlush = true;
-        kind = null;
-    }
-
-    /// <summary>
-    /// Collects a camera for rendering.
-    /// </summary>
-    public void Collect(Camera camera)
-    {
-        if (!kind.HasValue)
-            throw new InvalidOperationException(@"Cannot collect renderer objects at this current state.");
-
-        if (camera.Kind != kind.Value)
-            throw new ArgumentException("Camera cannot be collected by this renderer.");
-
-        cameras.Add(camera);
-    }
-
-    /// <summary>
-    /// Collects a drawable for rendering.
-    /// </summary>
-    public void Collect(Drawable drawable)
-    {
-        if (!kind.HasValue)
-            throw new InvalidOperationException(@"Cannot collect renderer objects at this current state.");
-
-        if (drawable.Kind != kind.Value)
-            throw new ArgumentException("Drawable cannot be collected by this renderer.");
-
-        drawables.Add(drawable);
-    }
-
-    /// <summary>
-    /// Flushes the collected renderer objects and renders them to the specified targets.
-    /// </summary>
-    public void Render()
-    {
-        if (!canFlush)
-            throw new InvalidOperationException(@"Cannot flush at this current state.");
-
-        foreach (var camera in CollectionsMarshal.AsSpan(cameras))
-        {
-            var visible = drawables.Where(d => !isCulled(camera, d));
-            frontToBack.AddRange(visible.Where(d => d.SortMode == SortMode.FrontToBack));
-            backToFront.AddRange(visible.Where(d => d.SortMode == SortMode.BackToFront));
-
-            var target = camera.Target ?? graphics.DefaultRenderTarget;
-
-            if (frontToBack.Count > 0)
-            {
-                var comparer = new DrawableComparer(camera, false);
-                frontToBack.Sort(comparer);
-
-                foreach (var drawable in CollectionsMarshal.AsSpan(frontToBack))
-                    renderDrawable(camera, drawable);
-            }
-
-            if (backToFront.Count > 0)
-            {
-                var comparer = new DrawableComparer(camera, true);
-                backToFront.Sort(comparer);
-
-                foreach (var drawable in CollectionsMarshal.AsSpan(backToFront))
-                    renderDrawable(camera, drawable);
-            }
-        }
-
-        canFlush = false;
+        phase = RendererPhase.Idle;
     }
 
     private void renderDrawable(Camera camera, Drawable drawable)
@@ -189,5 +192,23 @@ public sealed class Renderer : DisposableObject
 
             return distanceX.CompareTo(distanceY);
         }
+    }
+
+    private enum RendererPhase
+    {
+        /// <summary>
+        /// Idle phase.
+        /// </summary>
+        Idle = 0,
+
+        /// <summary>
+        /// Collection phase.
+        /// </summary>
+        Collect,
+
+        /// <summary>
+        /// Ready phase.
+        /// </summary>
+        Ready
     }
 }

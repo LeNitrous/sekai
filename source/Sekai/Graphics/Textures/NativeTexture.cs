@@ -121,4 +121,11 @@ public abstract class NativeTexture : DisposableObject
     /// <param name="layer">The array layer where data will be set.</param>
     /// <param name="level">The mip level where the data will be set.</param>
     public abstract void SetData(nint data, int x, int y, int z, int width, int height, int depth, int layer, int level);
+
+    /// <summary>
+    /// Gets the data from this texture.
+    /// </summary>
+    /// <param name="data">The texture data to be set.</param>
+    /// <param name="level">The mip level where the data.</param>
+    public abstract void GetData(nint data, int level);
 }

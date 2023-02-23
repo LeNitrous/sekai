@@ -20,11 +20,6 @@ public abstract class Game : ServiceableObject
     }
 
     /// <summary>
-    /// The scene collection.
-    /// </summary>
-    public SceneCollection Scenes { get; } = new();
-
-    /// <summary>
     /// Called as the game starts.
     /// </summary>
     public virtual void Load()
@@ -34,23 +29,15 @@ public abstract class Game : ServiceableObject
     /// <summary>
     /// Called every frame.
     /// </summary>
-    /// <remarks>
-    /// By default, it renders the <see cref="SceneCollection"/>. Override this behavior if unwanted.
-    /// </remarks>
     public virtual void Render()
     {
-        Scenes.Render();
     }
 
     /// <summary>
     /// Called every frame.
     /// </summary>
-    /// <remarks>
-    /// By default, it updates the <see cref="SceneCollection"/>. Override this behavior if unwanted.
-    /// </remarks>
     public virtual void Update()
     {
-        Scenes.Update();
     }
 
     /// <summary>

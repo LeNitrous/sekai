@@ -18,7 +18,7 @@ public abstract class Processor : ServiceableObject
     {
     }
 
-    public virtual void Update(SceneCollection scenes, Component component)
+    public virtual void Update(Component component)
     {
     }
 }
@@ -26,8 +26,8 @@ public abstract class Processor : ServiceableObject
 public abstract class Processor<T> : Processor
     where T : Component
 {
-    public sealed override void Update(SceneCollection scenes, Component component)
-        => Update(scenes, Unsafe.As<T>(component));
+    public sealed override void Update(Component component)
+        => Update(Unsafe.As<T>(component));
 
     public sealed override void OnComponentAttach(Component component)
         => OnComponentAttach(Unsafe.As<T>(component));
@@ -43,7 +43,7 @@ public abstract class Processor<T> : Processor
     {
     }
 
-    protected virtual void Update(SceneCollection scenes, T component)
+    protected virtual void Update(T component)
     {
     }
 

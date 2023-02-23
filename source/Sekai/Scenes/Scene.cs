@@ -6,13 +6,16 @@ using System;
 using System.Runtime.InteropServices;
 using System.Linq;
 using Sekai.Collections;
+using Sekai.Allocation;
+using Sekai.Rendering;
+using Sekai.Processors;
 
 namespace Sekai.Scenes;
 
 /// <summary>
 /// A collection of nodes where it can process and render its children's components.
 /// </summary>
-public abstract class Scene : DisposableObject
+public abstract partial class Scene : ServiceableObject
 {
     /// <summary>
     /// The root node.
@@ -36,14 +39,20 @@ public abstract class Scene : DisposableObject
     }
 
     /// <summary>
-    /// The scene kind.
+    /// The kind of renderer in use by this <see cref="Scene"/>.
     /// </summary>
-    internal abstract SceneKind Kind { get; }
+    internal abstract RenderKind Kind { get; }
 
     private Node? root;
+    private readonly List<Component> components = new();
     private readonly Dictionary<Uri, Node> nodes = new();
     private readonly Queue<ComponentEvent> events = new();
-    private readonly Dictionary<Type, List<Component>> componentMapping = new();
+
+    [Resolved]
+    private Renderer renderer { get; set; } = null!;
+
+    [Resolved]
+    private ProcessorManager processors { get; set; } = null!;
 
     protected Scene()
     {
@@ -108,32 +117,41 @@ public abstract class Scene : DisposableObject
         }
     }
 
-    internal void Update(SceneCollection scenes)
+    /// <summary>
+    /// Updates the scene.
+    /// </summary>
+    public void Update()
     {
         while (events.TryDequeue(out var e))
         {
             switch (e.Type)
             {
                 case ComponentEventType.Attach:
-                    attachComponent(scenes, e.Component);
+                    processors.Attach(e.Component);
+                    components.Add(e.Component);
                     break;
 
                 case ComponentEventType.Detach:
-                    detachComponent(scenes, e.Component);
+                    processors.Detach(e.Component);
+                    components.Remove(e.Component);
                     break;
             }
         }
 
-        foreach (var processor in scenes.Processors)
-        {
-            var components = componentMapping[processor.GetType()];
+        renderer.Begin(Kind);
 
-            if (components.Count < 0)
-                continue;
+        foreach (var component in CollectionsMarshal.AsSpan(components))
+            processors.Update(component);
 
-            foreach (var component in CollectionsMarshal.AsSpan(components))
-                processor.Update(scenes, component);
-        }
+        renderer.End();
+    }
+
+    /// <summary>
+    /// Renders the scene.
+    /// </summary>
+    public void Render()
+    {
+        renderer.Flush();
     }
 
     private void attachNode(Node node)
@@ -141,37 +159,6 @@ public abstract class Scene : DisposableObject
 
     private void detachNode(Node node)
         => handleNodeRemoved(this, new(node));
-
-    private void attachComponent(SceneCollection scenes, Component item)
-    {
-        foreach (var processor in scenes.GetProcessors(item))
-        {
-            var type = processor.GetType();
-
-            if (!componentMapping.TryGetValue(type, out var components))
-            {
-                components = new();
-                componentMapping.Add(type, components);
-            }
-
-            components.Add(item);
-            processor.OnComponentAttach(item);
-        }
-    }
-
-    private void detachComponent(SceneCollection scenes, Component item)
-    {
-        foreach (var processor in scenes.GetProcessors(item))
-        {
-            if (!componentMapping.TryGetValue(processor.GetType(), out var components))
-                continue;
-
-            if (!components.Remove(item))
-                continue;
-
-            processor.OnComponentDetach(item);
-        }
-    }
 
     private void addComponent(Component component, bool immediate = false)
     {
@@ -261,11 +248,13 @@ public abstract class Scene : DisposableObject
 
     protected override void Dispose(bool disposing)
     {
-        if (!disposing)
-            return;
+        if (disposing)
+        {
+            if (root is not null)
+                detachNode(root);
+        }
 
-        if (root is not null)
-            detachNode(root);
+        base.Dispose(disposing);
     }
 
     private readonly record struct ComponentEvent(ComponentEventType Type, Component Component);

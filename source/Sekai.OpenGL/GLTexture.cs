@@ -22,6 +22,9 @@ internal unsafe class GLTexture : NativeTexture
         this.textureId = textureId;
     }
 
+    public override void GetData(nint data, int level)
+        => system.GetTextureData(textureId, Target, Format, data, level);
+
     public override void SetData(nint data, int x, int y, int z, int width, int height, int depth, int layer, int level)
         => system.SetTextureData(textureId, Width, Height, Depth, Target, Format, data, x, y, z, width, height, depth, layer, level);
 

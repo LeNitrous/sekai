@@ -13,6 +13,8 @@ using Sekai.Graphics.Shaders;
 using Sekai.Graphics.Textures;
 using Sekai.Input;
 using Sekai.Logging;
+using Sekai.Processors;
+using Sekai.Rendering;
 using Sekai.Storages;
 using Sekai.Threading;
 using Sekai.Windowing;
@@ -194,8 +196,8 @@ internal class HostBuilder : IHostBuilder
         assetLoaders.Insert(0, new ShaderLoader());
         assetLoaderExtensions.Insert(0, new[] { ".sksl" });
 
-        var graphics = new GraphicsContext(graphicsFactory(surface));
         var assets = new AssetLoader(storage, assetLoaders, assetLoaderExtensions);
+        var graphics = new GraphicsContext(graphicsFactory(surface));
 
         services
             .AddConstant(input)
@@ -204,7 +206,9 @@ internal class HostBuilder : IHostBuilder
             .AddConstant(graphics)
             .AddConstant<ILogger>(logger)
             .AddConstant<Storage>(storage)
-            .AddConstant<ISurface>(surface);
+            .AddConstant<ISurface>(surface)
+            .AddSingleton<ProcessorManager>()
+            .AddLazy(() => new Renderer(graphics, assets));
 
         onBuildAction?.Invoke(this);
 

@@ -784,6 +784,12 @@ internal unsafe class GLGraphicsSystem : GraphicsSystem
             api.PixelStore(PixelStoreParameter.UnpackAlignment, 4);
     }
 
+    internal void GetTextureData(uint textureId, TextureTarget target, SekaiFormat format, nint data, int level)
+    {
+        api.BindTexture(target, textureId);
+        api.GetTexImage(target, level, format.ToPixelFormat(), format.ToPixelType(), (void*)data);
+    }
+
     internal void DestroyTexture(uint textureId) => api.DeleteTexture(textureId);
 
     private static TextureTarget getCubemapTarget(int layer)
