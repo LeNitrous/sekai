@@ -13,4 +13,18 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.4.0" PrivateAssets="all" />
   </ItemGroup>
 
+  <PropertyGroup Label="Nuget">
+    <IsPackable>true</IsPackable>
+    <PackageId>Sekai</PackageId>
+    <Version>0.1.1</Version>
+    <Authors>Vignette</Authors>
+    <PackageTags>Graphics;Audio;Game;Game Engine;Framework</PackageTags>
+    <Title>Sekai</Title>
+    <Description>A highly-modular game engine written for .NET, inspired of osu!framework and LÖVE</Description>
+    <Copyright>2023 Vignette</Copyright>
+    <RepositoryUrl>https://github.com/vignetteapp/sekai</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/vignetteapp/sekai</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+  </PropertyGroup>
 </Project>

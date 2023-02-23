@@ -26,7 +26,7 @@
   <PropertyGroup Label="Nuget">
     <IsPackable>true</IsPackable>
     <PackageId>Sekai.Xunit</PackageId>
-    <Version>0.0.1</Version>
+    <Version>0.1.1</Version>
     <Authors>Vignette</Authors>
     <PackageTags>Testing;Game;Game Engine;Framework</PackageTags>
     <Title>Sekai.Xunit</Title>

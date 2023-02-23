@@ -23,7 +23,7 @@
   <PropertyGroup Label="Nuget">
     <IsPackable>true</IsPackable>
     <PackageId>Sekai.Skia</PackageId>
-    <Version>0.0.1</Version>
+    <Version>0.1.1</Version>
     <Authors>Vignette</Authors>
     <PackageTags>Graphics;Game;Game Engine;Framework</PackageTags>
     <Title>Sekai.Skia</Title>
