@@ -6,6 +6,7 @@ on:
 jobs:
   publish:
     runs-on: windows-latest
+    environment: ${{ github.event.release.prerelease && 'Staging' || 'Production' }}
     if: ${{ github.event.workflow_run.conclusion != 'cancelled' }}
     steps:
       - name: Checkout
@@ -28,4 +29,4 @@ jobs:
           dotnet pack --include-symbols -o release source/Sekai.Xunit
 
       - name: Publish packages
-        run: dotnet nuget push ${{ github.workspace }}\release\*.nupkg --api-key ${{ secrets.GITHUB_TOKEN }} --source "https://nuget.pkg.github.com/vignetteapp/index.json"
+        run: dotnet nuget push ${{ github.workspace }}\release\*.nupkg --api-key ${{ secrets.NUGET_TOKEN }} --source $NUGET_SRC
