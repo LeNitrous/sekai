@@ -29,4 +29,4 @@ jobs:
           dotnet pack --include-symbols -o release source/Sekai.Xunit
 
       - name: Publish packages
-        run: dotnet nuget push ${{ github.workspace }}\release\*.nupkg --api-key ${{ secrets.NUGET_TOKEN }} --source ${{ vars.NUGET_SRC }}
+        run: dotnet nuget push ${{ github.workspace }}\release\*.nupkg --api-key ${{ secrets.NUGET_TOKEN }} --source ${{ vars.NUGET_SRC }} --skip-duplicate
