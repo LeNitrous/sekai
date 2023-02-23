@@ -14,6 +14,11 @@ jobs:
         with:
           dotnet-version: "7.0.x"
 
+      - name: Install .NET 6 LTS
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: "6.0.x"
+
       - name: Install Optional Dependencies
         run: |
           sudo apt-get update
