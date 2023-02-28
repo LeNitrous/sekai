@@ -1,0 +1,13 @@
+{
+  "name": "ReactOS",
+  "context": "..",
+  "dockerFile": "../.codespaces.dockerfile",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-dotnettools.csharp",
+        "editorconfig.editorconfig"
+      ]
+    }
+  }
+}

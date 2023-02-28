@@ -1,0 +1,14 @@
+<Project>
+  <PropertyGroup Label="NuGet">
+    <Authors>Cosyne and The Vignette Authors</Authors>
+    <Description>The rendering framework that powers Vignette.</Description>
+    <Copyright>2022 The Vignette Authors</Copyright>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageProjectUrl>https://github.com/vignetteapp/sekai</PackageProjectUrl>
+  </PropertyGroup>
+  <ItemGroup Label="Code Analysis">
+    <AdditionalFiles Include="$(MSBuildThisFileDirectory)analysis\BannedSymbols.txt"/>
+    <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.4" PrivateAssets="All"/>
+  </ItemGroup>
+</Project>
