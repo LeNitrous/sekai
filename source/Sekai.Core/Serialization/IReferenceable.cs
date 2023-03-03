@@ -6,7 +6,7 @@ using System;
 namespace Sekai.Serialization;
 
 /// <summary>
-/// An interface denoting an object can be referenced.
+/// An interface denoting an object can be referenced by an <see cref="Id"/>.
 /// </summary>
 public interface IReferenceable
 {

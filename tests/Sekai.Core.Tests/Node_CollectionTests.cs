@@ -1,10 +1,10 @@
 // Copyright (c) Cosyne and The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
+using System.Collections;
 using NUnit.Framework;
-using Sekai.Scenes;
 
-namespace Sekai.Core.Tests.Scenes;
+namespace Sekai.Core.Tests;
 
 public class Node_CollectionTests
 {
@@ -104,32 +104,6 @@ public class Node_CollectionTests
 
     [TestCase(true)]
     [TestCase(false)]
-    public void Node_ShouldGetChildren(bool hasChild)
-    {
-        var node = new Node();
-
-        if (hasChild)
-        {
-            node.Add(new Node());
-        }
-
-        Assert.That(node.Children, hasChild ? Is.Not.Empty : Is.Empty);
-    }
-
-    [Test]
-    public void Node_ShouldSetChildren()
-    {
-        var node = new Node();
-
-        Assert.Multiple(() =>
-        {
-            Assert.That(() => node.Children = new[] { new Node() }, Throws.Nothing);
-            Assert.That(node, Is.Not.Empty);
-        });
-    }
-
-    [TestCase(true)]
-    [TestCase(false)]
     public void Node_ShouldHaveValidParent(bool hasParent)
     {
         var a = new Node();
@@ -148,5 +122,25 @@ public class Node_CollectionTests
 
             Assert.That(b.Parent, Is.Null);
         }
+    }
+
+    [TestCase(true)]
+    [TestCase(false)]
+    public void Node_ShouldNotFailEnumeration(bool hasChild)
+    {
+        var node = new Node();
+
+        if (hasChild)
+        {
+            node.Add(new Node());
+        }
+
+        Assert.That(() =>
+        {
+            foreach (object? obj in (IEnumerable)node)
+            {
+                node.Add(new Node());
+            }
+        }, Throws.Nothing);
     }
 }
