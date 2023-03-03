@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Sekai.Scenes;
+namespace Sekai;
 
 /// <summary>
 /// Represents an error when a <see cref="Component"/> is not found on a <see cref="Node"/>.

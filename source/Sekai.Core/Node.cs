@@ -10,7 +10,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using Sekai.Serialization;
 
-namespace Sekai.Scenes;
+namespace Sekai;
 
 /// <summary>
 /// A structure within a <see cref="Scene"/> that may contain other nodes and may contain its own components.

@@ -4,7 +4,7 @@
 using System;
 using Sekai.Serialization;
 
-namespace Sekai.Scenes;
+namespace Sekai;
 
 /// <summary>
 /// A structure that is able to extend the capabilities of a <see cref="Node"/>.
