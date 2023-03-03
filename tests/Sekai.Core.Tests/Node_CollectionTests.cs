@@ -143,4 +143,12 @@ public class Node_CollectionTests
             }
         }, Throws.Nothing);
     }
+
+    [Test]
+    public void Node_ShouldFailMutationOnCollectionChange()
+    {
+        var node = new Node();
+        node.CollectionChanged += (sender, args) => node.Add(new Node());
+        Assert.That(() => node.Add(new Node()), Throws.InvalidOperationException);
+    }
 }
