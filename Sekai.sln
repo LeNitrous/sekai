@@ -11,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0F7F9E4F
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Core.Tests", "tests\Sekai.Core.Tests\Sekai.Core.Tests.csproj", "{BC56622C-7A59-4175-B510-CE13DEA1C67C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Core.Benchmarks", "tests\Sekai.Core.Benchmarks\Sekai.Core.Benchmarks.csproj", "{27C7C5FF-875C-4781-8A70-F20CDEE248DB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,9 +30,14 @@ Global
 		{BC56622C-7A59-4175-B510-CE13DEA1C67C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BC56622C-7A59-4175-B510-CE13DEA1C67C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BC56622C-7A59-4175-B510-CE13DEA1C67C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27C7C5FF-875C-4781-8A70-F20CDEE248DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27C7C5FF-875C-4781-8A70-F20CDEE248DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27C7C5FF-875C-4781-8A70-F20CDEE248DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27C7C5FF-875C-4781-8A70-F20CDEE248DB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{3BAACCFF-05E5-468D-81EE-BB0BC500C03B} = {11EBA343-73D5-4FC5-ADB9-2921D759C406}
 		{BC56622C-7A59-4175-B510-CE13DEA1C67C} = {0F7F9E4F-39F9-479E-8463-20AE6B578EBB}
+		{27C7C5FF-875C-4781-8A70-F20CDEE248DB} = {0F7F9E4F-39F9-479E-8463-20AE6B578EBB}
 	EndGlobalSection
 EndGlobal
