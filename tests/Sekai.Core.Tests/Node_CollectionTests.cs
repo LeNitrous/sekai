@@ -6,10 +6,10 @@ using NUnit.Framework;
 
 namespace Sekai.Core.Tests;
 
-public class Node_CollectionTests
+public class NodeCollectionTests
 {
     [Test]
-    public void Node_ShouldAddOther()
+    public void NodeShouldAddOther()
     {
         var node = new Node();
 
@@ -17,7 +17,7 @@ public class Node_CollectionTests
     }
 
     [Test]
-    public void Node_ShouldNotAddSelf()
+    public void NodeShouldNotAddSelf()
     {
         var node = new Node();
 
@@ -25,7 +25,7 @@ public class Node_CollectionTests
     }
 
     [Test]
-    public void Node_ShouldNotAddChild()
+    public void NodeShouldNotAddChild()
     {
         var a = new Node();
         var b = new Node();
@@ -35,7 +35,7 @@ public class Node_CollectionTests
     }
 
     [Test]
-    public void Node_ShouldNotAddChildOfOther()
+    public void NodeShouldNotAddChildOfOther()
     {
         var a = new Node();
         var b = new Node();
@@ -46,23 +46,17 @@ public class Node_CollectionTests
     }
 
     [Test]
-    public void Node_ShouldAddRange()
+    public void NodeShouldAddRange()
     {
         var node = new Node();
 
         Assert.That(() => node.AddRange(new[] { new Node() }), Throws.Nothing);
     }
 
-    [TestCase(true)]
-    [TestCase(false)]
-    public void Node_ShouldClearChildren(bool hasChild)
+    [Test]
+    public void NodeShouldClearChildren()
     {
-        var node = new Node();
-
-        if (hasChild)
-        {
-            node.Add(new Node());
-        }
+        var node = new Node { new Node() };
 
         Assert.Multiple(() =>
         {
@@ -72,68 +66,42 @@ public class Node_CollectionTests
         });
     }
 
-    [TestCase(true)]
-    [TestCase(false)]
-    public void Node_ShouldContainChild(bool hasChild)
+    [Test]
+    public void NodeShouldContainChild()
     {
-        var a = new Node();
         var b = new Node();
+        var a = new Node { b };
 
-        if (hasChild)
-        {
-            a.Add(b);
-        }
-
-        Assert.That(() => a.Contains(b), hasChild ? Is.True : Is.False);
+        Assert.That(() => a.Contains(b), Is.True);
     }
 
-    [TestCase(true)]
-    [TestCase(false)]
-    public void Node_ShouldRemoveChild(bool hasChild)
+    [Test]
+    public void NodeShouldRemoveChild()
     {
-        var a = new Node();
         var b = new Node();
+        var a = new Node { b };
 
-        if (hasChild)
-        {
-            a.Add(b);
-        }
-
-        Assert.That(() => a.Remove(b), hasChild ? Is.True : Is.False);
+        Assert.That(() => a.Remove(b), Is.True);
+        Assert.That(() => a.Remove(b), Is.False);
     }
 
-    [TestCase(true)]
-    [TestCase(false)]
-    public void Node_ShouldHaveValidParent(bool hasParent)
+    [Test]
+    public void NodeShouldHaveValidParent()
     {
-        var a = new Node();
         var b = new Node();
+        var a = new Node { b };
 
-        if (hasParent)
-        {
-            a.Add(b);
-        }
+        Assert.That(b.Parent, Is.SameAs(a));
 
-        Assert.That(b.Parent, hasParent ? Is.SameAs(a) : Is.Null);
+        a.Remove(b);
 
-        if (hasParent)
-        {
-            a.Remove(b);
-
-            Assert.That(b.Parent, Is.Null);
-        }
+        Assert.That(b.Parent, Is.Null);
     }
 
-    [TestCase(true)]
-    [TestCase(false)]
-    public void Node_ShouldNotFailEnumeration(bool hasChild)
+    [Test]
+    public void NodeShouldNotFailEnumeration()
     {
         var node = new Node();
-
-        if (hasChild)
-        {
-            node.Add(new Node());
-        }
 
         Assert.That(() =>
         {
@@ -145,7 +113,7 @@ public class Node_CollectionTests
     }
 
     [Test]
-    public void Node_ShouldFailMutationOnCollectionChange()
+    public void NodeShouldFailMutationOnCollectionChange()
     {
         var node = new Node();
         node.CollectionChanged += (sender, args) => node.Add(new Node());

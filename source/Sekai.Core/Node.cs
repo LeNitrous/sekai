@@ -25,7 +25,7 @@ public class Node : IReferenceable, ICollection<Node>, INotifyCollectionChanged
     /// </summary>
     public Node? Parent { get; private set; }
 
-    public int Count => nodes?.Count ?? 0;
+    public int Count => nodes.Count;
 
     public event NotifyCollectionChangedEventHandler? CollectionChanged;
 
@@ -35,8 +35,8 @@ public class Node : IReferenceable, ICollection<Node>, INotifyCollectionChanged
     internal int Depth { get; private set; }
 
     private int entrants;
-    private List<Node>? nodes;
     private readonly object syncLock = new();
+    private readonly ICollection<Node> nodes = new List<Node>();
 
     /// <summary>
     /// Creates a new instance of a <see cref="Node"/>.
@@ -70,7 +70,7 @@ public class Node : IReferenceable, ICollection<Node>, INotifyCollectionChanged
 
     public void Clear()
     {
-        if (nodes is null || nodes.Count == 0)
+        if (nodes.Count == 0)
         {
             return;
         }
@@ -87,7 +87,7 @@ public class Node : IReferenceable, ICollection<Node>, INotifyCollectionChanged
 
     public bool Contains(Node item)
     {
-        return nodes?.Contains(item) ?? false;
+        return nodes.Contains(item);
     }
 
     public IEnumerator<Node> GetEnumerator()
@@ -97,14 +97,12 @@ public class Node : IReferenceable, ICollection<Node>, INotifyCollectionChanged
 
     public bool Remove(Node item)
     {
-        int index = nodes?.IndexOf(item) ?? -1;
-
         if (!remove(item))
         {
             return false;
         }
 
-        raiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, index));
+        raiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item));
 
         return true;
     }
@@ -128,7 +126,6 @@ public class Node : IReferenceable, ICollection<Node>, INotifyCollectionChanged
             throw new InvalidOperationException("Cannot add a node that already has a parent.");
         }
 
-        nodes ??= new();
         nodes.Add(item);
 
         item.Depth = Depth + 1;
@@ -179,11 +176,6 @@ public class Node : IReferenceable, ICollection<Node>, INotifyCollectionChanged
 
     private IEnumerable<Node> getShallowCopy()
     {
-        if (nodes is null)
-        {
-            return Enumerable.Empty<Node>();
-        }
-
         var copy = new Node[nodes.Count];
 
         lock (syncLock)
@@ -198,5 +190,5 @@ public class Node : IReferenceable, ICollection<Node>, INotifyCollectionChanged
 
     bool ICollection<Node>.IsReadOnly => false;
 
-    void ICollection<Node>.CopyTo(Node[] array, int arrayIndex) => nodes?.CopyTo(array, arrayIndex);
+    void ICollection<Node>.CopyTo(Node[] array, int arrayIndex) => nodes.CopyTo(array, arrayIndex);
 }
