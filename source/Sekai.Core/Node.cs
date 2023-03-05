@@ -15,7 +15,7 @@ namespace Sekai;
 /// An object in a world.
 /// </summary>
 [Serializable]
-[DebuggerDisplay("Count = {Count}")]
+[DebuggerDisplay("Name = {Name}, Count = {Count}")]
 public class Node : IReferenceable, ICollection<Node>, INotifyCollectionChanged
 {
     public Guid Id { get; }
@@ -25,6 +25,11 @@ public class Node : IReferenceable, ICollection<Node>, INotifyCollectionChanged
     /// </summary>
     public Node? Parent { get; private set; }
 
+    /// <summary>
+    /// Gets the name of this node.
+    /// </summary>
+    public string Name { get; }
+
     public int Count => nodes.Count;
 
     public event NotifyCollectionChangedEventHandler? CollectionChanged;
@@ -32,23 +37,44 @@ public class Node : IReferenceable, ICollection<Node>, INotifyCollectionChanged
     /// <summary>
     /// Gets the depth of this node relative to the root.
     /// </summary>
-    internal int Depth { get; private set; }
+    public int Depth { get; private set; }
 
     private int entrants;
     private readonly object syncLock = new();
-    private readonly ICollection<Node> nodes = new List<Node>();
+    private readonly List<Node> nodes = new();
 
     /// <summary>
     /// Creates a new instance of a <see cref="Node"/>.
     /// </summary>
-    public Node()
-        : this(Guid.NewGuid())
+    /// <param name="name">The node's name.</param>
+    public Node(string? name = null)
+        : this(Guid.NewGuid(), name)
     {
     }
 
-    private Node(Guid id)
+    private Node(Guid id, string? name)
     {
         Id = id;
+        Name = name ?? id.ToString();
+    }
+
+    /// <summary>
+    /// Gets the root node.
+    /// </summary>
+    /// <remarks>
+    /// This operation is expensive and must not be called frequently. Refer to caching the returned value a when needed often.
+    /// </remarks>
+    /// <returns>The root node.</returns>
+    public Node GetRoot()
+    {
+        var node = this;
+
+        while (node.Parent is not null)
+        {
+            node = node.Parent;
+        }
+
+        return node;
     }
 
     public void Add(Node item)
@@ -75,14 +101,12 @@ public class Node : IReferenceable, ICollection<Node>, INotifyCollectionChanged
             return;
         }
 
-        var current = nodes.ToList();
-
-        foreach (var item in current)
+        foreach (var item in nodes.ToList())
         {
             remove(item);
         }
 
-        raiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, current));
+        raiseCollectionChanged(reset_event_args);
     }
 
     public bool Contains(Node item)
@@ -136,7 +160,7 @@ public class Node : IReferenceable, ICollection<Node>, INotifyCollectionChanged
     {
         ensureMutationsAllowed();
 
-        if (nodes is null || !Contains(item))
+        if (!Contains(item))
         {
             return false;
         }
@@ -191,4 +215,6 @@ public class Node : IReferenceable, ICollection<Node>, INotifyCollectionChanged
     bool ICollection<Node>.IsReadOnly => false;
 
     void ICollection<Node>.CopyTo(Node[] array, int arrayIndex) => nodes.CopyTo(array, arrayIndex);
+
+    private static readonly NotifyCollectionChangedEventArgs reset_event_args = new(NotifyCollectionChangedAction.Reset);
 }
