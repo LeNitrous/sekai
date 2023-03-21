@@ -11,6 +11,11 @@ namespace Sekai.Platform;
 public interface ISurface
 {
     /// <summary>
+    /// Gets whether the surface exists or not.
+    /// </summary>
+    bool Exists { get; }
+
+    /// <summary>
     /// The surface's size.
     /// </summary>
     Size Size { get; }

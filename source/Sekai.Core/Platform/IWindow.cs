@@ -87,11 +87,6 @@ public interface IWindow : ISurface, IDisposable
     bool Focus { get; }
 
     /// <summary>
-    /// Gets whether the window exists or not.
-    /// </summary>
-    bool Exists { get; }
-
-    /// <summary>
     /// Gets whether th window is visible or not.
     /// </summary>
     bool Visible { get; set; }

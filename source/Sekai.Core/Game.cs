@@ -228,11 +228,16 @@ public class Game
 
             elapsed = TimeSpan.FromMilliseconds(msPerUpdate);
 
-            while (accumulated >= msPerUpdate && hasLoaded && !isPaused)
+            while (accumulated >= msPerUpdate)
             {
-                Update(elapsed);
+                if (hasLoaded && !isPaused)
+                {
+                    break;
+                }
+
                 accumulated -= msPerUpdate;
                 stepCount++;
+                Update(elapsed);
             }
 
             // Draw call needs to compensate from multiple update calls.
@@ -259,7 +264,7 @@ public class Game
             return;
         }
 
-        if (surface is not null && previousSize != surface.Size)
+        if (surface?.Exists == true && previousSize != surface.Size)
         {
             swapchain.Resize((uint)surface.Size.Width, (uint)surface.Size.Height);
             previousSize = surface.Size;
@@ -269,6 +274,7 @@ public class Game
         {
             commands ??= graphics.Factory.CreateCommandList();
             commands.Begin();
+            commands.SetFramebuffer(swapchain.Framebuffer);
             commands.ClearColorTarget(0, Veldrid.RgbaFloat.CornflowerBlue);
             commands.End();
 
