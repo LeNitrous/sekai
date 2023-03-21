@@ -9,7 +9,7 @@ namespace Sekai.Platform;
 /// <summary>
 /// An interface for objects that represent a physical monitor.
 /// </summary>
-public interface IMonitor
+public interface IMonitor : IWindowHost
 {
     /// <summary>
     /// Gets the name of this monitor.
