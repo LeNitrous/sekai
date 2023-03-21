@@ -6,13 +6,31 @@ using System.Threading;
 
 namespace Sekai.Platform;
 
-/// <summary>
-/// An <see cref="IWaitable"/> that uses <seealso cref="Thread.Sleep(TimeSpan)"/>.
-/// </summary>
-internal class DefaultWaitableObject : IWaitable
+public sealed class DefaultWaitableObjectFactory : IWaitableFactory
 {
+    public static readonly IWaitableFactory Instance = new DefaultWaitableObjectFactory();
+
+    public IWaitable CreateWaitable() => DefaultWaitableObject.Instance;
+
+    private DefaultWaitableObjectFactory()
+    {
+    }
+}
+
+internal sealed class DefaultWaitableObject : IWaitable
+{
+    public static IWaitable Instance = new DefaultWaitableObject();
+
+    private DefaultWaitableObject()
+    {
+    }
+
     public void Wait(TimeSpan time)
     {
         Thread.Sleep(time);
+    }
+
+    public void Dispose()
+    {
     }
 }

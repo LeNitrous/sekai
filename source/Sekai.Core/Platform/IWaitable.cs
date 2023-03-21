@@ -8,7 +8,7 @@ namespace Sekai.Platform;
 /// <summary>
 /// An interface for waitable objects.
 /// </summary>
-public interface IWaitable
+public interface IWaitable : IDisposable
 {
     /// <summary>
     /// Blocking the calling thread and waits for an arbitrary amount of time.

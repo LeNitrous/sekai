@@ -9,15 +9,27 @@ using System.Threading;
 
 namespace Sekai.Platform.Windows;
 
+[SupportedOSPlatform("windows")]
+public sealed class WindowsWaitableObjectFactory : IWaitableFactory
+{
+    public static readonly IWaitableFactory Instance = new WindowsWaitableObjectFactory();
+
+    public IWaitable CreateWaitable() => new WindowsWaitableObject();
+
+    private WindowsWaitableObjectFactory()
+    {
+    }
+}
+
 /// <summary>
 /// An <see cref="IWaitable"/> that uses high resolution waitable timers when available.
 /// </summary>
-internal partial class WindowsWaitableObject : IWaitable, IDisposable
+[SupportedOSPlatform("windows")]
+internal partial class WindowsWaitableObject : IWaitable
 {
     private bool isDisposed;
     private nint highResolutionTimer;
 
-    [SupportedOSPlatform("windows")]
     public WindowsWaitableObject()
     {
         try
