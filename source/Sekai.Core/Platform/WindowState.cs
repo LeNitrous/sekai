@@ -1,10 +1,10 @@
 // Copyright (c) Cosyne and The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-namespace Sekai.Surfaces;
+namespace Sekai.Platform;
 
 /// <summary>
-/// Window State
+/// An enumeration of window states.
 /// </summary>
 public enum WindowState
 {

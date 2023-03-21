@@ -4,12 +4,12 @@
 using System.Collections.Generic;
 using System.Drawing;
 
-namespace Sekai.Surfaces;
+namespace Sekai.Platform;
 
 /// <summary>
 /// An interface for objects that represent a physical monitor.
 /// </summary>
-public interface IMonitor : IWindowHost
+public interface IMonitor
 {
     /// <summary>
     /// Gets the name of this monitor.
@@ -29,7 +29,7 @@ public interface IMonitor : IWindowHost
     /// <summary>
     /// Gets the current video mode of this monitor.
     /// </summary>
-    VideoMode VideoMode { get; }
+    VideoMode Mode { get; }
 
     /// <summary>
     /// Gets all video modes that this monitor supports.

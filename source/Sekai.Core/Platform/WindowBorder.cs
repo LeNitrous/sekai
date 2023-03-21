@@ -1,25 +1,25 @@
 // Copyright (c) Cosyne and The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-namespace Sekai.Surfaces;
+namespace Sekai.Platform;
 
 /// <summary>
-/// Window Border
+/// An enumeration of window border states.
 /// </summary>
 public enum WindowBorder
 {
     /// <summary>
-    /// The window can be resized by dragging its borders.
+    /// The window is resizable.
     /// </summary>
-    Normal,
+    Resizable,
 
     /// <summary>
-    /// The window border is visible but cannot be resized by the user.
+    /// The window cannot be resized.
     /// </summary>
     Fixed,
 
     /// <summary>
-    /// The window border is hidden.
+    /// The window border decoration is hidden.
     /// </summary>
     Hidden,
 }
