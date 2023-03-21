@@ -16,13 +16,6 @@ public class ServiceLocatorTests
     }
 
     [Test]
-    public void Add_CannotAdd_NonClassType()
-    {
-        var services = new ServiceLocator();
-        Assert.That(() => services.Add(typeof(int), 1), Throws.ArgumentException);
-    }
-
-    [Test]
     public void Add_CannotAdd_DuplicateType()
     {
         var services = new ServiceLocator();

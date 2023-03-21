@@ -19,18 +19,12 @@ public class ServiceLocator : IServiceLocator
     /// </summary>
     /// <param name="type">The type of service.</param>
     /// <param name="instance">The service instance.</param>
-    /// <exception cref="ArgumentException">Thrown when <paramref name="type"/> is already added or is not a class.</exception>
     /// <exception cref="InvalidCastException">Thrown when <paramref name="instance"/> cannot be assigned to <paramref name="type"/>.</exception>
     public void Add(Type type, object instance)
     {
         if (services.ContainsKey(type))
         {
             throw new ArgumentException($"{type} is already added to this locator.", nameof(type));
-        }
-
-        if (!type.IsClass)
-        {
-            throw new ArgumentException($"{type} must be a class.", nameof(type));
         }
 
         if (!instance.GetType().IsAssignableTo(type))
