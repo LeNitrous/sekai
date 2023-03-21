@@ -3,15 +3,14 @@
 
 using System;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.Threading.Tasks;
+using System.Drawing;
+using Sekai.Graphics;
 using Sekai.Platform;
-using Sekai.Platform.Windows;
 
 namespace Sekai;
 
 /// <summary>
-/// The game class implementing the lifecycle.
+/// The game class.
 /// </summary>
 public class Game
 {
@@ -43,25 +42,30 @@ public class Game
         }
     }
 
-    /// <summary>
-    /// Gets the game's services.
-    /// </summary>
-    public ServiceLocator Services { get; }
-
-    private bool isRunning;
-    private bool isExiting;
+    private bool isPaused;
+    private bool hasLoaded;
+    private bool hasCreated;
     private double msPerUpdate = 16.67;
     private double accumulated;
     private double currentTime;
     private double elapsedTime;
     private double previousTime;
+    private ISurface? surface;
+    private IWaitable? waitable;
     private Stopwatch? stopwatch;
-    private readonly IWaitable waitable;
+    private GraphicsDevice? graphics;
+    private readonly IGameHost host;
 
-    public Game()
+    public Game(IGameHost host)
     {
-        Services = new();
-        waitable = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? new WindowsWaitableObject() : new DefaultWaitableObject();
+        this.host = host;
+        this.host.Create += create;
+        this.host.Load += load;
+        this.host.Tick += tick;
+        this.host.Unload += unload;
+        this.host.Paused += paused;
+        this.host.Resumed += resumed;
+        this.host.Destroy += destroy;
     }
 
     protected virtual void Load()
@@ -80,99 +84,110 @@ public class Game
     {
     }
 
-    /// <summary>
-    /// Runs the game on the calling thread.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">Thrown when the game is already running.</exception>
-    public void Run()
+    private void create()
     {
-        if (isRunning)
+        if (hasCreated)
         {
-            throw new InvalidOperationException("The game is already running.");
+            throw new InvalidOperationException($"Attempting to perform {nameof(IGameHost.Create)} when the game instance has already been created.");
         }
 
-        run();
-    }
+        surface = host.Services.Get<ISurface>(false);
+        waitable = host.Services.Get<IWaitableFactory>().CreateWaitable();
 
-    /// <summary>
-    /// Runs the game asynchronously.
-    /// </summary>
-    /// <returns>The task representing the run action.</returns>
-    /// <exception cref="InvalidOperationException">Thrown when the game is already running.</exception>
-    public Task RunAsync()
-    {
-        if (isRunning)
-        {
-            throw new InvalidOperationException("The game is already running.");
-        }
+        Load();
 
-        return Task.Factory.StartNew(run, default, TaskCreationOptions.LongRunning, TaskScheduler.Default);
-    }
-
-    /// <summary>
-    /// Exits the game.
-    /// </summary>
-    public void Exit()
-    {
-        isExiting = true;
-    }
-
-    /// <summary>
-    /// Resets the game time back to zero.
-    /// </summary>
-    public void Reset()
-    {
-        accumulated = 0;
-        currentTime = 0;
-        elapsedTime = 0;
-        previousTime = 0;
-        stopwatch?.Reset();
-    }
-
-    /// <summary>
-    /// Performs an iteration of the game loop.
-    /// </summary>
-    public void Tick()
-    {
-        if (isRunning)
-        {
-            throw new InvalidOperationException($"Cannot externally call {nameof(Tick)} when the game is currently running.");
-        }
-
-        tick();
-    }
-
-    private void run()
-    {
-        Reset();
-
-        load();
-
-        isRunning = true;
-        isExiting = false;
-
-        while (!isExiting)
-        {
-            tick();
-        }
-
-        unload();
-
-        isRunning = false;
+        hasCreated = true;
     }
 
     private void load()
     {
-        Load();
+        if (!hasCreated)
+        {
+            throw new InvalidOperationException($"Attempting to perform {nameof(IGameHost.Load)} when the game instance has not yet been initialized.");
+        }
+
+        if (hasLoaded)
+        {
+            throw new InvalidOperationException($"Attempting to perform {nameof(IGameHost.Load)} when the game instance has already been loaded.");
+        }
+
+        graphics = surface is not null ? GraphicsDevice.Create(surface, out swapchain) : GraphicsDevice.Create();
+
+        hasLoaded = true;
     }
 
     private void unload()
     {
+        if (!hasLoaded)
+        {
+            throw new InvalidOperationException($"Attempting to perform {nameof(IGameHost.Unload)} when the game instance has not yet been loaded.");
+        }
+
+        if (graphics is not null)
+        {
+            if (commands is not null)
+            {
+                graphics.Veldrid.DisposeWhenIdle(commands);
+                commands = null;
+            }
+
+            if (swapchain is not null && graphics.API != GraphicsAPI.OpenGL)
+            {
+                graphics.Veldrid.DisposeWhenIdle(swapchain);
+                swapchain = null;
+            }
+            else
+            {
+                swapchain = null;
+            }
+
+            graphics.Veldrid.WaitForIdle();
+            graphics.Dispose();
+            graphics = null;
+        }
+
+        hasLoaded = false;
+    }
+
+    private void paused()
+    {
+        isPaused = true;
+    }
+
+    private void resumed()
+    {
+        isPaused = false;
+    }
+
+    private void destroy()
+    {
+        if (!hasCreated)
+        {
+            throw new InvalidOperationException($"Attempting to perform {nameof(IGameHost.Destroy)} when the game instance has not been created.");
+        }
+
+        host.Create -= create;
+        host.Load -= load;
+        host.Tick -= tick;
+        host.Unload -= unload;
+        host.Paused -= paused;
+        host.Resumed -= resumed;
+        host.Destroy -= destroy;
+
         Unload();
+
+        waitable!.Dispose();
+
+        hasCreated = false;
     }
 
     private void tick()
     {
+        if (isPaused || !hasLoaded)
+        {
+            return;
+        }
+
         if (stopwatch == null)
         {
             stopwatch = new();
@@ -183,7 +198,7 @@ public class Game
 
         do
         {
-            if (isExiting)
+            if (isPaused || !hasLoaded)
             {
                 break;
             }
@@ -195,7 +210,7 @@ public class Game
 
             if (TickMode == TickMode.Fixed && accumulated < msPerUpdate)
             {
-                waitable.Wait(TimeSpan.FromMilliseconds(msPerUpdate - accumulated));
+                waitable?.Wait(TimeSpan.FromMilliseconds(msPerUpdate - accumulated));
                 retry = true;
             }
             else
@@ -213,32 +228,63 @@ public class Game
 
             elapsed = TimeSpan.FromMilliseconds(msPerUpdate);
 
-            while (accumulated >= msPerUpdate && !isExiting)
+            while (accumulated >= msPerUpdate && hasLoaded && !isPaused)
             {
-                update(elapsed);
+                Update(elapsed);
                 accumulated -= msPerUpdate;
                 stepCount++;
             }
 
-            // doDraw needs to compensate from multiple update calls.
+            // Draw call needs to compensate from multiple update calls.
             elapsed = TimeSpan.FromMilliseconds(msPerUpdate * stepCount);
         }
         else
         {
             elapsed = TimeSpan.FromMilliseconds(elapsedTime);
-            update(elapsed);
+            Update(elapsed);
         }
 
         draw(elapsed);
     }
 
+    private Size previousSize;
+    private bool hasFirstDraw;
+    private Veldrid.Swapchain? swapchain;
+    private Veldrid.CommandList? commands;
+
     private void draw(TimeSpan elapsed)
     {
-        Draw(elapsed);
-    }
+        if (graphics is null || swapchain is null)
+        {
+            return;
+        }
 
-    private void update(TimeSpan elapsed)
-    {
-        Update(elapsed);
+        if (surface is not null && previousSize != surface.Size)
+        {
+            swapchain.Resize((uint)surface.Size.Width, (uint)surface.Size.Height);
+            previousSize = surface.Size;
+        }
+
+        try
+        {
+            commands ??= graphics.Factory.CreateCommandList();
+            commands.Begin();
+            commands.ClearColorTarget(0, Veldrid.RgbaFloat.CornflowerBlue);
+            commands.End();
+
+            graphics.Veldrid.SubmitCommands(commands);
+
+            Draw(elapsed);
+        }
+        finally
+        {
+            graphics.Veldrid.SwapBuffers(swapchain);
+            graphics.Veldrid.WaitForIdle();
+        }
+
+        if (!hasFirstDraw && surface is IWindow window)
+        {
+            window.Visible = hasFirstDraw = true;
+        }
     }
 }

@@ -1,9 +1,8 @@
 // Copyright (c) Cosyne and The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-using System;
-using System.Threading.Tasks;
 using NUnit.Framework;
+using Sekai.Platform;
 
 namespace Sekai.Core.Tests;
 
@@ -11,8 +10,7 @@ namespace Sekai.Core.Tests;
 [TestFixture(TickMode.Variable)]
 public class GameTests
 {
-    private Game? game;
-
+    private ManualGameHost? host;
     private readonly TickMode mode;
 
     public GameTests(TickMode mode)
@@ -21,87 +19,89 @@ public class GameTests
     }
 
     [SetUp]
-    public void Setup()
+    public void SetUp()
     {
-        game = new() { TickMode = mode };
+        _ = new Game(host = new()) { TickMode = mode };
     }
 
     [TearDown]
-    public void Teardown()
+    public void TearDown()
     {
-        game!.Exit();
-        game = null;
+        host = null;
     }
 
     [Test]
-    public async Task Run_ShouldNotFail()
+    public void Call_Create_DoesNotThrow()
     {
-        var task = Task.Run(game!.Run);
+        Assert.Multiple(() =>
+        {
+            // First call does something.
+            Assert.That(host!.DoCreate, Throws.Nothing);
 
-        await Task.Delay(100);
-
-        Assert.That(task.Exception, Is.Null);
+            // Subsequent calls should throw.
+            Assert.That(host.DoCreate, Throws.InvalidOperationException);
+        });
     }
 
     [Test]
-    public async Task Run_ShouldFail_When_IsRunning()
+    public void Call_Load_DoesNotThrow()
     {
-        _ = Task.Run(game!.Run);
+        // Calling before initialization should throw.
+        Assert.That(host!.DoLoad, Throws.InvalidOperationException);
 
-        await Task.Delay(100);
+        host!.DoCreate();
 
-        var task = Task.Run(game!.Run);
-
-        await Task.Delay(100);
-
-        Assert.That(task.Exception, Is.Not.Null);
+        // Calling after initialization should throw nothing.
+        Assert.That(host!.DoLoad, Throws.Nothing);
     }
 
     [Test]
-    public async Task RunAsync_ShouldNotFail()
+    public void Call_Tick_DoesNotThrow()
     {
-        var task = game!.RunAsync();
+        // Calling before initialization should do nothing.
+        Assert.That(host!.DoTick, Throws.Nothing);
 
-        await Task.Delay(100);
+        host.DoCreate();
+        host.DoLoad();
 
-        Assert.That(task.Exception, Is.Null);
+        // Calling after initialization should do something.
+        Assert.That(host!.DoTick, Throws.Nothing);
+
+        host.DoPause();
+
+        // Calling while paused should do nothing.
+        Assert.That(host!.DoTick, Throws.Nothing);
+
+        host.DoResume();
+
+        // Calling after resume should do something.
+        Assert.That(host!.DoTick, Throws.Nothing);
     }
 
     [Test]
-    public async Task RunAsync_ShouldFail_When_IsRunning()
+    public void Call_Unload_DoesNotThrow()
     {
-        _ = game!.RunAsync();
+        // Calling before load should throw.
+        Assert.That(host!.DoUnload, Throws.InvalidOperationException);
 
-        await Task.Delay(100);
+        host.DoCreate();
+        host.DoLoad();
 
-        Assert.That(game!.RunAsync, Throws.InvalidOperationException);
+        // Calling after load should throw nothing.
+        Assert.That(host!.DoUnload, Throws.Nothing);
     }
 
     [Test]
-    public void Tick_ShouldNotFail()
+    public void Call_Destroy_DoesNotThrow()
     {
-        Assert.That(game!.Tick, Throws.Nothing);
-    }
+        // Calling before unload should throw.
+        Assert.That(host!.DoDestroy, Throws.InvalidOperationException);
 
-    [Test]
-    public async Task Tick_ShouldFail_When_IsRunning()
-    {
-        _ = game!.RunAsync();
+        host.DoCreate();
+        host.DoLoad();
+        host.DoUnload();
 
-        await Task.Delay(100);
-
-        Assert.That(game!.Tick, Throws.InvalidOperationException);
-    }
-
-    [Test]
-    public void UpdatePerSecond_ShouldNotThrow_When_Valid()
-    {
-        Assert.That(() => game!.UpdatePerSecond = 30, Throws.Nothing);
-    }
-
-    [Test]
-    public void UpdatePerSecond_ShoulThrow_When_Invalid()
-    {
-        Assert.That(() => game!.UpdatePerSecond = -1, Throws.InstanceOf<ArgumentOutOfRangeException>());
+        // Calling after unload should throw nothing.
+        Assert.That(host!.DoDestroy, Throws.Nothing);
     }
 }
