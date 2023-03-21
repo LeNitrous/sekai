@@ -9,7 +9,7 @@ namespace Sekai.Platform;
 /// <summary>
 /// An interface for window objects.
 /// </summary>
-public interface IWindow : ISurface, IDisposable
+public interface IWindow : ISurface, IWindowHost, IDisposable
 {
     /// <summary>
     /// Called when the window has been closed.
@@ -42,9 +42,9 @@ public interface IWindow : ISurface, IDisposable
     event Action<bool>? FocusChanged;
 
     /// <summary>
-    /// The window that created this child window.
+    /// The window that created this child window. This may be an <see cref="IMonitor"/> or an <see cref="IWindow"/>.
     /// </summary>
-    IWindow? Parent { get; }
+    IWindowHost? Parent { get; }
 
     /// <summary>
     /// The monitor where this window is currently at.
@@ -95,12 +95,6 @@ public interface IWindow : ISurface, IDisposable
     /// The window's title.
     /// </summary>
     string Title { get; set; }
-
-    /// <summary>
-    /// Creates a new child window.
-    /// </summary>
-    /// <returns>The child window.</returns>
-    IWindow CreateWindow();
 
     /// <summary>
     /// Closes the window.
