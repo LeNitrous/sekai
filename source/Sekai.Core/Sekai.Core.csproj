@@ -7,4 +7,8 @@
     <RootNamespace>Sekai</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Veldrid" Version="4.9.0" />
+  </ItemGroup>
+
 </Project>
