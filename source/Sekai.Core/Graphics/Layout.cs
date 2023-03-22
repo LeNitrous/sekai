@@ -11,14 +11,13 @@ namespace Sekai.Graphics;
 /// <summary>
 /// Represents a compiled <see cref="ILayout"/>.
 /// </summary>
-public class Layout : IDisposable, IEquatable<Layout>
+public class Layout
 {
     /// <summary>
     /// A read-only list of defined layout members.
     /// </summary>
     internal IReadOnlyList<VertexElementDescription> Members => descriptor.Elements;
 
-    private bool isDisposed;
     private readonly VertexLayoutDescription descriptor;
 
     internal Layout(VertexLayoutDescription descriptor)
@@ -72,37 +71,5 @@ public class Layout : IDisposable, IEquatable<Layout>
                 }
             }
         }
-    }
-
-    ~Layout()
-    {
-        Dispose();
-    }
-
-    public void Dispose()
-    {
-        if (isDisposed)
-        {
-            return;
-        }
-
-        isDisposed = true;
-
-        GC.SuppressFinalize(this);
-    }
-
-    public bool Equals(Layout? other)
-    {
-        return other is not null && descriptor.Equals(other.descriptor);
-    }
-
-    public override int GetHashCode()
-    {
-        return HashCode.Combine(isDisposed, descriptor);
-    }
-
-    public override bool Equals(object? obj)
-    {
-        return Equals(obj as Layout);
     }
 }
