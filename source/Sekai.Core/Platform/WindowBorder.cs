@@ -9,14 +9,14 @@ namespace Sekai.Platform;
 public enum WindowBorder
 {
     /// <summary>
-    /// The window is resizable.
-    /// </summary>
-    Resizable,
-
-    /// <summary>
     /// The window cannot be resized.
     /// </summary>
     Fixed,
+
+    /// <summary>
+    /// The window is resizable.
+    /// </summary>
+    Resizable,
 
     /// <summary>
     /// The window border decoration is hidden.
