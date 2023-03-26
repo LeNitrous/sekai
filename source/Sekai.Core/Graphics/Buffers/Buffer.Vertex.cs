@@ -5,8 +5,9 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Sekai.Graphics.Vertices;
 
-namespace Sekai.Graphics;
+namespace Sekai.Graphics.Buffers;
 
 public partial class Buffer
 {

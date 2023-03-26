@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace Sekai.Graphics;
+namespace Sekai.Graphics.Effects;
 
 public partial class Effect
 {

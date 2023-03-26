@@ -2,7 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 
 using NUnit.Framework;
-using Sekai.Graphics;
+using Sekai.Graphics.Buffers;
 
 namespace Sekai.Core.Tests;
 

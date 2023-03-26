@@ -5,7 +5,7 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace Sekai.Graphics;
+namespace Sekai.Graphics.Buffers;
 
 /// <summary>
 /// A resource used to store arbitrary data that can be sent to the graphics device.

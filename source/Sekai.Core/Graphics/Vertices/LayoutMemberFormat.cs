@@ -1,12 +1,12 @@
 // Copyright (c) Cosyne and The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-namespace Sekai.Graphics;
+namespace Sekai.Graphics.Vertices;
 
 /// <summary>
 /// An enumeration of vertex member formats.
 /// </summary>
-public enum VertexMemberFormat
+public enum LayoutMemberFormat
 {
     /// <summary>
     /// Byte.

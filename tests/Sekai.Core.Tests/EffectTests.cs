@@ -3,7 +3,7 @@
 
 using System;
 using NUnit.Framework;
-using Sekai.Graphics;
+using Sekai.Graphics.Effects;
 
 namespace Sekai.Core.Tests;
 

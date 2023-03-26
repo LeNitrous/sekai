@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Veldrid;
 
-namespace Sekai.Graphics;
+namespace Sekai.Graphics.Effects;
 
 public partial class Effect
 {

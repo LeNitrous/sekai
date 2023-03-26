@@ -4,7 +4,7 @@
 using System;
 using System.Diagnostics;
 
-namespace Sekai.Graphics;
+namespace Sekai.Graphics.Effects;
 
 [DebuggerDisplay("\\{Name = {Name}\\}")]
 internal abstract class EffectParameter

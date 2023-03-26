@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Sekai.Graphics;
+namespace Sekai.Graphics.Textures;
 
 /// <summary>
 /// Determines how a texture will be used.

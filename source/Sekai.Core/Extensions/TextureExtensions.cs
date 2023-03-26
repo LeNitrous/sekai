@@ -2,7 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using Sekai.Graphics;
+using Sekai.Graphics.Textures;
 
 namespace Sekai.Extensions;
 

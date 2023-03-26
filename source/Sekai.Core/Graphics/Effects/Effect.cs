@@ -7,7 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Veldrid;
 
-namespace Sekai.Graphics;
+namespace Sekai.Graphics.Effects;
 
 /// <summary>
 /// Determines how a renderable should be drawn onto the screen.

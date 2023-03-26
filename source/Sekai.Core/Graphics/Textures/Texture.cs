@@ -5,7 +5,7 @@ using System;
 using System.Runtime.CompilerServices;
 using Sekai.Extensions;
 
-namespace Sekai.Graphics;
+namespace Sekai.Graphics.Textures;
 
 /// <summary>
 /// Represents a graphics object that contains image data.
@@ -233,7 +233,7 @@ public sealed class Texture : IDisposable
         uint subresource = texture.CalculateSubresource((uint)level, (uint)layer);
 
         var mapped = device.Veldrid.Map(staging, Veldrid.MapMode.Read, subresource);
-        Unsafe.CopyBlock(data.ToPointer(), mapped.Data.ToPointer(), (uint)size);
+        Unsafe.CopyBlock(data.ToPointer(), mapped.Data.ToPointer(), Math.Min((uint)size, mapped.SizeInBytes));
 
         device.Veldrid.Unmap(staging, subresource);
     }
@@ -369,6 +369,14 @@ public sealed class Texture : IDisposable
 
         return create(device, width, height, depth, format, usage, TextureKind.Texture3D, levels, layers);
     }
+
+    /// <summary>
+    /// Creates a framebuffer attachment for this texture.
+    /// </summary>
+    /// <param name="level">The mip level to expose to the framebuffer.</param>
+    /// <param name="layer">The array layer to expose to the framebuffer.</param>
+    /// <returns>A framebuffer attachment descriptor.</returns>
+    internal Veldrid.FramebufferAttachmentDescription ToFramebufferAttachment(int level = 0, int layer = 0) => new(texture, (uint)layer, (uint)level);
 
     private static Texture create(GraphicsDevice device, int width, int height, int depth, PixelFormat format, TextureFlag flag, TextureKind kind, int levels, int layers)
     {

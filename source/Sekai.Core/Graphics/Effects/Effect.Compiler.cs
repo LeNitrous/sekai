@@ -11,7 +11,7 @@ using Spirzza.Interop.SpirvCross;
 using static Spirzza.Interop.Shaderc.Shaderc;
 using static Spirzza.Interop.SpirvCross.SpirvCross;
 
-namespace Sekai.Graphics;
+namespace Sekai.Graphics.Effects;
 
 public partial class Effect
 {

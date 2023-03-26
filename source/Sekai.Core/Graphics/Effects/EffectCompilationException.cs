@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Sekai.Graphics;
+namespace Sekai.Graphics.Effects;
 
 /// <summary>
 /// Exception thrown during effect compilation.

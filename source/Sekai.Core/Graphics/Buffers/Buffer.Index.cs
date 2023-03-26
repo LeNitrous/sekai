@@ -6,7 +6,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-namespace Sekai.Graphics;
+namespace Sekai.Graphics.Buffers;
 
 public partial class Buffer
 {
