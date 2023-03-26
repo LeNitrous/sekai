@@ -179,6 +179,14 @@ public class Game
         waitable!.Dispose();
 
         hasCreated = false;
+        hasLoaded = false;
+        isPaused = false;
+        accumulated = 0;
+        currentTime = 0;
+        elapsedTime = 0;
+        previousTime = 0;
+        stopwatch?.Stop();
+        stopwatch = null;
     }
 
     private void tick()
@@ -253,7 +261,6 @@ public class Game
     }
 
     private Size previousSize;
-    private bool hasFirstDraw;
     private Veldrid.Swapchain? swapchain;
     private Veldrid.CommandList? commands;
 
@@ -286,11 +293,6 @@ public class Game
         {
             graphics.Veldrid.SwapBuffers(swapchain);
             graphics.Veldrid.WaitForIdle();
-        }
-
-        if (!hasFirstDraw && surface is IWindow window)
-        {
-            window.Visible = hasFirstDraw = true;
         }
     }
 }
