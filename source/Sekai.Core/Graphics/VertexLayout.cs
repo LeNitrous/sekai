@@ -9,9 +9,9 @@ using Veldrid;
 namespace Sekai.Graphics;
 
 /// <summary>
-/// Represents a compiled <see cref="ILayout"/>.
+/// Represents a compiled <see cref="IVertex"/>.
 /// </summary>
-public class Layout
+public class VertexLayout
 {
     /// <summary>
     /// A read-only list of defined layout members.
@@ -20,35 +20,35 @@ public class Layout
 
     private readonly VertexLayoutDescription descriptor;
 
-    internal Layout(VertexLayoutDescription descriptor)
+    internal VertexLayout(VertexLayoutDescription descriptor)
     {
         this.descriptor = descriptor;
     }
 
     /// <summary>
-    /// Creates a <see cref="Layout"/> from an <see cref="ILayout"/>.
+    /// Creates a <see cref="VertexLayout"/> from an <see cref="IVertex"/>.
     /// </summary>
-    /// <typeparam name="T">The <see cref="ILayout"/> to construct from.</typeparam>
-    public static Layout Create<T>()
-        where T : unmanaged, ILayout
+    /// <typeparam name="T">The <see cref="IVertex"/> to construct from.</typeparam>
+    public static VertexLayout Create<T>()
+        where T : unmanaged, IVertex
     {
-        var builder = new LayoutBuilder();
+        var builder = new VertexLayoutBuilder();
 
         build(typeof(T), builder);
 
         return builder.Build();
 
-        static void build(Type type, LayoutBuilder builder)
+        static void build(Type type, VertexLayoutBuilder builder)
         {
             foreach (var field in type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
             {
-                if (field.FieldType.IsAssignableTo(typeof(ILayout)))
+                if (field.FieldType.IsAssignableTo(typeof(IVertex)))
                 {
                     build(field.FieldType, builder);
                 }
                 else
                 {
-                    var attr = field.GetCustomAttribute<LayoutMember>();
+                    var attr = field.GetCustomAttribute<VertexMember>();
 
                     if (attr is null)
                     {
@@ -60,7 +60,7 @@ public class Layout
                         attr.Name = field.Name;
                     }
 
-                    if (attr.Count == int.MinValue && attr.Format == (LayoutMemberFormat)int.MinValue)
+                    if (attr.Count == int.MinValue && attr.Format == (VertexMemberFormat)int.MinValue)
                     {
                         builder.Add(field.FieldType, attr.Name, attr.Normalized);
                     }

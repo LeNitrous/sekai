@@ -10,11 +10,11 @@ using Veldrid;
 namespace Sekai.Graphics;
 
 /// <summary>
-/// A helper that builds a <see cref="Layout"/>.
+/// A helper that builds a <see cref="VertexLayout"/>.
 /// </summary>
-public class LayoutBuilder
+public class VertexLayoutBuilder
 {
-    private readonly HashSet<LayoutMember> members = new();
+    private readonly HashSet<VertexMember> members = new();
 
     /// <summary>
     /// Adds a type as a layout member.
@@ -22,7 +22,7 @@ public class LayoutBuilder
     /// <typeparam name="T">The member type.</typeparam>
     /// <param name="name">The member name.</param>
     /// <param name="normalized">Whether this member's value is normalized.</param>
-    public LayoutBuilder Add<T>(string name, bool normalized = false)
+    public VertexLayoutBuilder Add<T>(string name, bool normalized = false)
         where T : unmanaged
     {
         return Add(typeof(T), name, normalized);
@@ -34,7 +34,7 @@ public class LayoutBuilder
     /// <param name="type">The member type.</param>
     /// <param name="name">The member name.</param>
     /// <param name="normalized">Whether this member's value is normalized.</param>
-    public LayoutBuilder Add(Type type, string name, bool normalized = false)
+    public VertexLayoutBuilder Add(Type type, string name, bool normalized = false)
     {
         if (!formatMap.TryGetValue(type, out var format))
             throw new NotSupportedException($"The type {type} is not a supported layout member type.");
@@ -42,7 +42,7 @@ public class LayoutBuilder
         if (!countMap.TryGetValue(type, out int count))
             count = 1;
 
-        return Add(new LayoutMember(name, count, format, normalized));
+        return Add(new VertexMember(name, count, format, normalized));
     }
 
     /// <summary>
@@ -52,16 +52,16 @@ public class LayoutBuilder
     /// <param name="count">The member's component count.</param>
     /// <param name="format">The member's component format.</param>
     /// <param name="normalized">Whether this member's value is normalized.</param>
-    public LayoutBuilder Add(string name, int count, LayoutMemberFormat format, bool normalized = false)
+    public VertexLayoutBuilder Add(string name, int count, VertexMemberFormat format, bool normalized = false)
     {
-        return Add(new LayoutMember(name, count, format, normalized));
+        return Add(new VertexMember(name, count, format, normalized));
     }
 
     /// <summary>
-    /// Appends another <see cref="LayoutBuilder"/> to itself.
+    /// Appends another <see cref="VertexLayoutBuilder"/> to itself.
     /// </summary>
-    /// <param name="other">The other <see cref="LayoutBuilder"/>.</param>
-    public LayoutBuilder Add(LayoutBuilder other)
+    /// <param name="other">The other <see cref="VertexLayoutBuilder"/>.</param>
+    public VertexLayoutBuilder Add(VertexLayoutBuilder other)
     {
         foreach (var member in other.members)
         {
@@ -72,20 +72,20 @@ public class LayoutBuilder
     }
 
     /// <summary>
-    /// Appends a <see cref="LayoutMember"/> to itself.
+    /// Appends a <see cref="VertexMember"/> to itself.
     /// </summary>
     /// <param name="member">The layout member to append.</param>
-    internal LayoutBuilder Add(LayoutMember member)
+    internal VertexLayoutBuilder Add(VertexMember member)
     {
         members.Add(member);
         return this;
     }
 
     /// <summary>
-    /// Builds this <see cref="LayoutBuilder"/> as a <see cref="Layout"/>.
+    /// Builds this <see cref="VertexLayoutBuilder"/> as a <see cref="VertexLayout"/>.
     /// </summary>
-    /// <returns>The compiled <see cref="Layout"/>.</returns>
-    public Layout Build()
+    /// <returns>The compiled <see cref="VertexLayout"/>.</returns>
+    public VertexLayout Build()
     {
         int index = 0;
         int stride = 0;
@@ -99,23 +99,23 @@ public class LayoutBuilder
             stride += member.Format.SizeOfFormat() * member.Count;
         }
 
-        return new Layout(new((uint)stride, elements));
+        return new VertexLayout(new((uint)stride, elements));
     }
 
-    private static readonly Dictionary<Type, LayoutMemberFormat> formatMap = new()
+    private static readonly Dictionary<Type, VertexMemberFormat> formatMap = new()
     {
-        { typeof(int), LayoutMemberFormat.Int },
-        { typeof(uint), LayoutMemberFormat.UnsignedInt },
-        { typeof(byte), LayoutMemberFormat.UnsignedByte },
-        { typeof(sbyte), LayoutMemberFormat.Byte },
-        { typeof(short), LayoutMemberFormat.Short },
-        { typeof(ushort), LayoutMemberFormat.UnsignedShort },
-        { typeof(Half), LayoutMemberFormat.Half },
-        { typeof(float), LayoutMemberFormat.Float },
-        { typeof(Vector2), LayoutMemberFormat.Float },
-        { typeof(Vector3), LayoutMemberFormat.Float },
-        { typeof(Vector4), LayoutMemberFormat.Float },
-        { typeof(Matrix4x4), LayoutMemberFormat.Float },
+        { typeof(int), VertexMemberFormat.Int },
+        { typeof(uint), VertexMemberFormat.UnsignedInt },
+        { typeof(byte), VertexMemberFormat.UnsignedByte },
+        { typeof(sbyte), VertexMemberFormat.Byte },
+        { typeof(short), VertexMemberFormat.Short },
+        { typeof(ushort), VertexMemberFormat.UnsignedShort },
+        { typeof(Half), VertexMemberFormat.Half },
+        { typeof(float), VertexMemberFormat.Float },
+        { typeof(Vector2), VertexMemberFormat.Float },
+        { typeof(Vector3), VertexMemberFormat.Float },
+        { typeof(Vector4), VertexMemberFormat.Float },
+        { typeof(Matrix4x4), VertexMemberFormat.Float },
     };
 
     private static readonly Dictionary<Type, int> countMap = new()

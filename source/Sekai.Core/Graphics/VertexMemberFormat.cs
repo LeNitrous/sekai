@@ -6,7 +6,7 @@ namespace Sekai.Graphics;
 /// <summary>
 /// An enumeration of vertex member formats.
 /// </summary>
-public enum LayoutMemberFormat
+public enum VertexMemberFormat
 {
     /// <summary>
     /// Byte.

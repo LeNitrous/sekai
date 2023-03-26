@@ -9,16 +9,16 @@ using Veldrid;
 
 namespace Sekai.Core.Tests;
 
-public class LayoutTests
+public class VertexLayoutTests
 {
     [Test]
     public void Create_From_Type()
     {
-        Layout layout = null!;
+        VertexLayout layout = null!;
 
         Assert.Multiple(() =>
         {
-            Assert.That(() => layout = Layout.Create<TestLayout>(), Throws.Nothing);
+            Assert.That(() => layout = VertexLayout.Create<TestLayout>(), Throws.Nothing);
             Assert.That(layout.Members, Has.Count.EqualTo(3));
             Assert.That(layout.Members[0].Name, Is.EqualTo("Position"));
             Assert.That(layout.Members[0].Format, Is.EqualTo(VertexElementFormat.Float2));
@@ -35,15 +35,15 @@ public class LayoutTests
     [Test]
     public void Create_From_Builder()
     {
-        Layout layout = null!;
-        var builder = new LayoutBuilder();
+        VertexLayout layout = null!;
+        var builder = new VertexLayoutBuilder();
 
         Assert.Multiple(() =>
         {
             Assert.That(() => builder.Add<Vector2>("Position"), Throws.Nothing);
             Assert.That(() => builder.Add<Vector4>("Color"), Throws.Nothing);
             Assert.That(() => builder.Add<float>("Test"), Throws.Nothing);
-            Assert.That(() => builder.Add("Flag", 1, LayoutMemberFormat.Int), Throws.Nothing);
+            Assert.That(() => builder.Add("Flag", 1, VertexMemberFormat.Int), Throws.Nothing);
             Assert.That(() => builder.Add<double>("Invalid"), Throws.InstanceOf<NotSupportedException>());
             Assert.That(() => layout = builder.Build(), Throws.Nothing);
             Assert.That(layout.Members, Has.Count.EqualTo(4));
@@ -62,23 +62,23 @@ public class LayoutTests
         });
     }
 
-    private struct TestLayout : ILayout
+    private struct TestLayout : IVertex
     {
-        [LayoutMember(2, LayoutMemberFormat.Float)]
+        [VertexMember(2, VertexMemberFormat.Float)]
         public Vector2 Position;
 
-        [LayoutMember]
+        [VertexMember]
         public Vector4 Color;
 
         public float Field;
 
-        [LayoutMember]
+        [VertexMember]
         public TestLayoutInner Inner;
     }
 
-    private struct TestLayoutInner : ILayout
+    private struct TestLayoutInner : IVertex
     {
-        [LayoutMember]
+        [VertexMember]
         public float AnotherField;
     }
 }

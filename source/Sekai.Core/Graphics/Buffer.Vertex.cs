@@ -23,7 +23,7 @@ public partial class Buffer
         /// <returns>A new strongly-typed vertex buffer.</returns>
         /// <exception cref="ArgumentException">Thrown when invalid arguments were passed.</exception>
         public static Buffer<T> Create<T>(GraphicsDevice device, int count, bool dynamic = false)
-            where T : unmanaged, ILayout
+            where T : unmanaged, IVertex
         {
             if (count <= 0)
             {
@@ -49,7 +49,7 @@ public partial class Buffer
         /// <param name="dynamic">Whether this buffer will constantly be updated with new data.</param>
         /// <returns>A new strongly-typed vertex buffer.</returns>
         public static Buffer<T> Create<T>(GraphicsDevice device, ReadOnlySpan<T> data, bool dynamic = false)
-            where T : unmanaged, ILayout
+            where T : unmanaged, IVertex
         {
             var buffer = Create<T>(device, data.Length, dynamic);
             buffer.SetData(device, data);
@@ -65,7 +65,7 @@ public partial class Buffer
         /// <param name="dynamic">Whether this buffer will constantly be updated with new data.</param>
         /// <returns>A new strongly-typed vertex buffer.</returns>
         public static Buffer<T> Create<T>(GraphicsDevice device, T[] data, bool dynamic = false)
-            where T : unmanaged, ILayout
+            where T : unmanaged, IVertex
         {
             return Create(device, (ReadOnlySpan<T>)data.AsSpan(), dynamic);
         }
@@ -80,7 +80,7 @@ public partial class Buffer
         /// <param name="dynamic">Whether this buffer will constantly be updated with new data.</param>
         /// <returns>A new strongly-typed vertex buffer.</returns>
         public static Buffer<T> Create<T>(GraphicsDevice device, ref T data, int length = 1, bool dynamic = false)
-            where T : unmanaged, ILayout
+            where T : unmanaged, IVertex
         {
             return Create(device, MemoryMarshal.CreateReadOnlySpan(ref data, length), dynamic);
         }
@@ -94,7 +94,7 @@ public partial class Buffer
         /// <param name="dynamic">Whether this buffer will constantly be updated with new data.</param>
         /// <returns>A new strongly-typed vertex buffer.</returns>
         public static Buffer<T> Create<T>(GraphicsDevice device, T data, bool dynamic = false)
-            where T : unmanaged, ILayout
+            where T : unmanaged, IVertex
         {
             return Create(device, ref data, 1, dynamic);
         }

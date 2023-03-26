@@ -6,10 +6,10 @@ using System;
 namespace Sekai.Graphics;
 
 /// <summary>
-/// An attribute used in fields to denote a given <see cref="ILayout"/> field is a layout member.
+/// An attribute used in fields to denote a given <see cref="IVertex"/> field is a layout member.
 /// </summary>
 [AttributeUsage(AttributeTargets.Field)]
-public sealed class LayoutMember : Attribute, IEquatable<LayoutMember>
+public sealed class VertexMember : Attribute, IEquatable<VertexMember>
 {
     /// <summary>
     /// The layout member's name.
@@ -29,7 +29,7 @@ public sealed class LayoutMember : Attribute, IEquatable<LayoutMember>
     /// <summary>
     /// The layout member's value format.
     /// </summary>
-    public LayoutMemberFormat Format { get; internal set; }
+    public VertexMemberFormat Format { get; internal set; }
 
     /// <summary>
     /// Creates a layout member.
@@ -38,7 +38,7 @@ public sealed class LayoutMember : Attribute, IEquatable<LayoutMember>
     /// <param name="count">The layout member's element count.</param>
     /// <param name="format">The layout member's format.</param>
     /// <param name="normalized">Whether this layout member has its values normalized.</param>
-    public LayoutMember(string name, int count = 1, LayoutMemberFormat format = LayoutMemberFormat.Float, bool normalized = false)
+    public VertexMember(string name, int count = 1, VertexMemberFormat format = VertexMemberFormat.Float, bool normalized = false)
     {
         Name = name;
         Count = count;
@@ -52,7 +52,7 @@ public sealed class LayoutMember : Attribute, IEquatable<LayoutMember>
     /// <param name="count">The layout member's element count.</param>
     /// <param name="format">The layout member's format.</param>
     /// <param name="normalized">Whether this layout member has its values normalized.</param>
-    public LayoutMember(int count = 1, LayoutMemberFormat format = LayoutMemberFormat.Float, bool normalized = false)
+    public VertexMember(int count = 1, VertexMemberFormat format = VertexMemberFormat.Float, bool normalized = false)
         : this(string.Empty, count, format, normalized)
     {
     }
@@ -61,27 +61,27 @@ public sealed class LayoutMember : Attribute, IEquatable<LayoutMember>
     /// Creates a layout member whose name, element count, and type is implied from the field.
     /// </summary>
     /// <param name="normalized">Whether this layout member has its values normalized.</param>
-    public LayoutMember(bool normalized = false)
-        : this(string.Empty, int.MinValue, (LayoutMemberFormat)int.MinValue, normalized)
+    public VertexMember(bool normalized = false)
+        : this(string.Empty, int.MinValue, (VertexMemberFormat)int.MinValue, normalized)
     {
     }
 
     /// <summary>
     /// Creates a layout member whose name, element count, and type is implied from the field and  whose values are implicity not normalized.
     /// </summary>
-    public LayoutMember()
+    public VertexMember()
         : this(false)
     {
     }
 
-    public bool Equals(LayoutMember? other)
+    public bool Equals(VertexMember? other)
     {
         return other is not null && Name == other.Name && Count == other.Count && Normalized == other.Normalized && Format == other.Format;
     }
 
     public override bool Equals(object? obj)
     {
-        return obj is LayoutMember member && Equals(member);
+        return obj is VertexMember member && Equals(member);
     }
 
     public override int GetHashCode()
