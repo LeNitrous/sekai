@@ -15,56 +15,54 @@ public sealed class Texture : IDisposable
     /// <summary>
     /// The texture's width.
     /// </summary>
-    public int Width { get; }
+    public int Width => (int)texture.Width;
 
     /// <summary>
     /// The texture's depth.
     /// </summary>
-    public int Depth { get; }
+    public int Depth => (int)texture.Depth;
 
     /// <summary>
     /// The texture's height.
     /// </summary>
-    public int Height { get; }
+    public int Height => (int)texture.Height;
 
     /// <summary>
     /// The texture's mip levels.
     /// </summary>
-    public int Levels { get; }
+    public int Levels => (int)texture.MipLevels;
 
     /// <summary>
     /// The texture's array layers.
     /// </summary>
-    public int Layers { get; }
+    public int Layers => (int)texture.ArrayLayers;
 
     /// <summary>
     /// The texture's flags.
     /// </summary>
-    public TextureFlag Flag { get; }
+    public TextureFlag Flag => texture.Usage.AsFlags();
 
     /// <summary>
     /// The texture's kind.
     /// </summary>
-    public TextureKind Kind { get; }
+    public TextureKind Kind => texture.Type.AsKind();
 
     /// <summary>
     /// The texture's pixel format.
     /// </summary>
-    public PixelFormat Format { get; }
+    public PixelFormat Format => texture.Format.AsPixelFormat();
+
+    /// <summary>
+    /// The texture's sampler.
+    /// </summary>
+    public SamplerState? Sampler { get; set; }
 
     private bool isDisposed;
     private readonly Veldrid.Texture texture;
 
-    private Texture(Veldrid.Texture texture, int width, int height, int depth, int levels, int layers, TextureFlag flag, TextureKind kind, PixelFormat format)
+    private Texture(Veldrid.Texture texture, SamplerState? sampler)
     {
-        Flag = flag;
-        Kind = kind;
-        Width = width;
-        Depth = depth;
-        Height = height;
-        Levels = levels;
-        Layers = layers;
-        Format = format;
+        Sampler = sampler;
         this.texture = texture;
     }
 
@@ -309,20 +307,21 @@ public sealed class Texture : IDisposable
     /// </summary>
     /// <param name="device">The graphics device.</param>
     /// <param name="width">The texture width.</param>
+    /// <param name="sampler">The texture's sampler.</param>
     /// <param name="format">The texture format.</param>
     /// <param name="usage">The texture usage.</param>
     /// <param name="levels">The texture mip level count.</param>
     /// <param name="layers">The texture array layer count.</param>
     /// <returns>A one-dimensional texture.</returns>
     /// <exception cref="ArgumentException">Thrown when an invalid width has been passed.</exception>
-    public static Texture Create(GraphicsDevice device, int width, PixelFormat format = PixelFormat.R8G8B8A8_UNorm_SRgb, TextureFlag usage = TextureFlag.Sampled, int levels = 1, int layers = 1)
+    public static Texture Create(GraphicsDevice device, int width, SamplerState? sampler = null, PixelFormat format = PixelFormat.R8G8B8A8_UNorm_SRgb, TextureFlag usage = TextureFlag.Sampled, int levels = 1, int layers = 1)
     {
         if (width <= 0)
         {
             throw new ArgumentException("Invalid texture width.", nameof(width));
         }
 
-        return create(device, width, 1, 1, format, usage, TextureKind.Texture1D, levels, layers);
+        return create(device, sampler, width, 1, 1, format, usage, TextureKind.Texture1D, levels, layers);
     }
 
     /// <summary>
@@ -331,20 +330,21 @@ public sealed class Texture : IDisposable
     /// <param name="device">The graphics device.</param>
     /// <param name="width">The texture width.</param>
     /// <param name="height">The texture height</param>
+    /// <param name="sampler">The texture's sampler.</param>
     /// <param name="format">The texture format.</param>
     /// <param name="usage">The texture usage.</param>
     /// <param name="levels">The texture mip level count.</param>
     /// <param name="layers">The texture array layer count.</param>
     /// <returns>A one-dimensional texture.</returns>
     /// <exception cref="ArgumentException">Thrown when an invalid width or height has been passed.</exception>
-    public static Texture Create(GraphicsDevice device, int width, int height, PixelFormat format = PixelFormat.R8G8B8A8_UNorm_SRgb, TextureFlag usage = TextureFlag.Sampled, int levels = 1, int layers = 1)
+    public static Texture Create(GraphicsDevice device, int width, int height, SamplerState? sampler = null, PixelFormat format = PixelFormat.R8G8B8A8_UNorm_SRgb, TextureFlag usage = TextureFlag.Sampled, int levels = 1, int layers = 1)
     {
         if (width <= 0 || height <= 0)
         {
             throw new ArgumentException("Invalid texture size.");
         }
 
-        return create(device, width, height, 1, format, usage, TextureKind.Texture2D, levels, layers);
+        return create(device, sampler, width, height, 1, format, usage, TextureKind.Texture2D, levels, layers);
     }
 
     /// <summary>
@@ -354,31 +354,24 @@ public sealed class Texture : IDisposable
     /// <param name="width">The texture width.</param>
     /// <param name="height">The texture height</param>
     /// <param name="depth">The texture depth.</param>
+    /// <param name="sampler">The texture's sampler.</param>
     /// <param name="format">The texture format.</param>
     /// <param name="usage">The texture usage.</param>
     /// <param name="levels">The texture mip level count.</param>
     /// <param name="layers">The texture array layer count.</param>
     /// <returns>A one-dimensional texture.</returns>
     /// <exception cref="ArgumentException">Thrown when an invalid width or height has been passed.</exception>
-    public static Texture Create(GraphicsDevice device, int width, int height, int depth, PixelFormat format = PixelFormat.R8G8B8A8_UNorm_SRgb, TextureFlag usage = TextureFlag.Sampled, int levels = 1, int layers = 1)
+    public static Texture Create(GraphicsDevice device, int width, int height, int depth, SamplerState? sampler = null, PixelFormat format = PixelFormat.R8G8B8A8_UNorm_SRgb, TextureFlag usage = TextureFlag.Sampled, int levels = 1, int layers = 1)
     {
         if (width <= 0 || height <= 0 || depth <= 0)
         {
             throw new ArgumentException("Invalid texture size.");
         }
 
-        return create(device, width, height, depth, format, usage, TextureKind.Texture3D, levels, layers);
+        return create(device, sampler, width, height, depth, format, usage, TextureKind.Texture3D, levels, layers);
     }
 
-    /// <summary>
-    /// Creates a framebuffer attachment for this texture.
-    /// </summary>
-    /// <param name="level">The mip level to expose to the framebuffer.</param>
-    /// <param name="layer">The array layer to expose to the framebuffer.</param>
-    /// <returns>A framebuffer attachment descriptor.</returns>
-    internal Veldrid.FramebufferAttachmentDescription ToFramebufferAttachment(int level = 0, int layer = 0) => new(texture, (uint)layer, (uint)level);
-
-    private static Texture create(GraphicsDevice device, int width, int height, int depth, PixelFormat format, TextureFlag flag, TextureKind kind, int levels, int layers)
+    private static Texture create(GraphicsDevice device, SamplerState? sampler, int width, int height, int depth, PixelFormat format, TextureFlag flag, TextureKind kind, int levels, int layers)
     {
         if (format.IsDepthStencil())
         {
@@ -408,7 +401,7 @@ public sealed class Texture : IDisposable
             Veldrid.TextureSampleCount.Count1
         ));
 
-        return new(texture, width, height, depth, levels, layers, flag, kind, format);
+        return new(texture, sampler);
     }
 
     public void Dispose()
@@ -417,6 +410,8 @@ public sealed class Texture : IDisposable
         {
             return;
         }
+
+        texture.Dispose();
 
         isDisposed = true;
     }
