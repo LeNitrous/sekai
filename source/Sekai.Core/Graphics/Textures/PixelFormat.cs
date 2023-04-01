@@ -84,6 +84,21 @@ public enum PixelFormat
     B8G8R8A8_UNorm_SRgb,
 
     /// <summary>
+    /// 4-component unsigned 32-bit packed format with the RGB values occupy 10 bits each and the A value occupies 2 bits.
+    /// </summary>
+    R10B10G10A2_UInt,
+
+    /// <summary>
+    /// 4-component unsigned normalized 32-bit packed format with the RGB values occupy 10 bits each and the A value occupies 2 bits.
+    /// </summary>
+    R10B10G10A2_UNorm,
+
+    /// <summary>
+    /// 3-component 32-bit packed format with floating-point values whose RG values occupy 11 bits each and the B value occupies 10 bits.
+    /// </summary>
+    R11G11B10_Float,
+
+    /// <summary>
     /// 1-component normalized unsigned short.
     /// </summary>
     R16_UNorm,
@@ -216,7 +231,7 @@ public enum PixelFormat
     /// <summary>
     /// BC1 (DXT1) compression.
     /// </summary>
-    BC1_Rgb_UNorm,
+    BC1_RGB_UNorm,
 
     /// <summary>
     /// BC1 (DXT1) compression with alpha.
@@ -231,7 +246,7 @@ public enum PixelFormat
     /// <summary>
     /// BC1 (DXT1) compression with alpha in sRGB color-space.
     /// </summary>
-    BC1_Rgba_UNorm_SRgb,
+    BC1_RGBA_UNorm_SRgb,
 
     /// <summary>
     /// BC2 (DXT3) compression.
@@ -282,4 +297,10 @@ public enum PixelFormat
     /// BC7 compression as unsigned noramlized values in sRGB color-space.
     /// </summary>
     BC7_UNorm_SRgb,
+
+    ETC2_R8G8B8_UNorm,
+
+    ETC2_R8G8B8A1_UNorm,
+
+    ETC2_R8G8B8A8_UNorm,
 }
