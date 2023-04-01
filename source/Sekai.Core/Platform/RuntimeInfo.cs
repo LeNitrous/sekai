@@ -2,6 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
+using System.Collections.Generic;
 using System.Runtime.Versioning;
 using Sekai.Graphics;
 
@@ -125,7 +126,28 @@ public static class RuntimeInfo
         if (IsApple)
             return GraphicsAPI.Metal;
 
+        if (IsBrowser)
+            throw new NotSupportedException();
+
         return GraphicsAPI.Vulkan;
+    }
+
+    /// <summary>
+    /// Gets the available graphics APIs. The first returned is always preferred.
+    /// </summary>
+    /// <returns>The available graphics APIs.</returns>
+    internal static IEnumerable<GraphicsAPI> GetAvailableGraphicsAPI()
+    {
+        if (IsWindows)
+            yield return GraphicsAPI.D3D11;
+
+        if (IsApple)
+            yield return GraphicsAPI.Metal;
+
+        if (!IsBrowser)
+            yield return GraphicsAPI.Vulkan;
+
+        yield return GraphicsAPI.OpenGL;
     }
 
     /// <summary>
