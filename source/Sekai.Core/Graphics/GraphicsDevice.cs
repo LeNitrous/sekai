@@ -38,7 +38,7 @@ public sealed class GraphicsDevice : IDisposable
     public string Name => Veldrid.DeviceName;
 
     /// <summary>
-    ///The name of this graphics device's vendor.
+    /// The name of this graphics device's vendor.
     /// </summary>
     public string Vendor => Veldrid.VendorName;
 
