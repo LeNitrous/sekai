@@ -2,8 +2,6 @@
   "recommendations": [
     "ms-dotnettools.csharp",
     "editorconfig.editorconfig",
-    "josefpihrt-vscode.roslynator",
-    "ryanluker.vscode-coverage-gutters",
-    "formulahendry.dotnet-test-explorer"
+    "ryanluker.vscode-coverage-gutters"
   ]
 }
