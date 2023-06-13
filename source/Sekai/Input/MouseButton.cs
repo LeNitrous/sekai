@@ -1,90 +1,95 @@
 // Copyright (c) Cosyne and The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
+using System;
+using NetEscapades.EnumGenerators;
+
 namespace Sekai.Input;
 
 /// <summary>
 /// Mouse buttons.
 /// </summary>
-public enum MouseButton
+[Flags]
+[EnumExtensions]
+public enum MouseButton : uint
 {
     /// <summary>
-    /// Unknown.
+    /// None.
     /// </summary>
-    Unknown,
+    None,
 
     /// <summary>
     /// Left mouse button.
     /// </summary>
-    Left,
+    Left = 1 << 0,
 
     /// <summary>
     /// Right mouse button.
     /// </summary>
-    Right,
+    Right = 1 << 1,
 
     /// <summary>
     /// Middle mouse button.
     /// </summary>
-    Middle,
+    Middle = 1 << 2,
 
     /// <summary>
     /// Extra mouse button 1.
     /// </summary>
-    Button1,
+    Button1 = 1 << 3,
 
     /// <summary>
     /// Extra mouse button 2.
     /// </summary>
-    Button2,
+    Button2 = 1 << 4,
 
     /// <summary>
     /// Extra mouse button 3.
     /// </summary>
-    Button3,
+    Button3 = 1 << 5,
 
     /// <summary>
     /// Extra mouse button 4.
     /// </summary>
-    Button4,
+    Button4 = 1 << 6,
 
     /// <summary>
     /// Extra mouse button 5.
     /// </summary>
-    Button5,
+    Button5 = 1 << 7,
 
     /// <summary>
     /// Extra mouse button 6.
     /// </summary>
-    Button6,
+    Button6 = 1 << 8,
 
     /// <summary>
     /// Extra mouse button 7.
     /// </summary>
-    Button7,
+    Button7 = 1 << 9,
 
     /// <summary>
     /// Extra mouse button 8.
     /// </summary>
-    Button8,
+    Button8 = 1 << 10,
 
     /// <summary>
     /// Extra mouse button 9.
     /// </summary>
-    Button9,
+    Button9 = 1 << 11,
 
     /// <summary>
     /// Extra mouse button 10.
     /// </summary>
-    Button10,
+    Button10 = 1 << 12,
 
     /// <summary>
     /// Extra mouse button 11.
     /// </summary>
-    Button11,
+    Button11 = 1 << 13,
 
     /// <summary>
     /// Extra mouse button 12.
     /// </summary>
-    Button12,
+    Button12 = 1 << 14,
 }

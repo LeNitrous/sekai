@@ -9,7 +9,7 @@ namespace Sekai.Platform;
 /// <summary>
 /// An interface for window objects.
 /// </summary>
-public interface IWindow : IView, IWindowHost, IDisposable
+public interface IWindow : IWindowHost, IDisposable
 {
     /// <summary>
     /// Called when the window has been closed.
@@ -52,6 +52,16 @@ public interface IWindow : IView, IWindowHost, IDisposable
     event Action? Suspend;
 
     /// <summary>
+    /// Gets whether the window exists or not.
+    /// </summary>
+    bool Exists { get; }
+
+    /// <summary>
+    /// The window's surface.
+    /// </summary>
+    ISurface? Surface { get; }
+
+    /// <summary>
     /// The window that created this child window. This may be an <see cref="IMonitor"/> or an <see cref="IWindow"/>.
     /// </summary>
     IWindowHost? Parent { get; }
@@ -74,7 +84,7 @@ public interface IWindow : IView, IWindowHost, IDisposable
     /// <summary>
     /// The window's size.
     /// </summary>
-    new Size Size { get; set; }
+    Size Size { get; set; }
 
     /// <summary>
     /// The window's minimum size.
@@ -105,6 +115,20 @@ public interface IWindow : IView, IWindowHost, IDisposable
     /// The window's title.
     /// </summary>
     string Title { get; set; }
+
+    /// <summary>
+    /// Translates screen-space coordinates to local coordinates.
+    /// </summary>
+    /// <param name="point">The local-space coordinates.</param>
+    /// <returns>The screen-space coordinates.</returns>
+    Point PointToClient(Point point);
+
+    /// <summary>
+    /// Translates local-space coordinates to screen coordinates.
+    /// </summary>
+    /// <param name="point">The local-space coordinates.</param>
+    /// <returns>The screen-space coordinates.</returns>
+    Point PointToScreen(Point point);
 
     /// <summary>
     /// Closes the window.

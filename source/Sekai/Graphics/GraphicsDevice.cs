@@ -347,7 +347,7 @@ public abstract class GraphicsDevice : IDisposable
     /// </summary>
     /// <param name="source">The source providing OpenGL access.</param>
     /// <returns>A new OpenGL-backed graphics device.</returns>
-    public static GraphicsDevice CreateOpenGL(IGLContextSource source)
+    internal static GraphicsDevice CreateOpenGL(IGLContextSource source)
     {
         return new GLGraphicsDevice(source);
     }
@@ -389,8 +389,7 @@ public abstract class GraphicsDevice : IDisposable
         else
         {
             yield return GraphicsAPI.Vulkan;
+            yield return GraphicsAPI.OpenGL;
         }
-
-        yield return GraphicsAPI.OpenGL;
     }
 }

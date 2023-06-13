@@ -7,15 +7,16 @@ using Sekai.Platform;
 
 namespace Sekai.Desktop;
 
-internal readonly struct Monitor : IMonitor
+internal readonly struct SDLMonitor : IMonitor
 {
     public string Name { get; }
     public int Index { get; }
     public Rectangle Bounds { get; }
     public VideoMode Mode { get; }
+
     private readonly IEnumerable<VideoMode> supportedVideoModes;
 
-    public Monitor(string name, int index, Rectangle bounds, VideoMode mode, IEnumerable<VideoMode> supportedVideoModes)
+    public SDLMonitor(string name, int index, Rectangle bounds, VideoMode mode, IEnumerable<VideoMode> supportedVideoModes)
     {
         Mode = mode;
         Name = name;
@@ -24,7 +25,7 @@ internal readonly struct Monitor : IMonitor
         this.supportedVideoModes = supportedVideoModes;
     }
 
-    public IWindow CreateWindow() => new Window();
+    public IWindow CreateWindow() => new SDLWindow();
 
     public IEnumerable<VideoMode> GetSupportedVideoModes() => supportedVideoModes;
 }

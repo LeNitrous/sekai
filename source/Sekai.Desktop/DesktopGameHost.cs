@@ -1,9 +1,11 @@
 // Copyright (c) Cosyne and The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
+using System;
 using System.Runtime.Versioning;
-using System.Threading;
-using System.Threading.Tasks;
+using Sekai.Audio;
+using Sekai.Graphics;
+using Sekai.Input;
 using Sekai.Platform;
 
 namespace Sekai.Desktop;
@@ -16,59 +18,27 @@ namespace Sekai.Desktop;
 [SupportedOSPlatform("osx")]
 public class DesktopGameHost : Host
 {
-    public override IView? View => window;
+    protected override IWindow CreateWindow() => new SDLWindow();
 
-    private readonly IWindow window;
+    protected override AudioDevice CreateAudio() => AudioDevice.CreateAL();
 
-    /// <summary>
-    /// Creates a new instance of a desktop game host.
-    /// </summary>
-    public DesktopGameHost()
+    protected override GraphicsDevice CreateGraphics()
     {
-        window = CreateWindow();
-        window.State = WindowState.Hidden;
-        window.Border = WindowBorder.Resizable;
-    }
-
-    protected override void Run()
-    {
-        window.Resume += Resume;
-        window.Suspend += Pause;
-        window.Closing += Exit;
-
-        Task.Factory.StartNew(doGameLoop, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
-
-        while (State != HostState.Exited)
+        if (Window?.Surface is null)
         {
-            window.DoEvents();
+            return base.CreateGraphics();
         }
 
-        window.Resume -= Resume;
-        window.Suspend -= Pause;
-        window.Closing -= Exit;
-
-        window.Dispose();
+        return GraphicsDevice.Create(Window.Surface);
     }
 
-    private void doGameLoop()
+    protected override InputSource CreateInput()
     {
-        bool hasFirstTick = false;
-
-        while (State != HostState.Exited)
+        if (Window is not SDLWindow sdlWindow)
         {
-            DoTick();
-
-            if (!hasFirstTick)
-            {
-                window.State = WindowState.Normal;
-                hasFirstTick = true;
-            }
+            throw new InvalidOperationException("Failed to create input.");
         }
-    }
 
-    /// <summary>
-    /// Creates a window for the game host.
-    /// </summary>
-    /// <returns>A window.</returns>
-    protected virtual IWindow CreateWindow() => new Window();
+        return new SDLInputSource(sdlWindow);
+    }
 }

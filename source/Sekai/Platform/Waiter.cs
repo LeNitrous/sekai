@@ -4,21 +4,15 @@
 using System;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
-using System.Runtime.Versioning;
 using System.Threading;
 
-namespace Sekai.Platform.Windows;
+namespace Sekai.Platform;
 
-/// <summary>
-/// An <see cref="IWaitable"/> that uses high resolution waitable timers when available.
-/// </summary>
-[SupportedOSPlatform("windows")]
-internal partial class WindowsWaitableObject : IWaitable
+internal partial struct Waiter
 {
-    private bool isDisposed;
     private nint highResolutionTimer;
 
-    public WindowsWaitableObject()
+    public Waiter()
     {
         try
         {
@@ -66,26 +60,16 @@ internal partial class WindowsWaitableObject : IWaitable
         }
     }
 
-    ~WindowsWaitableObject()
-    {
-        Dispose();
-    }
-
     public void Dispose()
     {
-        if (isDisposed)
+        if (highResolutionTimer == IntPtr.Zero)
         {
             return;
         }
 
-        if (highResolutionTimer != IntPtr.Zero)
-        {
-            highResolutionTimer = IntPtr.Zero;
-        }
+        CloseHandle(highResolutionTimer);
 
-        isDisposed = true;
-
-        GC.SuppressFinalize(this);
+        highResolutionTimer = IntPtr.Zero;
     }
 
     [LibraryImport("kernel32.dll", StringMarshalling = StringMarshalling.Utf8)]
@@ -105,6 +89,7 @@ internal partial class WindowsWaitableObject : IWaitable
     private const uint timer_infinite = 0xffffffff;
     private const uint timer_all_access = 2031619U;
 
+    [UnmanagedFunctionPointer(CallingConvention.Winapi)]
     private delegate void TimerAPCProc(nint completionArg, uint timerLowValue, uint timerHighValue);
 
     [StructLayout(LayoutKind.Sequential)]

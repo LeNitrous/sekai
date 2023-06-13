@@ -1,6 +1,8 @@
 // Copyright (c) Cosyne and The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
+using Sekai.Audio.Dummy;
+using Sekai.Audio.OpenAL;
 using System;
 
 namespace Sekai.Audio;
@@ -26,6 +28,18 @@ public abstract class AudioDevice : IDisposable
     /// </summary>
     /// <returns>A new audio source.</returns>
     public abstract AudioSource CreateSource();
+
+    /// <summary>
+    /// Creates an OpenAL audio device.
+    /// </summary>
+    /// <returns>An OpenAL audio device.</returns>
+    public static AudioDevice CreateAL() => new ALAudioDevice();
+
+    /// <summary>
+    /// Creates a dummy audio device.
+    /// </summary>
+    /// <returns>A dummy audio device.</returns>
+    public static AudioDevice CreateDummy() => new DummyAudioDevice();
 
     public abstract void Dispose();
 }

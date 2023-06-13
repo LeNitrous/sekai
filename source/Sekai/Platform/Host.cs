@@ -1,18 +1,21 @@
 // Copyright (c) Cosyne and The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
+using Sekai.Audio;
+using Sekai.Graphics;
+using Sekai.Input;
+using Sekai.Platform.Dummy;
+using Sekai.Storages;
 using System;
+using System.Runtime.ExceptionServices;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Sekai.Platform;
 
-/// <summary>
-/// Hosts a <see cref="Game"/> and performs its lifecycle events.
-/// </summary>
-public abstract class Host
+/// <inheritdoc cref="IHost"/>
+public class Host : IHost, IHostFactory
 {
-    /// <summary>
-    /// The host's state.
-    /// </summary>
     public HostState State
     {
         get
@@ -24,25 +27,15 @@ public abstract class Host
         }
     }
 
-    /// <summary>
-    /// The host's view.
-    /// </summary>
-    public abstract IView? View { get; }
-
-    /// <summary>
-    /// Called when the host ticks.
-    /// </summary>
     public event Action? Tick;
 
-    /// <summary>
-    /// Called when the host has paused.
-    /// </summary>
     public event Action? Paused;
 
-    /// <summary>
-    /// Called when the host has resumed from pausing.
-    /// </summary>
     public event Action? Resumed;
+
+    public IWindow? Window { get; private set; }
+
+    public Storage? Storage { get; private set; }
 
     private Game? game;
     private HostState state;
@@ -63,49 +56,115 @@ public abstract class Host
 
         setHostState(HostState.Loading);
 
-        Run();
+        if (RuntimeInfo.IsDebug)
+        {
+            HotReloadCallbackReceiver.OnUpdate += handleAppUpdate;
+        }
+
+        ExceptionDispatchInfo? info = null;
+        var reset = new ManualResetEventSlim();
+
+        Window = CreateWindow();
+        Window.Border = WindowBorder.Resizable;
+        Window.Visible = false;
+        Window.Resume += Resume;
+        Window.Suspend += Pause;
+        Window.Closing += Exit;
+
+        Storage = CreateStorage();
+
+        if (RuntimeInfo.IsDebug)
+        {
+            HotReloadCallbackReceiver.OnUpdate += handleAppUpdate;
+        }
+
+        Task.Factory.StartNew(doGameLoop, CancellationToken.None, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+
+        while (State != HostState.Exited)
+        {
+            Window.DoEvents();
+
+            if (info is not null)
+            {
+                info.Throw();
+                info = null;
+            }
+        }
+
+        reset.Wait();
+
+        Window.Resume -= Resume;
+        Window.Suspend -= Pause;
+        Window.Closing -= Exit;
+
+        Window.Dispose();
+        Window = null;
+
+        if (RuntimeInfo.IsDebug)
+        {
+            HotReloadCallbackReceiver.OnUpdate -= handleAppUpdate;
+        }
+
+        void doGameLoop()
+        {
+            try
+            {
+                DoTick();
+                Window.Visible = true;
+
+                while (Window.Exists)
+                {
+                    DoTick();
+                }
+            }
+            catch (Exception e)
+            {
+                info = ExceptionDispatchInfo.Capture(e);
+            }
+
+            reset.Set();
+        }
     }
 
-    /// <summary>
-    /// Runs the host.
-    /// </summary>
-    protected abstract void Run();
-
-    /// <summary>
-    /// Requests the host to exit. The request is honored on the next <see cref="DoTick"/> call.
-    /// </summary>
-    protected void Exit()
+    public void Exit()
     {
         setHostState(HostState.Exiting);
     }
 
     /// <summary>
-    /// Requests the host to pause. The request is honored on the next <see cref="DoTick"/> call.
+    /// Creates a window for this host.
     /// </summary>
+    protected virtual IWindow CreateWindow() => new DummyWindow();
+
+    /// <summary>
+    /// Creates storage for this host.
+    /// </summary>
+    protected virtual Storage CreateStorage() => new MountableStorage();
+
+    /// <inheritdoc cref="IHostFactory.CreateGraphics"/>
+    protected virtual GraphicsDevice CreateGraphics() => GraphicsDevice.CreateDummy();
+
+    /// <inheritdoc cref="IHostFactory.CreateInput"/>
+    protected virtual InputSource CreateInput() => new();
+
+    /// <inheritdoc cref="IHostFactory.CreateAudio"/>
+    protected virtual AudioDevice CreateAudio() => AudioDevice.CreateDummy();
+
     protected void Pause()
     {
         setHostState(HostState.Pausing);
     }
 
-    /// <summary>
-    /// Requests the host to resume from pause. The request is honored on the next <see cref="DoTick"/> call.
-    /// </summary>
     protected void Resume()
     {
         setHostState(HostState.Resuming);
     }
 
-    /// <summary>
-    /// Requests the host to restart. The request is honored on the next <see cref="DoTick"/> call.
-    /// </summary>
     protected void Restart()
     {
         setHostState(HostState.Restarting);
     }
 
-    /// <summary>
-    /// Updates its state and performs events based on its updated state.
-    /// </summary>
     protected void DoTick()
     {
         switch (State)
@@ -145,6 +204,16 @@ public abstract class Host
         }
     }
 
+    private void handleAppUpdate(Type[]? types)
+    {
+        lock (sync)
+        {
+            while (!isValidTransition(state, HostState.Restarting)) ;
+        }
+
+        Restart();
+    }
+
     private void setHostState(HostState next)
     {
         lock (sync)
@@ -157,6 +226,10 @@ public abstract class Host
             state = next;
         }
     }
+
+    InputSource IHostFactory.CreateInput() => CreateInput();
+    AudioDevice IHostFactory.CreateAudio() => CreateAudio();
+    GraphicsDevice IHostFactory.CreateGraphics() => CreateGraphics();
 
     private static bool isValidTransition(HostState current, HostState next)
     {

@@ -5,12 +5,13 @@ using System;
 using System.Buffers;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Sekai.Platform;
 using static SDL2.SDL;
 
 namespace Sekai.Desktop;
 
-internal sealed unsafe class Window : IWindow
+internal sealed unsafe class SDLWindow : IWindow
 {
     public event Action? Closed;
     public event Action? Closing;
@@ -20,17 +21,18 @@ internal sealed unsafe class Window : IWindow
     public event Action<bool>? FocusChanged;
     public event Action? Resume;
     public event Action? Suspend;
+    public event Action<SDL_Event>? SDLEvent;
 
     private bool isDisposed;
     private WindowState state;
     private WindowBorder border;
     private Icon icon = Icon.Empty;
     private readonly nint window;
-    private readonly Window? parent;
+    private readonly SDLWindow? parent;
 
     public IWindowHost? Parent => (IWindowHost?)parent ?? Monitor;
     public IMonitor? Monitor { get; private set; }
-    public ISurface Surface { get; }
+    public ISurface? Surface { get; }
     public bool Exists { get; private set; }
 
     public string Title
@@ -192,19 +194,20 @@ internal sealed unsafe class Window : IWindow
     private const int default_width = 1280;
     private const int default_height = 720;
     private const SDL_WindowFlags default_flags = SDL_WindowFlags.SDL_WINDOW_HIDDEN | SDL_WindowFlags.SDL_WINDOW_OPENGL;
+    private readonly SDL_EventFilter? eventFilterDelegate;
 
-    public Window()
+    public SDLWindow()
         : this(SDL_CreateWindow(string.Empty, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, default_width, default_height, default_flags))
     {
     }
 
-    private Window(nint handle, Window parent)
-        : this(handle)
+    private SDLWindow(nint pointer, SDLWindow parent)
+        : this(pointer)
     {
         this.parent = parent;
     }
 
-    private Window(nint handle)
+    private SDLWindow(nint pointer)
     {
         if (!hasInit)
         {
@@ -218,12 +221,14 @@ internal sealed unsafe class Window : IWindow
                 throw new Exception("Failed to initialize GL.");
             }
 
+            SDL_SetEventFilter(eventFilterDelegate = new SDL_EventFilter(handleEventFilter), IntPtr.Zero);
+
             hasInit = true;
         }
 
-        window = handle;
+        window = pointer;
         Exists = true;
-        Surface = new Surface(window);
+        Surface = new SDLSurface(window);
 
         updateWindowMonitors();
     }
@@ -266,7 +271,7 @@ internal sealed unsafe class Window : IWindow
                 throw new NotSupportedException("The underlying native window does not support creating child windows.");
         }
 
-        return new Window(child, this);
+        return new SDLWindow(child, this);
     }
 
     public void Close()
@@ -294,7 +299,7 @@ internal sealed unsafe class Window : IWindow
 
     public void DoEvents()
     {
-        if (Parent is IWindow)
+        if (Parent is SDLWindow)
         {
             return;
         }
@@ -306,7 +311,7 @@ internal sealed unsafe class Window : IWindow
 
         if (isDisposed)
         {
-            throw new ObjectDisposedException(nameof(Window));
+            throw new ObjectDisposedException(nameof(SDLWindow));
         }
 
         SDL_PumpEvents();
@@ -330,7 +335,6 @@ internal sealed unsafe class Window : IWindow
         switch (e.type)
         {
             case SDL_EventType.SDL_QUIT:
-            case SDL_EventType.SDL_APP_TERMINATING:
                 Close();
                 break;
 
@@ -341,15 +345,9 @@ internal sealed unsafe class Window : IWindow
             case SDL_EventType.SDL_WINDOWEVENT:
                 handleWindowEvent(e.window);
                 break;
-
-            case SDL_EventType.SDL_APP_DIDENTERFOREGROUND:
-                Resume?.Invoke();
-                break;
-
-            case SDL_EventType.SDL_APP_DIDENTERBACKGROUND:
-                Suspend?.Invoke();
-                break;
         }
+
+        SDLEvent?.Invoke(e);
     }
 
     private void handleWindowEvent(SDL_WindowEvent e)
@@ -360,17 +358,34 @@ internal sealed unsafe class Window : IWindow
                 Moved?.Invoke(new(e.data1, e.data2));
                 break;
 
-            case SDL_WindowEventID.SDL_WINDOWEVENT_RESIZED:
-            case SDL_WindowEventID.SDL_WINDOWEVENT_SIZE_CHANGED:
-                Resized?.Invoke(new(e.data1, e.data2));
-                break;
-
             case SDL_WindowEventID.SDL_WINDOWEVENT_FOCUS_GAINED:
                 FocusChanged?.Invoke(true);
                 break;
 
             case SDL_WindowEventID.SDL_WINDOWEVENT_FOCUS_LOST:
                 FocusChanged?.Invoke(false);
+                break;
+        }
+    }
+
+    private void handleFilteredEvent(SDL_Event e)
+    {
+        switch (e.type)
+        {
+            case SDL_EventType.SDL_APP_TERMINATING:
+                Close();
+                break;
+
+            case SDL_EventType.SDL_APP_DIDENTERFOREGROUND:
+                Resume?.Invoke();
+                break;
+
+            case SDL_EventType.SDL_APP_DIDENTERBACKGROUND:
+                Suspend?.Invoke();
+                break;
+
+            case SDL_EventType.SDL_WINDOWEVENT when e.window.windowEvent is SDL_WindowEventID.SDL_WINDOWEVENT_RESIZED or SDL_WindowEventID.SDL_WINDOWEVENT_SIZE_CHANGED:
+                Resized?.Invoke(new(e.window.data1, e.window.data2));
                 break;
         }
     }
@@ -441,10 +456,16 @@ internal sealed unsafe class Window : IWindow
 
         string name = SDL_GetDisplayName(monitorIndex);
 
-        Monitor = new Monitor(name, monitorIndex, bounds, new(new(current.w, current.h), current.refresh_rate), modes);
+        Monitor = new SDLMonitor(name, monitorIndex, bounds, new(new(current.w, current.h), current.refresh_rate), modes);
     }
 
-    ~Window()
+    private int handleEventFilter(nint userdata, nint @event)
+    {
+        handleFilteredEvent(Unsafe.Read<SDL_Event>((void*)@event));
+        return 1;
+    }
+
+    ~SDLWindow()
     {
         Dispose();
     }

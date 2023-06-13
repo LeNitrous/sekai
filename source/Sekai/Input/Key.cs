@@ -9,24 +9,24 @@ namespace Sekai.Input;
 public enum Key
 {
     /// <summary>
-    /// Unknown.
+    /// None.
     /// </summary>
-    Unknown = 1,
+    None,
 
     /// <summary>
     /// Space.
     /// </summary>
-    Space = 32,
+    Space,
 
     /// <summary>
     /// Apostrophe.
     /// </summary>
-    Apostrophe = 39,
+    Apostrophe,
 
     /// <summary>
     /// Comma.
     /// </summary>
-    Comma = 44,
+    Comma,
 
     /// <summary>
     /// Minus.
@@ -49,64 +49,64 @@ public enum Key
     Number0,
 
     /// <summary>
-    /// Number1.
+    /// Number 1.
     /// </summary>
     Number1,
 
     /// <summary>
-    /// Number2.
+    /// Number 2.
     /// </summary>
     Number2,
 
     /// <summary>
-    /// Number3.
+    /// Number 3.
     /// </summary>
     Number3,
 
     /// <summary>
-    /// Number4.
+    /// Number 4.
     /// </summary>
     Number4,
 
     /// <summary>
-    /// Number5.
+    /// Number 5.
     /// </summary>
     Number5,
 
     /// <summary>
-    /// Number6.
+    /// Number 6.
     /// </summary>
     Number6,
 
     /// <summary>
-    /// Number7.
+    /// Number 7.
     /// </summary>
     Number7,
 
     /// <summary>
-    /// Number8.
+    /// Number 8.
     /// </summary>
     Number8,
 
     /// <summary>
-    /// Number9.
+    /// Number 9.
     /// </summary>
     Number9,
 
     /// <summary>
     /// Semicolon.
     /// </summary>
-    Semicolon = 59,
+    Semicolon,
 
     /// <summary>
     /// Equal.
     /// </summary>
-    Equal = 61,
+    Equal,
 
     /// <summary>
     /// A.
     /// </summary>
-    A = 65,
+    A,
 
     /// <summary>
     /// B.
@@ -241,7 +241,7 @@ public enum Key
     /// <summary>
     /// Back. Slash
     /// </summary>
-    BackSlash,
+    Backslash,
 
     /// <summary>
     /// Right. Bracket
@@ -251,12 +251,12 @@ public enum Key
     /// <summary>
     /// Grave. Accent
     /// </summary>
-    GraveAccent = 96,
+    GraveAccent,
 
     /// <summary>
     /// World. 1
     /// </summary>
-    World1 = 161,
+    World1,
 
     /// <summary>
     /// World. 2
@@ -266,7 +266,7 @@ public enum Key
     /// <summary>
     /// Escape.
     /// </summary>
-    Escape = 256,
+    Escape,
 
     /// <summary>
     /// Enter.
@@ -281,7 +281,7 @@ public enum Key
     /// <summary>
     /// Backspace.
     /// </summary>
-    Backspace = 259,
+    Backspace,
 
     /// <summary>
     /// Insert.
@@ -314,12 +314,12 @@ public enum Key
     Up,
 
     /// <summary>
-    /// Page. Up
+    /// Page Up.
     /// </summary>
     PageUp,
 
     /// <summary>
-    /// Page. Down
+    /// Page Down.
     /// </summary>
     PageDown,
 
@@ -336,20 +336,20 @@ public enum Key
     /// <summary>
     /// CapsLock.
     /// </summary>
-    CapsLock = 280,
+    CapsLock,
 
     /// <summary>
-    /// Scroll. Lock
+    /// Scroll Lock.
     /// </summary>
     ScrollLock,
 
     /// <summary>
-    /// Number. Lock
+    /// Number Lock.
     /// </summary>
     NumLock,
 
     /// <summary>
-    /// Print. Screen
+    /// Print Screen.
     /// </summary>
     PrintScreen,
 
@@ -361,7 +361,7 @@ public enum Key
     /// <summary>
     /// F1.
     /// </summary>
-    F1 = 290,
+    F1,
 
     /// <summary>
     /// F2.
@@ -484,129 +484,129 @@ public enum Key
     F25,
 
     /// <summary>
-    /// Keypad. 0
+    /// Keypad 0.
     /// </summary>
-    Keypad0 = 320,
+    Keypad0,
 
     /// <summary>
-    /// Keypad. 1
+    /// Keypad 1.
     /// </summary>
     Keypad1,
 
     /// <summary>
-    /// Keypad. 2
+    /// Keypad 2.
     /// </summary>
     Keypad2,
 
     /// <summary>
-    /// Keypad. 3
+    /// Keypad 3.
     /// </summary>
     Keypad3,
 
     /// <summary>
-    /// Keypad. 4
+    /// Keypad 4.
     /// </summary>
     Keypad4,
 
     /// <summary>
-    /// Keypad. 5
+    /// Keypad 5.
     /// </summary>
     Keypad5,
 
     /// <summary>
-    /// Keypad. 6
+    /// Keypad 6.
     /// </summary>
     Keypad6,
 
     /// <summary>
-    /// Keypad. 7
+    /// Keypad 7.
     /// </summary>
     Keypad7,
 
     /// <summary>
-    /// Keypad. 8
+    /// Keypad 8.
     /// </summary>
     Keypad8,
 
     /// <summary>
-    /// Keypad. 9
+    /// Keypad 9.
     /// </summary>
     Keypad9,
 
     /// <summary>
-    /// Keypad. Decimal
+    /// Keypad Decimal.
     /// </summary>
     KeypadDecimal,
 
     /// <summary>
-    /// Keypad. Divide
+    /// Keypad Divide.
     /// </summary>
     KeypadDivide,
 
     /// <summary>
-    /// Keypad. Multiply
+    /// Keypad Multiply.
     /// </summary>
     KeypadMultiply,
 
     /// <summary>
-    /// Keypad. Subtract
+    /// Keypad Subtract.
     /// </summary>
-    KeypadSubtract,
+    KeypadMinus,
 
     /// <summary>
-    /// Keypad. Add
+    /// Keypad Add.
     /// </summary>
     KeypadAdd,
 
     /// <summary>
-    /// Keypad. Enter
+    /// Keypad Enter.
     /// </summary>
     KeypadEnter,
 
     /// <summary>
-    /// Keypad. Equal
+    /// Keypad Equal.
     /// </summary>
     KeypadEqual,
 
     /// <summary>
-    /// Left. Shift
+    /// Left Shift.
     /// </summary>
-    ShiftLeft = 340,
+    LeftShift,
 
     /// <summary>
-    /// Left. Control
+    /// Left Control.
     /// </summary>
-    ControlLeft,
+    LeftControl,
 
     /// <summary>
-    /// Left. Alt
+    /// Left Alt.
     /// </summary>
-    AltLeft,
+    LeftAlt,
 
     /// <summary>
-    /// Left. Super
+    /// Left Super.
     /// </summary>
-    SuperLeft,
+    LeftSuper,
 
     /// <summary>
-    /// Right. Shift
+    /// Right Shift.
     /// </summary>
-    ShiftRight,
+    RightShift,
 
     /// <summary>
-    /// Right. Control
+    /// Right Control.
     /// </summary>
-    ControlRight,
+    RightControl,
 
     /// <summary>
-    /// Right. Alt
+    /// Right Alt.
     /// </summary>
-    AltRight,
+    RightAlt,
 
     /// <summary>
-    /// Right. Super
+    /// Right Super.
     /// </summary>
-    SuperRight,
+    RightSuper,
 
     /// <summary>
     /// Menu.

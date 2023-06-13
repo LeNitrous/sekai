@@ -14,7 +14,7 @@ public struct EventData
     /// The source type.
     /// </summary>
     [FieldOffset(0)]
-    public EventSource Source;
+    public EventKind Kind;
 
     /// <summary>
     /// The mouse scroll event data.

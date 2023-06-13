@@ -6,5 +6,4 @@ using System.Runtime.CompilerServices;
 using Sekai.Platform;
 
 [assembly: InternalsVisibleTo("Sekai.Tests")]
-[assembly: InternalsVisibleTo("Sekai.Benchmarks")]
 [assembly: MetadataUpdateHandler(typeof(HotReloadCallbackReceiver))]

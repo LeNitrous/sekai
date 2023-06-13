@@ -4,9 +4,10 @@
 using System;
 using System.Diagnostics;
 using System.Drawing;
+using Sekai.Audio;
 using Sekai.Graphics;
+using Sekai.Input;
 using Sekai.Platform;
-using Sekai.Platform.Windows;
 
 namespace Sekai;
 
@@ -31,7 +32,7 @@ public class Game
     /// </remarks>
     public double UpdatePerSecond
     {
-        get => 1000 / msPerUpdate;
+        get => 1000 / msPerUpdate.Milliseconds;
         set
         {
             if (value <= 0.0)
@@ -39,21 +40,34 @@ public class Game
                 throw new ArgumentOutOfRangeException(nameof(value), "Value must be greater than zero.");
             }
 
-            msPerUpdate = 1 / value * 1000;
+            msPerUpdate = TimeSpan.FromSeconds(1 / value);
         }
     }
 
-    protected GraphicsDevice? Graphics;
+    /// <summary>
+    /// The game's input manager.
+    /// </summary>
+    protected InputManager? Input { get; private set; }
 
-    private bool isPaused;
-    private double msPerUpdate = 1 / 120.0;
-    private double accumulated;
-    private double currentTime;
-    private double elapsedTime;
-    private double previousTime;
+    /// <summary>
+    /// The game's audio device.
+    /// </summary>
+    protected AudioDevice? Audio { get; private set; }
+
+    /// <summary>
+    /// The game's graphics device.
+    /// </summary>
+    protected GraphicsDevice? Graphics { get; private set; }
+
     private Host? host;
-    private IWaitable? waitable;
-    private Stopwatch? stopwatch;
+    private Waiter waitable;
+    private TimeSpan msPerUpdate = TimeSpan.FromSeconds(1 / 120.0);
+    private TimeSpan accumulated;
+    private TimeSpan currentTime;
+    private TimeSpan elapsedTime;
+    private TimeSpan previousTime;
+    private readonly Stopwatch stopwatch = new();
+    private static readonly TimeSpan wait_threshold = TimeSpan.FromMilliseconds(2);
 
     /// <summary>
     /// Attaches the host to this game.
@@ -70,8 +84,13 @@ public class Game
         host.Paused += pause;
         host.Resumed += resume;
 
-        waitable = RuntimeInfo.IsWindows ? new WindowsWaitableObject() : new WaitableObject();
-        Graphics = host.View is not null ? GraphicsDevice.Create(host.View.Surface) : GraphicsDevice.CreateDummy();
+        waitable = new Waiter();
+
+        Input = new InputManager(((IHostFactory)host).CreateInput());
+        Audio = ((IHostFactory)host).CreateAudio();
+        Graphics = ((IHostFactory)host).CreateGraphics();
+
+        stopwatch.Start();
 
         this.host = host;
 
@@ -91,21 +110,26 @@ public class Game
 
         Unload();
 
-        isPaused = false;
-        accumulated = 0;
-        currentTime = 0;
-        elapsedTime = 0;
-        previousTime = 0;
-
-        stopwatch?.Stop();
-        stopwatch = null;
+        accumulated = TimeSpan.Zero;
+        currentTime = TimeSpan.Zero;
+        elapsedTime = TimeSpan.Zero;
+        previousTime = TimeSpan.Zero;
 
         host.Tick -= tick;
         host.Paused -= pause;
         host.Resumed -= resume;
 
+        waitable.Dispose();
+
+        Input = null;
+
+        Audio?.Dispose();
+        Audio = null;
+
         Graphics?.Dispose();
-        waitable?.Dispose();
+        Graphics = null;
+
+        stopwatch.Reset();
 
         this.host = null;
     }
@@ -141,49 +165,56 @@ public class Game
 
     private void pause()
     {
-        isPaused = true;
+        stopwatch.Stop();
     }
 
     private void resume()
     {
-        isPaused = false;
+        stopwatch.Start();
     }
 
     private void tick()
     {
-        if (stopwatch == null)
+        if (!stopwatch.IsRunning)
         {
-            stopwatch = new();
-            stopwatch.Start();
-        }
-
-        if (stopwatch.IsRunning && isPaused)
-        {
-            stopwatch.Stop();
             return;
-        }
-        else
-        {
-            stopwatch.Start();
         }
 
         bool retry = false;
 
         do
         {
-            if (isPaused)
+            if (!stopwatch.IsRunning)
             {
                 break;
             }
 
-            currentTime = stopwatch.ElapsedMilliseconds;
+            currentTime = stopwatch.Elapsed;
             elapsedTime = currentTime - previousTime;
             accumulated += elapsedTime;
             previousTime = currentTime;
 
             if (TickMode == TickMode.Fixed && accumulated < msPerUpdate)
             {
-                waitable?.Wait(TimeSpan.FromMilliseconds(msPerUpdate - accumulated));
+                var duration = msPerUpdate - accumulated;
+
+                // Timers are at the mercy of the operating system's scheduler. Thus sleep() can be
+                // very innacurate. It can end earlier or later than the requested time. It depends
+                // when the scheduler gives back control to our application.
+
+                // To save on resources, we avoid using a spin lock for the entire duration of the
+                // wait. We can use sleep() first to give back control to the scheduler and free up
+                // CPU usage for the duration less the threshold we allow it to.
+                if (duration >= wait_threshold)
+                {
+                    waitable.Wait(duration - wait_threshold);
+                }
+
+                // After the wait, we still have a bit more time remaining. To accurately finish off,
+                // we use a spin lock. Because of the earlier wait, we have less iterations to do in
+                // this spin lock.
+                while (duration > stopwatch.Elapsed - currentTime) ;
+
                 retry = true;
             }
             else
@@ -193,33 +224,22 @@ public class Game
         }
         while (retry);
 
-        TimeSpan elapsed;
-
         if (TickMode == TickMode.Fixed)
         {
-            int stepCount = 0;
-
-            elapsed = TimeSpan.FromMilliseconds(msPerUpdate);
-
             while (accumulated >= msPerUpdate)
             {
-                if (isPaused)
+                if (!stopwatch.IsRunning)
                 {
                     break;
                 }
 
                 accumulated -= msPerUpdate;
-                stepCount++;
-                update(elapsed);
+                update(msPerUpdate);
             }
-
-            // Draw call needs to compensate from multiple update calls.
-            elapsed = TimeSpan.FromMilliseconds(msPerUpdate * stepCount);
         }
         else
         {
-            elapsed = TimeSpan.FromMilliseconds(elapsedTime);
-            update(elapsed);
+            update(elapsedTime);
         }
 
         draw();
@@ -227,18 +247,13 @@ public class Game
 
     private void draw()
     {
-        if (host?.View is null)
+        if (host?.Window is null || Graphics is null)
         {
             return;
         }
 
-        if (Graphics is null)
-        {
-            return;
-        }
-
-        Graphics.SetViewport(new Rectangle(Point.Empty, host.View.Size));
-        Graphics.SetScissor(new Rectangle(Point.Empty, host.View.Size));
+        Graphics.SetViewport(new Rectangle(Point.Empty, host.Window.Size));
+        Graphics.SetScissor(new Rectangle(Point.Empty, host.Window.Size));
         Graphics.Clear(new ClearInfo(Color.CornflowerBlue));
 
         Draw();
@@ -248,6 +263,7 @@ public class Game
 
     private void update(TimeSpan elapsed)
     {
+        Input?.Update();
         Update(elapsed);
     }
 }

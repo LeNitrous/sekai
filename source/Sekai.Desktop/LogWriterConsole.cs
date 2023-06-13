@@ -8,9 +8,10 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using Pastel;
+using Sekai.Logging;
 using Sekai.Platform;
 
-namespace Sekai.Logging;
+namespace Sekai.Desktop.Logging;
 
 internal sealed partial class LogWriterConsole : LogWriter, IDisposable
 {

@@ -3,7 +3,10 @@
 
 namespace Sekai.Input;
 
-public enum EventSource
+/// <summary>
+/// The kind of event that occured.
+/// </summary>
+public enum EventKind
 {
     /// <summary>
     /// Unknown.

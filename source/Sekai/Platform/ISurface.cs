@@ -1,8 +1,6 @@
 // Copyright (c) Cosyne and The Vignette Authors
 // Licensed under MIT. See LICENSE for details.
 
-using Sekai.Platform;
-
 namespace Sekai.Platform;
 
 /// <summary>

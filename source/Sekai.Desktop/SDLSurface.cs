@@ -7,7 +7,7 @@ using static SDL2.SDL;
 
 namespace Sekai.Desktop;
 
-internal readonly struct Surface : ISurface
+internal readonly struct SDLSurface : ISurface
 {
     public SurfaceFlags Flags { get; }
     public (nint Display, nuint Window)? X11 { get; }
@@ -22,7 +22,7 @@ internal readonly struct Surface : ISurface
     public (nint Window, nint Surface)? Android { get; }
     public IGLContextSource? GL { get; }
 
-    public Surface(nint window)
+    public SDLSurface(nint window)
     {
         SDL_SysWMinfo info = default;
         SDL_GetWindowWMInfo(window, ref info);
