@@ -9,12 +9,12 @@ using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Sekai.Audio;
+using Sekai.Framework.Audio;
 using Sekai.Framework.Logging;
 using Sekai.Framework.Storages;
-using Sekai.Graphics;
-using Sekai.Platform.Input;
-using Sekai.Platform.Windowing;
+using Sekai.Framework.Graphics;
+using Sekai.Framework.Platform.Input;
+using Sekai.Framework.Platform.Windowing;
 
 namespace Sekai;
 
@@ -125,7 +125,6 @@ public abstract class Host
         storage.Mount("/game/", CreateStorage(MountPoint.Game));
         storage.Mount("/data/", CreateStorage(MountPoint.Data));
         storage.Mount("/temp/", CreateStorage(MountPoint.Temp));
-        storage.Mount("/cache/", CreateStorage(MountPoint.Cache));
 
         var termOut = new LogWriterConsole();
         var fileOut = new LogWriterStream(storage.Open("/game/runtime.log", FileMode.OpenOrCreate, FileAccess.Write));
@@ -149,7 +148,6 @@ public abstract class Host
         window = CreateWindow();
         window.Title = $"Sekai{(asm?.Name is not null ? $" (running {asm.Name})" : string.Empty)}";
         window.State = WindowState.Minimized;
-        window.Visible = false;
         window.Closed += Exit;
 
         var mainLoop = Task.Factory.StartNew(runMainLoop, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);

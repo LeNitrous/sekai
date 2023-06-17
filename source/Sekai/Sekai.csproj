@@ -7,10 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Sekai.Audio/Sekai.Audio.csproj" />
-    <ProjectReference Include="../Sekai.Graphics/Sekai.Graphics.csproj" />
     <ProjectReference Include="../Sekai.Framework/Sekai.Framework.csproj" />
-    <ProjectReference Include="../Sekai.Platform/Sekai.Platform.csproj" />
+    <ProjectReference Include="../Sekai.Framework.Audio/Sekai.Framework.Audio.csproj" />
+    <ProjectReference Include="../Sekai.Framework.Graphics/Sekai.Framework.Graphics.csproj" />
+    <ProjectReference Include="../Sekai.Framework.Platform/Sekai.Framework.Platform.csproj" />
   </ItemGroup>
 
   <ItemGroup>

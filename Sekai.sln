@@ -11,21 +11,27 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SampleGame", "samples\Sampl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai", "source\Sekai\Sekai.csproj", "{160AE02F-F9F2-461E-9F7F-EDE78D56ECCB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Audio", "source\Sekai.Audio\Sekai.Audio.csproj", "{E7DF3DE0-00FF-4DED-87EF-72AE76B704B6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Framework.Audio", "source\Sekai.Framework.Audio\Sekai.Framework.Audio.csproj", "{E7DF3DE0-00FF-4DED-87EF-72AE76B704B6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Audio.OpenAL", "source\Sekai.Audio.OpenAL\Sekai.Audio.OpenAL.csproj", "{7D4AEBA7-BB7B-4D88-AE05-A82315975671}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Framework.Audio.OpenAL", "source\Sekai.Framework.Audio.OpenAL\Sekai.Framework.Audio.OpenAL.csproj", "{7D4AEBA7-BB7B-4D88-AE05-A82315975671}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Graphics", "source\Sekai.Graphics\Sekai.Graphics.csproj", "{5575AC16-93A5-4C93-A5DB-EAB4C31639D5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Framework.Graphics", "source\Sekai.Framework.Graphics\Sekai.Framework.Graphics.csproj", "{5575AC16-93A5-4C93-A5DB-EAB4C31639D5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Graphics.OpenGL", "source\Sekai.Graphics.OpenGL\Sekai.Graphics.OpenGL.csproj", "{9C1B1FFF-9823-4142-A9D7-29F3D9755ECF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Framework.Graphics.OpenGL", "source\Sekai.Framework.Graphics.OpenGL\Sekai.Framework.Graphics.OpenGL.csproj", "{9C1B1FFF-9823-4142-A9D7-29F3D9755ECF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Framework", "source\Sekai.Framework\Sekai.Framework.csproj", "{7ABF812C-AB85-4211-9362-5194511D33D7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Platform", "source\Sekai.Platform\Sekai.Platform.csproj", "{BEE80EFC-3BE1-48BF-87D5-1500ACD81F0C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Framework.Platform", "source\Sekai.Framework.Platform\Sekai.Framework.Platform.csproj", "{BEE80EFC-3BE1-48BF-87D5-1500ACD81F0C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Platform.Headless", "source\Sekai.Platform.Headless\Sekai.Platform.Headless.csproj", "{F8E15154-ADD0-483A-8B9C-8C39AB264229}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Framework.Platform.Headless", "source\Sekai.Framework.Platform.Headless\Sekai.Framework.Platform.Headless.csproj", "{F8E15154-ADD0-483A-8B9C-8C39AB264229}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Platform.Desktop", "source\Sekai.Platform.Desktop\Sekai.Platform.Desktop.csproj", "{C9C2C5F2-FB25-4711-BD54-DAC253E3BCBD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Framework.Platform.Desktop", "source\Sekai.Framework.Platform.Desktop\Sekai.Framework.Platform.Desktop.csproj", "{C9C2C5F2-FB25-4711-BD54-DAC253E3BCBD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{D496E976-B44F-4830-93B7-6ADA75148135}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Framework.Tests", "tests\Sekai.Framework.Tests\Sekai.Framework.Tests.csproj", "{0C8887E0-B439-4779-9F5B-F201564E47FA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Tests", "tests\Sekai.Tests\Sekai.Tests.csproj", "{4E665233-0AE5-4A70-A1A3-73330EA4D3A7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -73,6 +79,14 @@ Global
 		{C9C2C5F2-FB25-4711-BD54-DAC253E3BCBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C9C2C5F2-FB25-4711-BD54-DAC253E3BCBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C9C2C5F2-FB25-4711-BD54-DAC253E3BCBD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C8887E0-B439-4779-9F5B-F201564E47FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C8887E0-B439-4779-9F5B-F201564E47FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C8887E0-B439-4779-9F5B-F201564E47FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C8887E0-B439-4779-9F5B-F201564E47FA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E665233-0AE5-4A70-A1A3-73330EA4D3A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E665233-0AE5-4A70-A1A3-73330EA4D3A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E665233-0AE5-4A70-A1A3-73330EA4D3A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E665233-0AE5-4A70-A1A3-73330EA4D3A7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -88,6 +102,8 @@ Global
 		{BEE80EFC-3BE1-48BF-87D5-1500ACD81F0C} = {11EBA343-73D5-4FC5-ADB9-2921D759C406}
 		{F8E15154-ADD0-483A-8B9C-8C39AB264229} = {11EBA343-73D5-4FC5-ADB9-2921D759C406}
 		{C9C2C5F2-FB25-4711-BD54-DAC253E3BCBD} = {11EBA343-73D5-4FC5-ADB9-2921D759C406}
+		{0C8887E0-B439-4779-9F5B-F201564E47FA} = {D496E976-B44F-4830-93B7-6ADA75148135}
+		{4E665233-0AE5-4A70-A1A3-73330EA4D3A7} = {D496E976-B44F-4830-93B7-6ADA75148135}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B6237647-4791-4690-81D9-284B3F1F63D2}

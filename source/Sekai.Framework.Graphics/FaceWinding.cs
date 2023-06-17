@@ -1,0 +1,20 @@
+// Copyright (c) Cosyne
+// Licensed under MIT. See LICENSE for details.
+
+namespace Sekai.Framework.Graphics;
+
+/// <summary>
+/// The winding order of vertices.
+/// </summary>
+public enum FaceWinding
+{
+    /// <summary>
+    /// Clockwise order.
+    /// </summary>
+    Clockwise,
+
+    /// <summary>
+    /// Counter clockwise order.
+    /// </summary>
+    CounterClockwise,
+}

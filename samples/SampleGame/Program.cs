@@ -4,14 +4,14 @@
 using System;
 using System.Numerics;
 using Sekai;
-using Sekai.Audio;
-using Sekai.Audio.OpenAL;
-using Sekai.Framework.OpenGL;
+using Sekai.Framework.Audio;
+using Sekai.Framework.Audio.OpenAL;
+using Sekai.Framework.Contexts;
 using Sekai.Framework.Storages;
-using Sekai.Graphics;
-using Sekai.Graphics.OpenGL;
-using Sekai.Platform.Desktop;
-using Sekai.Platform.Windowing;
+using Sekai.Framework.Graphics;
+using Sekai.Framework.Graphics.OpenGL;
+using Sekai.Framework.Platform.Desktop;
+using Sekai.Framework.Platform.Windowing;
 
 namespace SampleGame;
 

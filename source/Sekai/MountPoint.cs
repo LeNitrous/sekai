@@ -19,11 +19,6 @@ public enum MountPoint
     Data,
 
     /// <summary>
-    /// The cache directory.
-    /// </summary>
-    Cache,
-
-    /// <summary>
     /// The temporary directory.
     /// </summary>
     Temp

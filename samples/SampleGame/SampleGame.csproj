@@ -10,9 +10,9 @@
 
   <ItemGroup>
     <ProjectReference Include="../../source/Sekai/Sekai.csproj" />
-    <ProjectReference Include="../../source/Sekai.Audio.OpenAL/Sekai.Audio.OpenAL.csproj" />
-    <ProjectReference Include="../../source/Sekai.Graphics.OpenGL/Sekai.Graphics.OpenGL.csproj" />
-    <ProjectReference Include="../../source/Sekai.Platform.Desktop/Sekai.Platform.Desktop.csproj" />
+    <ProjectReference Include="../../source/Sekai.Framework.Audio.OpenAL/Sekai.Framework.Audio.OpenAL.csproj" />
+    <ProjectReference Include="../../source/Sekai.Framework.Graphics.OpenGL/Sekai.Framework.Graphics.OpenGL.csproj" />
+    <ProjectReference Include="../../source/Sekai.Framework.Platform.Desktop/Sekai.Framework.Platform.Desktop.csproj" />
   </ItemGroup>
 
 </Project>
