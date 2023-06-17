@@ -1,7 +1,8 @@
 {
-  "name": "ReactOS",
+  "name": "Sekai",
   "context": "..",
   "dockerFile": "../.codespaces.dockerfile",
+  "privileged": true,
   "customizations": {
     "vscode": {
       "extensions": [
@@ -9,5 +10,18 @@
         "editorconfig.editorconfig"
       ]
     }
-  }
+  },
+  "mounts": [
+    {
+      "source": "/tmp/.X11-unix",
+      "target": "/tmp/.X11-unix",
+      "type": "bind"
+    }
+  ],
+  "remoteEnv": {
+    "DISPLAY": "${localEnv:DISPLAY}"
+  },
+  "runArgs": [
+    "--net=host"
+  ]
 }

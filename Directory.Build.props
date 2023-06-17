@@ -1,8 +1,12 @@
 <Project>
+  <PropertyGroup Label="Analyzers">
+    <EnableAotAnalyzer>true</EnableAotAnalyzer>
+    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+  </PropertyGroup>
   <PropertyGroup Label="NuGet">
-    <Authors>Cosyne and The Vignette Authors</Authors>
+    <Authors>Cosyne</Authors>
     <Description>The rendering framework that powers Vignette.</Description>
-    <Copyright>2022 The Vignette Authors</Copyright>
+    <Copyright>Cosyne</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://github.com/vignetteapp/sekai</PackageProjectUrl>

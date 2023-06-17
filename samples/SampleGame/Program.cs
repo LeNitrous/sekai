@@ -1,12 +1,17 @@
-// Copyright (c) Cosyne and The Vignette Authors
+// Copyright (c) Cosyne
 // Licensed under MIT. See LICENSE for details.
 
 using System;
 using System.Numerics;
 using Sekai;
-using Sekai.Desktop;
+using Sekai.Audio;
+using Sekai.Audio.OpenAL;
+using Sekai.Framework.OpenGL;
+using Sekai.Framework.Storages;
 using Sekai.Graphics;
-using Sekai.Platform;
+using Sekai.Graphics.OpenGL;
+using Sekai.Platform.Desktop;
+using Sekai.Platform.Windowing;
 
 namespace SampleGame;
 
@@ -16,7 +21,7 @@ internal static class Program
     {
         if (RuntimeInfo.IsDesktop)
         {
-            var host = new DesktopGameHost();
+            var host = new DesktopHost();
             var game = new Sample();
             host.Run(game);
         }
@@ -27,12 +32,31 @@ internal static class Program
     }
 }
 
-internal class Sample : Game
+internal sealed class DesktopHost : Host
+{
+    protected override AudioDevice CreateAudio() => new ALAudioDevice();
+
+    protected override IWindow CreateWindow() => new Window();
+
+    protected override Storage CreateStorage(MountPoint point) => new MemoryStorage();
+
+    protected override GraphicsDevice CreateGraphics(IWindow window)
+    {
+        if (window is not IGLContextSource source)
+        {
+            throw new ArgumentException("Window does not provide a GL context.", nameof(window));
+        }
+
+        return new GLGraphicsDevice(source.Context);
+    }
+}
+
+internal sealed class Sample : Game
 {
     private Shader? shd;
     private GraphicsBuffer? vbo;
 
-    protected override void Load()
+    public override void Load()
     {
         shd = Graphics!.CreateShader
         (
@@ -50,14 +74,14 @@ internal class Sample : Game
         vbo = Graphics.CreateBuffer(BufferType.Vertex, vertices);
     }
 
-    protected override void Draw()
+    public override void Draw()
     {
         Graphics!.SetShader(shd!);
         Graphics.SetVertexBuffer(vbo!, new VertexLayout(new VertexMember(3, false, VertexMemberFormat.Float)));
         Graphics.Draw(PrimitiveType.TriangleList, 3);
     }
 
-    protected override void Unload()
+    public override void Unload()
     {
         shd?.Dispose();
         vbo?.Dispose();

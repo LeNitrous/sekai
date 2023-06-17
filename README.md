@@ -22,7 +22,7 @@
 </p>
 
 ## Introduction
-Sekai is a fully abstracted game engine written under the .NET Runtime in C# inspired by other frameworks such as [LÖVE2D](https://github.com/love/love2d) and [osu! framework](https://github.com/ppy/osu-framework). Its core components such as rendering, audio, windowing, input, and even storage can easily be replaced to suit their requirements. The repository contains implementations that make use of SDL, OpenGL, and OpenAL as a starting point.
+Sekai is a fully abstracted game engine written under the .NET Runtime in C# inspired by other frameworks such as [LÖVE2D](https://github.com/love/love2d) and [osu! framework](https://github.com/ppy/osu-framework). Its core components such as rendering, audio, windowing, input, and even storage can easily be replaced to suit their requirements. The repository contains implementations that make use of GLFWw, OpenGL, and OpenAL as a starting point.
 
 ## Getting Started
 
@@ -31,7 +31,7 @@ Please make sure you meet the following prerequisistes:
 - A desktop platform with .NET 7 or above installed.
 
 ### Examples
-There are examples in the `./examples/` directory.
+There are examples in the `./samples/` directory.
 
 ## License
 Sekai is licensed under MIT. See the [the license](./LICENSE) file in the root of this repository for the full text.

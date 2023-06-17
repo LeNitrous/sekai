@@ -1,4 +1,4 @@
-// Copyright (c) Cosyne and The Vignette Authors
+// Copyright (c) Cosyne
 // Licensed under MIT. See LICENSE for details.
 
 namespace Sekai;

@@ -4,21 +4,17 @@
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <EnableAotAnalyzer>true</EnableAotAnalyzer>
-    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.2.0" />
-    <PackageReference Include="Microsoft.Extensions.FileSystemGlobbing" Version="7.0.0" />
-    <PackageReference Include="NetEscapades.EnumGenerators" Version="1.0.0-beta07" PrivateAssets="all" ExcludeAssets="runtime" />
-    <PackageReference Include="Silk.NET.OpenAL" Version="2.17.1" />
-    <PackageReference Include="Silk.NET.OpenAL.Extensions.Creative" Version="2.17.1" />
-    <PackageReference Include="Silk.NET.OpenAL.Extensions.Enumeration" Version="2.17.1" />
-    <PackageReference Include="Silk.NET.OpenAL.Soft.Native" Version="1.21.1.2" />
-    <PackageReference Include="Silk.NET.OpenGL" Version="2.17.1" />
-    <PackageReference Include="Spirzza.Interop.SpirvCross" Version="0.0.1" />
-    <PackageReference Include="Spirzza.Interop.Shaderc" Version="0.0.1" />
+    <ProjectReference Include="../Sekai.Audio/Sekai.Audio.csproj" />
+    <ProjectReference Include="../Sekai.Graphics/Sekai.Graphics.csproj" />
+    <ProjectReference Include="../Sekai.Framework/Sekai.Framework.csproj" />
+    <ProjectReference Include="../Sekai.Platform/Sekai.Platform.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Pastel" Version="4.1.0" />
   </ItemGroup>
 
 </Project>

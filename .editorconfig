@@ -16,7 +16,7 @@ insert_final_newline = true
 dotnet_diagnostic.IDE0130.severity = error
 
 # File Header
-file_header_template = Copyright (c) Cosyne and The Vignette Authors\nLicensed under MIT. See LICENSE for details.
+file_header_template = Copyright (c) Cosyne \nLicensed under MIT. See LICENSE for details.
 dotnet_diagnostic.IDE0073.severity = error
 
 # 'this' qualifiers
