@@ -1,6 +1,6 @@
 FROM mcr.microsoft.com/vscode/devcontainers/base:debian
 
-USER vscodeS
+USER vscode
 
 # Install dependencies
 RUN \
