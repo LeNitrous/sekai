@@ -12,11 +12,7 @@
     }
   },
   "mounts": [
-    {
-      "source": "/tmp/.X11-unix",
-      "target": "/tmp/.X11-unix",
-      "type": "bind"
-    }
+    "source=${localEnv:XAUTHORITY},target=/home/vscode/.Xauthority,type=bind,consistency=cached"
   ],
   "remoteEnv": {
     "DISPLAY": "${localEnv:DISPLAY}"
