@@ -6,6 +6,9 @@ using System.IO;
 
 namespace Sekai.Framework.Storages;
 
+/// <summary>
+/// A kind of <see cref="Storage"/> that uses <see cref="File"/> and <see cref="Directory"/> operations.
+/// </summary>
 public sealed class NativeStorage : Storage
 {
     private readonly DirectoryInfo directory;

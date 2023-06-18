@@ -41,7 +41,7 @@ public abstract class Storage : IDisposable
     /// </summary>
     /// <param name="path">The path to the directory.</param>
     /// <returns>Storage of the opened directory.</returns>
-    public Storage OpenDirectory([StringSyntax(StringSyntaxAttribute.Uri)] string path) => Exists(path) ? new SubDirectoryStorage(this, path) : throw new FileNotFoundException(null, Path.GetFileName(path));
+    public Storage OpenDirectory([StringSyntax(StringSyntaxAttribute.Uri)] string path) => Exists(path) ? new SubPathStorage(this, path) : throw new FileNotFoundException(null, Path.GetFileName(path));
 
     /// <summary>
     /// Gets whether a directory exists on a given path.
@@ -84,12 +84,12 @@ public abstract class Storage : IDisposable
 
     public abstract void Dispose();
 
-    private sealed class SubDirectoryStorage : Storage
+    private sealed class SubPathStorage : Storage
     {
         private readonly string basePath;
         private readonly Storage storage;
 
-        public SubDirectoryStorage(Storage storage, string basePath)
+        public SubPathStorage(Storage storage, string basePath)
         {
             this.storage = storage;
             this.basePath = basePath;
@@ -137,6 +137,75 @@ public abstract class Storage : IDisposable
 
         public override void Dispose()
         {
+        }
+    }
+
+    /// <summary>
+    /// A helper class that allows an intermediary stream to be written to and writes back to the source when flushed.
+    /// </summary>
+    protected sealed class WrappedStream : Stream
+    {
+        public override bool CanRead => stream.CanRead;
+        public override bool CanSeek => stream.CanSeek;
+        public override bool CanWrite => stream.CanWrite;
+        public override long Length => stream.Length;
+
+        public override long Position
+        {
+            get => stream.Position;
+            set => stream.Position = value;
+        }
+
+        private readonly Stream source;
+        private readonly MemoryStream stream = new();
+
+        public WrappedStream(Stream source, bool append = false)
+        {
+            this.source = source;
+            this.source.CopyTo(stream);
+            this.source.Position = 0;
+
+            if (!append)
+            {
+                stream.Position = 0;
+            }
+        }
+
+        public override void Flush()
+        {
+            stream.Flush();
+            stream.WriteTo(source);
+            source.Position = 0;
+        }
+
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            return stream.Read(buffer, offset, count);
+        }
+
+        public override long Seek(long offset, SeekOrigin origin)
+        {
+            return stream.Seek(offset, origin);
+        }
+
+        public override void SetLength(long value)
+        {
+            stream.SetLength(value);
+        }
+
+        public override void Write(byte[] buffer, int offset, int count)
+        {
+            stream.Write(buffer, offset, count);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+
+            if (disposing)
+            {
+                stream.Dispose();
+            }
         }
     }
 }

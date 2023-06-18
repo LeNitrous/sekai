@@ -9,6 +9,9 @@ using Microsoft.Extensions.FileSystemGlobbing;
 
 namespace Sekai.Framework.Storages;
 
+/// <summary>
+/// A kind of <see cref="Storage"/> whose contents live in-memory.
+/// </summary>
 public sealed class MemoryStorage : Storage
 {
     private bool isDisposed;
@@ -111,66 +114,5 @@ public sealed class MemoryStorage : Storage
         isDisposed = true;
 
         GC.SuppressFinalize(this);
-    }
-
-    private sealed class WrappedStream : Stream
-    {
-        public override bool CanRead => stream.CanRead;
-        public override bool CanSeek => stream.CanSeek;
-        public override bool CanWrite => stream.CanWrite;
-        public override long Length => stream.Length;
-
-        public override long Position
-        {
-            get => stream.Position;
-            set => stream.Position = value;
-        }
-
-        private readonly MemoryStream source;
-        private readonly MemoryStream stream = new();
-
-        public WrappedStream(MemoryStream source)
-        {
-            this.source = source;
-            this.source.WriteTo(stream);
-            this.source.Position = 0;
-        }
-
-        public override void Flush()
-        {
-            stream.Flush();
-            stream.WriteTo(source);
-            source.Position = 0;
-        }
-
-        public override int Read(byte[] buffer, int offset, int count)
-        {
-            return stream.Read(buffer, offset, count);
-        }
-
-        public override long Seek(long offset, SeekOrigin origin)
-        {
-            return stream.Seek(offset, origin);
-        }
-
-        public override void SetLength(long value)
-        {
-            stream.SetLength(value);
-        }
-
-        public override void Write(byte[] buffer, int offset, int count)
-        {
-            stream.Write(buffer, offset, count);
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-
-            if (disposing)
-            {
-                stream.Dispose();
-            }
-        }
     }
 }
