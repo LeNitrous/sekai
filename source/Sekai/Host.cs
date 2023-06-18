@@ -24,10 +24,11 @@ namespace Sekai;
 public abstract class Host
 {
     /// <summary>
-    /// Gets or sets the ticking logic performed by <see cref="Tick"/>.
+    /// Gets or sets the ticking mode.
     /// </summary>
     /// <remarks>
     /// When set to <see cref="TickMode.Fixed"/>, the target time between frames is provided by <see cref="UpdatePerSecond"/>.
+    /// Otherwise, it is the duration of each elapsed frame.
     /// </remarks>
     public TickMode TickMode { get; set; } = TickMode.Fixed;
 
