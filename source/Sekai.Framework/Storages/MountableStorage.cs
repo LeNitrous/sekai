@@ -6,15 +6,23 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using Sekai.Framework.Storages;
 
-namespace Sekai;
+namespace Sekai.Framework.Storages;
 
+/// <summary>
+/// A kind of <see cref="Storage"/> which virtualizes paths to lead to other storages.
+/// </summary>
 public sealed class MountableStorage : Storage
 {
     private bool isDisposed;
     private readonly Dictionary<string, Storage> storages = new();
 
+    /// <summary>
+    /// Mounts a storage at a given path.
+    /// </summary>
+    /// <param name="path">The path to be mounted</param>
+    /// <param name="storage">The storage to mount.</param>
+    /// <exception cref="Exception">Thrown when a storage is already mounted at a given path.</exception>
     public void Mount([StringSyntax(StringSyntaxAttribute.Uri)] string path, Storage storage)
     {
         path = path.Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
@@ -26,17 +34,24 @@ public sealed class MountableStorage : Storage
 
         if (storages.ContainsKey(path))
         {
-            throw new Exception();
+            throw new ArgumentException($"There is a storage already mounted at {path}", nameof(path));
         }
 
         storages.Add(path, storage);
     }
 
+    /// <inheritdoc cref="Unmount(string, out Storage?)"/>
     public bool Unmount([StringSyntax(StringSyntaxAttribute.Uri)] string path)
     {
         return Unmount(path, out _);
     }
 
+    /// <summary>
+    /// Unmounts a given path.
+    /// </summary>
+    /// <param name="path">The path to unmount.</param>
+    /// <param name="storage">The storage that was unmounted.</param>
+    /// <returns><see langword="true"/> if the path was unmounted. <see langword="false"/> otherwise.</returns>
     public bool Unmount([StringSyntax(StringSyntaxAttribute.Uri)] string path, [NotNullWhen(true)] out Storage? storage)
     {
         path = path.Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
