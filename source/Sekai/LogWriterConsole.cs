@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Text;
 using Pastel;
 using Sekai.Framework.Logging;
 
@@ -43,7 +42,7 @@ internal sealed partial class LogWriterConsole : LogWriter, IDisposable
         {
             case LogLevel.Trace:
             case LogLevel.Debug:
-            case LogLevel.Information:
+            case LogLevel.Verbose:
                 writer = streamOut;
                 break;
 
@@ -93,58 +92,34 @@ internal sealed partial class LogWriterConsole : LogWriter, IDisposable
     [return: MarshalAs(UnmanagedType.Bool)]
     private static partial bool FreeConsole();
 
-    private class LogWriterConsoleStream : LogWriterStream
+    private class LogWriterConsoleStream : LogWriterText
     {
         public LogWriterConsoleStream(Stream stream)
             : base(stream)
         {
         }
 
-        protected override string Format(LogMessage message)
-        {
-            var builder = new StringBuilder();
-            builder.Append($"[{iconMapping[message.Level]}] [{message.Timestamp.ToString("dd/MM/yyyy hh:mm:ss tt").Pastel(Color.White)}]".Pastel(Color.SlateGray));
+        protected override string Format(LogMessage m) => base.Format(m).Pastel(Color.DarkSlateGray);
+        protected override string? GetLevel(LogMessage m) => icons[m.Level];
+        protected override string? GetContent(LogMessage m) => base.GetContent(m)?.Pastel(foregroundColors[m.Level]);
+        protected override string? GetTimestamp(LogMessage m) => base.GetTimestamp(m).Pastel(Color.White);
+        protected override string? GetException(LogMessage m) => base.GetException(m)?.Pastel(foregroundColors[m.Level]);
 
-            if (message.Content is not null)
-            {
-                builder.Append(' ');
-                builder.Append(message.Content.ToString().Pastel(foregroundColorMapping[message.Level]));
-            }
-
-            if (message.Exception is not null)
-            {
-                if (message.Content is not null)
-                {
-                    builder.AppendLine();
-                }
-                else
-                {
-                    builder.Append(" An exception has occured.".Pastel(foregroundColorMapping[message.Level]));
-                }
-
-                builder.Append(message.Exception.ToString().Pastel(foregroundColorMapping[message.Level]));
-            }
-
-            builder.AppendLine();
-
-            return builder.ToString();
-        }
-
-        private static readonly Dictionary<LogLevel, string> iconMapping = new()
+        private static readonly Dictionary<LogLevel, string> icons = new()
         {
             { LogLevel.Trace,       "📻" },
             { LogLevel.Debug,       "⚙️" },
-            { LogLevel.Information, "💬" },
+            { LogLevel.Verbose, "💬" },
             { LogLevel.Warning,     "⚠️" },
             { LogLevel.Error,       "💢" },
             { LogLevel.Critical,    "💥" },
         };
 
-        private static readonly Dictionary<LogLevel, string> foregroundColorMapping = new()
+        private static readonly Dictionary<LogLevel, string> foregroundColors = new()
         {
             { LogLevel.Trace,       "#292929" },
             { LogLevel.Debug,       "#545454" },
-            { LogLevel.Information, "#c2c2c2" },
+            { LogLevel.Verbose, "#c2c2c2" },
             { LogLevel.Warning,     "#ebd513" },
             { LogLevel.Error,       "#db4242" },
             { LogLevel.Critical,    "#ff0000" },
