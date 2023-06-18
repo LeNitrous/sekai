@@ -94,7 +94,14 @@ public abstract class Host
     /// <param name="game">The game to run.</param>
     public void Run(Game game)
     {
-        RunAsync(game).Wait();
+        try
+        {
+            RunAsync(game).Wait();
+        }
+        catch (AggregateException e)
+        {
+            ExceptionDispatchInfo.Throw(e.InnerException ?? e);
+        }
     }
 
     /// <summary>
@@ -127,7 +134,7 @@ public abstract class Host
         storage.Mount("/temp/", CreateStorage(MountPoint.Temp));
 
         var termOut = new LogWriterConsole();
-        var fileOut = new LogWriterStream(storage.Open("/game/runtime.log", FileMode.OpenOrCreate, FileAccess.Write));
+        var fileOut = new LogWriterText(storage.Open("/game/runtime.log", FileMode.OpenOrCreate, FileAccess.Write)) { MinimumLevel = RuntimeInfo.IsDebug ? LogLevel.Debug : LogLevel.Verbose };
 
         logger = new();
         logger.AddOutput(termOut);
@@ -152,7 +159,7 @@ public abstract class Host
 
         var gameLoop = Task.Factory.StartNew(runGameLoop, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
 
-        while (Window.Exists)
+        while (window.Exists)
         {
             if (info is not null)
             {
@@ -160,7 +167,7 @@ public abstract class Host
                 break;
             }
 
-            Window.DoEvents();
+            window.DoEvents();
         }
 
         await gameLoop;
@@ -233,7 +240,7 @@ public abstract class Host
 
     private void handleHotReload(Type[]? types)
     {
-        Logger.Debug("Hot reload requested. Reloading the game...");
+        Logger.Trace("Hot reload requested. Reloading the game...");
         Reload();
     }
 
