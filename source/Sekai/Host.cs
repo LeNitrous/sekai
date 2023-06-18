@@ -10,11 +10,11 @@ using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Sekai.Framework.Audio;
-using Sekai.Framework.Logging;
-using Sekai.Framework.Storages;
 using Sekai.Framework.Graphics;
+using Sekai.Framework.Logging;
 using Sekai.Framework.Platform.Input;
 using Sekai.Framework.Platform.Windowing;
+using Sekai.Framework.Storages;
 
 namespace Sekai;
 
@@ -150,10 +150,19 @@ public abstract class Host
         window.State = WindowState.Minimized;
         window.Closed += Exit;
 
-        var mainLoop = Task.Factory.StartNew(runMainLoop, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         var gameLoop = Task.Factory.StartNew(runGameLoop, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
 
-        await mainLoop;
+        while (Window.Exists)
+        {
+            if (info is not null)
+            {
+                info.Throw();
+                break;
+            }
+
+            Window.DoEvents();
+        }
+
         await gameLoop;
 
         window.Dispose();
@@ -229,22 +238,6 @@ public abstract class Host
     }
 
     private ExceptionDispatchInfo? info;
-
-    private Task runMainLoop()
-    {
-        while (Window.Exists)
-        {
-            if (info is not null)
-            {
-                info.Throw();
-                break;
-            }
-
-            Window.DoEvents();
-        }
-
-        return Task.CompletedTask;
-    }
 
     private Task runGameLoop()
     {
