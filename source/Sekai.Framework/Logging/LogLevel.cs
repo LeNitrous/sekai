@@ -21,7 +21,7 @@ public enum LogLevel
     /// <summary>
     /// Used for general messages.
     /// </summary>
-    Information,
+    Verbose,
 
     /// <summary>
     /// Used for informing unexpected behavior but the application can still be operational.

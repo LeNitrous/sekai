@@ -57,7 +57,7 @@ public sealed class Logger
     /// <param name="message">The message to log.</param>
     public void Log(object? message)
     {
-        broadcast(new(name, message, LogLevel.Information));
+        broadcast(new(name, message, LogLevel.Verbose));
     }
 
     /// <summary>
