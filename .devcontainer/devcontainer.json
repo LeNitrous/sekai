@@ -12,7 +12,9 @@
     }
   },
   "mounts": [
-    "source=${localEnv:XAUTHORITY},target=/home/vscode/.Xauthority,type=bind,consistency=cached"
+    // Xauth cookies must be shared to the container.
+    // This is to prevent authentication errors when launching the application.
+    "source=${localEnv:XAUTHORITY},target=${containerEnv:HOME}/.Xauthority,type=bind,consistency=cached"
   ],
   "remoteEnv": {
     "DISPLAY": "${localEnv:DISPLAY}"
