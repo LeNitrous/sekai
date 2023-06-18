@@ -16,11 +16,11 @@ public sealed unsafe partial class Window : IWindow, IInputSource, IGLContextSou
 {
     public bool Exists { get; private set; }
 
-    public SurfaceInfo Surface
+    public NativeWindowInfo Surface
     {
         get
         {
-            if (info.Kind != SurfaceKind.Unknown)
+            if (info.Kind != NativeWindowKind.Unknown)
             {
                 return info;
             }
@@ -29,21 +29,21 @@ public sealed unsafe partial class Window : IWindow, IInputSource, IGLContextSou
 
             if (glfw.Context.TryGetProcAddress("glfwGetWin32Window", out nint getHwnd))
             {
-                info.Kind |= SurfaceKind.Win32;
+                info.Kind |= NativeWindowKind.Win32;
                 nint hwnd = ((delegate* unmanaged[Cdecl]<WindowHandle*, nint>)getHwnd)(window);
                 info.Win32 = new(hwnd, GetDC(hwnd), GetWindowLongPtr(hwnd, -6));
             }
 
             if (glfw.Context.TryGetProcAddress("glfwGetCocoaWindow", out nint getCocoa))
             {
-                info.Kind |= SurfaceKind.Cocoa;
+                info.Kind |= NativeWindowKind.Cocoa;
                 info.Cocoa = new((nint)((delegate* unmanaged[Cdecl]<WindowHandle*, void*>)getCocoa)(window));
             }
 
             if (glfw.Context.TryGetProcAddress("glfwGetX11Display", out nint getX11Display) &&
                 glfw.Context.TryGetProcAddress("glfwGetX11Window", out nint getX11Window))
             {
-                info.Kind |= SurfaceKind.X11;
+                info.Kind |= NativeWindowKind.X11;
                 info.X11 = new
                 (
                     (nint)((delegate* unmanaged[Cdecl]<void*>)getX11Display)(),
@@ -54,7 +54,7 @@ public sealed unsafe partial class Window : IWindow, IInputSource, IGLContextSou
             if (glfw.Context.TryGetProcAddress("glfwGetWaylandDisplay", out nint getWaylandDisplay) &&
                 glfw.Context.TryGetProcAddress("glfwGetWaylandWindow", out nint getWaylandWindow))
             {
-                info.Kind |= SurfaceKind.Wayland;
+                info.Kind |= NativeWindowKind.Wayland;
                 info.Wayland = new
                 (
                     (nint)((delegate* unmanaged[Cdecl]<void*>)getWaylandDisplay)(),
@@ -65,7 +65,7 @@ public sealed unsafe partial class Window : IWindow, IInputSource, IGLContextSou
             if (glfw.Context.TryGetProcAddress("glfwGetEGLDisplay", out nint getEGLDisplay) &&
                 glfw.Context.TryGetProcAddress("glfwGetEGLSurface", out nint getEGLSurface))
             {
-                info.Kind |= SurfaceKind.Wayland;
+                info.Kind |= NativeWindowKind.Wayland;
                 info.EGL = new
                 (
                     (nint)((delegate* unmanaged[Cdecl]<void*>)getEGLDisplay)(),
@@ -304,13 +304,7 @@ public sealed unsafe partial class Window : IWindow, IInputSource, IGLContextSou
     public event Action<Size>? Resized;
     public event Action<Point>? Moved;
     public event Action<bool>? FocusChanged;
-
-#pragma warning disable CS0067 // GLFW does not have mechanisms for resuming and suspending
-
-    public event Action? Resume;
-    public event Action? Suspend;
-
-#pragma warning restore CS0067
+    public event Action<WindowState>? StateChanged;
 
     private const int default_width = 1280;
     private const int default_height = 720;
@@ -323,11 +317,13 @@ public sealed unsafe partial class Window : IWindow, IInputSource, IGLContextSou
     private GlfwCallbacks.ScrollCallback? scrollCallback;
     private GlfwCallbacks.CursorPosCallback? cursorPosCallback;
     private GlfwCallbacks.MouseButtonCallback? mouseButtonCallback;
+    private GlfwCallbacks.WindowIconifyCallback? windowIconifyCallback;
+    private GlfwCallbacks.WindowMaximizeCallback? windowMaximizeCallback;
 
     private Size maximumSize;
     private Size minimumSize;
     private WindowState state;
-    private SurfaceInfo info;
+    private NativeWindowInfo info;
     private bool visible;
     private string title = string.Empty;
     private bool isDisposed;
@@ -486,10 +482,16 @@ public sealed unsafe partial class Window : IWindow, IInputSource, IGLContextSou
             }
         };
 
+        windowIconifyCallback = (window, iconified) => StateChanged?.Invoke(State);
+
+        windowMaximizeCallback = (window, maximized) => StateChanged?.Invoke(State);
+
         glfw.SetWindowCloseCallback(window, windowCloseCallback);
         glfw.SetWindowPosCallback(window, windowPosCallback);
         glfw.SetWindowSizeCallback(window, windowSizeCallback);
         glfw.SetWindowFocusCallback(window, windowFocusCallback);
+        glfw.SetWindowIconifyCallback(window, windowIconifyCallback);
+        glfw.SetWindowMaximizeCallback(window, windowMaximizeCallback);
         glfw.SetKeyCallback(window, keyCallback);
         glfw.SetScrollCallback(window, scrollCallback);
         glfw.SetCursorPosCallback(window, cursorPosCallback);
@@ -502,6 +504,8 @@ public sealed unsafe partial class Window : IWindow, IInputSource, IGLContextSou
         glfw.GcUtility.Unpin(windowPosCallback);
         glfw.GcUtility.Unpin(windowSizeCallback);
         glfw.GcUtility.Unpin(windowFocusCallback);
+        glfw.GcUtility.Unpin(windowIconifyCallback);
+        glfw.GcUtility.Unpin(windowMaximizeCallback);
         glfw.GcUtility.Unpin(keyCallback);
         glfw.GcUtility.Unpin(cursorPosCallback);
         glfw.GcUtility.Unpin(mouseButtonCallback);
@@ -510,6 +514,8 @@ public sealed unsafe partial class Window : IWindow, IInputSource, IGLContextSou
         windowPosCallback = null;
         windowSizeCallback = null;
         windowFocusCallback = null;
+        windowIconifyCallback = null;
+        windowMaximizeCallback = null;
         keyCallback = null;
         scrollCallback = null;
         cursorPosCallback = null;

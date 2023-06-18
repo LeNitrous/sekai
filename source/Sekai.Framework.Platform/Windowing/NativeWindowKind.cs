@@ -9,7 +9,7 @@ namespace Sekai.Framework.Platform.Windowing;
 /// The surface's kind.
 /// </summary>
 [Flags]
-public enum SurfaceKind
+public enum NativeWindowKind
 {
     /// <summary>
     /// Unknown.

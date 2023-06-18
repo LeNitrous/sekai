@@ -42,14 +42,9 @@ public interface IWindow : IDisposable
     event Action<bool>? FocusChanged;
 
     /// <summary>
-    /// Called when the window has resumed to foreground.
+    /// Called when the window state has changed.
     /// </summary>
-    event Action? Resume;
-
-    /// <summary>
-    /// Called when the window has suspended into background.
-    /// </summary>
-    event Action? Suspend;
+    event Action<WindowState>? StateChanged;
 
     /// <summary>
     /// Gets whether the window exists or not.
@@ -59,7 +54,7 @@ public interface IWindow : IDisposable
     /// <summary>
     /// The window's surface info.
     /// </summary>
-    SurfaceInfo Surface { get; }
+    NativeWindowInfo Surface { get; }
 
     /// <summary>
     /// The monitor where this window is currently at.
