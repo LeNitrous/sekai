@@ -6,7 +6,7 @@
   </picture>
 </p>
 
-<p align="center">Sekai is the game engine that powers <a href="https://github.com/vignetteapp/vignette">Vignette</a>.</p>
+<p align="center">Sekai is the framework that powers <a href="https://github.com/vignetteapp/vignette">Vignette</a>.</p>
 
 <br/>
 
@@ -22,7 +22,7 @@
 </p>
 
 ## Introduction
-Sekai is a fully abstracted game engine written under the .NET Runtime in C# inspired by other frameworks such as [LÖVE2D](https://github.com/love/love2d) and [osu! framework](https://github.com/ppy/osu-framework). Its core components such as rendering, audio, windowing, input, and even storage can easily be replaced to suit their requirements. The repository contains implementations that make use of GLFWw, OpenGL, and OpenAL as a starting point.
+Sekai is a fully abstracted graphics framework written under the .NET Runtime in C# inspired by other frameworks such as [LÖVE2D](https://github.com/love/love2d) and [osu! framework](https://github.com/ppy/osu-framework). Its core components such as rendering, audio, windowing, input, and even storage can easily be replaced to suit their requirements. The repository contains implementations that make use of GLFWw, OpenGL, and OpenAL as a starting point.
 
 ## Getting Started
 
