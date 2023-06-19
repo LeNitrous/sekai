@@ -20,6 +20,5 @@
     "DISPLAY": "${localEnv:DISPLAY}"
   },
   "runArgs": [
-    "--net=host"
   ]
 }
