@@ -33,13 +33,11 @@ using System;
 using System.Globalization;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
 
 namespace Sekai.Mathematics;
 /// <summary>
 /// Represents a color in the form of rgba.
 /// </summary>
-[DataContract]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public struct Color4 : IEquatable<Color4>, IFormattable
 {
@@ -58,25 +56,21 @@ public struct Color4 : IEquatable<Color4>, IFormattable
     /// <summary>
     /// The red component of the color.
     /// </summary>
-    [DataMember]
     public float R;
 
     /// <summary>
     /// The green component of the color.
     /// </summary>
-    [DataMember]
     public float G;
 
     /// <summary>
     /// The blue component of the color.
     /// </summary>
-    [DataMember]
     public float B;
 
     /// <summary>
     /// The alpha component of the color.
     /// </summary>
-    [DataMember]
     public float A;
 
     /// <summary>

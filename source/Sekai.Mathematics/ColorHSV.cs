@@ -24,13 +24,11 @@
 using System;
 using System.Globalization;
 using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
 
 namespace Sekai.Mathematics;
 /// <summary>
 /// Represents a color in the form of Hue, Saturation, Value, Alpha.
 /// </summary>
-[DataContract]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public struct ColorHSV : IEquatable<ColorHSV>, IFormattable
 {
@@ -39,25 +37,21 @@ public struct ColorHSV : IEquatable<ColorHSV>, IFormattable
     /// <summary>
     /// The Hue of the color.
     /// </summary>
-    [DataMember]
     public float H;
 
     /// <summary>
     /// The Saturation of the color.
     /// </summary>
-    [DataMember]
     public float S;
 
     /// <summary>
     /// The Value of the color.
     /// </summary>
-    [DataMember]
     public float V;
 
     /// <summary>
     /// The alpha component of the color.
     /// </summary>
-    [DataMember]
     public float A;
 
     /// <summary>

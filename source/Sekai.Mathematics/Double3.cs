@@ -26,13 +26,11 @@ using System.Globalization;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
 
 namespace Sekai.Mathematics;
 /// <summary>
 /// Represents a three dimensional mathematical vector with double-precision floats.
 /// </summary>
-[DataContract]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public struct Double3 : IEquatable<Double3>, IFormattable
 {
@@ -69,19 +67,16 @@ public struct Double3 : IEquatable<Double3>, IFormattable
     /// <summary>
     /// The X component of the vector.
     /// </summary>
-    [DataMember]
     public double X;
 
     /// <summary>
     /// The Y component of the vector.
     /// </summary>
-    [DataMember]
     public double Y;
 
     /// <summary>
     /// The Z component of the vector.
     /// </summary>
-    [DataMember]
     public double Z;
 
     /// <summary>

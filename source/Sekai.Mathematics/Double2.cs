@@ -26,13 +26,11 @@ using System.Globalization;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
 
 namespace Sekai.Mathematics;
 /// <summary>
 /// Represents a two dimensional mathematical vector with double-precision floats.
 /// </summary>
-[DataContract]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public struct Double2 : IEquatable<Double2>, IFormattable
 {
@@ -64,13 +62,11 @@ public struct Double2 : IEquatable<Double2>, IFormattable
     /// <summary>
     /// The X component of the vector.
     /// </summary>
-    [DataMember]
     public double X;
 
     /// <summary>
     /// The Y component of the vector.
     /// </summary>
-    [DataMember]
     public double Y;
 
     /// <summary>

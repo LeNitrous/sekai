@@ -1,4 +1,4 @@
-// Copyright (c) The Vignette Authors
+// Copyright (c) Cosyne
 // Licensed under MIT. See LICENSE for details.
 
 // Copyright (c) .NET Foundation and Contributors (https://dotnetfoundation.org/ & https://stride3d.net) and Silicon Studio Corp. (https://www.siliconstudio.co.jp)
@@ -34,13 +34,11 @@ using System.Globalization;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
 
 namespace Sekai.Mathematics;
 /// <summary>
 /// Represents a three dimensional mathematical vector.
 /// </summary>
-[DataContract]
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
 public struct Int2 : IEquatable<Int2>, IFormattable
 {
@@ -72,13 +70,11 @@ public struct Int2 : IEquatable<Int2>, IFormattable
     /// <summary>
     /// The X component of the vector.
     /// </summary>
-    [DataMember]
     public int X;
 
     /// <summary>
     /// The Y component of the vector.
     /// </summary>
-    [DataMember]
     public int Y;
 
     /// <summary>

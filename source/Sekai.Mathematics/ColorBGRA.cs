@@ -25,13 +25,11 @@ using System;
 using System.Globalization;
 using System.Numerics;
 using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
 
 namespace Sekai.Mathematics;
 /// <summary>
 /// Represents a 32-bit color (4 bytes) in the form of BGRA (in byte order: B, G, R, A).
 /// </summary>
-[DataContract]
 [StructLayout(LayoutKind.Sequential, Size = 4)]
 public partial struct ColorBGRA : IEquatable<ColorBGRA>, IFormattable
 {
@@ -40,25 +38,21 @@ public partial struct ColorBGRA : IEquatable<ColorBGRA>, IFormattable
     /// <summary>
     /// The blue component of the color.
     /// </summary>
-    [DataMember]
     public byte B;
 
     /// <summary>
     /// The green component of the color.
     /// </summary>
-    [DataMember]
     public byte G;
 
     /// <summary>
     /// The red component of the color.
     /// </summary>
-    [DataMember]
     public byte R;
 
     /// <summary>
     /// The alpha component of the color.
     /// </summary>
-    [DataMember]
     public byte A;
 
     /// <summary>
