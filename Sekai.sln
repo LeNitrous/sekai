@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Framework.Platform.He
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Framework.Platform.Desktop", "source\Sekai.Framework.Platform.Desktop\Sekai.Framework.Platform.Desktop.csproj", "{C9C2C5F2-FB25-4711-BD54-DAC253E3BCBD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Mathematics", "source\Sekai.Mathematics\Sekai.Mathematics.csproj", "{24680F2B-42BB-420E-9BE0-AE4E6E75F5F2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -77,6 +79,10 @@ Global
 		{4E665233-0AE5-4A70-A1A3-73330EA4D3A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E665233-0AE5-4A70-A1A3-73330EA4D3A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4E665233-0AE5-4A70-A1A3-73330EA4D3A7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24680F2B-42BB-420E-9BE0-AE4E6E75F5F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24680F2B-42BB-420E-9BE0-AE4E6E75F5F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24680F2B-42BB-420E-9BE0-AE4E6E75F5F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24680F2B-42BB-420E-9BE0-AE4E6E75F5F2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -92,6 +98,7 @@ Global
 		{BEE80EFC-3BE1-48BF-87D5-1500ACD81F0C} = {11EBA343-73D5-4FC5-ADB9-2921D759C406}
 		{F8E15154-ADD0-483A-8B9C-8C39AB264229} = {11EBA343-73D5-4FC5-ADB9-2921D759C406}
 		{C9C2C5F2-FB25-4711-BD54-DAC253E3BCBD} = {11EBA343-73D5-4FC5-ADB9-2921D759C406}
+		{24680F2B-42BB-420E-9BE0-AE4E6E75F5F2} = {11EBA343-73D5-4FC5-ADB9-2921D759C406}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B6237647-4791-4690-81D9-284B3F1F63D2}
