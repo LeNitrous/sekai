@@ -138,7 +138,7 @@ public struct Half
     }
 
     /// <summary>
-    ///   Performs an explicit conversion from <see cref = "T:System.Single" /> to <see cref = "T:Stride.Core.Mathematics.Half" />.
+    ///   Performs an explicit conversion from <see cref = "T:System.Single" /> to <see cref = "T:Sekai.Mathematics.Half" />.
     /// </summary>
     /// <param name = "value">The value to be converted.</param>
     /// <returns>The converted value.</returns>
@@ -148,7 +148,7 @@ public struct Half
     }
 
     /// <summary>
-    ///   Performs an implicit conversion from <see cref = "T:Stride.Core.Mathematics.Half" /> to <see cref = "T:System.Single" />.
+    ///   Performs an implicit conversion from <see cref = "T:Sekai.Mathematics.Half" /> to <see cref = "T:System.Single" />.
     /// </summary>
     /// <param name = "value">The value to be converted.</param>
     /// <returns>The converted value.</returns>

@@ -684,7 +684,7 @@ public struct Color3 : IEquatable<Color3>, IFormattable
     }
 
     /// <summary>
-    /// Performs an explicit conversion from <see cref="Color3"/> to <see cref="Stride.Core.Mathematics.Vector3"/>.
+    /// Performs an explicit conversion from <see cref="Color3"/> to <see cref="Sekai.Mathematics.Vector3"/>.
     /// </summary>
     /// <param name="value">The value.</param>
     /// <returns>The result of the conversion.</returns>
@@ -694,7 +694,7 @@ public struct Color3 : IEquatable<Color3>, IFormattable
     }
 
     /// <summary>
-    /// Performs an explicit conversion from <see cref="Stride.Core.Mathematics.Vector3"/> to <see cref="Color3"/>.
+    /// Performs an explicit conversion from <see cref="Sekai.Mathematics.Vector3"/> to <see cref="Color3"/>.
     /// </summary>
     /// <param name="value">The value.</param>
     /// <returns>The result of the conversion.</returns>

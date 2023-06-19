@@ -673,7 +673,7 @@ public struct Int4 : IEquatable<Int4>, IFormattable
     }
 
     /// <summary>
-    /// Performs an implicit conversion from <see cref="int"/> array to <see cref="Stride.Core.Mathematics.Int4"/>.
+    /// Performs an implicit conversion from <see cref="int"/> array to <see cref="Sekai.Mathematics.Int4"/>.
     /// </summary>
     /// <param name="input">The input.</param>
     /// <returns>The result of the conversion.</returns>
@@ -683,7 +683,7 @@ public struct Int4 : IEquatable<Int4>, IFormattable
     }
 
     /// <summary>
-    /// Performs an implicit conversion from <see cref="Stride.Core.Mathematics.Int4"/> to <see cref="int"/> array.
+    /// Performs an implicit conversion from <see cref="Sekai.Mathematics.Int4"/> to <see cref="int"/> array.
     /// </summary>
     /// <param name="input">The input.</param>
     /// <returns>The result of the conversion.</returns>

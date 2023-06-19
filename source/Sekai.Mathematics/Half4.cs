@@ -36,37 +36,37 @@ namespace Sekai.Mathematics;
 public struct Half4 : IEquatable<Half4>
 {
     /// <summary>
-    /// The size of the <see cref="Stride.Core.Mathematics.Half4"/> type, in bytes.
+    /// The size of the <see cref="Sekai.Mathematics.Half4"/> type, in bytes.
     /// </summary>
     public static readonly int SizeInBytes = Unsafe.SizeOf<Half4>();
 
     /// <summary>
-    /// A <see cref="Stride.Core.Mathematics.Half4"/> with all of its components set to zero.
+    /// A <see cref="Sekai.Mathematics.Half4"/> with all of its components set to zero.
     /// </summary>
     public static readonly Half4 Zero = new();
 
     /// <summary>
-    /// The X unit <see cref="Stride.Core.Mathematics.Half4"/> (1, 0, 0, 0).
+    /// The X unit <see cref="Sekai.Mathematics.Half4"/> (1, 0, 0, 0).
     /// </summary>
     public static readonly Half4 UnitX = new(1.0f, 0.0f, 0.0f, 0.0f);
 
     /// <summary>
-    /// The Y unit <see cref="Stride.Core.Mathematics.Half4"/> (0, 1, 0, 0).
+    /// The Y unit <see cref="Sekai.Mathematics.Half4"/> (0, 1, 0, 0).
     /// </summary>
     public static readonly Half4 UnitY = new(0.0f, 1.0f, 0.0f, 0.0f);
 
     /// <summary>
-    /// The Z unit <see cref="Stride.Core.Mathematics.Half4"/> (0, 0, 1, 0).
+    /// The Z unit <see cref="Sekai.Mathematics.Half4"/> (0, 0, 1, 0).
     /// </summary>
     public static readonly Half4 UnitZ = new(0.0f, 0.0f, 1.0f, 0.0f);
 
     /// <summary>
-    /// The W unit <see cref="Stride.Core.Mathematics.Half4"/> (0, 0, 0, 1).
+    /// The W unit <see cref="Sekai.Mathematics.Half4"/> (0, 0, 0, 1).
     /// </summary>
     public static readonly Half4 UnitW = new(0.0f, 0.0f, 0.0f, 1.0f);
 
     /// <summary>
-    /// A <see cref="Stride.Core.Mathematics.Half4"/> with all of its components set to one.
+    /// A <see cref="Sekai.Mathematics.Half4"/> with all of its components set to one.
     /// </summary>
     public static readonly Half4 One = new(1.0f, 1.0f, 1.0f, 1.0f);
 
@@ -122,7 +122,7 @@ public struct Half4 : IEquatable<Half4>
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Stride.Core.Mathematics.Half4"/> struct.
+    /// Initializes a new instance of the <see cref="Sekai.Mathematics.Half4"/> struct.
     /// </summary>
     /// <param name="values">The values to assign to the X, Y, Z, and W components of the vector. This must be an array with four elements.</param>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="values"/> is <c>null</c>.</exception>

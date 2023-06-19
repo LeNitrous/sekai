@@ -750,7 +750,7 @@ public struct Int3 : IEquatable<Int3>, IFormattable
     }
 #if WPFInterop
         /// <summary>
-        /// Performs an implicit conversion from <see cref="Stride.Core.Mathematics.Int3"/> to <see cref="System.Windows.Media.Media3D.Int3D"/>.
+        /// Performs an implicit conversion from <see cref="Sekai.Mathematics.Int3"/> to <see cref="System.Windows.Media.Media3D.Int3D"/>.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <returns>The result of the conversion.</returns>
@@ -760,7 +760,7 @@ public struct Int3 : IEquatable<Int3>, IFormattable
         }
 
         /// <summary>
-        /// Performs an explicit conversion from <see cref="System.Windows.Media.Media3D.Int3D"/> to <see cref="Stride.Core.Mathematics.Int3"/>.
+        /// Performs an explicit conversion from <see cref="System.Windows.Media.Media3D.Int3D"/> to <see cref="Sekai.Mathematics.Int3"/>.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <returns>The result of the conversion.</returns>
@@ -772,7 +772,7 @@ public struct Int3 : IEquatable<Int3>, IFormattable
 
 #if XnaInterop
         /// <summary>
-        /// Performs an implicit conversion from <see cref="Stride.Core.Mathematics.Int3"/> to <see cref="Microsoft.Xna.Framework.Int3"/>.
+        /// Performs an implicit conversion from <see cref="Sekai.Mathematics.Int3"/> to <see cref="Microsoft.Xna.Framework.Int3"/>.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <returns>The result of the conversion.</returns>
@@ -782,7 +782,7 @@ public struct Int3 : IEquatable<Int3>, IFormattable
         }
 
         /// <summary>
-        /// Performs an implicit conversion from <see cref="Microsoft.Xna.Framework.Int3"/> to <see cref="Stride.Core.Mathematics.Int3"/>.
+        /// Performs an implicit conversion from <see cref="Microsoft.Xna.Framework.Int3"/> to <see cref="Sekai.Mathematics.Int3"/>.
         /// </summary>
         /// <param name="value">The value.</param>
         /// <returns>The result of the conversion.</returns>

@@ -96,7 +96,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     }
 
     /// <summary>
-    /// Wraps this Stride.Core.Mathematics.AngleSingle to be in the range [π, -π].
+    /// Wraps this Sekai.Mathematics.AngleSingle to be in the range [π, -π].
     /// </summary>
     public void Wrap()
     {
@@ -111,7 +111,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     }
 
     /// <summary>
-    /// Wraps this Stride.Core.Mathematics.AngleSingle to be in the range [0, 2π).
+    /// Wraps this Sekai.Mathematics.AngleSingle to be in the range [0, 2π).
     /// </summary>
     public void WrapPositive()
     {
@@ -124,7 +124,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     }
 
     /// <summary>
-    /// Gets or sets the total number of revolutions this Stride.Core.Mathematics.AngleSingle represents.
+    /// Gets or sets the total number of revolutions this Sekai.Mathematics.AngleSingle represents.
     /// </summary>
     public float Revolutions
     {
@@ -133,7 +133,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     }
 
     /// <summary>
-    /// Gets or sets the total number of degrees this Stride.Core.Mathematics.AngleSingle represents.
+    /// Gets or sets the total number of degrees this Sekai.Mathematics.AngleSingle represents.
     /// </summary>
     public float Degrees
     {
@@ -142,7 +142,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     }
 
     /// <summary>
-    /// Gets or sets the minutes component of the degrees this Stride.Core.Mathematics.AngleSingle represents.
+    /// Gets or sets the minutes component of the degrees this Sekai.Mathematics.AngleSingle represents.
     /// When setting the minutes, if the value is in the range (-60, 60) the whole degrees are
     /// not changed; otherwise, the whole degrees may be changed. Fractional values may set
     /// the seconds component.
@@ -175,7 +175,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     }
 
     /// <summary>
-    /// Gets or sets the seconds of the degrees this Stride.Core.Mathematics.AngleSingle represents.
+    /// Gets or sets the seconds of the degrees this Sekai.Mathematics.AngleSingle represents.
     /// When setting te seconds, if the value is in the range (-60, 60) the whole minutes
     /// or whole degrees are not changed; otherwise, the whole minutes or whole degrees
     /// may be changed.
@@ -220,12 +220,12 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     }
 
     /// <summary>
-    /// Gets or sets the total number of radians this Stride.Core.Mathematics.AngleSingle represents.
+    /// Gets or sets the total number of radians this Sekai.Mathematics.AngleSingle represents.
     /// </summary>
     public float Radians { get; set; }
 
     /// <summary>
-    /// Gets or sets the total number of milliradians this Stride.Core.Mathematics.AngleSingle represents.
+    /// Gets or sets the total number of milliradians this Sekai.Mathematics.AngleSingle represents.
     /// One milliradian is equal to 1/(2000π).
     /// </summary>
     public float Milliradians
@@ -235,7 +235,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     }
 
     /// <summary>
-    /// Gets or sets the total number of gradians this Stride.Core.Mathematics.AngleSingle represents.
+    /// Gets or sets the total number of gradians this Sekai.Mathematics.AngleSingle represents.
     /// </summary>
     public float Gradians
     {
@@ -244,62 +244,62 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     }
 
     /// <summary>
-    /// Gets a System.Boolean that determines whether this Stride.Core.Mathematics.Angle
+    /// Gets a System.Boolean that determines whether this Sekai.Mathematics.Angle
     /// is a right angle (i.e. 90° or π/2).
     /// </summary>
     public bool IsRight => Radians == MathUtil.PI_OVER_TWO;
 
     /// <summary>
-    /// Gets a System.Boolean that determines whether this Stride.Core.Mathematics.Angle
+    /// Gets a System.Boolean that determines whether this Sekai.Mathematics.Angle
     /// is a straight angle (i.e. 180° or π).
     /// </summary>
     public bool IsStraight => Radians == MathUtil.PI;
 
     /// <summary>
-    /// Gets a System.Boolean that determines whether this Stride.Core.Mathematics.Angle
+    /// Gets a System.Boolean that determines whether this Sekai.Mathematics.Angle
     /// is a full rotation angle (i.e. 360° or 2π).
     /// </summary>
     public bool IsFullRotation => Radians == MathUtil.TWO_PI;
 
     /// <summary>
-    /// Gets a System.Boolean that determines whether this Stride.Core.Mathematics.Angle
+    /// Gets a System.Boolean that determines whether this Sekai.Mathematics.Angle
     /// is an oblique angle (i.e. is not 90° or a multiple of 90°).
     /// </summary>
     public bool IsOblique => WrapPositive(this).Radians != MathUtil.PI_OVER_TWO;
 
     /// <summary>
-    /// Gets a System.Boolean that determines whether this Stride.Core.Mathematics.Angle
+    /// Gets a System.Boolean that determines whether this Sekai.Mathematics.Angle
     /// is an acute angle (i.e. less than 90° but greater than 0°).
     /// </summary>
     public bool IsAcute => Radians is > (float)0.0 and < MathUtil.PI_OVER_TWO;
 
     /// <summary>
-    /// Gets a System.Boolean that determines whether this Stride.Core.Mathematics.Angle
+    /// Gets a System.Boolean that determines whether this Sekai.Mathematics.Angle
     /// is an obtuse angle (i.e. greater than 90° but less than 180°).
     /// </summary>
     public bool IsObtuse => Radians is > MathUtil.PI_OVER_TWO and < MathUtil.PI;
 
     /// <summary>
-    /// Gets a System.Boolean that determines whether this Stride.Core.Mathematics.Angle
+    /// Gets a System.Boolean that determines whether this Sekai.Mathematics.Angle
     /// is a reflex angle (i.e. greater than 180° but less than 360°).
     /// </summary>
     public bool IsReflex => Radians is > MathUtil.PI and < MathUtil.TWO_PI;
 
     /// <summary>
-    /// Gets a Stride.Core.Mathematics.AngleSingle instance that complements this angle (i.e. the two angles add to 90°).
+    /// Gets a Sekai.Mathematics.AngleSingle instance that complements this angle (i.e. the two angles add to 90°).
     /// </summary>
     public AngleSingle Complement => new(MathUtil.PI_OVER_TWO - Radians, AngleType.Radian);
 
     /// <summary>
-    /// Gets a Stride.Core.Mathematics.AngleSingle instance that supplements this angle (i.e. the two angles add to 180°).
+    /// Gets a Sekai.Mathematics.AngleSingle instance that supplements this angle (i.e. the two angles add to 180°).
     /// </summary>
     public AngleSingle Supplement => new(MathUtil.PI - Radians, AngleType.Radian);
 
     /// <summary>
-    /// Wraps the Stride.Core.Mathematics.AngleSingle given in the value argument to be in the range [π, -π].
+    /// Wraps the Sekai.Mathematics.AngleSingle given in the value argument to be in the range [π, -π].
     /// </summary>
-    /// <param name="value">A Stride.Core.Mathematics.AngleSingle to wrap.</param>
-    /// <returns>The Stride.Core.Mathematics.AngleSingle that is wrapped.</returns>
+    /// <param name="value">A Sekai.Mathematics.AngleSingle to wrap.</param>
+    /// <returns>The Sekai.Mathematics.AngleSingle that is wrapped.</returns>
     public static AngleSingle Wrap(AngleSingle value)
     {
         value.Wrap();
@@ -307,10 +307,10 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     }
 
     /// <summary>
-    /// Wraps the Stride.Core.Mathematics.AngleSingle given in the value argument to be in the range [0, 2π).
+    /// Wraps the Sekai.Mathematics.AngleSingle given in the value argument to be in the range [0, 2π).
     /// </summary>
-    /// <param name="value">A Stride.Core.Mathematics.AngleSingle to wrap.</param>
-    /// <returns>The Stride.Core.Mathematics.AngleSingle that is wrapped.</returns>
+    /// <param name="value">A Sekai.Mathematics.AngleSingle to wrap.</param>
+    /// <returns>The Sekai.Mathematics.AngleSingle that is wrapped.</returns>
     public static AngleSingle WrapPositive(AngleSingle value)
     {
         value.WrapPositive();
@@ -318,11 +318,11 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     }
 
     /// <summary>
-    /// Compares two Stride.Core.Mathematics.AngleSingle instances and returns the smaller angle.
+    /// Compares two Sekai.Mathematics.AngleSingle instances and returns the smaller angle.
     /// </summary>
-    /// <param name="left">The first Stride.Core.Mathematics.AngleSingle instance to compare.</param>
-    /// <param name="right">The second Stride.Core.Mathematics.AngleSingle instance to compare.</param>
-    /// <returns>The smaller of the two given Stride.Core.Mathematics.AngleSingle instances.</returns>
+    /// <param name="left">The first Sekai.Mathematics.AngleSingle instance to compare.</param>
+    /// <param name="right">The second Sekai.Mathematics.AngleSingle instance to compare.</param>
+    /// <returns>The smaller of the two given Sekai.Mathematics.AngleSingle instances.</returns>
     public static AngleSingle Min(AngleSingle left, AngleSingle right)
     {
         if (left.Radians < right.Radians)
@@ -332,11 +332,11 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     }
 
     /// <summary>
-    /// Compares two Stride.Core.Mathematics.AngleSingle instances and returns the greater angle.
+    /// Compares two Sekai.Mathematics.AngleSingle instances and returns the greater angle.
     /// </summary>
-    /// <param name="left">The first Stride.Core.Mathematics.AngleSingle instance to compare.</param>
-    /// <param name="right">The second Stride.Core.Mathematics.AngleSingle instance to compare.</param>
-    /// <returns>The greater of the two given Stride.Core.Mathematics.AngleSingle instances.</returns>
+    /// <param name="left">The first Sekai.Mathematics.AngleSingle instance to compare.</param>
+    /// <param name="right">The second Sekai.Mathematics.AngleSingle instance to compare.</param>
+    /// <returns>The greater of the two given Sekai.Mathematics.AngleSingle instances.</returns>
     public static AngleSingle Max(AngleSingle left, AngleSingle right)
     {
         if (left.Radians > right.Radians)
@@ -346,7 +346,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     }
 
     /// <summary>
-    /// Adds two Stride.Core.Mathematics.AngleSingle objects and returns the result.
+    /// Adds two Sekai.Mathematics.AngleSingle objects and returns the result.
     /// </summary>
     /// <param name="left">The first object to add.</param>
     /// <param name="right">The second object to add.</param>
@@ -357,7 +357,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     }
 
     /// <summary>
-    /// Subtracts two Stride.Core.Mathematics.AngleSingle objects and returns the result.
+    /// Subtracts two Sekai.Mathematics.AngleSingle objects and returns the result.
     /// </summary>
     /// <param name="left">The first object to subtract.</param>
     /// <param name="right">The second object to subtract.</param>
@@ -368,7 +368,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     }
 
     /// <summary>
-    /// Multiplies two Stride.Core.Mathematics.AngleSingle objects and returns the result.
+    /// Multiplies two Sekai.Mathematics.AngleSingle objects and returns the result.
     /// </summary>
     /// <param name="left">The first object to multiply.</param>
     /// <param name="right">The second object to multiply.</param>
@@ -379,7 +379,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     }
 
     /// <summary>
-    /// Divides two Stride.Core.Mathematics.AngleSingle objects and returns the result.
+    /// Divides two Sekai.Mathematics.AngleSingle objects and returns the result.
     /// </summary>
     /// <param name="left">The numerator object.</param>
     /// <param name="right">The denominator object.</param>
@@ -390,27 +390,27 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     }
 
     /// <summary>
-    /// Gets a new Stride.Core.Mathematics.AngleSingle instance that represents the zero angle (i.e. 0°).
+    /// Gets a new Sekai.Mathematics.AngleSingle instance that represents the zero angle (i.e. 0°).
     /// </summary>
     public static AngleSingle ZeroAngle => new(0.0f, AngleType.Radian);
 
     /// <summary>
-    /// Gets a new Stride.Core.Mathematics.AngleSingle instance that represents the right angle (i.e. 90° or π/2).
+    /// Gets a new Sekai.Mathematics.AngleSingle instance that represents the right angle (i.e. 90° or π/2).
     /// </summary>
     public static AngleSingle RightAngle => new(MathUtil.PI_OVER_TWO, AngleType.Radian);
 
     /// <summary>
-    /// Gets a new Stride.Core.Mathematics.AngleSingle instance that represents the straight angle (i.e. 180° or π).
+    /// Gets a new Sekai.Mathematics.AngleSingle instance that represents the straight angle (i.e. 180° or π).
     /// </summary>
     public static AngleSingle StraightAngle => new(MathUtil.PI, AngleType.Radian);
 
     /// <summary>
-    /// Gets a new Stride.Core.Mathematics.AngleSingle instance that represents the full rotation angle (i.e. 360° or 2π).
+    /// Gets a new Sekai.Mathematics.AngleSingle instance that represents the full rotation angle (i.e. 360° or 2π).
     /// </summary>
     public static AngleSingle FullRotationAngle => new(MathUtil.TWO_PI, AngleType.Radian);
 
     /// <summary>
-    /// Returns a System.Boolean that indicates whether the values of two Stride.Core.Mathematics.Angle
+    /// Returns a System.Boolean that indicates whether the values of two Sekai.Mathematics.Angle
     /// objects are equal.
     /// </summary>
     /// <param name="left">The first object to compare.</param>
@@ -422,7 +422,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     }
 
     /// <summary>
-    /// Returns a System.Boolean that indicates whether the values of two Stride.Core.Mathematics.Angle
+    /// Returns a System.Boolean that indicates whether the values of two Sekai.Mathematics.Angle
     /// objects are not equal.
     /// </summary>
     /// <param name="left">The first object to compare.</param>
@@ -434,8 +434,8 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     }
 
     /// <summary>
-    /// Returns a System.Boolean that indicates whether a Stride.Core.Mathematics.Angle
-    /// object is less than another Stride.Core.Mathematics.AngleSingle object.
+    /// Returns a System.Boolean that indicates whether a Sekai.Mathematics.Angle
+    /// object is less than another Sekai.Mathematics.AngleSingle object.
     /// </summary>
     /// <param name="left">The first object to compare.</param>
     /// <param name="right">The second object to compare.</param>
@@ -446,8 +446,8 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     }
 
     /// <summary>
-    /// Returns a System.Boolean that indicates whether a Stride.Core.Mathematics.Angle
-    /// object is greater than another Stride.Core.Mathematics.AngleSingle object.
+    /// Returns a System.Boolean that indicates whether a Sekai.Mathematics.Angle
+    /// object is greater than another Sekai.Mathematics.AngleSingle object.
     /// </summary>
     /// <param name="left">The first object to compare.</param>
     /// <param name="right">The second object to compare.</param>
@@ -458,8 +458,8 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     }
 
     /// <summary>
-    /// Returns a System.Boolean that indicates whether a Stride.Core.Mathematics.Angle
-    /// object is less than or equal to another Stride.Core.Mathematics.AngleSingle object.
+    /// Returns a System.Boolean that indicates whether a Sekai.Mathematics.Angle
+    /// object is less than or equal to another Sekai.Mathematics.AngleSingle object.
     /// </summary>
     /// <param name="left">The first object to compare.</param>
     /// <param name="right">The second object to compare.</param>
@@ -470,8 +470,8 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     }
 
     /// <summary>
-    /// Returns a System.Boolean that indicates whether a Stride.Core.Mathematics.Angle
-    /// object is greater than or equal to another Stride.Core.Mathematics.AngleSingle object.
+    /// Returns a System.Boolean that indicates whether a Sekai.Mathematics.Angle
+    /// object is greater than or equal to another Sekai.Mathematics.AngleSingle object.
     /// </summary>
     /// <param name="left">The first object to compare.</param>
     /// <param name="right">The second object to compare.</param>
@@ -482,10 +482,10 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     }
 
     /// <summary>
-    /// Returns the value of the Stride.Core.Mathematics.AngleSingle operand. (The sign of
+    /// Returns the value of the Sekai.Mathematics.AngleSingle operand. (The sign of
     /// the operand is unchanged.)
     /// </summary>
-    /// <param name="value">A Stride.Core.Mathematics.AngleSingle object.</param>
+    /// <param name="value">A Sekai.Mathematics.AngleSingle object.</param>
     /// <returns>The value of the value parameter.</returns>
     public static AngleSingle operator +(AngleSingle value)
     {
@@ -493,9 +493,9 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     }
 
     /// <summary>
-    /// Returns the the negated value of the Stride.Core.Mathematics.AngleSingle operand.
+    /// Returns the the negated value of the Sekai.Mathematics.AngleSingle operand.
     /// </summary>
-    /// <param name="value">A Stride.Core.Mathematics.AngleSingle object.</param>
+    /// <param name="value">A Sekai.Mathematics.AngleSingle object.</param>
     /// <returns>The negated value of the value parameter.</returns>
     public static AngleSingle operator -(AngleSingle value)
     {
@@ -503,7 +503,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     }
 
     /// <summary>
-    /// Adds two Stride.Core.Mathematics.AngleSingle objects and returns the result.
+    /// Adds two Sekai.Mathematics.AngleSingle objects and returns the result.
     /// </summary>
     /// <param name="left">The first object to add.</param>
     /// <param name="right">The second object to add.</param>
@@ -514,7 +514,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     }
 
     /// <summary>
-    /// Subtracts two Stride.Core.Mathematics.AngleSingle objects and returns the result.
+    /// Subtracts two Sekai.Mathematics.AngleSingle objects and returns the result.
     /// </summary>
     /// <param name="left">The first object to subtract</param>
     /// <param name="right">The second object to subtract.</param>
@@ -525,7 +525,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     }
 
     /// <summary>
-    /// Multiplies two Stride.Core.Mathematics.AngleSingle objects and returns the result.
+    /// Multiplies two Sekai.Mathematics.AngleSingle objects and returns the result.
     /// </summary>
     /// <param name="left">The first object to multiply.</param>
     /// <param name="right">The second object to multiply.</param>
@@ -536,7 +536,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     }
 
     /// <summary>
-    /// Divides two Stride.Core.Mathematics.AngleSingle objects and returns the result.
+    /// Divides two Sekai.Mathematics.AngleSingle objects and returns the result.
     /// </summary>
     /// <param name="left">The numerator object.</param>
     /// <param name="right">The denominator object.</param>
@@ -579,7 +579,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     }
 
     /// <summary>
-    /// Compares this instance to a second Stride.Core.Mathematics.AngleSingle and returns
+    /// Compares this instance to a second Sekai.Mathematics.AngleSingle and returns
     /// an integer that indicates whether the value of this instance is less than,
     /// equal to, or greater than the value of the specified object.
     /// </summary>
@@ -604,11 +604,11 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
 
     /// <summary>
     /// Returns a value that indicates whether the current instance and a specified
-    /// Stride.Core.Mathematics.AngleSingle object have the same value.
+    /// Sekai.Mathematics.AngleSingle object have the same value.
     /// </summary>
     /// <param name="other">The object to compare.</param>
     /// <returns>
-    /// Returns true if this Stride.Core.Mathematics.AngleSingle object and another have the same value;
+    /// Returns true if this Sekai.Mathematics.AngleSingle object and another have the same value;
     /// otherwise, false.
     /// </returns>
     public bool Equals(AngleSingle other)
@@ -671,7 +671,7 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     }
 
     /// <summary>
-    /// Returns a hash code for this Stride.Core.Mathematics.AngleSingle instance.
+    /// Returns a hash code for this Sekai.Mathematics.AngleSingle instance.
     /// </summary>
     /// <returns>A 32-bit signed integer hash code.</returns>
     public override int GetHashCode()
@@ -685,9 +685,9 @@ public struct AngleSingle : IComparable, IComparable<AngleSingle>, IEquatable<An
     /// </summary>
     /// <param name="obj">The object to compare.</param>
     /// <returns>
-    /// Returns true if the obj parameter is a Stride.Core.Mathematics.AngleSingle object or a type
-    /// capable of implicit conversion to a Stride.Core.Mathematics.AngleSingle value, and
-    /// its value is equal to the value of the current Stride.Core.Mathematics.Angle
+    /// Returns true if the obj parameter is a Sekai.Mathematics.AngleSingle object or a type
+    /// capable of implicit conversion to a Sekai.Mathematics.AngleSingle value, and
+    /// its value is equal to the value of the current Sekai.Mathematics.Angle
     /// object; otherwise, false.
     /// </returns>
     public override bool Equals(object? obj)

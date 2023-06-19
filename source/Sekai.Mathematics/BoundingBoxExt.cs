@@ -52,7 +52,7 @@ public struct BoundingBoxExt : IEquatable<BoundingBoxExt>
     public Vector3 Extent;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Stride.Core.Mathematics.BoundingBoxExt" /> struct.
+    /// Initializes a new instance of the <see cref="Sekai.Mathematics.BoundingBoxExt" /> struct.
     /// </summary>
     /// <param name="box">The box.</param>
     public BoundingBoxExt(BoundingBox box)
@@ -62,7 +62,7 @@ public struct BoundingBoxExt : IEquatable<BoundingBoxExt>
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Stride.Core.Mathematics.BoundingBoxExt"/> struct.
+    /// Initializes a new instance of the <see cref="Sekai.Mathematics.BoundingBoxExt"/> struct.
     /// </summary>
     /// <param name="minimum">The minimum vertex of the bounding box.</param>
     /// <param name="maximum">The maximum vertex of the bounding box.</param>
@@ -114,7 +114,7 @@ public struct BoundingBoxExt : IEquatable<BoundingBoxExt>
     }
 
     /// <summary>
-    /// Constructs a <see cref="Stride.Core.Mathematics.BoundingBoxExt"/> that is as large as the total combined area of the two specified boxes.
+    /// Constructs a <see cref="Sekai.Mathematics.BoundingBoxExt"/> that is as large as the total combined area of the two specified boxes.
     /// </summary>
     /// <param name="value1">The first box to merge.</param>
     /// <param name="value2">The second box to merge.</param>

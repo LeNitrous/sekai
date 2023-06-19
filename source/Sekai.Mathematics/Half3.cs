@@ -36,32 +36,32 @@ namespace Sekai.Mathematics;
 public struct Half3 : IEquatable<Half3>
 {
     /// <summary>
-    /// The size of the <see cref="Stride.Core.Mathematics.Half3"/> type, in bytes.
+    /// The size of the <see cref="Sekai.Mathematics.Half3"/> type, in bytes.
     /// </summary>
     public static readonly int SizeInBytes = Unsafe.SizeOf<Half3>();
 
     /// <summary>
-    /// A <see cref="Stride.Core.Mathematics.Half3"/> with all of its components set to zero.
+    /// A <see cref="Sekai.Mathematics.Half3"/> with all of its components set to zero.
     /// </summary>
     public static readonly Half3 Zero = new();
 
     /// <summary>
-    /// The X unit <see cref="Stride.Core.Mathematics.Half3"/> (1, 0, 0).
+    /// The X unit <see cref="Sekai.Mathematics.Half3"/> (1, 0, 0).
     /// </summary>
     public static readonly Half3 UnitX = new(1.0f, 0.0f, 0.0f);
 
     /// <summary>
-    /// The Y unit <see cref="Stride.Core.Mathematics.Half3"/> (0, 1, 0).
+    /// The Y unit <see cref="Sekai.Mathematics.Half3"/> (0, 1, 0).
     /// </summary>
     public static readonly Half3 UnitY = new(0.0f, 1.0f, 0.0f);
 
     /// <summary>
-    /// The Z unit <see cref="Stride.Core.Mathematics.Half3"/> (0, 0, 1).
+    /// The Z unit <see cref="Sekai.Mathematics.Half3"/> (0, 0, 1).
     /// </summary>
     public static readonly Half3 UnitZ = new(0.0f, 0.0f, 1.0f);
 
     /// <summary>
-    /// A <see cref="Stride.Core.Mathematics.Half3"/> with all of its components set to one.
+    /// A <see cref="Sekai.Mathematics.Half3"/> with all of its components set to one.
     /// </summary>
     public static readonly Half3 One = new(1.0f, 1.0f, 1.0f);
 
@@ -108,7 +108,7 @@ public struct Half3 : IEquatable<Half3>
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Stride.Core.Mathematics.Half3"/> struct.
+    /// Initializes a new instance of the <see cref="Sekai.Mathematics.Half3"/> struct.
     /// </summary>
     /// <param name="values">The values to assign to the X, Y, and Z components of the vector. This must be an array with three elements.</param>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="values"/> is <c>null</c>.</exception>

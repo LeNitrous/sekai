@@ -53,7 +53,7 @@ public struct Plane : IEquatable<Plane>, IFormattable, IIntersectableWithRay
     public float D;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Stride.Core.Mathematics.Plane"/> struct.
+    /// Initializes a new instance of the <see cref="Sekai.Mathematics.Plane"/> struct.
     /// </summary>
     /// <param name="value">The value that will be assigned to all components.</param>
     public Plane(float value)
@@ -62,7 +62,7 @@ public struct Plane : IEquatable<Plane>, IFormattable, IIntersectableWithRay
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Stride.Core.Mathematics.Plane"/> struct.
+    /// Initializes a new instance of the <see cref="Sekai.Mathematics.Plane"/> struct.
     /// </summary>
     /// <param name="a">The X component of the normal.</param>
     /// <param name="b">The Y component of the normal.</param>
@@ -88,7 +88,7 @@ public struct Plane : IEquatable<Plane>, IFormattable, IIntersectableWithRay
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Stride.Core.Mathematics.Plane"/> struct.
+    /// Initializes a new instance of the <see cref="Sekai.Mathematics.Plane"/> struct.
     /// </summary>
     /// <param name="value">The normal of the plane.</param>
     /// <param name="d">The distance of the plane along its normal from the origin</param>
@@ -99,7 +99,7 @@ public struct Plane : IEquatable<Plane>, IFormattable, IIntersectableWithRay
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Stride.Core.Mathematics.Plane"/> struct.
+    /// Initializes a new instance of the <see cref="Sekai.Mathematics.Plane"/> struct.
     /// </summary>
     /// <param name="point1">First point of a triangle defining the plane.</param>
     /// <param name="point2">Second point of a triangle defining the plane.</param>
@@ -124,7 +124,7 @@ public struct Plane : IEquatable<Plane>, IFormattable, IIntersectableWithRay
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Stride.Core.Mathematics.Plane"/> struct.
+    /// Initializes a new instance of the <see cref="Sekai.Mathematics.Plane"/> struct.
     /// </summary>
     /// <param name="values">The values to assign to the A, B, C, and D components of the plane. This must be an array with four elements.</param>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="values"/> is <c>null</c>.</exception>
@@ -220,7 +220,7 @@ public struct Plane : IEquatable<Plane>, IFormattable, IIntersectableWithRay
     }
 
     /// <summary>
-    /// Determines if there is an intersection between the current object and a <see cref="Stride.Core.Mathematics.Ray"/>.
+    /// Determines if there is an intersection between the current object and a <see cref="Sekai.Mathematics.Ray"/>.
     /// </summary>
     /// <param name="ray">The ray to test.</param>
     /// <returns>Whether the two objects intersected.</returns>
@@ -230,7 +230,7 @@ public struct Plane : IEquatable<Plane>, IFormattable, IIntersectableWithRay
     }
 
     /// <summary>
-    /// Determines if there is an intersection between the current object and a <see cref="Stride.Core.Mathematics.Ray"/>.
+    /// Determines if there is an intersection between the current object and a <see cref="Sekai.Mathematics.Ray"/>.
     /// </summary>
     /// <param name="ray">The ray to test.</param>
     /// <param name="distance">When the method completes, contains the distance of the intersection,
@@ -242,11 +242,11 @@ public struct Plane : IEquatable<Plane>, IFormattable, IIntersectableWithRay
     }
 
     /// <summary>
-    /// Determines if there is an intersection between the current object and a <see cref="Stride.Core.Mathematics.Ray"/>.
+    /// Determines if there is an intersection between the current object and a <see cref="Sekai.Mathematics.Ray"/>.
     /// </summary>
     /// <param name="ray">The ray to test.</param>
     /// <param name="point">When the method completes, contains the point of intersection,
-    /// or <see cref="Stride.Core.Mathematics.Vector3.Zero"/> if there was no intersection.</param>
+    /// or <see cref="Sekai.Mathematics.Vector3.Zero"/> if there was no intersection.</param>
     /// <returns>Whether the two objects intersected.</returns>
     public bool Intersects(ref Ray ray, out Vector3 point)
     {
@@ -254,7 +254,7 @@ public struct Plane : IEquatable<Plane>, IFormattable, IIntersectableWithRay
     }
 
     /// <summary>
-    /// Determines if there is an intersection between the current object and a <see cref="Stride.Core.Mathematics.Plane"/>.
+    /// Determines if there is an intersection between the current object and a <see cref="Sekai.Mathematics.Plane"/>.
     /// </summary>
     /// <param name="plane">The plane to test.</param>
     /// <returns>Whether the two objects intersected.</returns>
@@ -264,11 +264,11 @@ public struct Plane : IEquatable<Plane>, IFormattable, IIntersectableWithRay
     }
 
     /// <summary>
-    /// Determines if there is an intersection between the current object and a <see cref="Stride.Core.Mathematics.Plane"/>.
+    /// Determines if there is an intersection between the current object and a <see cref="Sekai.Mathematics.Plane"/>.
     /// </summary>
     /// <param name="plane">The plane to test.</param>
     /// <param name="line">When the method completes, contains the line of intersection
-    /// as a <see cref="Stride.Core.Mathematics.Ray"/>, or a zero ray if there was no intersection.</param>
+    /// as a <see cref="Sekai.Mathematics.Ray"/>, or a zero ray if there was no intersection.</param>
     /// <returns>Whether the two objects intersected.</returns>
     public bool Intersects(ref Plane plane, out Ray line)
     {
@@ -288,7 +288,7 @@ public struct Plane : IEquatable<Plane>, IFormattable, IIntersectableWithRay
     }
 
     /// <summary>
-    /// Determines if there is an intersection between the current object and a <see cref="Stride.Core.Mathematics.BoundingBox"/>.
+    /// Determines if there is an intersection between the current object and a <see cref="Sekai.Mathematics.BoundingBox"/>.
     /// </summary>
     /// <param name="box">The box to test.</param>
     /// <returns>Whether the two objects intersected.</returns>
@@ -298,7 +298,7 @@ public struct Plane : IEquatable<Plane>, IFormattable, IIntersectableWithRay
     }
 
     /// <summary>
-    /// Determines if there is an intersection between the current object and a <see cref="Stride.Core.Mathematics.BoundingSphere"/>.
+    /// Determines if there is an intersection between the current object and a <see cref="Sekai.Mathematics.BoundingSphere"/>.
     /// </summary>
     /// <param name="sphere">The sphere to test.</param>
     /// <returns>Whether the two objects intersected.</returns>
@@ -776,11 +776,11 @@ public struct Plane : IEquatable<Plane>, IFormattable, IIntersectableWithRay
     }
 
     /// <summary>
-    /// Determines whether the specified <see cref="Stride.Core.Mathematics.Vector4"/> is equal to this instance.
+    /// Determines whether the specified <see cref="Sekai.Mathematics.Vector4"/> is equal to this instance.
     /// </summary>
-    /// <param name="value">The <see cref="Stride.Core.Mathematics.Vector4"/> to compare with this instance.</param>
+    /// <param name="value">The <see cref="Sekai.Mathematics.Vector4"/> to compare with this instance.</param>
     /// <returns>
-    /// <c>true</c> if the specified <see cref="Stride.Core.Mathematics.Vector4"/> is equal to this instance; otherwise, <c>false</c>.
+    /// <c>true</c> if the specified <see cref="Sekai.Mathematics.Vector4"/> is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
     public bool Equals(Plane value)
     {

@@ -1,4 +1,4 @@
-// Copyright (c) The Vignette Authors
+// Copyright (c) Cosyne
 // Licensed under MIT. See LICENSE for details.
 
 // Copyright (c) .NET Foundation and Contributors (https://dotnetfoundation.org/ & https://stride3d.net) and Silicon Studio Corp. (https://www.siliconstudio.co.jp)
