@@ -8,18 +8,20 @@
       "extensions": [
         "ms-dotnettools.csdevkit",
         "ms-dotnettools.vscodeintellicode-csharp",
-        "editorconfig.editorconfig"
+        "editorconfig.editorconfig",
+        "patcx.vscode-nuget-gallery"
       ]
     }
   },
   "mounts": [
     // Xauth cookies must be shared to the container.
     // This is to prevent authentication errors when launching the application.
-    "source=${localEnv:XAUTHORITY},target=${containerEnv:HOME}/.Xauthority,type=bind,consistency=cached"
+    "source=${localEnv:XAUTHORITY},target=/home/vscode/.Xauthority,type=bind,consistency=cached"
   ],
   "remoteEnv": {
     "DISPLAY": "${localEnv:DISPLAY}"
   },
   "runArgs": [
-  ]
+  ],
+  "postAttachCommand": "dotnet build"
 }
