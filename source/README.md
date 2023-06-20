@@ -6,17 +6,11 @@ Sekai is structured where abstractions and concrete implementations as separate 
     - The main project.
 - **`Sekai.Framework`**
     - The framework components of Sekai.
-- **`Sekai.Framework.Audio`**
-    - The audio subsystem abstraction.
-- **`Sekai.Framework.Audio.OpenAL`**
-    - The OpenAL backed audio subsystem.
-- **`Sekai.Framework.Graphics`**
-    - The graphics subsystem abstraction.
-- **`Sekai.Framework.Graphics.OpenGL`**
-    - The OpenGL backed graphics subsystem.
-- **`Sekai.Framework.Platform`**
-    - The platforming abstraction.
-- **`Sekai.Framework.Platform.Desktop`**
+- **`Sekai.Desktop`**
     - The desktop platform implementation.
-- **`Sekai.Framework.Platform.Headless`**
+- **`Sekai.Headless`**
     - The headless platform implementation.
+- **`Sekai.OpenAL`**
+    - The OpenAL backed audio subsystem.
+- **`Sekai.OpenGL`**
+    - The OpenGL backed graphics subsystem.
