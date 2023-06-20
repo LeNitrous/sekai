@@ -19,8 +19,7 @@
 <p align="center">
   <img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/vignetteapp/sekai/test.yml?label=test&style=flat-square">
   <img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/vignetteapp/sekai/lint.yml?label=lint&style=flat-square">
-  <img alt="Code Coverage" src="https://img.shields.io/codecov/c/gh/vignetteapp/sekai?style=flat-square
-">
+  <img alt="Code Coverage" src="https://img.shields.io/codecov/c/gh/vignetteapp/sekai?style=flat-square">
 </p>
 
 ## Introduction
