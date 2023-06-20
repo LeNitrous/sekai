@@ -19,10 +19,12 @@
 <p align="center">
   <img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/vignetteapp/sekai/test.yml?label=test&style=flat-square">
   <img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/vignetteapp/sekai/lint.yml?label=lint&style=flat-square">
+  <img alt="Code Coverage" src="https://img.shields.io/codecov/c/gh/vignetteapp/sekai?style=flat-square
+">
 </p>
 
 ## Introduction
-Sekai is a fully abstracted graphics framework written under the .NET Runtime in C# inspired by other frameworks such as [LÖVE2D](https://github.com/love/love2d) and [osu! framework](https://github.com/ppy/osu-framework). Its core components such as rendering, audio, windowing, input, and even storage can easily be replaced to suit their requirements. The repository contains implementations that make use of GLFWw, OpenGL, and OpenAL as a starting point.
+Sekai is a fully abstracted graphics framework written under the .NET Runtime in C# inspired by other frameworks such as [LÖVE2D](https://github.com/love/love2d) and [osu! framework](https://github.com/ppy/osu-framework). Its core components such as rendering, audio, windowing, input, and even storage can easily be replaced to suit their requirements. The repository contains implementations that make use of GLFW, OpenGL, and OpenAL as a starting point.
 
 ## Getting Started
 
