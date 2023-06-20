@@ -12,7 +12,7 @@ internal sealed class DummyGraphicsDevice : GraphicsDevice
     public override GraphicsAPI API => GraphicsAPI.Dummy;
     public override string Device { get; } = "Dummy";
     public override string Vendor { get; } = "Dummy";
-    public override Version Version { get; } = new ();
+    public override Version Version { get; } = new();
     public override bool SyncMode { get; set; }
 
     public override void MakeCurrent()
