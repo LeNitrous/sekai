@@ -7,8 +7,9 @@
     "vscode": {
       "extensions": [
         "ms-dotnettools.csharp",
-        "ms-dotnettools.csdevkit",
-        "ms-dotnettools.vscodeintellicode-csharp",
+        "ms-dotnettools.vscode-dotnet-runtime",
+        "formulahendry.dotnet-test-explorer",
+        "ryanluker.vscode-coverage-gutters",
         "editorconfig.editorconfig",
         "patcx.vscode-nuget-gallery"
       ]
