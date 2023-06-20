@@ -4,8 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using Microsoft.Extensions.FileSystemGlobbing;
+using DotNet.Globbing;
 
 namespace Sekai.Framework.Storages;
 
@@ -14,25 +13,32 @@ namespace Sekai.Framework.Storages;
 /// </summary>
 public sealed class MemoryStorage : Storage
 {
+    private const string storage_uri = "file:///";
+
     private bool isDisposed;
+    private readonly Uri baseUri = new(storage_uri, UriKind.Absolute);
     private readonly Dictionary<string, MemoryStream> files = new();
     private readonly Dictionary<string, MemoryStorage> storages = new();
 
     public override bool CreateDirectory(string path)
     {
-        if (storages.ContainsKey(path))
+        var uri = createUri(path);
+
+        if (storages.ContainsKey(uri.AbsolutePath))
         {
             return false;
         }
 
-        storages.Add(path, new MemoryStorage());
+        storages.Add(uri.AbsolutePath, new MemoryStorage());
 
         return true;
     }
 
     public override bool Delete(string path)
     {
-        if (files.Remove(path, out var stream))
+        var uri = createUri(path);
+
+        if (files.Remove(uri.AbsolutePath, out var stream))
         {
             stream.Dispose();
             return true;
@@ -43,7 +49,9 @@ public sealed class MemoryStorage : Storage
 
     public override bool DeleteDirectory(string path)
     {
-        if (storages.Remove(path, out var storage))
+        var uri = createUri(path);
+
+        if (storages.Remove(uri.AbsolutePath, out var storage))
         {
             storage.Dispose();
             return true;
@@ -54,38 +62,67 @@ public sealed class MemoryStorage : Storage
 
     public override IEnumerable<string> EnumerateDirectories(string path, string pattern = "*", SearchOption options = SearchOption.TopDirectoryOnly)
     {
-        var matcher = new Matcher();
-        matcher.AddInclude(pattern);
-        return matcher.Match(storages.Keys).Files.Select(f => f.Path);
+        var glob = Glob.Parse(pattern);
+
+        foreach (string storage in storages.Keys)
+        {
+            if (!glob.IsMatch(path))
+            {
+                continue;
+            }
+
+            yield return storage;
+        }
     }
 
     public override IEnumerable<string> EnumerateFiles(string path, string pattern = "*", SearchOption options = SearchOption.TopDirectoryOnly)
     {
-        var matcher = new Matcher();
-        matcher.AddInclude(pattern);
-        return matcher.Match(files.Keys).Files.Select(f => f.Path);
+        var glob = Glob.Parse(pattern);
+
+        foreach (string file in files.Keys)
+        {
+            if (!glob.IsMatch(path))
+            {
+                continue;
+            }
+
+            yield return file;
+        }
     }
 
     public override bool Exists(string path)
     {
-        return files.ContainsKey(path);
+        return files.ContainsKey(createUri(path).AbsolutePath);
     }
 
     public override bool ExistsDirectory(string path)
     {
-        return storages.ContainsKey(path);
+        return storages.ContainsKey(createUri(path).AbsolutePath);
     }
 
     public override Stream Open(string path, FileMode mode = FileMode.OpenOrCreate, FileAccess access = FileAccess.ReadWrite)
     {
-        if (!files.TryGetValue(path, out var value))
+        var uri = createUri(path);
+
+        if (!files.TryGetValue(uri.AbsolutePath, out var value))
         {
             value = new MemoryStream();
+            files.Add(uri.AbsolutePath, value);
         }
 
         var stream = new WrappedStream(value);
 
         return stream;
+    }
+
+    private Uri createUri(string path)
+    {
+        if (!Uri.TryCreate(path, UriKind.RelativeOrAbsolute, out var relative))
+        {
+            throw new ArgumentException("Path has invalid characters.", nameof(path));
+        }
+
+        return new Uri(baseUri, relative);
     }
 
 

@@ -13,7 +13,7 @@ public interface IHasSuspend
     /// <summary>
     /// Called when the window has resumed to foreground.
     /// </summary>
-    event Action? Resume;
+    event Action? Resumed;
 
     /// <summary>
     /// Called when the window has suspended into background.

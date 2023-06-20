@@ -41,7 +41,7 @@ public struct ListenerOrientation : IEquatable<ListenerOrientation>
 
     public bool Equals(ListenerOrientation other)
     {
-        return At.Equals(other.At) &&  Up.Equals(other.Up);
+        return At.Equals(other.At) && Up.Equals(other.Up);
     }
 
     public override int GetHashCode()

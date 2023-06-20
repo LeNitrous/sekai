@@ -40,8 +40,24 @@ public abstract class Storage : IDisposable
     /// Opens a directory as a <see cref="Storage"/>.
     /// </summary>
     /// <param name="path">The path to the directory.</param>
+    /// <param name="createIfNotExist">Should a directory be created if it does not exist?</param>
     /// <returns>Storage of the opened directory.</returns>
-    public Storage OpenDirectory([StringSyntax(StringSyntaxAttribute.Uri)] string path) => Exists(path) ? new SubPathStorage(this, path) : throw new FileNotFoundException(null, Path.GetFileName(path));
+    public Storage OpenDirectory([StringSyntax(StringSyntaxAttribute.Uri)] string path, bool createIfNotExist = true)
+    {
+        if (!ExistsDirectory(path))
+        {
+            if (createIfNotExist)
+            {
+                CreateDirectory(path);
+            }
+            else
+            {
+                throw new DirectoryNotFoundException($"The directory at \"{Path.GetFullPath(path)}\" does not exist.");
+            }
+        }
+
+        return new SubPathStorage(this, path);
+    }
 
     /// <summary>
     /// Gets whether a directory exists on a given path.

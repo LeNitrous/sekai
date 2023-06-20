@@ -7,12 +7,12 @@ using Sekai;
 using Sekai.Desktop;
 using Sekai.Framework;
 using Sekai.Framework.Audio;
-using Sekai.OpenAL;
 using Sekai.Framework.Contexts;
 using Sekai.Framework.Graphics;
-using Sekai.OpenGL;
-using Sekai.Framework.Windowing;
 using Sekai.Framework.Storages;
+using Sekai.Framework.Windowing;
+using Sekai.OpenAL;
+using Sekai.OpenGL;
 
 namespace SampleGame;
 
@@ -72,8 +72,8 @@ internal sealed class Sample : Game
         ReadOnlySpan<Vector3> vertices = stackalloc Vector3[]
         {
             new(-0.5f, -0.5f, 0.0f),
-            new( 0.5f, -0.5f, 0.0f),
-            new( 0.0f,  0.5f, 0.0f)
+            new(0.5f, -0.5f, 0.0f),
+            new(0.0f, 0.5f, 0.0f)
         };
 
         vbo = Graphics.CreateBuffer(BufferType.Vertex, vertices);

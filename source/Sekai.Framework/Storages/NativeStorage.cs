@@ -1,21 +1,28 @@
 // Copyright (c) Cosyne
 // Licensed under MIT. See LICENSE for details.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Sekai.Framework.Storages;
 
 /// <summary>
-/// A kind of <see cref="Storage"/> that uses <see cref="File"/> and <see cref="Directory"/> operations.
+/// A kind of <see cref="Storage"/> that uses <see cref="File"/> and <see cref="System.IO.Directory"/> operations.
 /// </summary>
-public sealed class NativeStorage : Storage
+public class NativeStorage : Storage
 {
-    private readonly DirectoryInfo directory;
+    /// <summary>
+    /// The directory where the native storage is located.
+    /// </summary>
+    protected DirectoryInfo Directory { get; }
+
+    private bool isDisposed;
 
     public NativeStorage(DirectoryInfo directory)
     {
-        this.directory = directory;
+        Directory = directory;
     }
 
     public NativeStorage(string path)
@@ -27,7 +34,7 @@ public sealed class NativeStorage : Storage
     {
         try
         {
-            directory.CreateSubdirectory(path);
+            Directory.CreateSubdirectory(path);
             return true;
         }
         catch
@@ -40,7 +47,7 @@ public sealed class NativeStorage : Storage
     {
         try
         {
-            File.Delete(Path.Combine(directory.FullName, path));
+            File.Delete(Path.Combine(Directory.FullName, path));
             return true;
         }
         catch
@@ -53,7 +60,7 @@ public sealed class NativeStorage : Storage
     {
         try
         {
-            Directory.Delete(Path.Combine(directory.FullName, path), true);
+            System.IO.Directory.Delete(Path.Combine(Directory.FullName, path), true);
             return true;
         }
         catch
@@ -64,30 +71,38 @@ public sealed class NativeStorage : Storage
 
     public override bool Exists(string path)
     {
-        return File.Exists(Path.Combine(directory.FullName, path));
+        return File.Exists(Path.Combine(Directory.FullName, path));
     }
 
     public override bool ExistsDirectory(string path)
     {
-        return Directory.Exists(Path.Combine(directory.FullName, path));
+        return System.IO.Directory.Exists(Path.Combine(Directory.FullName, path));
     }
 
     public override IEnumerable<string> EnumerateDirectories(string path, string pattern = "*", SearchOption options = SearchOption.TopDirectoryOnly)
     {
-        return Directory.EnumerateDirectories(Path.Combine(directory.FullName, path), pattern, options);
+        return System.IO.Directory.EnumerateDirectories(Path.Combine(Directory.FullName, path), pattern, options).Select(path => Path.AltDirectorySeparatorChar + path.Replace(Directory.FullName, string.Empty) + Path.AltDirectorySeparatorChar);
     }
 
     public override IEnumerable<string> EnumerateFiles(string path, string pattern = "*", SearchOption options = SearchOption.TopDirectoryOnly)
     {
-        return Directory.EnumerateFiles(Path.Combine(directory.FullName, path), pattern, options);
+        return System.IO.Directory.EnumerateFiles(Path.Combine(Directory.FullName, path), pattern, options).Select(path => Path.AltDirectorySeparatorChar + path.Replace(Directory.FullName, string.Empty));
     }
 
     public override Stream Open(string path, FileMode mode = FileMode.OpenOrCreate, FileAccess access = FileAccess.ReadWrite)
     {
-        return File.Open(Path.Combine(directory.FullName, path), mode, access);
+        return File.Open(Path.Combine(Directory.FullName, path), mode, access);
     }
 
     public override void Dispose()
     {
+        if (isDisposed)
+        {
+            return;
+        }
+
+        isDisposed = true;
+
+        GC.SuppressFinalize(this);
     }
 }

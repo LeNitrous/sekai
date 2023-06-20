@@ -280,7 +280,7 @@ public abstract class GraphicsDevice : IDisposable
     /// <inheritdoc cref="Draw(PrimitiveType, uint, uint, uint, uint)"/>
     public void Draw(PrimitiveType type, uint vertexCount, uint vertexStart)
     {
-        Draw(type, vertexCount,vertexStart, 1, 0);
+        Draw(type, vertexCount, vertexStart, 1, 0);
     }
 
     /// <inheritdoc cref="DrawIndexed(PrimitiveType, uint, uint, uint, uint, uint)"/>

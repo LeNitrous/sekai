@@ -6,12 +6,12 @@ using System;
 namespace Sekai.Framework.Windowing;
 
 /// <summary>
-/// Determines whether a given object has a renderable surface.
+/// Determines whether a given object can restart.
 /// </summary>
-public interface IHasSurface
+public interface IHasRestart
 {
     /// <summary>
-    /// Called when the surface has been destroyed.
+    /// Called when window requests a restart.
     /// </summary>
-    event Action? SurfaceDestroyed;
+    event Action? Restart;
 }

@@ -5,8 +5,8 @@ using System;
 using Sekai.Framework.Audio;
 using Sekai.Framework.Graphics;
 using Sekai.Framework.Logging;
-using Sekai.Framework.Windowing;
 using Sekai.Framework.Storages;
+using Sekai.Framework.Windowing;
 
 namespace Sekai;
 

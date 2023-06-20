@@ -7,7 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Microsoft.Extensions.FileSystemGlobbing;
+using DotNet.Globbing;
 
 namespace Sekai.Framework.Storages;
 
@@ -118,9 +118,19 @@ public sealed class AssemblyStorage : Storage
 
     public override IEnumerable<string> EnumerateFiles([StringSyntax("Uri")] string path, string pattern = "*", SearchOption options = SearchOption.TopDirectoryOnly)
     {
-        var matcher = new Matcher();
-        matcher.AddInclude(pattern);
-        return matcher.Match(path).Files.Select(f => f.Path);
+        var glob = Glob.Parse(pattern);
+
+        for (int i = 0; i < entries.Length; i++)
+        {
+            string entry = entries[i];
+
+            if (!glob.IsMatch(entry))
+            {
+                continue;
+            }
+
+            yield return entry;
+        }
     }
 
     public override IEnumerable<string> EnumerateDirectories([StringSyntax("Uri")] string path, string pattern = "*", SearchOption options = SearchOption.TopDirectoryOnly)

@@ -153,6 +153,8 @@ public abstract class Host
 
         Initialize();
 
+        setHostState(HostState.Loading);
+
         var gameLoop = Task.Factory.StartNew(runGameLoop, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
 
         while (Window.Exists)
@@ -181,7 +183,7 @@ public abstract class Host
         setHostState(HostState.Exiting);
     }
 
-    private void pause()
+    private void suspend()
     {
         if (State == HostState.Paused)
         {
@@ -191,7 +193,7 @@ public abstract class Host
         setHostState(HostState.Pausing);
     }
 
-    private void resume()
+    private void resumed()
     {
         if (State != HostState.Paused)
         {
@@ -201,7 +203,7 @@ public abstract class Host
         setHostState(HostState.Resuming);
     }
 
-    private void reload()
+    private void restart()
     {
         setHostState(HostState.Reloading);
     }
@@ -231,8 +233,6 @@ public abstract class Host
         logger.Log("  Environment: {0}, ({1}) {2} cores", RuntimeInfo.OS, Environment.OSVersion, Environment.ProcessorCount);
         logger.Log("--------------------------------------------------------");
 
-        setHostState(HostState.Loading);
-
         window = CreateWindow();
         window.Title = $"Sekai{(asm?.Name is not null ? $" (running {asm.Name})" : string.Empty)}";
         window.State = WindowState.Minimized;
@@ -240,13 +240,13 @@ public abstract class Host
 
         if (window is IHasSuspend suspendable)
         {
-            suspendable.Resume += resume;
-            suspendable.Suspend += pause;
+            suspendable.Resumed += resumed;
+            suspendable.Suspend += suspend;
         }
 
-        if (window is IHasSurface surfaceOwner)
+        if (window is IHasRestart restartable)
         {
-            surfaceOwner.SurfaceDestroyed += reload;
+            restartable.Restart += restart;
         }
     }
 
