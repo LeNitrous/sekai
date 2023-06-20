@@ -476,4 +476,5 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-lcov.info
+# MS Test
+*.trx
