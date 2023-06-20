@@ -25,7 +25,8 @@ using System;
 using System.Globalization;
 using System.Runtime.InteropServices;
 
-namespace Sekai.Mathematics;
+namespace Sekai.Framework.Mathematics;
+
 /// <summary>
 /// Represents a color in the form of Hue, Saturation, Value, Alpha.
 /// </summary>
@@ -73,7 +74,7 @@ public struct ColorHSV : IEquatable<ColorHSV>, IFormattable
     /// Converts the color into a three component vector.
     /// </summary>
     /// <returns>A three component vector containing the red, green, and blue components of the color.</returns>
-    public Color4 ToColor()
+    public readonly Color4 ToColor()
     {
         float hdiv = H / 60;
         int hi = (int)hdiv;
@@ -112,9 +113,9 @@ public struct ColorHSV : IEquatable<ColorHSV>, IFormattable
             if (color.R >= max)
                 h = (color.G - color.B) / delta;
             else if (color.G >= max)
-                h = (color.B - color.R) / delta + 2.0f;
+                h = ((color.B - color.R) / delta) + 2.0f;
             else
-                h = (color.R - color.G) / delta + 4.0f;
+                h = ((color.R - color.G) / delta) + 4.0f;
             h *= 60.0f;
 
             if (h < 0)
@@ -127,13 +128,13 @@ public struct ColorHSV : IEquatable<ColorHSV>, IFormattable
     }
 
     /// <inheritdoc/>
-    public bool Equals(ColorHSV other)
+    public readonly bool Equals(ColorHSV other)
     {
         return other.H.Equals(H) && other.S.Equals(S) && other.V.Equals(V) && other.A.Equals(A);
     }
 
     /// <inheritdoc/>
-    public override bool Equals(object? obj)
+    public override readonly bool Equals(object? obj)
     {
         if (obj is null) return false;
         if (obj.GetType() != typeof(ColorHSV)) return false;
@@ -141,16 +142,9 @@ public struct ColorHSV : IEquatable<ColorHSV>, IFormattable
     }
 
     /// <inheritdoc/>
-    public override int GetHashCode()
+    public override readonly int GetHashCode()
     {
-        unchecked
-        {
-            int result = H.GetHashCode();
-            result = (result * 397) ^ S.GetHashCode();
-            result = (result * 397) ^ V.GetHashCode();
-            result = (result * 397) ^ A.GetHashCode();
-            return result;
-        }
+        return HashCode.Combine(H, S, V, A);
     }
 
     /// <summary>
@@ -159,7 +153,7 @@ public struct ColorHSV : IEquatable<ColorHSV>, IFormattable
     /// <returns>
     /// A <see cref="string"/> that represents this instance.
     /// </returns>
-    public override string ToString()
+    public override readonly string ToString()
     {
         return ToString(CultureInfo.CurrentCulture);
     }
@@ -171,7 +165,7 @@ public struct ColorHSV : IEquatable<ColorHSV>, IFormattable
     /// <returns>
     /// A <see cref="string"/> that represents this instance.
     /// </returns>
-    public string ToString(string format)
+    public readonly string ToString(string format)
     {
         return ToString(format, CultureInfo.CurrentCulture);
     }
@@ -183,7 +177,7 @@ public struct ColorHSV : IEquatable<ColorHSV>, IFormattable
     /// <returns>
     /// A <see cref="string"/> that represents this instance.
     /// </returns>
-    public string ToString(IFormatProvider formatProvider)
+    public readonly string ToString(IFormatProvider formatProvider)
     {
         return string.Format(formatProvider, to_string_format, H, S, V, A);
     }
@@ -196,7 +190,7 @@ public struct ColorHSV : IEquatable<ColorHSV>, IFormattable
     /// <returns>
     /// A <see cref="string"/> that represents this instance.
     /// </returns>
-    public string ToString(string? format, IFormatProvider? formatProvider)
+    public readonly string ToString(string? format, IFormatProvider? formatProvider)
     {
         if (format == null)
             return ToString(formatProvider ?? CultureInfo.CurrentCulture);

@@ -2,10 +2,10 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using System.Drawing;
 using Sekai.Framework.Graphics;
+using Sekai.Framework.Mathematics;
 
-namespace Sekai.Framework.Platform.Headless.Graphics;
+namespace Sekai.Headless.Graphics;
 
 internal sealed class DummyGraphicsDevice : GraphicsDevice
 {

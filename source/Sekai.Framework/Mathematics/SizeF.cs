@@ -23,42 +23,46 @@
 // THE SOFTWARE.
 
 using System;
-using System.Numerics;
 using System.Runtime.InteropServices;
 
-namespace Sekai.Mathematics;
+namespace Sekai.Framework.Mathematics;
 
 /// <summary>
-/// A 2D point.
+/// Defines a 2D rectangular size (width,height).
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct Point : IEquatable<Point>
+public struct SizeF : IEquatable<SizeF>
 {
     /// <summary>
-    /// A point with (0,0) coordinates.
+    /// A zero size with (width, height) = (0,0)
     /// </summary>
-    public static readonly Point Zero = new(0, 0);
+    public static readonly SizeF Zero = new(0, 0);
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Point"/> struct.
+    /// A zero size with (width, height) = (0,0)
     /// </summary>
-    /// <param name="x">The x.</param>
-    /// <param name="y">The y.</param>
-    public Point(int x, int y)
+    public static readonly SizeF Empty = Zero;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SizeF"/> struct.
+    /// </summary>
+    /// <param name="width">The x.</param>
+    /// <param name="height">The y.</param>
+    public SizeF(float width, float height)
     {
-        X = x;
-        Y = y;
+        Width = width;
+        Height = height;
     }
 
     /// <summary>
-    /// Left coordinate.
+    /// Width.
     /// </summary>
-    public int X;
+    public float Width;
 
     /// <summary>
-    /// Top coordinate.
+    /// Height.
     /// </summary>
-    public int Y;
+    public float Height;
 
     /// <summary>
     /// Determines whether the specified <see cref="object"/> is equal to this instance.
@@ -67,26 +71,21 @@ public struct Point : IEquatable<Point>
     /// <returns>
     ///   <c>true</c> if the specified <see cref="object"/> is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
-    public bool Equals(Point other)
+    public readonly bool Equals(SizeF other)
     {
-        return other.X == X && other.Y == Y;
+        return other.Width == Width && other.Height == Height;
     }
 
     /// <inheritdoc/>
-    public override bool Equals(object? obj)
+    public override readonly bool Equals(object? obj)
     {
-        if (obj is null) return false;
-        if (obj.GetType() != typeof(Point)) return false;
-        return Equals((Point)obj);
+        return obj is SizeF size && Equals(size);
     }
 
     /// <inheritdoc/>
-    public override int GetHashCode()
+    public override readonly int GetHashCode()
     {
-        unchecked
-        {
-            return (X * 397) ^ Y;
-        }
+        return HashCode.Combine(Width, Height);
     }
 
     /// <summary>
@@ -97,7 +96,7 @@ public struct Point : IEquatable<Point>
     /// <returns>
     /// The result of the operator.
     /// </returns>
-    public static bool operator ==(Point left, Point right)
+    public static bool operator ==(SizeF left, SizeF right)
     {
         return left.Equals(right);
     }
@@ -110,34 +109,19 @@ public struct Point : IEquatable<Point>
     /// <returns>
     /// The result of the operator.
     /// </returns>
-    public static bool operator !=(Point left, Point right)
+    public static bool operator !=(SizeF left, SizeF right)
     {
         return !left.Equals(right);
     }
 
+    public static explicit operator Size(SizeF value)
+    {
+        return new Size((int)value.Width, (int)value.Height);
+    }
+
     /// <inheritdoc/>
-    public override string ToString()
+    public override readonly string ToString()
     {
-        return string.Format("({0},{1})", X, Y);
-    }
-
-    /// <summary>
-    /// Performs an implicit conversion from <see cref="Vector2"/> to <see cref="Point"/>.
-    /// </summary>
-    /// <param name="value">The value.</param>
-    /// <returns>The result of the conversion.</returns>
-    public static explicit operator Point(Vector2 value)
-    {
-        return new Point((int)value.X, (int)value.Y);
-    }
-
-    /// <summary>
-    /// Performs an explicit conversion from <see cref="Point"/> to <see cref="Vector2"/>.
-    /// </summary>
-    /// <param name="value">The value.</param>
-    /// <returns>The result of the conversion.</returns>
-    public static implicit operator Vector2(Point value)
-    {
-        return new Vector2(value.X, value.Y);
+        return string.Format("({0},{1})", Width, Height);
     }
 }

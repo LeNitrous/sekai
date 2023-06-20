@@ -2,7 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using System.Drawing;
+using Sekai.Framework.Mathematics;
 
 namespace Sekai.Framework.Graphics;
 
@@ -64,7 +64,12 @@ public struct ClearInfo : IEquatable<ClearInfo>
         Stencil = stencil;
     }
 
-    public bool Equals(ClearInfo other)
+    public static implicit operator ClearInfo(Color color)
+    {
+        return new ClearInfo(color);
+    }
+
+    public readonly bool Equals(ClearInfo other)
     {
         return Flags == other.Flags &&
                Color.Equals(other.Color) &&
@@ -72,12 +77,12 @@ public struct ClearInfo : IEquatable<ClearInfo>
                Stencil == other.Stencil;
     }
 
-    public override bool Equals(object? obj)
+    public override readonly bool Equals(object? obj)
     {
         return obj is ClearInfo info && Equals(info);
     }
 
-    public override int GetHashCode()
+    public override readonly int GetHashCode()
     {
         return HashCode.Combine(Flags, Color, Depth, Stencil);
     }

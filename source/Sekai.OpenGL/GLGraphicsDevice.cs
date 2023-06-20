@@ -2,9 +2,9 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using System.Drawing;
 using Sekai.Framework.Contexts;
 using Sekai.Framework.Graphics;
+using Sekai.Framework.Mathematics;
 using Silk.NET.OpenGL;
 
 namespace Sekai.OpenGL;
@@ -68,7 +68,8 @@ public sealed unsafe class GLGraphicsDevice : GraphicsDevice
         if ((info.Flags & ClearFlags.Color) == ClearFlags.Color)
         {
             mask |= (uint)ClearBufferMask.ColorBufferBit;
-            GL.ClearColor(info.Color);
+            var color = info.Color.ToColor4();
+            GL.ClearColor(color.R, color.G, color.B, color.A);
         }
 
         if ((info.Flags & ClearFlags.Depth) == ClearFlags.Depth)

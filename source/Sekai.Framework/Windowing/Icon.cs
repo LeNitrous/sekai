@@ -2,8 +2,8 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using System.Drawing;
 using System.IO;
+using Sekai.Framework.Mathematics;
 
 namespace Sekai.Framework.Windowing;
 

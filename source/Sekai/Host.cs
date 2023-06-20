@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
@@ -15,6 +14,7 @@ using Sekai.Framework.Audio;
 using Sekai.Framework.Graphics;
 using Sekai.Framework.Input;
 using Sekai.Framework.Logging;
+using Sekai.Framework.Mathematics;
 using Sekai.Framework.Storages;
 using Sekai.Framework.Windowing;
 
@@ -417,9 +417,9 @@ public abstract class Host
                         game.Update(elapsedTime);
                     }
 
-                    Graphics.SetScissor(new Rectangle(Point.Empty, Window.Size));
-                    Graphics.SetViewport(new Rectangle(Point.Empty, Window.Size));
-                    Graphics.Clear(new ClearInfo(Color.CornflowerBlue));
+                    Graphics.SetScissor(Window.Size);
+                    Graphics.SetViewport(Window.Size);
+                    Graphics.Clear(Color.CornflowerBlue);
 
                     game.Draw();
 

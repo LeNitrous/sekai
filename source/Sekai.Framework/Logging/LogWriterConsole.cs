@@ -3,10 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
 using Pastel;
+using Sekai.Framework.Mathematics;
 
 namespace Sekai.Framework.Logging;
 
@@ -108,7 +108,7 @@ public sealed partial class LogWriterConsole : LogWriter, IDisposable
         {
             { LogLevel.Trace,       "📻" },
             { LogLevel.Debug,       "⚙️" },
-            { LogLevel.Verbose, "💬" },
+            { LogLevel.Verbose,     "💬" },
             { LogLevel.Warning,     "⚠️" },
             { LogLevel.Error,       "💢" },
             { LogLevel.Critical,    "💥" },
@@ -118,7 +118,7 @@ public sealed partial class LogWriterConsole : LogWriter, IDisposable
         {
             { LogLevel.Trace,       "#292929" },
             { LogLevel.Debug,       "#545454" },
-            { LogLevel.Verbose, "#c2c2c2" },
+            { LogLevel.Verbose,     "#c2c2c2" },
             { LogLevel.Warning,     "#ebd513" },
             { LogLevel.Error,       "#db4242" },
             { LogLevel.Critical,    "#ff0000" },

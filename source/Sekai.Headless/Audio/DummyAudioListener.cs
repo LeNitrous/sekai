@@ -4,7 +4,7 @@
 using System.Numerics;
 using Sekai.Framework.Audio;
 
-namespace Sekai.Framework.Platform.Headless.Audio;
+namespace Sekai.Headless.Audio;
 
 internal sealed class DummyAudioListener : AudioListener
 {

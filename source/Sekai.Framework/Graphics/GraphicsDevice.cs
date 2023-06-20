@@ -2,9 +2,9 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using Sekai.Framework.Mathematics;
 
 namespace Sekai.Framework.Graphics;
 

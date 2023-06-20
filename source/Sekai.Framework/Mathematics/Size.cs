@@ -23,31 +23,33 @@
 // THE SOFTWARE.
 
 using System;
+using System.Numerics;
 using System.Runtime.InteropServices;
 
-namespace Sekai.Mathematics;
+namespace Sekai.Framework.Mathematics;
+
 /// <summary>
 /// Defines a 2D rectangular size (width,height).
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct Size2F : IEquatable<Size2F>
+public struct Size : IEquatable<Size>
 {
     /// <summary>
     /// A zero size with (width, height) = (0,0)
     /// </summary>
-    public static readonly Size2F Zero = new(0, 0);
+    public static readonly Size Zero = new(0, 0);
 
     /// <summary>
     /// A zero size with (width, height) = (0,0)
     /// </summary>
-    public static readonly Size2F Empty = Zero;
+    public static readonly Size Empty = Zero;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Size2F"/> struct.
+    /// Initializes a new instance of the <see cref="Size"/> struct.
     /// </summary>
     /// <param name="width">The x.</param>
     /// <param name="height">The y.</param>
-    public Size2F(float width, float height)
+    public Size(int width, int height)
     {
         Width = width;
         Height = height;
@@ -56,12 +58,12 @@ public struct Size2F : IEquatable<Size2F>
     /// <summary>
     /// Width.
     /// </summary>
-    public float Width;
+    public int Width;
 
     /// <summary>
     /// Height.
     /// </summary>
-    public float Height;
+    public int Height;
 
     /// <summary>
     /// Determines whether the specified <see cref="object"/> is equal to this instance.
@@ -70,26 +72,21 @@ public struct Size2F : IEquatable<Size2F>
     /// <returns>
     ///   <c>true</c> if the specified <see cref="object"/> is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
-    public bool Equals(Size2F other)
+    public readonly bool Equals(Size other)
     {
         return other.Width == Width && other.Height == Height;
     }
 
     /// <inheritdoc/>
-    public override bool Equals(object? obj)
+    public override readonly bool Equals(object? obj)
     {
-        if (obj is null) return false;
-        if (obj.GetType() != typeof(Size2F)) return false;
-        return Equals((Size2F)obj);
+        return obj is Size size && Equals(size);
     }
 
     /// <inheritdoc/>
-    public override int GetHashCode()
+    public override readonly int GetHashCode()
     {
-        unchecked
-        {
-            return (Width.GetHashCode() * 397) ^ Height.GetHashCode();
-        }
+        return HashCode.Combine(Width, Height);
     }
 
     /// <summary>
@@ -100,7 +97,7 @@ public struct Size2F : IEquatable<Size2F>
     /// <returns>
     /// The result of the operator.
     /// </returns>
-    public static bool operator ==(Size2F left, Size2F right)
+    public static bool operator ==(Size left, Size right)
     {
         return left.Equals(right);
     }
@@ -113,13 +110,28 @@ public struct Size2F : IEquatable<Size2F>
     /// <returns>
     /// The result of the operator.
     /// </returns>
-    public static bool operator !=(Size2F left, Size2F right)
+    public static bool operator !=(Size left, Size right)
     {
         return !left.Equals(right);
     }
 
+    public static implicit operator SizeF(Size size)
+    {
+        return new SizeF(size.Width, size.Height);
+    }
+
+    public static implicit operator Rectangle(Size size)
+    {
+        return new Rectangle(Point.Zero, size);
+    }
+
+    public static implicit operator RectangleF(Size size)
+    {
+        return new RectangleF(Vector2.Zero, size);
+    }
+
     /// <inheritdoc/>
-    public override string ToString()
+    public override readonly string ToString()
     {
         return string.Format("({0},{1})", Width, Height);
     }

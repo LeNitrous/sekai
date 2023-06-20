@@ -3,52 +3,38 @@
 
 // Copyright (c) .NET Foundation and Contributors (https://dotnetfoundation.org/ & https://stride3d.net) and Silicon Studio Corp. (https://www.siliconstudio.co.jp)
 //
-// -----------------------------------------------------------------------------
-// Original code from SlimMath project. http://code.google.com/p/slimmath/
-// Greetings to SlimDX Group. Original code published with the following license:
-// -----------------------------------------------------------------------------
-/*
-* Copyright (c) 2007-2011 SlimDX Group
-*
-* Permission is hereby granted, free of charge, to any person obtaining a copy
-* of this software and associated documentation files (the "Software"), to deal
-* in the Software without restriction, including without limitation the rights
-* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-* copies of the Software, and to permit persons to whom the Software is
-* furnished to do so, subject to the following conditions:
-*
-* The above copyright notice and this permission notice shall be included in
-* all copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-* THE SOFTWARE.
-*/
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+// THE SOFTWARE.
 
 using System;
+using System.Globalization;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
-namespace Sekai.Mathematics;
+namespace Sekai.Framework.Mathematics;
+
 /// <summary>
-/// Represents a 32-bit color (4 bytes) in the form of RGBA (in byte order: R, G, B, A).
+/// Represents a 32-bit color (4 bytes) in the form of BGRA (in byte order: B, G, R, A).
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Size = 4)]
-public partial struct Color : IEquatable<Color>
+public partial struct ColorBGRA : IColor<ColorBGRA>
 {
-    /// <summary>
-    /// The red component of the color.
-    /// </summary>
-    public byte R;
-
-    /// <summary>
-    /// The green component of the color.
-    /// </summary>
-    public byte G;
+    private const string to_string_format = "R:{1} G:{2} B:{3} A:{0}";
 
     /// <summary>
     /// The blue component of the color.
@@ -56,38 +42,48 @@ public partial struct Color : IEquatable<Color>
     public byte B;
 
     /// <summary>
+    /// The green component of the color.
+    /// </summary>
+    public byte G;
+
+    /// <summary>
+    /// The red component of the color.
+    /// </summary>
+    public byte R;
+
+    /// <summary>
     /// The alpha component of the color.
     /// </summary>
     public byte A;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Color"/> struct.
+    /// Initializes a new instance of the <see cref="ColorBGRA"/> struct.
     /// </summary>
     /// <param name="value">The value that will be assigned to all components.</param>
-    public Color(byte value)
+    public ColorBGRA(byte value)
     {
-        R = value;
-        G = value;
         B = value;
+        G = value;
+        R = value;
         A = value;
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Color"/> struct.
+    /// Initializes a new instance of the <see cref="ColorBGRA"/> struct.
     /// </summary>
     /// <param name="value">The value that will be assigned to all components.</param>
-    public Color(float value) : this(toByte(value))
+    public ColorBGRA(float value) : this(toByte(value))
     {
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Color"/> struct.
+    /// Initializes a new instance of the <see cref="ColorBGRA"/> struct.
     /// </summary>
     /// <param name="red">The red component of the color.</param>
     /// <param name="green">The green component of the color.</param>
     /// <param name="blue">The blue component of the color.</param>
     /// <param name="alpha">The alpha component of the color.</param>
-    public Color(byte red, byte green, byte blue, byte alpha)
+    public ColorBGRA(byte red, byte green, byte blue, byte alpha)
     {
         R = red;
         G = green;
@@ -96,27 +92,13 @@ public partial struct Color : IEquatable<Color>
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Color"/> struct.  Alpha is set to 255.
-    /// </summary>
-    /// <param name="red">The red component of the color.</param>
-    /// <param name="green">The green component of the color.</param>
-    /// <param name="blue">The blue component of the color.</param>
-    public Color(byte red, byte green, byte blue)
-    {
-        R = red;
-        G = green;
-        B = blue;
-        A = 255;
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Color"/> struct.
+    /// Initializes a new instance of the <see cref="ColorBGRA"/> struct.
     /// </summary>
     /// <param name="red">The red component of the color.</param>
     /// <param name="green">The green component of the color.</param>
     /// <param name="blue">The blue component of the color.</param>
     /// <param name="alpha">The alpha component of the color.</param>
-    public Color(float red, float green, float blue, float alpha)
+    public ColorBGRA(float red, float green, float blue, float alpha)
     {
         R = toByte(red);
         G = toByte(green);
@@ -125,24 +107,10 @@ public partial struct Color : IEquatable<Color>
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Color"/> struct.  Alpha is set to 255.
-    /// </summary>
-    /// <param name="red">The red component of the color.</param>
-    /// <param name="green">The green component of the color.</param>
-    /// <param name="blue">The blue component of the color.</param>
-    public Color(float red, float green, float blue)
-    {
-        R = toByte(red);
-        G = toByte(green);
-        B = toByte(blue);
-        A = 255;
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Color"/> struct.
+    /// Initializes a new instance of the <see cref="ColorBGRA"/> struct.
     /// </summary>
     /// <param name="value">The red, green, blue, and alpha components of the color.</param>
-    public Color(Vector4 value)
+    public ColorBGRA(Vector4 value)
     {
         R = toByte(value.X);
         G = toByte(value.Y);
@@ -151,11 +119,11 @@ public partial struct Color : IEquatable<Color>
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Color"/> struct.
+    /// Initializes a new instance of the <see cref="ColorBGRA"/> struct.
     /// </summary>
     /// <param name="value">The red, green, and blue components of the color.</param>
     /// <param name="alpha">The alpha component of the color.</param>
-    public Color(Vector3 value, float alpha)
+    public ColorBGRA(Vector3 value, float alpha)
     {
         R = toByte(value.X);
         G = toByte(value.Y);
@@ -164,109 +132,96 @@ public partial struct Color : IEquatable<Color>
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Color"/> struct. Alpha is set to 255.
+    /// Initializes a new instance of the <see cref="ColorBGRA"/> struct.
     /// </summary>
-    /// <param name="value">The red, green, and blue components of the color.</param>
-    public Color(Vector3 value)
+    /// <param name="bgra">A packed integer containing all four color components in BGRA order.</param>
+    public ColorBGRA(uint bgra)
     {
-        R = toByte(value.X);
-        G = toByte(value.Y);
-        B = toByte(value.Z);
-        A = 255;
+        A = (byte)((bgra >> 24) & 255);
+        R = (byte)((bgra >> 16) & 255);
+        G = (byte)((bgra >> 8) & 255);
+        B = (byte)(bgra & 255);
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Color"/> struct.
+    /// Initializes a new instance of the <see cref="ColorBGRA"/> struct.
     /// </summary>
-    /// <param name="rgba">A packed integer containing all four color components in RGBA order.</param>
-    public Color(uint rgba)
+    /// <param name="bgra">A packed integer containing all four color components in BGRA.</param>
+    public ColorBGRA(int bgra)
     {
-        A = (byte)((rgba >> 24) & 255);
-        B = (byte)((rgba >> 16) & 255);
-        G = (byte)((rgba >> 8) & 255);
-        R = (byte)(rgba & 255);
+        A = (byte)((bgra >> 24) & 255);
+        R = (byte)((bgra >> 16) & 255);
+        G = (byte)((bgra >> 8) & 255);
+        B = (byte)(bgra & 255);
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Color"/> struct.
-    /// </summary>
-    /// <param name="rgba">A packed integer containing all four color components in RGBA order.</param>
-    public Color(int rgba)
-    {
-        A = (byte)((rgba >> 24) & 255);
-        B = (byte)((rgba >> 16) & 255);
-        G = (byte)((rgba >> 8) & 255);
-        R = (byte)(rgba & 255);
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="Color"/> struct.
+    /// Initializes a new instance of the <see cref="ColorBGRA"/> struct.
     /// </summary>
     /// <param name="values">The values to assign to the red, green, and blue, alpha components of the color. This must be an array with four elements.</param>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="values"/> is <c>null</c>.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="values"/> contains more or less than four elements.</exception>
-    public Color(float[] values)
+    public ColorBGRA(float[] values)
     {
         if (values == null)
             throw new ArgumentNullException(nameof(values));
         if (values.Length != 4)
-            throw new ArgumentOutOfRangeException(nameof(values), "There must be four and only four input values for Color.");
+            throw new ArgumentOutOfRangeException(nameof(values), "There must be four and only four input values for ColorBGRA.");
 
-        R = toByte(values[0]);
+        B = toByte(values[0]);
         G = toByte(values[1]);
-        B = toByte(values[2]);
+        R = toByte(values[2]);
         A = toByte(values[3]);
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Color"/> struct.
+    /// Initializes a new instance of the <see cref="ColorBGRA"/> struct.
     /// </summary>
-    /// <param name="values">The values to assign to the red, green, blue, or alpha components of the color. This must be an array with four elements.</param>
+    /// <param name="values">The values to assign to the red, green, and blue, alpha components of the color. This must be an array with four elements.</param>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="values"/> is <c>null</c>.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="values"/> contains more or less than four elements.</exception>
-    public Color(byte[] values)
+    public ColorBGRA(byte[] values)
     {
         if (values == null)
             throw new ArgumentNullException(nameof(values));
         if (values.Length != 4)
-            throw new ArgumentOutOfRangeException(nameof(values), "There must be four and only four input values for Color.");
+            throw new ArgumentOutOfRangeException(nameof(values), "There must be four and only four input values for ColorBGRA.");
 
-        R = values[0];
+        B = values[0];
         G = values[1];
-        B = values[2];
+        R = values[2];
         A = values[3];
     }
 
     /// <summary>
     /// Gets or sets the component at the specified index.
     /// </summary>
-    /// <value>The value of the red, green, blue, or alpha component, depending on the index.</value>
-    /// <param name="index">The index of the component to access. Use 0 for the red(R) component, 1 for the green(G) component, 2 for the blue(B) component, and 3 for the alpha(A) component.</param>
+    /// <value>The value of the alpha, red, green, or blue component, depending on the index.</value>
+    /// <param name="index">The index of the component to access. Use 0 for the alpha component, 1 for the red component, 2 for the green component, and 3 for the blue component.</param>
     /// <returns>The value of the component at the specified index.</returns>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when the <paramref name="index"/> is out of the range [0, 3].</exception>
     public byte this[int index]
     {
-        get
+        readonly get
         {
             return index switch
             {
-                0 => R,
+                0 => B,
                 1 => G,
-                2 => B,
+                2 => R,
                 3 => A,
-                _ => throw new ArgumentOutOfRangeException(nameof(index), "Indices for Color run from 0 to 3, inclusive."),
+                _ => throw new ArgumentOutOfRangeException(nameof(index), "Indices for ColorBGRA run from 0 to 3, inclusive."),
             };
         }
-
         set
         {
             switch (index)
             {
-                case 0: R = value; break;
+                case 0: B = value; break;
                 case 1: G = value; break;
-                case 2: B = value; break;
+                case 2: R = value; break;
                 case 3: A = value; break;
-                default: throw new ArgumentOutOfRangeException(nameof(index), "Indices for Color run from 0 to 3, inclusive.");
+                default: throw new ArgumentOutOfRangeException(nameof(index), "Indices for ColorBGRA run from 0 to 3, inclusive.");
             }
         }
     }
@@ -275,7 +230,7 @@ public partial struct Color : IEquatable<Color>
     /// Converts the color into a packed integer.
     /// </summary>
     /// <returns>A packed integer containing all four color components.</returns>
-    public int ToBgra()
+    public readonly int ToBGRA()
     {
         int value = B;
         value |= G << 8;
@@ -289,7 +244,7 @@ public partial struct Color : IEquatable<Color>
     /// Converts the color into a packed integer.
     /// </summary>
     /// <returns>A packed integer containing all four color components.</returns>
-    public int ToRgba()
+    public readonly int ToRGBA()
     {
         int value = R;
         value |= G << 8;
@@ -300,38 +255,10 @@ public partial struct Color : IEquatable<Color>
     }
 
     /// <summary>
-    /// Converts the color into a packed integer.
-    /// </summary>
-    /// <returns>A packed integer containing all four color components.</returns>
-    public int ToArgb()
-    {
-        int value = A;
-        value |= R << 8;
-        value |= G << 16;
-        value |= B << 24;
-
-        return value;
-    }
-
-    /// <summary>
-    /// Converts the color into a packed integer.
-    /// </summary>
-    /// <returns>A packed integer containing all four color components.</returns>
-    public int ToAbgr()
-    {
-        int value = A;
-        value |= B << 8;
-        value |= G << 16;
-        value |= R << 24;
-
-        return value;
-    }
-
-    /// <summary>
     /// Converts the color into a three component vector.
     /// </summary>
     /// <returns>A three component vector containing the red, green, and blue components of the color.</returns>
-    public Vector3 ToVector3()
+    public readonly Vector3 ToVector3()
     {
         return new Vector3(R / 255.0f, G / 255.0f, B / 255.0f);
     }
@@ -340,7 +267,7 @@ public partial struct Color : IEquatable<Color>
     /// Converts the color into a three component color.
     /// </summary>
     /// <returns>A three component color containing the red, green, and blue components of the color.</returns>
-    public Color3 ToColor3()
+    public readonly Color3 ToColor3()
     {
         return new Color3(R / 255.0f, G / 255.0f, B / 255.0f);
     }
@@ -349,7 +276,7 @@ public partial struct Color : IEquatable<Color>
     /// Converts the color into a four component vector.
     /// </summary>
     /// <returns>A four component vector containing all four color components.</returns>
-    public Vector4 ToVector4()
+    public readonly Vector4 ToVector4()
     {
         return new Vector4(R / 255.0f, G / 255.0f, B / 255.0f, A / 255.0f);
     }
@@ -357,17 +284,17 @@ public partial struct Color : IEquatable<Color>
     /// <summary>
     /// Creates an array containing the elements of the color.
     /// </summary>
-    /// <returns>A four-element array containing the components of the color in RGBA order.</returns>
-    public byte[] ToArray()
+    /// <returns>A four-element array containing the components of the color in BGRA order.</returns>
+    public readonly byte[] ToArray()
     {
-        return new[] { R, G, B, A };
+        return new[] { B, G, R, A };
     }
 
     /// <summary>
     /// Gets the brightness.
     /// </summary>
     /// <returns>The Hue-Saturation-Brightness (HSB) saturation for this <see cref="Color"/></returns>
-    public float GetBrightness()
+    public readonly float GetBrightness()
     {
         float r = R / 255.0f;
         float g = G / 255.0f;
@@ -391,7 +318,7 @@ public partial struct Color : IEquatable<Color>
     /// Gets the hue.
     /// </summary>
     /// <returns>The Hue-Saturation-Brightness (HSB) saturation for this <see cref="Color"/></returns>
-    public float GetHue()
+    public readonly float GetHue()
     {
         if (R == G && G == B)
             return 0; // 0 makes as good an UNDEFINED value as any
@@ -421,11 +348,11 @@ public partial struct Color : IEquatable<Color>
         }
         else if (g == max)
         {
-            hue = 2 + (b - r) / delta;
+            hue = 2 + ((b - r) / delta);
         }
         else if (b == max)
         {
-            hue = 4 + (r - g) / delta;
+            hue = 4 + ((r - g) / delta);
         }
         hue *= 60;
 
@@ -440,7 +367,7 @@ public partial struct Color : IEquatable<Color>
     /// Gets the saturation.
     /// </summary>
     /// <returns>The Hue-Saturation-Brightness (HSB) saturation for this <see cref="Color"/></returns>
-    public float GetSaturation()
+    public readonly float GetSaturation()
     {
         float r = R / 255.0f;
         float g = G / 255.0f;
@@ -477,12 +404,52 @@ public partial struct Color : IEquatable<Color>
     }
 
     /// <summary>
+    /// Converts the color from a packed BGRA integer.
+    /// </summary>
+    /// <param name="color">A packed integer containing all four color components in BGRA order</param>
+    /// <returns>A color.</returns>
+    public static ColorBGRA FromBgra(int color)
+    {
+        return new ColorBGRA(color);
+    }
+
+    /// <summary>
+    /// Converts the color from a packed BGRA integer.
+    /// </summary>
+    /// <param name="color">A packed integer containing all four color components in BGRA order</param>
+    /// <returns>A color.</returns>
+    public static ColorBGRA FromBgra(uint color)
+    {
+        return new ColorBGRA(color);
+    }
+
+    /// <summary>
+    /// Converts the color from a packed RGBA integer.
+    /// </summary>
+    /// <param name="color">A packed integer containing all four color components in RGBA order</param>
+    /// <returns>A color.</returns>
+    public static ColorBGRA FromRgba(int color)
+    {
+        return new ColorBGRA((byte)(color & 255), (byte)((color >> 8) & 255), (byte)((color >> 16) & 255), (byte)((color >> 24) & 255));
+    }
+
+    /// <summary>
+    /// Converts the color from a packed RGBA integer.
+    /// </summary>
+    /// <param name="color">A packed integer containing all four color components in RGBA order</param>
+    /// <returns>A color.</returns>
+    public static ColorBGRA FromRgba(uint color)
+    {
+        return FromRgba(unchecked((int)color));
+    }
+
+    /// <summary>
     /// Adds two colors.
     /// </summary>
     /// <param name="left">The first color to add.</param>
     /// <param name="right">The second color to add.</param>
     /// <param name="result">When the method completes, completes the sum of the two colors.</param>
-    public static void Add(ref Color left, ref Color right, out Color result)
+    public static void Add(ref ColorBGRA left, ref ColorBGRA right, out ColorBGRA result)
     {
         result.A = (byte)(left.A + right.A);
         result.R = (byte)(left.R + right.R);
@@ -496,9 +463,9 @@ public partial struct Color : IEquatable<Color>
     /// <param name="left">The first color to add.</param>
     /// <param name="right">The second color to add.</param>
     /// <returns>The sum of the two colors.</returns>
-    public static Color Add(Color left, Color right)
+    public static ColorBGRA Add(ColorBGRA left, ColorBGRA right)
     {
-        return new Color((byte)(left.R + right.R), (byte)(left.G + right.G), (byte)(left.B + right.B), (byte)(left.A + right.A));
+        return new ColorBGRA((byte)(left.R + right.R), (byte)(left.G + right.G), (byte)(left.B + right.B), (byte)(left.A + right.A));
     }
 
     /// <summary>
@@ -507,7 +474,7 @@ public partial struct Color : IEquatable<Color>
     /// <param name="left">The first color to subtract.</param>
     /// <param name="right">The second color to subtract.</param>
     /// <param name="result">WHen the method completes, contains the difference of the two colors.</param>
-    public static void Subtract(ref Color left, ref Color right, out Color result)
+    public static void Subtract(ref ColorBGRA left, ref ColorBGRA right, out ColorBGRA result)
     {
         result.A = (byte)(left.A - right.A);
         result.R = (byte)(left.R - right.R);
@@ -521,9 +488,9 @@ public partial struct Color : IEquatable<Color>
     /// <param name="left">The first color to subtract.</param>
     /// <param name="right">The second color to subtract</param>
     /// <returns>The difference of the two colors.</returns>
-    public static Color Subtract(Color left, Color right)
+    public static ColorBGRA Subtract(ColorBGRA left, ColorBGRA right)
     {
-        return new Color((byte)(left.R - right.R), (byte)(left.G - right.G), (byte)(left.B - right.B), (byte)(left.A - right.A));
+        return new ColorBGRA((byte)(left.R - right.R), (byte)(left.G - right.G), (byte)(left.B - right.B), (byte)(left.A - right.A));
     }
 
     /// <summary>
@@ -532,7 +499,7 @@ public partial struct Color : IEquatable<Color>
     /// <param name="left">The first color to modulate.</param>
     /// <param name="right">The second color to modulate.</param>
     /// <param name="result">When the method completes, contains the modulated color.</param>
-    public static void Modulate(ref Color left, ref Color right, out Color result)
+    public static void Modulate(ref ColorBGRA left, ref ColorBGRA right, out ColorBGRA result)
     {
         result.A = (byte)(left.A * right.A / 255);
         result.R = (byte)(left.R * right.R / 255);
@@ -546,9 +513,9 @@ public partial struct Color : IEquatable<Color>
     /// <param name="left">The first color to modulate.</param>
     /// <param name="right">The second color to modulate.</param>
     /// <returns>The modulated color.</returns>
-    public static Color Modulate(Color left, Color right)
+    public static ColorBGRA Modulate(ColorBGRA left, ColorBGRA right)
     {
-        return new Color((byte)(left.R * right.R / 255), (byte)(left.G * right.G / 255), (byte)(left.B * right.B / 255), (byte)(left.A * right.A / 255));
+        return new ColorBGRA((byte)(left.R * right.R / 255), (byte)(left.G * right.G / 255), (byte)(left.B * right.B / 255), (byte)(left.A * right.A / 255));
     }
 
     /// <summary>
@@ -557,7 +524,7 @@ public partial struct Color : IEquatable<Color>
     /// <param name="value">The color to scale.</param>
     /// <param name="scale">The amount by which to scale.</param>
     /// <param name="result">When the method completes, contains the scaled color.</param>
-    public static void Scale(ref Color value, float scale, out Color result)
+    public static void Scale(ref ColorBGRA value, float scale, out ColorBGRA result)
     {
         result.A = (byte)(value.A * scale);
         result.R = (byte)(value.R * scale);
@@ -571,9 +538,9 @@ public partial struct Color : IEquatable<Color>
     /// <param name="value">The color to scale.</param>
     /// <param name="scale">The amount by which to scale.</param>
     /// <returns>The scaled color.</returns>
-    public static Color Scale(Color value, float scale)
+    public static ColorBGRA Scale(ColorBGRA value, float scale)
     {
-        return new Color((byte)(value.R * scale), (byte)(value.G * scale), (byte)(value.B * scale), (byte)(value.A * scale));
+        return new ColorBGRA((byte)(value.R * scale), (byte)(value.G * scale), (byte)(value.B * scale), (byte)(value.A * scale));
     }
 
     /// <summary>
@@ -581,7 +548,7 @@ public partial struct Color : IEquatable<Color>
     /// </summary>
     /// <param name="value">The color to negate.</param>
     /// <param name="result">When the method completes, contains the negated color.</param>
-    public static void Negate(ref Color value, out Color result)
+    public static void Negate(ref ColorBGRA value, out ColorBGRA result)
     {
         result.A = (byte)(255 - value.A);
         result.R = (byte)(255 - value.R);
@@ -594,9 +561,9 @@ public partial struct Color : IEquatable<Color>
     /// </summary>
     /// <param name="value">The color to negate.</param>
     /// <returns>The negated color.</returns>
-    public static Color Negate(Color value)
+    public static ColorBGRA Negate(ColorBGRA value)
     {
-        return new Color((byte)(255 - value.R), (byte)(255 - value.G), (byte)(255 - value.B), (byte)(255 - value.A));
+        return new ColorBGRA((byte)(255 - value.R), (byte)(255 - value.G), (byte)(255 - value.B), (byte)(255 - value.A));
     }
 
     /// <summary>
@@ -606,7 +573,7 @@ public partial struct Color : IEquatable<Color>
     /// <param name="min">The minimum value.</param>
     /// <param name="max">The maximum value.</param>
     /// <param name="result">When the method completes, contains the clamped value.</param>
-    public static void Clamp(ref Color value, ref Color min, ref Color max, out Color result)
+    public static void Clamp(ref ColorBGRA value, ref ColorBGRA min, ref ColorBGRA max, out ColorBGRA result)
     {
         byte alpha = value.A;
         alpha = (alpha > max.A) ? max.A : alpha;
@@ -624,67 +591,7 @@ public partial struct Color : IEquatable<Color>
         blue = (blue > max.B) ? max.B : blue;
         blue = (blue < min.B) ? min.B : blue;
 
-        result = new Color(red, green, blue, alpha);
-    }
-
-    /// <summary>
-    /// Converts the color from a packed BGRA integer.
-    /// </summary>
-    /// <param name="color">A packed integer containing all four color components in BGRA order</param>
-    /// <returns>A color.</returns>
-    public static Color FromBgra(int color)
-    {
-        return new Color((byte)((color >> 16) & 255), (byte)((color >> 8) & 255), (byte)(color & 255), (byte)((color >> 24) & 255));
-    }
-
-    /// <summary>
-    /// Converts the color from a packed BGRA integer.
-    /// </summary>
-    /// <param name="color">A packed integer containing all four color components in BGRA order</param>
-    /// <returns>A color.</returns>
-    public static Color FromBgra(uint color)
-    {
-        return FromBgra(unchecked((int)color));
-    }
-
-    /// <summary>
-    /// Converts the color from a packed ABGR integer.
-    /// </summary>
-    /// <param name="color">A packed integer containing all four color components in ABGR order</param>
-    /// <returns>A color.</returns>
-    public static Color FromAbgr(int color)
-    {
-        return new Color((byte)(color >> 24), (byte)(color >> 16), (byte)(color >> 8), (byte)color);
-    }
-
-    /// <summary>
-    /// Converts the color from a packed ABGR integer.
-    /// </summary>
-    /// <param name="color">A packed integer containing all four color components in ABGR order</param>
-    /// <returns>A color.</returns>
-    public static Color FromAbgr(uint color)
-    {
-        return FromAbgr(unchecked((int)color));
-    }
-
-    /// <summary>
-    /// Converts the color from a packed RGBA integer.
-    /// </summary>
-    /// <param name="color">A packed integer containing all four color components in RGBA order</param>
-    /// <returns>A color.</returns>
-    public static Color FromRgba(int color)
-    {
-        return new Color(color);
-    }
-
-    /// <summary>
-    /// Converts the color from a packed RGBA integer.
-    /// </summary>
-    /// <param name="color">A packed integer containing all four color components in RGBA order</param>
-    /// <returns>A color.</returns>
-    public static Color FromRgba(uint color)
-    {
-        return new Color(color);
+        result = new ColorBGRA(red, green, blue, alpha);
     }
 
     /// <summary>
@@ -694,7 +601,7 @@ public partial struct Color : IEquatable<Color>
     /// <param name="min">The minimum value.</param>
     /// <param name="max">The maximum value.</param>
     /// <returns>The clamped value.</returns>
-    public static Color Clamp(Color value, Color min, Color max)
+    public static ColorBGRA Clamp(ColorBGRA value, ColorBGRA min, ColorBGRA max)
     {
         Clamp(ref value, ref min, ref max, out var result);
         return result;
@@ -710,11 +617,11 @@ public partial struct Color : IEquatable<Color>
     /// <remarks>
     /// Passing <paramref name="amount"/> a value of 0 will cause <paramref name="start"/> to be returned; a value of 1 will cause <paramref name="end"/> to be returned.
     /// </remarks>
-    public static void Lerp(ref Color start, ref Color end, float amount, out Color result)
+    public static void Lerp(ref ColorBGRA start, ref ColorBGRA end, float amount, out ColorBGRA result)
     {
-        result.R = MathUtil.Lerp(start.R, end.R, amount);
-        result.G = MathUtil.Lerp(start.G, end.G, amount);
         result.B = MathUtil.Lerp(start.B, end.B, amount);
+        result.G = MathUtil.Lerp(start.G, end.G, amount);
+        result.R = MathUtil.Lerp(start.R, end.R, amount);
         result.A = MathUtil.Lerp(start.A, end.A, amount);
     }
 
@@ -728,7 +635,7 @@ public partial struct Color : IEquatable<Color>
     /// <remarks>
     /// Passing <paramref name="amount"/> a value of 0 will cause <paramref name="start"/> to be returned; a value of 1 will cause <paramref name="end"/> to be returned.
     /// </remarks>
-    public static Color Lerp(Color start, Color end, float amount)
+    public static ColorBGRA Lerp(ColorBGRA start, ColorBGRA end, float amount)
     {
         Lerp(ref start, ref end, amount, out var result);
         return result;
@@ -741,7 +648,7 @@ public partial struct Color : IEquatable<Color>
     /// <param name="end">End color.</param>
     /// <param name="amount">Value between 0 and 1 indicating the weight of <paramref name="end"/>.</param>
     /// <param name="result">When the method completes, contains the cubic interpolation of the two colors.</param>
-    public static void SmoothStep(ref Color start, ref Color end, float amount, out Color result)
+    public static void SmoothStep(ref ColorBGRA start, ref ColorBGRA end, float amount, out ColorBGRA result)
     {
         amount = MathUtil.SmoothStep(amount);
         Lerp(ref start, ref end, amount, out result);
@@ -754,19 +661,19 @@ public partial struct Color : IEquatable<Color>
     /// <param name="end">End color.</param>
     /// <param name="amount">Value between 0 and 1 indicating the weight of <paramref name="end"/>.</param>
     /// <returns>The cubic interpolation of the two colors.</returns>
-    public static Color SmoothStep(Color start, Color end, float amount)
+    public static ColorBGRA SmoothStep(ColorBGRA start, ColorBGRA end, float amount)
     {
         SmoothStep(ref start, ref end, amount, out var result);
         return result;
     }
 
     /// <summary>
-    /// Returns a color containing the smallest components of the specified colors.
+    /// Returns a color containing the smallest components of the specified colorss.
     /// </summary>
     /// <param name="left">The first source color.</param>
     /// <param name="right">The second source color.</param>
-    /// <param name="result">When the method completes, contains an new color composed of the largest components of the source colors.</param>
-    public static void Max(ref Color left, ref Color right, out Color result)
+    /// <param name="result">When the method completes, contains an new color composed of the largest components of the source colorss.</param>
+    public static void Max(ref ColorBGRA left, ref ColorBGRA right, out ColorBGRA result)
     {
         result.A = (left.A > right.A) ? left.A : right.A;
         result.R = (left.R > right.R) ? left.R : right.R;
@@ -780,7 +687,7 @@ public partial struct Color : IEquatable<Color>
     /// <param name="left">The first source color.</param>
     /// <param name="right">The second source color.</param>
     /// <returns>A color containing the largest components of the source colors.</returns>
-    public static Color Max(Color left, Color right)
+    public static ColorBGRA Max(ColorBGRA left, ColorBGRA right)
     {
         Max(ref left, ref right, out var result);
         return result;
@@ -792,7 +699,7 @@ public partial struct Color : IEquatable<Color>
     /// <param name="left">The first source color.</param>
     /// <param name="right">The second source color.</param>
     /// <param name="result">When the method completes, contains an new color composed of the smallest components of the source colors.</param>
-    public static void Min(ref Color left, ref Color right, out Color result)
+    public static void Min(ref ColorBGRA left, ref ColorBGRA right, out ColorBGRA result)
     {
         result.A = (left.A < right.A) ? left.A : right.A;
         result.R = (left.R < right.R) ? left.R : right.R;
@@ -806,7 +713,7 @@ public partial struct Color : IEquatable<Color>
     /// <param name="left">The first source color.</param>
     /// <param name="right">The second source color.</param>
     /// <returns>A color containing the smallest components of the source colors.</returns>
-    public static Color Min(Color left, Color right)
+    public static ColorBGRA Min(ColorBGRA left, ColorBGRA right)
     {
         Min(ref left, ref right, out var result);
         return result;
@@ -818,12 +725,12 @@ public partial struct Color : IEquatable<Color>
     /// <param name="value">The color whose contrast is to be adjusted.</param>
     /// <param name="contrast">The amount by which to adjust the contrast.</param>
     /// <param name="result">When the method completes, contains the adjusted color.</param>
-    public static void AdjustContrast(ref Color value, float contrast, out Color result)
+    public static void AdjustContrast(ref ColorBGRA value, float contrast, out ColorBGRA result)
     {
         result.A = value.A;
-        result.R = toByte(0.5f + contrast * (value.R / 255.0f - 0.5f));
-        result.G = toByte(0.5f + contrast * (value.G / 255.0f - 0.5f));
-        result.B = toByte(0.5f + contrast * (value.B / 255.0f - 0.5f));
+        result.R = toByte(0.5f + (contrast * ((value.R / 255.0f) - 0.5f)));
+        result.G = toByte(0.5f + (contrast * ((value.G / 255.0f) - 0.5f)));
+        result.B = toByte(0.5f + (contrast * ((value.B / 255.0f) - 0.5f)));
     }
 
     /// <summary>
@@ -832,12 +739,12 @@ public partial struct Color : IEquatable<Color>
     /// <param name="value">The color whose contrast is to be adjusted.</param>
     /// <param name="contrast">The amount by which to adjust the contrast.</param>
     /// <returns>The adjusted color.</returns>
-    public static Color AdjustContrast(Color value, float contrast)
+    public static ColorBGRA AdjustContrast(ColorBGRA value, float contrast)
     {
-        return new Color(
-            toByte(0.5f + contrast * (value.R / 255.0f - 0.5f)),
-            toByte(0.5f + contrast * (value.G / 255.0f - 0.5f)),
-            toByte(0.5f + contrast * (value.B / 255.0f - 0.5f)),
+        return new ColorBGRA(
+            toByte(0.5f + (contrast * ((value.R / 255.0f) - 0.5f))),
+            toByte(0.5f + (contrast * ((value.G / 255.0f) - 0.5f))),
+            toByte(0.5f + (contrast * ((value.B / 255.0f) - 0.5f))),
             value.A);
     }
 
@@ -847,14 +754,14 @@ public partial struct Color : IEquatable<Color>
     /// <param name="value">The color whose saturation is to be adjusted.</param>
     /// <param name="saturation">The amount by which to adjust the saturation.</param>
     /// <param name="result">When the method completes, contains the adjusted color.</param>
-    public static void AdjustSaturation(ref Color value, float saturation, out Color result)
+    public static void AdjustSaturation(ref ColorBGRA value, float saturation, out ColorBGRA result)
     {
-        float grey = value.R / 255.0f * 0.2125f + value.G / 255.0f * 0.7154f + value.B / 255.0f * 0.0721f;
+        float grey = (value.R / 255.0f * 0.2125f) + (value.G / 255.0f * 0.7154f) + (value.B / 255.0f * 0.0721f);
 
         result.A = value.A;
-        result.R = toByte(grey + saturation * (value.R / 255.0f - grey));
-        result.G = toByte(grey + saturation * (value.G / 255.0f - grey));
-        result.B = toByte(grey + saturation * (value.B / 255.0f - grey));
+        result.R = toByte(grey + (saturation * ((value.R / 255.0f) - grey)));
+        result.G = toByte(grey + (saturation * ((value.G / 255.0f) - grey)));
+        result.B = toByte(grey + (saturation * ((value.B / 255.0f) - grey)));
     }
 
     /// <summary>
@@ -863,14 +770,14 @@ public partial struct Color : IEquatable<Color>
     /// <param name="value">The color whose saturation is to be adjusted.</param>
     /// <param name="saturation">The amount by which to adjust the saturation.</param>
     /// <returns>The adjusted color.</returns>
-    public static Color AdjustSaturation(Color value, float saturation)
+    public static ColorBGRA AdjustSaturation(ColorBGRA value, float saturation)
     {
-        float grey = value.R / 255.0f * 0.2125f + value.G / 255.0f * 0.7154f + value.B / 255.0f * 0.0721f;
+        float grey = (value.R / 255.0f * 0.2125f) + (value.G / 255.0f * 0.7154f) + (value.B / 255.0f * 0.0721f);
 
-        return new Color(
-            toByte(grey + saturation * (value.R / 255.0f - grey)),
-            toByte(grey + saturation * (value.G / 255.0f - grey)),
-            toByte(grey + saturation * (value.B / 255.0f - grey)),
+        return new ColorBGRA(
+            toByte(grey + (saturation * ((value.R / 255.0f) - grey))),
+            toByte(grey + (saturation * ((value.G / 255.0f) - grey))),
+            toByte(grey + (saturation * ((value.B / 255.0f) - grey))),
             value.A);
     }
 
@@ -880,17 +787,17 @@ public partial struct Color : IEquatable<Color>
     /// <param name="left">The first color to add.</param>
     /// <param name="right">The second color to add.</param>
     /// <returns>The sum of the two colors.</returns>
-    public static Color operator +(Color left, Color right)
+    public static ColorBGRA operator +(ColorBGRA left, ColorBGRA right)
     {
-        return new Color((byte)(left.R + right.R), (byte)(left.G + right.G), (byte)(left.B + right.B), (byte)(left.A + right.A));
+        return new ColorBGRA((byte)(left.R + right.R), (byte)(left.G + right.G), (byte)(left.B + right.B), (byte)(left.A + right.A));
     }
 
     /// <summary>
     /// Assert a color (return it unchanged).
     /// </summary>
-    /// <param name="value">The color to assert (unchanged).</param>
+    /// <param name="value">The color to assert (unchange).</param>
     /// <returns>The asserted (unchanged) color.</returns>
-    public static Color operator +(Color value)
+    public static ColorBGRA operator +(ColorBGRA value)
     {
         return value;
     }
@@ -901,9 +808,9 @@ public partial struct Color : IEquatable<Color>
     /// <param name="left">The first color to subtract.</param>
     /// <param name="right">The second color to subtract.</param>
     /// <returns>The difference of the two colors.</returns>
-    public static Color operator -(Color left, Color right)
+    public static ColorBGRA operator -(ColorBGRA left, ColorBGRA right)
     {
-        return new Color((byte)(left.R - right.R), (byte)(left.G - right.G), (byte)(left.B - right.B), (byte)(left.A - right.A));
+        return new ColorBGRA((byte)(left.R - right.R), (byte)(left.G - right.G), (byte)(left.B - right.B), (byte)(left.A - right.A));
     }
 
     /// <summary>
@@ -911,9 +818,9 @@ public partial struct Color : IEquatable<Color>
     /// </summary>
     /// <param name="value">The color to negate.</param>
     /// <returns>A negated color.</returns>
-    public static Color operator -(Color value)
+    public static ColorBGRA operator -(ColorBGRA value)
     {
-        return new Color(-value.R, -value.G, -value.B, -value.A);
+        return new ColorBGRA(-value.R, -value.G, -value.B, -value.A);
     }
 
     /// <summary>
@@ -922,9 +829,9 @@ public partial struct Color : IEquatable<Color>
     /// <param name="scale">The factor by which to scale the color.</param>
     /// <param name="value">The color to scale.</param>
     /// <returns>The scaled color.</returns>
-    public static Color operator *(float scale, Color value)
+    public static ColorBGRA operator *(float scale, ColorBGRA value)
     {
-        return new Color((byte)(value.R * scale), (byte)(value.G * scale), (byte)(value.B * scale), (byte)(value.A * scale));
+        return new ColorBGRA((byte)(value.R * scale), (byte)(value.G * scale), (byte)(value.B * scale), (byte)(value.A * scale));
     }
 
     /// <summary>
@@ -933,9 +840,9 @@ public partial struct Color : IEquatable<Color>
     /// <param name="value">The factor by which to scale the color.</param>
     /// <param name="scale">The color to scale.</param>
     /// <returns>The scaled color.</returns>
-    public static Color operator *(Color value, float scale)
+    public static ColorBGRA operator *(ColorBGRA value, float scale)
     {
-        return new Color((byte)(value.R * scale), (byte)(value.G * scale), (byte)(value.B * scale), (byte)(value.A * scale));
+        return new ColorBGRA((byte)(value.R * scale), (byte)(value.G * scale), (byte)(value.B * scale), (byte)(value.A * scale));
     }
 
     /// <summary>
@@ -944,9 +851,9 @@ public partial struct Color : IEquatable<Color>
     /// <param name="left">The first color to modulate.</param>
     /// <param name="right">The second color to modulate.</param>
     /// <returns>The modulated color.</returns>
-    public static Color operator *(Color left, Color right)
+    public static ColorBGRA operator *(ColorBGRA left, ColorBGRA right)
     {
-        return new Color((byte)(left.R * right.R / 255.0f), (byte)(left.G * right.G / 255.0f), (byte)(left.B * right.B / 255.0f), (byte)(left.A * right.A / 255.0f));
+        return new ColorBGRA((byte)(left.R * right.R / 255.0f), (byte)(left.G * right.G / 255.0f), (byte)(left.B * right.B / 255.0f), (byte)(left.A * right.A / 255.0f));
     }
 
     /// <summary>
@@ -955,7 +862,7 @@ public partial struct Color : IEquatable<Color>
     /// <param name="left">The first value to compare.</param>
     /// <param name="right">The second value to compare.</param>
     /// <returns><c>true</c> if <paramref name="left"/> has the same value as <paramref name="right"/>; otherwise, <c>false</c>.</returns>
-    public static bool operator ==(Color left, Color right)
+    public static bool operator ==(ColorBGRA left, ColorBGRA right)
     {
         return left.Equals(right);
     }
@@ -966,122 +873,133 @@ public partial struct Color : IEquatable<Color>
     /// <param name="left">The first value to compare.</param>
     /// <param name="right">The second value to compare.</param>
     /// <returns><c>true</c> if <paramref name="left"/> has a different value than <paramref name="right"/>; otherwise, <c>false</c>.</returns>
-    public static bool operator !=(Color left, Color right)
+    public static bool operator !=(ColorBGRA left, ColorBGRA right)
     {
         return !left.Equals(right);
     }
 
     /// <summary>
-    /// Performs an explicit conversion from <see cref="Color"/> to <see cref="Color3"/>.
+    /// Performs an explicit conversion from <see cref="ColorBGRA"/> to <see cref="Color3"/>.
     /// </summary>
     /// <param name="value">The value.</param>
     /// <returns>The result of the conversion.</returns>
-    public static explicit operator Color3(Color value)
+    public static explicit operator Color3(ColorBGRA value)
     {
-        return value.ToColor3();
+        return new Color3(value.R, value.G, value.B);
     }
 
     /// <summary>
-    /// Performs an explicit conversion from <see cref="Color"/> to <see cref="Vector3"/>.
+    /// Performs an explicit conversion from <see cref="ColorBGRA"/> to <see cref="Vector3"/>.
     /// </summary>
     /// <param name="value">The value.</param>
     /// <returns>The result of the conversion.</returns>
-    public static explicit operator Vector3(Color value)
+    public static explicit operator Vector3(ColorBGRA value)
     {
         return new Vector3(value.R / 255.0f, value.G / 255.0f, value.B / 255.0f);
     }
 
     /// <summary>
-    /// Performs an explicit conversion from <see cref="Color"/> to <see cref="Vector4"/>.
+    /// Performs an explicit conversion from <see cref="ColorBGRA"/> to <see cref="Vector4"/>.
     /// </summary>
     /// <param name="value">The value.</param>
     /// <returns>The result of the conversion.</returns>
-    public static explicit operator Vector4(Color value)
+    public static explicit operator Vector4(ColorBGRA value)
     {
         return new Vector4(value.R / 255.0f, value.G / 255.0f, value.B / 255.0f, value.A / 255.0f);
     }
 
     /// <summary>
-    /// Convert this instance to a <see cref="Color4"/>
-    /// </summary>
-    /// <returns>The result of the conversion.</returns>
-    public Color4 ToColor4()
-    {
-        return new Color4(R / 255.0f, G / 255.0f, B / 255.0f, A / 255.0f);
-    }
-
-    /// <summary>
-    /// Performs an implicit conversion from <see cref="Color"/> to <see cref="Color4"/>.
+    /// Performs an explicit conversion from <see cref="ColorBGRA"/> to <see cref="Color4"/>.
     /// </summary>
     /// <param name="value">The value.</param>
     /// <returns>The result of the conversion.</returns>
-    public static implicit operator Color4(Color value)
+    public static explicit operator Color4(ColorBGRA value)
     {
-        return value.ToColor4();
+        return new Color4(value.R / 255.0f, value.G / 255.0f, value.B / 255.0f, value.A / 255.0f);
     }
 
     /// <summary>
-    /// Performs an explicit conversion from <see cref="Vector3"/> to <see cref="Color"/>.
+    /// Performs an explicit conversion from <see cref="Vector3"/> to <see cref="ColorBGRA"/>.
     /// </summary>
     /// <param name="value">The value.</param>
     /// <returns>The result of the conversion.</returns>
-    public static explicit operator Color(Vector3 value)
+    public static explicit operator ColorBGRA(Vector3 value)
     {
-        return new Color(value.X, value.Y, value.Z, 1.0f);
+        return new ColorBGRA(value.X / 255.0f, value.Y / 255.0f, value.Z / 255.0f, 1.0f);
     }
 
     /// <summary>
-    /// Performs an explicit conversion from <see cref="Color3"/> to <see cref="Color"/>.
+    /// Performs an explicit conversion from <see cref="Color3"/> to <see cref="ColorBGRA"/>.
     /// </summary>
     /// <param name="value">The value.</param>
     /// <returns>The result of the conversion.</returns>
-    public static explicit operator Color(Color3 value)
+    public static explicit operator ColorBGRA(Color3 value)
     {
-        return new Color(value.R, value.G, value.B, 1.0f);
+        return new ColorBGRA(value.R, value.G, value.B, (byte)1.0f);
     }
 
     /// <summary>
-    /// Performs an explicit conversion from <see cref="Vector4"/> to <see cref="Color"/>.
+    /// Performs an explicit conversion from <see cref="Vector4"/> to <see cref="ColorBGRA"/>.
     /// </summary>
     /// <param name="value">The value.</param>
     /// <returns>The result of the conversion.</returns>
-    public static explicit operator Color(Vector4 value)
+    public static explicit operator ColorBGRA(Vector4 value)
     {
-        return new Color(value.X, value.Y, value.Z, value.W);
+        return new ColorBGRA(value.X, value.Y, value.Z, value.W);
     }
 
     /// <summary>
-    /// Performs an explicit conversion from <see cref="Color4"/> to <see cref="Color"/>.
+    /// Performs an explicit conversion from <see cref="Color4"/> to <see cref="ColorBGRA"/>.
     /// </summary>
     /// <param name="value">The value.</param>
     /// <returns>The result of the conversion.</returns>
-    public static explicit operator Color(Color4 value)
+    public static explicit operator ColorBGRA(Color4 value)
+    {
+        return new ColorBGRA(value.R, value.G, value.B, value.A);
+    }
+
+    /// <summary>
+    /// Performs an implicit conversion from <see cref="Color"/> to <see cref="ColorBGRA"/>.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The result of the conversion.</returns>
+    public static implicit operator ColorBGRA(Color value)
+    {
+        return new ColorBGRA(value.R, value.G, value.B, value.A);
+    }
+
+    /// <summary>
+    /// Performs an implicit conversion from <see cref="ColorBGRA"/> to <see cref="Color"/>.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The result of the conversion.</returns>
+    public static implicit operator Color(ColorBGRA value)
     {
         return new Color(value.R, value.G, value.B, value.A);
     }
 
     /// <summary>
-    /// Performs an explicit conversion from <see cref="int"/> to <see cref="Color"/>.
+    /// Performs an explicit conversion from <see cref="ColorBGRA"/> to <see cref="int"/>.
     /// </summary>
     /// <param name="value">The value.</param>
     /// <returns>
     /// The result of the conversion.
     /// </returns>
-    public static explicit operator int(Color value)
+    public static explicit operator int(ColorBGRA value)
     {
-        return value.ToRgba();
+        return value.ToBGRA();
     }
 
     /// <summary>
-    /// Performs an explicit conversion from <see cref="int"/> to <see cref="Color"/>.
+    /// Performs an explicit conversion from <see cref="int"/> to <see cref="ColorBGRA"/>.
     /// </summary>
     /// <param name="value">The value.</param>
     /// <returns>
     /// The result of the conversion.
     /// </returns>
-    public static explicit operator Color(int value)
+    public static explicit operator ColorBGRA(int value)
     {
-        return new Color(value);
+        return new ColorBGRA(value);
     }
 
     /// <summary>
@@ -1090,9 +1008,53 @@ public partial struct Color : IEquatable<Color>
     /// <returns>
     /// A <see cref="string"/> that represents this instance.
     /// </returns>
-    public override string ToString()
+    public override readonly string ToString()
     {
-        return ColorExtensions.RgbaToString(ToRgba());
+        return ToString(CultureInfo.CurrentCulture);
+    }
+
+    /// <summary>
+    /// Returns a <see cref="string"/> that represents this instance.
+    /// </summary>
+    /// <param name="format">The format to apply to each channel (byte).</param>
+    /// <returns>
+    /// A <see cref="string"/> that represents this instance.
+    /// </returns>
+    public readonly string ToString(string format)
+    {
+        return ToString(format, CultureInfo.CurrentCulture);
+    }
+
+    /// <summary>
+    /// Returns a <see cref="string"/> that represents this instance.
+    /// </summary>
+    /// <param name="formatProvider">The format provider.</param>
+    /// <returns>
+    /// A <see cref="string"/> that represents this instance.
+    /// </returns>
+    public readonly string ToString(IFormatProvider formatProvider)
+    {
+        return string.Format(formatProvider, to_string_format, A, R, G, B);
+    }
+
+    /// <summary>
+    /// Returns a <see cref="string"/> that represents this instance.
+    /// </summary>
+    /// <param name="format">The format to apply to each channel (byte).</param>
+    /// <param name="formatProvider">The format provider.</param>
+    /// <returns>
+    /// A <see cref="string"/> that represents this instance.
+    /// </returns>
+    public readonly string ToString(string? format, IFormatProvider? formatProvider)
+    {
+        if (format == null)
+            return ToString(formatProvider ?? CultureInfo.CurrentCulture);
+
+        return string.Format(formatProvider, to_string_format,
+                             A.ToString(format, formatProvider),
+                             R.ToString(format, formatProvider),
+                             G.ToString(format, formatProvider),
+                             B.ToString(format, formatProvider));
     }
 
     /// <summary>
@@ -1101,19 +1063,19 @@ public partial struct Color : IEquatable<Color>
     /// <returns>
     /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
     /// </returns>
-    public override int GetHashCode()
+    public override readonly int GetHashCode()
     {
         return A.GetHashCode() + R.GetHashCode() + G.GetHashCode() + B.GetHashCode();
     }
 
     /// <summary>
-    /// Determines whether the specified <see cref="Color"/> is equal to this instance.
+    /// Determines whether the specified <see cref="ColorBGRA"/> is equal to this instance.
     /// </summary>
-    /// <param name="other">The <see cref="Color"/> to compare with this instance.</param>
+    /// <param name="other">The <see cref="ColorBGRA"/> to compare with this instance.</param>
     /// <returns>
-    /// <c>true</c> if the specified <see cref="Color"/> is equal to this instance; otherwise, <c>false</c>.
+    /// <c>true</c> if the specified <see cref="ColorBGRA"/> is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
-    public bool Equals(Color other)
+    public readonly bool Equals(ColorBGRA other)
     {
         return R == other.R && G == other.G && B == other.B && A == other.A;
     }
@@ -1130,10 +1092,10 @@ public partial struct Color : IEquatable<Color>
         if (value == null)
             return false;
 
-        if (!ReferenceEquals(value.GetType(), typeof(Color)))
+        if (!ReferenceEquals(value.GetType(), typeof(ColorBGRA)))
             return false;
 
-        return Equals((Color)value);
+        return Equals((ColorBGRA)value);
     }
 
     private static byte toByte(float component)

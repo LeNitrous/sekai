@@ -25,7 +25,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Sekai.Mathematics;
+namespace Sekai.Framework.Mathematics;
 
 /// <summary>
 /// Structure providing Width, Height and Depth.
@@ -79,41 +79,34 @@ public struct Size3 : IEquatable<Size3>, IComparable<Size3>
     /// <summary>
     /// Gets a volume size.
     /// </summary>
-    private long volumeSize => (long)Width * Height * Depth;
+    private readonly long volumeSize => (long)Width * Height * Depth;
 
     /// <inheritdoc/>
-    public bool Equals(Size3 other)
+    public readonly bool Equals(Size3 other)
     {
         return Width == other.Width && Height == other.Height && Depth == other.Depth;
     }
 
     /// <inheritdoc/>
-    public override bool Equals(object? obj)
+    public override readonly bool Equals(object? obj)
     {
-        if (obj is null) return false;
-        return obj is Size3 size && Equals(size);
+        return obj is Size3 other && Equals(other);
     }
 
     /// <inheritdoc/>
-    public override int GetHashCode()
+    public override readonly int GetHashCode()
     {
-        unchecked
-        {
-            int hashCode = Width;
-            hashCode = (hashCode * 397) ^ Height;
-            hashCode = (hashCode * 397) ^ Depth;
-            return hashCode;
-        }
+        return HashCode.Combine(Width, Height);
     }
 
     /// <inheritdoc/>
-    public int CompareTo(Size3 other)
+    public readonly int CompareTo(Size3 other)
     {
         return Math.Sign(this.volumeSize - other.volumeSize);
     }
 
     /// <inheritdoc/>
-    public override string ToString()
+    public override readonly string ToString()
     {
         return string.Format("({0},{1},{2})", Width, Height, Depth);
     }
@@ -188,11 +181,11 @@ public struct Size3 : IEquatable<Size3>, IComparable<Size3>
     /// Calculates the next up mip-level (*2) of this size.
     /// </summary>
     /// <returns>A next up mip-level Size3.</returns>
-    public Size3 Up2(int count = 1)
+    public readonly Size3 Up2(int count = 1)
     {
         if (count < 0)
         {
-            throw new ArgumentOutOfRangeException("count", "Must be >= 0");
+            throw new ArgumentOutOfRangeException(nameof(count), "Must be >= 0");
         }
 
         return new Size3(Math.Max(1, Width << count), Math.Max(1, Height << count), Math.Max(1, Depth << count));
@@ -203,11 +196,11 @@ public struct Size3 : IEquatable<Size3>, IComparable<Size3>
     /// </summary>
     /// <param name="count">The count.</param>
     /// <returns>A next down mip-level Size3.</returns>
-    public Size3 Down2(int count = 1)
+    public readonly Size3 Down2(int count = 1)
     {
         if (count < 0)
         {
-            throw new ArgumentOutOfRangeException("count", "Must be >= 0");
+            throw new ArgumentOutOfRangeException(nameof(count), "Must be >= 0");
         }
 
         return new Size3(Math.Max(1, Width >> count), Math.Max(1, Height >> count), Math.Max(1, Depth >> count));
@@ -218,7 +211,7 @@ public struct Size3 : IEquatable<Size3>, IComparable<Size3>
     /// </summary>
     /// <param name="direction">The direction &lt; 0 then <see cref="Down2"/>, &gt; 0  then <see cref="Up2"/>, else this unchanged.</param>
     /// <returns>Size3.</returns>
-    public Size3 Mip(int direction)
+    public readonly Size3 Mip(int direction)
     {
         return direction == 0 ? this : direction < 0 ? Down2() : Up2();
     }

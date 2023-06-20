@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using Sekai.Framework.Audio;
 
-namespace Sekai.Framework.Platform.Headless.Audio;
+namespace Sekai.Headless.Audio;
 
 internal sealed class DummyAudioDevice : AudioDevice
 {
@@ -16,7 +16,9 @@ internal sealed class DummyAudioDevice : AudioDevice
         get => dummy_device;
         set { }
     }
+
     public override AudioListener Listener { get; } = new DummyAudioListener();
+
     private const string dummy_device = "Dummy";
 
     public override AudioBuffer CreateBuffer()

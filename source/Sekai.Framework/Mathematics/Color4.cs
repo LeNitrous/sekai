@@ -34,14 +34,15 @@ using System.Globalization;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
-namespace Sekai.Mathematics;
+namespace Sekai.Framework.Mathematics;
+
 /// <summary>
 /// Represents a color in the form of rgba.
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct Color4 : IEquatable<Color4>, IFormattable
+public struct Color4 : IColor<Color4>
 {
-    private const string to_string_format = "A:{0} R:{1} G:{2} B:{3}";
+    private const string to_string_format = "R:{1} G:{2} B:{3} A:{0}";
 
     /// <summary>
     /// The Black color (0, 0, 0, 1).
@@ -226,7 +227,7 @@ public struct Color4 : IEquatable<Color4>, IFormattable
     /// <exception cref="ArgumentOutOfRangeException">Thrown when the <paramref name="index"/> is out of the range [0, 3].</exception>
     public float this[int index]
     {
-        get
+        readonly get
         {
             return index switch
             {
@@ -237,7 +238,6 @@ public struct Color4 : IEquatable<Color4>, IFormattable
                 _ => throw new ArgumentOutOfRangeException(nameof(index), "Indices for Color4 run from 0 to 3, inclusive."),
             };
         }
-
         set
         {
             switch (index)
@@ -255,7 +255,7 @@ public struct Color4 : IEquatable<Color4>, IFormattable
     /// Converts the color into a packed integer.
     /// </summary>
     /// <returns>A packed integer containing all four color components.</returns>
-    public int ToBgra()
+    public readonly int ToBGRA()
     {
         uint a = (uint)(A * 255.0f) & 255;
         uint r = (uint)(R * 255.0f) & 255;
@@ -273,7 +273,7 @@ public struct Color4 : IEquatable<Color4>, IFormattable
     /// <summary>
     /// Converts the color into a packed integer.
     /// </summary>
-    public void ToBgra(out byte r, out byte g, out byte b, out byte a)
+    public readonly void ToBGRA(out byte r, out byte g, out byte b, out byte a)
     {
         a = (byte)(A * 255.0f);
         r = (byte)(R * 255.0f);
@@ -285,7 +285,7 @@ public struct Color4 : IEquatable<Color4>, IFormattable
     /// Converts the color into a packed integer.
     /// </summary>
     /// <returns>A packed integer containing all four color components.</returns>
-    public int ToRgba()
+    public readonly int ToRGBA()
     {
         uint a = (uint)(A * 255.0f) & 255;
         uint r = (uint)(R * 255.0f) & 255;
@@ -304,7 +304,7 @@ public struct Color4 : IEquatable<Color4>, IFormattable
     /// Converts the color into a three component vector.
     /// </summary>
     /// <returns>A three component vector containing the red, green, and blue components of the color.</returns>
-    public Vector3 ToVector3()
+    public readonly Vector3 ToVector3()
     {
         return new Vector3(R, G, B);
     }
@@ -313,7 +313,7 @@ public struct Color4 : IEquatable<Color4>, IFormattable
     /// Converts the color into a four component vector.
     /// </summary>
     /// <returns>A four component vector containing all four color components.</returns>
-    public Vector4 ToVector4()
+    public readonly Vector4 ToVector4()
     {
         return new Vector4(R, G, B, A);
     }
@@ -322,7 +322,7 @@ public struct Color4 : IEquatable<Color4>, IFormattable
     /// Creates an array containing the elements of the color.
     /// </summary>
     /// <returns>A four-element array containing the components of the color.</returns>
-    public float[] ToArray()
+    public readonly float[] ToArray()
     {
         return new[] { R, G, B, A };
     }
@@ -331,7 +331,7 @@ public struct Color4 : IEquatable<Color4>, IFormattable
     /// Converts this color from linear space to sRGB space.
     /// </summary>
     /// <returns>A color3 in sRGB space.</returns>
-    public Color4 ToSRgb()
+    public readonly Color4 ToSRGB()
     {
         return new Color4(MathUtil.LinearToSRgb(R), MathUtil.LinearToSRgb(G), MathUtil.LinearToSRgb(B), A);
     }
@@ -340,7 +340,7 @@ public struct Color4 : IEquatable<Color4>, IFormattable
     /// Converts this color from sRGB space to linear space.
     /// </summary>
     /// <returns>A color4 in linear space.</returns>
-    public Color4 ToLinear()
+    public readonly Color4 ToLinear()
     {
         return new Color4(MathUtil.SRgbToLinear(R), MathUtil.SRgbToLinear(G), MathUtil.SRgbToLinear(B), A);
     }
@@ -630,9 +630,9 @@ public struct Color4 : IEquatable<Color4>, IFormattable
     public static void AdjustContrast(ref Color4 value, float contrast, out Color4 result)
     {
         result.A = value.A;
-        result.R = 0.5f + contrast * (value.R - 0.5f);
-        result.G = 0.5f + contrast * (value.G - 0.5f);
-        result.B = 0.5f + contrast * (value.B - 0.5f);
+        result.R = 0.5f + (contrast * (value.R - 0.5f));
+        result.G = 0.5f + (contrast * (value.G - 0.5f));
+        result.B = 0.5f + (contrast * (value.B - 0.5f));
     }
 
     /// <summary>
@@ -643,11 +643,13 @@ public struct Color4 : IEquatable<Color4>, IFormattable
     /// <returns>The adjusted color.</returns>
     public static Color4 AdjustContrast(Color4 value, float contrast)
     {
-        return new Color4(
-            0.5f + contrast * (value.R - 0.5f),
-            0.5f + contrast * (value.G - 0.5f),
-            0.5f + contrast * (value.B - 0.5f),
-            value.A);
+        return new Color4
+        (
+            0.5f + (contrast * (value.R - 0.5f)),
+            0.5f + (contrast * (value.G - 0.5f)),
+            0.5f + (contrast * (value.B - 0.5f)),
+            value.A
+        );
     }
 
     /// <summary>
@@ -658,12 +660,12 @@ public struct Color4 : IEquatable<Color4>, IFormattable
     /// <param name="result">When the method completes, contains the adjusted color.</param>
     public static void AdjustSaturation(ref Color4 value, float saturation, out Color4 result)
     {
-        float grey = value.R * 0.2125f + value.G * 0.7154f + value.B * 0.0721f;
+        float grey = (value.R * 0.2125f) + (value.G * 0.7154f) + (value.B * 0.0721f);
 
         result.A = value.A;
-        result.R = grey + saturation * (value.R - grey);
-        result.G = grey + saturation * (value.G - grey);
-        result.B = grey + saturation * (value.B - grey);
+        result.R = grey + (saturation * (value.R - grey));
+        result.G = grey + (saturation * (value.G - grey));
+        result.B = grey + (saturation * (value.B - grey));
     }
 
     /// <summary>
@@ -674,13 +676,15 @@ public struct Color4 : IEquatable<Color4>, IFormattable
     /// <returns>The adjusted color.</returns>
     public static Color4 AdjustSaturation(Color4 value, float saturation)
     {
-        float grey = value.R * 0.2125f + value.G * 0.7154f + value.B * 0.0721f;
+        float grey = (value.R * 0.2125f) + (value.G * 0.7154f) + (value.B * 0.0721f);
 
-        return new Color4(
-            grey + saturation * (value.R - grey),
-            grey + saturation * (value.G - grey),
-            grey + saturation * (value.B - grey),
-            value.A);
+        return new Color4
+        (
+            grey + (saturation * (value.R - grey)),
+            grey + (saturation * (value.G - grey)),
+            grey + (saturation * (value.B - grey)),
+            value.A
+        );
     }
 
     /// <summary>
@@ -869,7 +873,7 @@ public struct Color4 : IEquatable<Color4>, IFormattable
     /// </returns>
     public static explicit operator int(Color4 value)
     {
-        return value.ToRgba();
+        return value.ToRGBA();
     }
 
     /// <summary>
@@ -888,7 +892,7 @@ public struct Color4 : IEquatable<Color4>, IFormattable
     /// Converts this color to an equivalent <see cref="Color3"/>, discarding the alpha channel.
     /// </summary>
     /// <returns>An equivalent <see cref="Color3"/>, discarding the alpha channel.</returns>
-    public Color3 ToColor3()
+    public readonly Color3 ToColor3()
     {
         return new Color3(R, G, B);
     }
@@ -899,7 +903,7 @@ public struct Color4 : IEquatable<Color4>, IFormattable
     /// <returns>
     /// A <see cref="string"/> that represents this instance.
     /// </returns>
-    public override string ToString()
+    public override readonly string ToString()
     {
         return ToString(CultureInfo.CurrentCulture);
     }
@@ -911,7 +915,7 @@ public struct Color4 : IEquatable<Color4>, IFormattable
     /// <returns>
     /// A <see cref="string"/> that represents this instance.
     /// </returns>
-    public string ToString(string format)
+    public readonly string ToString(string format)
     {
         return ToString(format, CultureInfo.CurrentCulture);
     }
@@ -923,7 +927,7 @@ public struct Color4 : IEquatable<Color4>, IFormattable
     /// <returns>
     /// A <see cref="string"/> that represents this instance.
     /// </returns>
-    public string ToString(IFormatProvider formatProvider)
+    public readonly string ToString(IFormatProvider formatProvider)
     {
         return string.Format(formatProvider, to_string_format, A, R, G, B);
     }
@@ -936,7 +940,7 @@ public struct Color4 : IEquatable<Color4>, IFormattable
     /// <returns>
     /// A <see cref="string"/> that represents this instance.
     /// </returns>
-    public string ToString(string? format, IFormatProvider? formatProvider)
+    public readonly string ToString(string? format, IFormatProvider? formatProvider)
     {
         if (format == null)
             return ToString(formatProvider ?? CultureInfo.CurrentCulture);
@@ -954,9 +958,9 @@ public struct Color4 : IEquatable<Color4>, IFormattable
     /// <returns>
     /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
     /// </returns>
-    public override int GetHashCode()
+    public override readonly int GetHashCode()
     {
-        return A.GetHashCode() + R.GetHashCode() + G.GetHashCode() + B.GetHashCode();
+        return HashCode.Combine(A, R, G, B);
     }
 
     /// <summary>
@@ -966,7 +970,7 @@ public struct Color4 : IEquatable<Color4>, IFormattable
     /// <returns>
     /// <c>true</c> if the specified <see cref="Color4"/> is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
-    public bool Equals(Color4 other)
+    public readonly bool Equals(Color4 other)
     {
         return A == other.A && R == other.R && G == other.G && B == other.B;
     }
@@ -978,14 +982,8 @@ public struct Color4 : IEquatable<Color4>, IFormattable
     /// <returns>
     /// <c>true</c> if the specified <see cref="object"/> is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
-    public override bool Equals(object? value)
+    public override readonly bool Equals(object? value)
     {
-        if (value == null)
-            return false;
-
-        if (!ReferenceEquals(value.GetType(), typeof(Color4)))
-            return false;
-
-        return Equals((Color4)value);
+        return value is Color4 color && Equals(color);
     }
 }

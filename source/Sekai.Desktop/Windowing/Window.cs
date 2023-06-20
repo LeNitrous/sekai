@@ -3,13 +3,13 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using Sekai.Desktop.Input;
 using Sekai.Framework.Contexts;
 using Sekai.Framework.Input;
+using Sekai.Framework.Mathematics;
 using Sekai.Framework.Windowing;
 using Silk.NET.GLFW;
 

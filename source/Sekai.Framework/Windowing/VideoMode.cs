@@ -1,7 +1,7 @@
 // Copyright (c) Cosyne
 // Licensed under MIT. See LICENSE for details.
 
-using System.Drawing;
+using Sekai.Framework.Mathematics;
 
 namespace Sekai.Framework.Windowing;
 

@@ -34,7 +34,8 @@ using System.Globalization;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
-namespace Sekai.Mathematics;
+namespace Sekai.Framework.Mathematics;
+
 /// <summary>
 /// Represents a color in the form of rgb.
 /// </summary>
@@ -144,7 +145,7 @@ public struct Color3 : IEquatable<Color3>, IFormattable
     /// <exception cref="ArgumentOutOfRangeException">Thrown when the <paramref name="index"/> is out of the range [0, 2].</exception>
     public float this[int index]
     {
-        get
+        readonly get
         {
             return index switch
             {
@@ -172,7 +173,7 @@ public struct Color3 : IEquatable<Color3>, IFormattable
     /// </summary>
     /// <returns>A packed integer containing all three color components.
     /// The alpha channel is set to 255.</returns>
-    public int ToRgb()
+    public readonly int ToRgb()
     {
         uint a = 255;
         uint r = (uint)(R * 255.0f);
@@ -202,7 +203,7 @@ public struct Color3 : IEquatable<Color3>, IFormattable
     /// Converts the color into a three component vector.
     /// </summary>
     /// <returns>A three component vector containing the red, green, and blue components of the color.</returns>
-    public Vector3 ToVector3()
+    public readonly Vector3 ToVector3()
     {
         return new Vector3(R, G, B);
     }
@@ -211,7 +212,7 @@ public struct Color3 : IEquatable<Color3>, IFormattable
     /// Creates an array containing the elements of the color.
     /// </summary>
     /// <returns>A three-element array containing the components of the color.</returns>
-    public float[] ToArray()
+    public readonly float[] ToArray()
     {
         return new[] { R, G, B };
     }
@@ -385,9 +386,9 @@ public struct Color3 : IEquatable<Color3>, IFormattable
     /// </remarks>
     public static void Lerp(ref Color3 start, ref Color3 end, float amount, out Color3 result)
     {
-        result.R = start.R + amount * (end.R - start.R);
-        result.G = start.G + amount * (end.G - start.G);
-        result.B = start.B + amount * (end.B - start.B);
+        result.R = start.R + (amount * (end.R - start.R));
+        result.G = start.G + (amount * (end.G - start.G));
+        result.B = start.B + (amount * (end.B - start.B));
     }
 
     /// <summary>
@@ -404,10 +405,12 @@ public struct Color3 : IEquatable<Color3>, IFormattable
     /// </remarks>
     public static Color3 Lerp(Color3 start, Color3 end, float amount)
     {
-        return new Color3(
-            start.R + amount * (end.R - start.R),
-            start.G + amount * (end.G - start.G),
-            start.B + amount * (end.B - start.B));
+        return new Color3
+        (
+            start.R + (amount * (end.R - start.R)),
+            start.G + (amount * (end.G - start.G)),
+            start.B + (amount * (end.B - start.B))
+        );
     }
 
     /// <summary>
@@ -420,7 +423,7 @@ public struct Color3 : IEquatable<Color3>, IFormattable
     public static void SmoothStep(ref Color3 start, ref Color3 end, float amount, out Color3 result)
     {
         amount = (amount > 1.0f) ? 1.0f : ((amount < 0.0f) ? 0.0f : amount);
-        amount = (amount * amount) * (3.0f - (2.0f * amount));
+        amount = amount * amount * (3.0f - (2.0f * amount));
 
         result.R = start.R + ((end.R - start.R) * amount);
         result.G = start.G + ((end.G - start.G) * amount);
@@ -437,7 +440,7 @@ public struct Color3 : IEquatable<Color3>, IFormattable
     public static Color3 SmoothStep(Color3 start, Color3 end, float amount)
     {
         amount = (amount > 1.0f) ? 1.0f : ((amount < 0.0f) ? 0.0f : amount);
-        amount = (amount * amount) * (3.0f - (2.0f * amount));
+        amount = amount * amount * (3.0f - (2.0f * amount));
 
         return new Color3(
             start.R + ((end.R - start.R) * amount),
@@ -503,9 +506,9 @@ public struct Color3 : IEquatable<Color3>, IFormattable
     /// <param name="result">When the method completes, contains the adjusted color.</param>
     public static void AdjustContrast(ref Color3 value, float contrast, out Color3 result)
     {
-        result.R = 0.5f + contrast * (value.R - 0.5f);
-        result.G = 0.5f + contrast * (value.G - 0.5f);
-        result.B = 0.5f + contrast * (value.B - 0.5f);
+        result.R = 0.5f + (contrast * (value.R - 0.5f));
+        result.G = 0.5f + (contrast * (value.G - 0.5f));
+        result.B = 0.5f + (contrast * (value.B - 0.5f));
     }
 
     /// <summary>
@@ -517,9 +520,9 @@ public struct Color3 : IEquatable<Color3>, IFormattable
     public static Color3 AdjustContrast(Color3 value, float contrast)
     {
         return new Color3(
-            0.5f + contrast * (value.R - 0.5f),
-            0.5f + contrast * (value.G - 0.5f),
-            0.5f + contrast * (value.B - 0.5f));
+            0.5f + (contrast * (value.R - 0.5f)),
+            0.5f + (contrast * (value.G - 0.5f)),
+            0.5f + (contrast * (value.B - 0.5f)));
     }
 
     /// <summary>
@@ -530,11 +533,11 @@ public struct Color3 : IEquatable<Color3>, IFormattable
     /// <param name="result">When the method completes, contains the adjusted color.</param>
     public static void AdjustSaturation(ref Color3 value, float saturation, out Color3 result)
     {
-        float grey = value.R * 0.2125f + value.G * 0.7154f + value.B * 0.0721f;
+        float grey = (value.R * 0.2125f) + (value.G * 0.7154f) + (value.B * 0.0721f);
 
-        result.R = grey + saturation * (value.R - grey);
-        result.G = grey + saturation * (value.G - grey);
-        result.B = grey + saturation * (value.B - grey);
+        result.R = grey + (saturation * (value.R - grey));
+        result.G = grey + (saturation * (value.G - grey));
+        result.B = grey + (saturation * (value.B - grey));
     }
 
     /// <summary>
@@ -545,19 +548,19 @@ public struct Color3 : IEquatable<Color3>, IFormattable
     /// <returns>The adjusted color.</returns>
     public static Color3 AdjustSaturation(Color3 value, float saturation)
     {
-        float grey = value.R * 0.2125f + value.G * 0.7154f + value.B * 0.0721f;
+        float grey = (value.R * 0.2125f) + (value.G * 0.7154f) + (value.B * 0.0721f);
 
         return new Color3(
-            grey + saturation * (value.R - grey),
-            grey + saturation * (value.G - grey),
-            grey + saturation * (value.B - grey));
+            grey + (saturation * (value.R - grey)),
+            grey + (saturation * (value.G - grey)),
+            grey + (saturation * (value.B - grey)));
     }
 
     /// <summary>
     /// Converts this color from linear space to sRGB space.
     /// </summary>
     /// <returns>A color3 in sRGB space.</returns>
-    public Color3 ToSRgb()
+    public readonly Color3 ToSRgb()
     {
         return new Color3(MathUtil.LinearToSRgb(R), MathUtil.LinearToSRgb(G), MathUtil.LinearToSRgb(B));
     }
@@ -566,7 +569,7 @@ public struct Color3 : IEquatable<Color3>, IFormattable
     /// Converts this color from sRGB space to linear space.
     /// </summary>
     /// <returns>Color3.</returns>
-    public Color3 ToLinear()
+    public readonly Color3 ToLinear()
     {
         return new Color3(MathUtil.SRgbToLinear(R), MathUtil.SRgbToLinear(G), MathUtil.SRgbToLinear(B));
     }
@@ -679,7 +682,7 @@ public struct Color3 : IEquatable<Color3>, IFormattable
     }
 
     /// <summary>
-    /// Performs an explicit conversion from <see cref="Color3"/> to <see cref="Sekai.Mathematics.Vector3"/>.
+    /// Performs an explicit conversion from <see cref="Color3"/> to <see cref="Mathematics.Vector3"/>.
     /// </summary>
     /// <param name="value">The value.</param>
     /// <returns>The result of the conversion.</returns>
@@ -689,7 +692,7 @@ public struct Color3 : IEquatable<Color3>, IFormattable
     }
 
     /// <summary>
-    /// Performs an explicit conversion from <see cref="Sekai.Mathematics.Vector3"/> to <see cref="Color3"/>.
+    /// Performs an explicit conversion from <see cref="Mathematics.Vector3"/> to <see cref="Color3"/>.
     /// </summary>
     /// <param name="value">The value.</param>
     /// <returns>The result of the conversion.</returns>
@@ -714,7 +717,7 @@ public struct Color3 : IEquatable<Color3>, IFormattable
     /// <returns>
     /// A <see cref="string"/> that represents this instance.
     /// </returns>
-    public override string ToString()
+    public override readonly string ToString()
     {
         return ToString(CultureInfo.CurrentCulture);
     }
@@ -723,7 +726,7 @@ public struct Color3 : IEquatable<Color3>, IFormattable
     /// Convert this color to an equivalent <see cref="Color4"/> with an opaque alpha.
     /// </summary>
     /// <returns>An equivalent <see cref="Color4"/> with an opaque alpha.</returns>
-    public Color4 ToColor4()
+    public readonly Color4 ToColor4()
     {
         return new Color4(R, G, B, 1.0f);
     }
@@ -735,7 +738,7 @@ public struct Color3 : IEquatable<Color3>, IFormattable
     /// <returns>
     /// A <see cref="string"/> that represents this instance.
     /// </returns>
-    public string ToString(string format)
+    public readonly string ToString(string format)
     {
         return ToString(format, CultureInfo.CurrentCulture);
     }
@@ -747,7 +750,7 @@ public struct Color3 : IEquatable<Color3>, IFormattable
     /// <returns>
     /// A <see cref="string"/> that represents this instance.
     /// </returns>
-    public string ToString(IFormatProvider formatProvider)
+    public readonly string ToString(IFormatProvider formatProvider)
     {
         return string.Format(formatProvider, to_string_format, R, G, B);
     }
@@ -760,7 +763,7 @@ public struct Color3 : IEquatable<Color3>, IFormattable
     /// <returns>
     /// A <see cref="string"/> that represents this instance.
     /// </returns>
-    public string ToString(string? format, IFormatProvider? formatProvider)
+    public readonly string ToString(string? format, IFormatProvider? formatProvider)
     {
         if (format == null)
             return ToString(formatProvider ?? CultureInfo.CurrentCulture);
@@ -777,9 +780,9 @@ public struct Color3 : IEquatable<Color3>, IFormattable
     /// <returns>
     /// A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.
     /// </returns>
-    public override int GetHashCode()
+    public override readonly int GetHashCode()
     {
-        return R.GetHashCode() + G.GetHashCode() + B.GetHashCode();
+        return HashCode.Combine(R, G, B);
     }
 
     /// <summary>
@@ -789,7 +792,7 @@ public struct Color3 : IEquatable<Color3>, IFormattable
     /// <returns>
     /// <c>true</c> if the specified <see cref="Color3"/> is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
-    public bool Equals(Color3 other)
+    public readonly bool Equals(Color3 other)
     {
         return R == other.R && G == other.G && B == other.B;
     }
@@ -801,14 +804,8 @@ public struct Color3 : IEquatable<Color3>, IFormattable
     /// <returns>
     /// <c>true</c> if the specified <see cref="object"/> is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
-    public override bool Equals(object? value)
+    public override readonly bool Equals(object? value)
     {
-        if (value == null)
-            return false;
-
-        if (value.GetType() != GetType())
-            return false;
-
-        return Equals((Color3)value);
+        return value is Color3 color && Equals(color);
     }
 }

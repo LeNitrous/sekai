@@ -24,18 +24,19 @@
 using System;
 using System.Globalization;
 
-namespace Sekai.Mathematics;
+namespace Sekai.Framework.Mathematics;
+
 /// <summary>
 /// A class containing extension methods for processing colors.
 /// </summary>
-public static class ColorExtensions
+internal static class ColorExtensions
 {
     /// <summary>
-    /// Indicates if the given string can be converted to an <see cref="uint"/> RGBA value using <see cref="StringToRgba"/>.
+    /// Indicates if the given string can be converted to an <see cref="uint"/> RGBA value using <see cref="StringToRGBA"/>.
     /// </summary>
     /// <param name="stringColor">The string to convert.</param>
     /// <returns>True if the string can be converted, false otherwise.</returns>
-    public static bool CanConvertStringToRgba(string? stringColor)
+    public static bool CanConvertStringToRGBA(string? stringColor)
     {
         return stringColor?.StartsWith("#") ?? false;
     }
@@ -45,7 +46,7 @@ public static class ColorExtensions
     /// </summary>
     /// <param name="stringColor">The string to convert.</param>
     /// <returns>The converted RGBA value.</returns>
-    public static uint StringToRgba(string? stringColor)
+    public static uint StringToRGBA(string? stringColor)
     {
         uint intValue = 0xFF000000;
         if (stringColor != null)
@@ -86,9 +87,9 @@ public static class ColorExtensions
     /// </summary>
     /// <param name="value">The RGB value to convert.</param>
     /// <returns>The converted string.</returns>
-    public static string RgbToString(int value)
+    public static string RGBToString(int value)
     {
-        int r = (value & 0x000000FF);
+        int r = value & 0x000000FF;
         int g = (value & 0x0000FF00) >> 8;
         int b = (value & 0x00FF0000) >> 16;
         return $"#{r:X2}{g:X2}{b:X2}";
@@ -99,9 +100,9 @@ public static class ColorExtensions
     /// </summary>
     /// <param name="value">The RGBA value to convert.</param>
     /// <returns>The converted string.</returns>
-    public static string RgbaToString(int value)
+    public static string RGBAToString(int value)
     {
-        int r = (value & 0x000000FF);
+        int r = value & 0x000000FF;
         int g = (value & 0x0000FF00) >> 8;
         int b = (value & 0x00FF0000) >> 16;
         long a = (value & 0xFF000000) >> 24;

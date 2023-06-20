@@ -5,7 +5,7 @@ using System;
 using System.Buffers;
 using Sekai.Framework.Graphics;
 
-namespace Sekai.Framework.Platform.Headless.Graphics;
+namespace Sekai.Headless.Graphics;
 
 internal sealed class DummyBuffer : GraphicsBuffer
 {
