@@ -4,14 +4,15 @@
 using System;
 using System.Numerics;
 using Sekai;
+using Sekai.Desktop;
+using Sekai.Framework;
 using Sekai.Framework.Audio;
-using Sekai.Framework.Audio.OpenAL;
+using Sekai.OpenAL;
 using Sekai.Framework.Contexts;
-using Sekai.Framework.Storages;
 using Sekai.Framework.Graphics;
-using Sekai.Framework.Graphics.OpenGL;
-using Sekai.Framework.Platform.Desktop;
-using Sekai.Framework.Platform.Windowing;
+using Sekai.OpenGL;
+using Sekai.Framework.Windowing;
+using Sekai.Framework.Storages;
 
 namespace SampleGame;
 
@@ -21,7 +22,7 @@ internal static class Program
     {
         if (RuntimeInfo.IsDesktop)
         {
-            var host = new DesktopHost();
+            var host = new SampleHost();
             var game = new Sample();
             host.Run(game);
         }
@@ -32,13 +33,12 @@ internal static class Program
     }
 }
 
-internal sealed class DesktopHost : Host
+internal sealed class SampleHost : DesktopHost
 {
-    protected override AudioDevice CreateAudio() => new ALAudioDevice();
-
-    protected override IWindow CreateWindow() => new Window();
-
-    protected override Storage CreateStorage(MountPoint point) => new MemoryStorage();
+    protected override AudioDevice CreateAudio()
+    {
+        return new ALAudioDevice();
+    }
 
     protected override GraphicsDevice CreateGraphics(IWindow window)
     {
@@ -48,6 +48,11 @@ internal sealed class DesktopHost : Host
         }
 
         return new GLGraphicsDevice(source.Context);
+    }
+
+    protected override Storage CreateStorage(MountTarget point)
+    {
+        return new MemoryStorage();
     }
 }
 

@@ -8,13 +8,6 @@
 
   <ItemGroup>
     <ProjectReference Include="../Sekai.Framework/Sekai.Framework.csproj" />
-    <ProjectReference Include="../Sekai.Framework.Audio/Sekai.Framework.Audio.csproj" />
-    <ProjectReference Include="../Sekai.Framework.Graphics/Sekai.Framework.Graphics.csproj" />
-    <ProjectReference Include="../Sekai.Framework.Platform/Sekai.Framework.Platform.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Pastel" Version="4.1.0" />
   </ItemGroup>
 
 </Project>

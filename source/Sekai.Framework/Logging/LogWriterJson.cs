@@ -15,7 +15,7 @@ public sealed class LogWriterJson : LogWriterStream
     public LogWriterJson(Stream stream, bool leaveOpen = false)
         : base(stream, leaveOpen)
     {
-        this.writer = new Utf8JsonWriter(stream, options);
+        writer = new Utf8JsonWriter(stream, options);
     }
 
     public override void Write(LogMessage message)

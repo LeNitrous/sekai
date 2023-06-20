@@ -3,9 +3,9 @@
 
 using System;
 using Sekai.Framework.Audio;
-using Sekai.Framework.Logging;
 using Sekai.Framework.Graphics;
-using Sekai.Framework.Platform.Windowing;
+using Sekai.Framework.Logging;
+using Sekai.Framework.Windowing;
 using Sekai.Framework.Storages;
 
 namespace Sekai;
@@ -28,6 +28,11 @@ public class Game
     /// The window backing this game.
     /// </summary>
     public IWindow Window => Host.Window;
+
+    /// <summary>
+    /// The input state of the host.
+    /// </summary>
+    public InputState Input => Host.Input;
 
     /// <summary>
     /// The audio device providing audio for this game.

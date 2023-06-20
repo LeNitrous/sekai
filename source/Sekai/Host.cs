@@ -2,6 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -9,12 +10,13 @@ using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Sekai.Framework;
 using Sekai.Framework.Audio;
 using Sekai.Framework.Graphics;
+using Sekai.Framework.Input;
 using Sekai.Framework.Logging;
-using Sekai.Framework.Platform.Input;
-using Sekai.Framework.Platform.Windowing;
 using Sekai.Framework.Storages;
+using Sekai.Framework.Windowing;
 
 namespace Sekai;
 
@@ -23,6 +25,13 @@ namespace Sekai;
 /// </summary>
 public abstract class Host
 {
+    /// <summary>
+    /// Gets the current host.
+    /// </summary>
+    public static Host Current => current ?? throw new InvalidOperationException("There is no active host.");
+
+    private static Host? current;
+
     /// <summary>
     /// Gets or sets the ticking mode.
     /// </summary>
@@ -66,8 +75,14 @@ public abstract class Host
         }
     }
 
+    /// <summary>
+    /// An enumeration of connected monitors.
+    /// </summary>
+    public abstract IEnumerable<IMonitor> Monitors { get; }
+
     internal Logger Logger => logger ?? throw new InvalidOperationException("The host has not yet loaded.");
     internal IWindow Window => window ?? throw new InvalidOperationException("The host has not yet loaded.");
+    internal InputState Input => input ?? throw new InvalidOperationException("The host has not yet loaded.");
     internal AudioDevice Audio => audio ?? throw new InvalidOperationException("The host has not yet loaded.");
     internal GraphicsDevice Graphics => graphics ?? throw new InvalidOperationException("The host has not yet loaded.");
     internal MountableStorage Storage => storage ?? throw new InvalidOperationException("The host has not yet loaded.");
@@ -75,9 +90,12 @@ public abstract class Host
     private Game? game;
     private Logger? logger;
     private IWindow? window;
+    private InputState? input;
     private AudioDevice? audio;
     private GraphicsDevice? graphics;
     private MountableStorage? storage;
+    private LogWriterStream? fileOut;
+    private LogWriterConsole? termOut;
     private HostState state;
     private Waitable waitable;
     private TimeSpan msPerUpdate = TimeSpan.FromSeconds(1 / 120.0);
@@ -116,26 +134,90 @@ public abstract class Host
     {
         if (this.game is not null)
         {
-            throw new InvalidOperationException();
+            throw new InvalidOperationException("This host is currently running a game.");
         }
+
+        if (current is not null)
+        {
+            throw new InvalidOperationException("Cannot run a game with an active host.");
+        }
+
+        current = this;
 
         if (token.CanBeCanceled)
         {
             token.Register(Exit);
         }
 
-        if (RuntimeInfo.IsDebug)
+        this.game = game;
+
+        Initialize();
+
+        var gameLoop = Task.Factory.StartNew(runGameLoop, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+
+        while (Window.Exists)
         {
-            HotReloadCallbackReceiver.OnUpdate += handleHotReload;
+            if (info is not null)
+            {
+                info.Throw();
+                break;
+            }
+
+            Update();
         }
 
-        storage = new();
-        storage.Mount("/game/", CreateStorage(MountPoint.Game));
-        storage.Mount("/data/", CreateStorage(MountPoint.Data));
-        storage.Mount("/temp/", CreateStorage(MountPoint.Temp));
+        await gameLoop;
 
-        var termOut = new LogWriterConsole();
-        var fileOut = new LogWriterText(storage.Open("/game/runtime.log", FileMode.OpenOrCreate, FileAccess.Write)) { MinimumLevel = RuntimeInfo.IsDebug ? LogLevel.Debug : LogLevel.Verbose };
+        Shutdown();
+
+        current = null;
+    }
+
+    /// <summary>
+    /// Exits the game.
+    /// </summary>
+    public void Exit()
+    {
+        setHostState(HostState.Exiting);
+    }
+
+    private void pause()
+    {
+        if (State == HostState.Paused)
+        {
+            return;
+        }
+
+        setHostState(HostState.Pausing);
+    }
+
+    private void resume()
+    {
+        if (State != HostState.Paused)
+        {
+            return;
+        }
+
+        setHostState(HostState.Resuming);
+    }
+
+    private void reload()
+    {
+        setHostState(HostState.Reloading);
+    }
+
+    /// <summary>
+    /// Called before running the game to perform initialization.
+    /// </summary>
+    protected virtual void Initialize()
+    {
+        storage = new();
+        storage.Mount("/game/", CreateStorage(MountTarget.Game));
+        storage.Mount("/data/", CreateStorage(MountTarget.Data));
+        storage.Mount("/temp/", CreateStorage(MountTarget.Temp));
+
+        termOut = new LogWriterConsole();
+        fileOut = new LogWriterText(storage.Open("/game/runtime.log", FileMode.OpenOrCreate, FileAccess.Write)) { MinimumLevel = RuntimeInfo.IsDebug ? LogLevel.Debug : LogLevel.Verbose };
 
         logger = new();
         logger.AddOutput(termOut);
@@ -149,8 +231,6 @@ public abstract class Host
         logger.Log("  Environment: {0}, ({1}) {2} cores", RuntimeInfo.OS, Environment.OSVersion, Environment.ProcessorCount);
         logger.Log("--------------------------------------------------------");
 
-        this.game = game;
-
         setHostState(HostState.Loading);
 
         window = CreateWindow();
@@ -158,62 +238,34 @@ public abstract class Host
         window.State = WindowState.Minimized;
         window.Closed += Exit;
 
-        var gameLoop = Task.Factory.StartNew(runGameLoop, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
-
-        while (window.Exists)
+        if (window is IHasSuspend suspendable)
         {
-            if (info is not null)
-            {
-                info.Throw();
-                break;
-            }
-
-            window.DoEvents();
+            suspendable.Resume += resume;
+            suspendable.Suspend += pause;
         }
 
-        await gameLoop;
-
-        window.Dispose();
-
-        fileOut.Dispose();
-        termOut.Dispose();
-    }
-
-    /// <summary>
-    /// Exits the game.
-    /// </summary>
-    public void Exit()
-    {
-        setHostState(HostState.Exiting);
-    }
-
-    /// <summary>
-    /// Pauses the game.
-    /// </summary>
-    protected void Pause()
-    {
-        setHostState(HostState.Pausing);
-    }
-
-    /// <summary>
-    /// Resumes the game.
-    /// </summary>
-    protected void Resume()
-    {
-        if (State != HostState.Paused)
+        if (window is IHasSurface surfaceOwner)
         {
-            return;
+            surfaceOwner.SurfaceDestroyed += reload;
         }
-
-        setHostState(HostState.Resuming);
     }
 
     /// <summary>
-    /// Reloads the game.
+    /// Called every frame on the main thread.
     /// </summary>
-    protected void Reload()
+    protected virtual void Update()
     {
-        setHostState(HostState.Reloading);
+        Window.DoEvents();
+    }
+
+    /// <summary>
+    /// Called before closing the game to perform shutdown.
+    /// </summary>
+    protected virtual void Shutdown()
+    {
+        Window.Dispose();
+        fileOut?.Dispose();
+        termOut?.Dispose();
     }
 
     /// <summary>
@@ -222,28 +274,26 @@ public abstract class Host
     protected abstract IWindow CreateWindow();
 
     /// <summary>
+    /// Creates an input context for this host.
+    /// </summary>
+    protected abstract IInputContext CreateInput(IWindow window);
+
+    /// <summary>
     /// Creates the audio device for this host.
     /// </summary>
-    /// <returns></returns>
     protected abstract AudioDevice CreateAudio();
 
     /// <summary>
     /// Creates storage for this host.
     /// </summary>
     /// <param name="point">The mounting point.</param>
-    protected abstract Storage CreateStorage(MountPoint point);
+    protected abstract Storage CreateStorage(MountTarget point);
 
     /// <summary>
     /// Creates the graphics device for this host.
     /// </summary>
     /// <param name="window">The window backing the graphics device.</param>
     protected abstract GraphicsDevice CreateGraphics(IWindow window);
-
-    private void handleHotReload(Type[]? types)
-    {
-        Logger.Trace("Hot reload requested. Reloading the game...");
-        Reload();
-    }
 
     private ExceptionDispatchInfo? info;
 
@@ -260,15 +310,6 @@ public abstract class Host
 
             do
             {
-                if (window is not IInputSource source)
-                {
-                    continue;
-                }
-
-                while(source.PumpEvent(out var data))
-                {
-
-                }
             }
             while (runTick());
         }
@@ -294,6 +335,7 @@ public abstract class Host
         {
             case HostState.Loading:
                 {
+                    input = new(CreateInput(Window));
                     audio = CreateAudio();
 
                     Logger.Log("{0} Initialized", audio.API);
@@ -409,6 +451,9 @@ public abstract class Host
                 {
                     game.Unload();
                     game.Host = null!;
+
+                    input?.Dispose();
+                    input = null;
 
                     audio?.Dispose();
                     audio = null;
