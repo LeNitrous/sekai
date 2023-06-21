@@ -31,6 +31,7 @@ jobs:
 
       - name: Upload Results
         uses: actions/upload-artifact@v2
+        if: ${{ always() }}
         with:
           name: results-${{ matrix.os }}
           path: tests/results/
