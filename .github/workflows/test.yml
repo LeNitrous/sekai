@@ -5,6 +5,8 @@ on:
       - 'tests/**/*.cs'
       - 'source/**/*.cs'
       - 'samples/**/*.cs'
+      - '.github/workflows/test.yml'
+      - '.github/workflows/report.yml'
 
 jobs:
   test:
