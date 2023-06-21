@@ -25,6 +25,8 @@
 ## Introduction
 Sekai is a fully abstracted graphics framework written under the .NET Runtime in C# inspired by other frameworks such as [LÖVE2D](https://github.com/love/love2d) and [osu! framework](https://github.com/ppy/osu-framework). Its core components such as rendering, audio, windowing, input, and even storage can easily be replaced to suit their requirements. The repository contains implementations that make use of GLFW, OpenGL, and OpenAL as a starting point.
 
+Sekai is used to build [Vignette](https://github.com/vignetteapp/vignette) and is the choice of platform for Cosyne's graphical-related projects.
+
 ## Getting Started
 
 ### Building
