@@ -25,7 +25,7 @@ jobs:
           dotnet-version: "7.0.x"
 
       - name: Test
-        run: dotnet test /p:ContinuousIntegrationBuild=true /p:CollectCoverage=true /p:CoverletOutputFormat=lcov /p:CoverletOutput="../results/" /p:MergeWith="../results/coverage.info" --logger trx --results-directory "./tests/results/"
+        run: dotnet test /p:ContinuousIntegrationBuild=true /p:IncludeTestAssembly=true /p:CollectCoverage=true /p:CoverletOutputFormat=lcov /p:CoverletOutput="../results/coverage.info" /p:MergeWith="../results/coverage.info" --logger trx --results-directory "./tests/results/"
 
       - name: Upload Results
         uses: actions/upload-artifact@v2

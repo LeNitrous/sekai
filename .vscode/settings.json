@@ -3,6 +3,6 @@
     "coverage.info",
   ],
   "dotnet-test-explorer.testProjectPath": "**/*Tests.@(csproj|vbproj|fsproj)",
-  "dotnet-test-explorer.testArguments": "/p:CollectCoverage=true /p:CoverletOutputFormat=lcov /p:CoverletOutput=../results/coverage.info /p:MergeWith=../results/coverage.info",
+  "dotnet-test-explorer.testArguments": "/p:IncludeTestAssembly=true /p:CollectCoverage=true /p:CoverletOutputFormat=lcov /p:CoverletOutput=\"../results/coverage.info\" /p:MergeWith=\"../results/coverage.info\"",
   "dotnet.defaultSolution": "Sekai.sln"
 }
