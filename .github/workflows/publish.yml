@@ -1,0 +1,33 @@
+name: Publish
+on:
+  release:
+    types: [ prereleased, released ]
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Install .NET 7
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: "7.0.x"
+          source-url: https://nuget.pkg.github.com/vignetteapp/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to GitHub Packages
+        run: |
+          dotnet pack -o output -c Release /p:ContinuousIntegrationBuild=true /p:Version=${{ github.ref_name }} /p:SourceRevisionId=${{ github.sha }}
+          dotnet nuget push ./output/*.nupkg
+
+      - name: Publish to GitHub Releases
+        uses: svenstaro/upload-release-action@v2
+        with:
+          file: ./output/*.{snupkg,nupkg}
+          file_glob: true

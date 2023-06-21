@@ -1,17 +1,9 @@
 <Project>
-  <PropertyGroup Label="Analyzers">
+  <PropertyGroup>
     <EnableAotAnalyzer>true</EnableAotAnalyzer>
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
   </PropertyGroup>
-  <PropertyGroup Label="NuGet">
-    <Authors>Cosyne</Authors>
-    <Description>The rendering framework that powers Vignette.</Description>
-    <Copyright>Cosyne</Copyright>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageProjectUrl>https://github.com/vignetteapp/sekai</PackageProjectUrl>
-  </PropertyGroup>
-  <ItemGroup Label="Code Analysis">
+  <ItemGroup>
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)analysis\BannedSymbols.txt"/>
     <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.4" PrivateAssets="All"/>
   </ItemGroup>

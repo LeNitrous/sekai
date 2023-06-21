@@ -1,32 +1,34 @@
 name: Test
-on: push
+on:
+  push:
+    paths:
+      - 'tests/**/*.cs'
+      - 'source/**/*.cs'
+      - 'samples/**/*.cs'
 
 jobs:
   test:
     name: Test
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, windows-latest ]
+    runs-on: ${{ matrix.os }}
     steps:
-        - name: Checkout
-          uses: actions/checkout@v2
-          with:
-            fetch-depth: 0
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
-        - name: Install .NET 7 STS
-          uses: actions/setup-dotnet@v1
-          with:
-            dotnet-version: "7.0.x"
+      - name: Install .NET 7
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: "7.0.x"
 
-        - name: Test
-          run: dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=lcov /p:CoverletOutput="../results/" /p:MregeWith="../results/coverage.info" --logger trx --results-directory "./tests/results/"
+      - name: Test
+        run: dotnet test /p:ContinuousIntegrationBuild=true /p:CollectCoverage=true /p:CoverletOutputFormat=lcov /p:CoverletOutput="../results/" /p:MergeWith="../results/coverage.info" --logger trx --results-directory "./tests/results/"
 
-        - name: Upload Results
-          uses: actions/upload-artifact@v2
-          with:
-            name: results
-            path: tests/results/
-
-        - name: Upload Coverage
-          uses: codecov/codecov-action@v3
-          with:
-            token: ${{ secrets.CODECOV_TOKEN }}
-            files: ./tests/results/coverage.info
+      - name: Upload Results
+        uses: actions/upload-artifact@v2
+        with:
+          name: results
+          path: tests/results/

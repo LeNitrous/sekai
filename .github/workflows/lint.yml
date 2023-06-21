@@ -1,5 +1,10 @@
 name: Lint
-on: push
+on:
+  push:
+    paths:
+      - 'tests/**/*.cs'
+      - 'source/**/*.cs'
+      - 'samples/**/*.cs'
 
 jobs:
   check:
@@ -14,7 +19,7 @@ jobs:
       - name: Lint
         uses: github/super-linter@v4
         env:
-          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SUPPRESS_POSSUM: true
           VALIDATE_CSHARP: true
           VALIDATE_EDITORCONFIG: true
