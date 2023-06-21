@@ -81,12 +81,12 @@ public class NativeStorage : Storage
 
     public override IEnumerable<string> EnumerateDirectories(string path, string pattern = "*", SearchOption options = SearchOption.TopDirectoryOnly)
     {
-        return System.IO.Directory.EnumerateDirectories(Path.Combine(Directory.FullName, path), pattern, options).Select(path => Path.AltDirectorySeparatorChar + path.Replace(Directory.FullName, string.Empty) + Path.AltDirectorySeparatorChar);
+        return System.IO.Directory.EnumerateDirectories(Path.Combine(Directory.FullName, path), pattern, options).Select(path => Path.AltDirectorySeparatorChar + path.Replace(Directory.FullName, string.Empty).Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.AltDirectorySeparatorChar);
     }
 
     public override IEnumerable<string> EnumerateFiles(string path, string pattern = "*", SearchOption options = SearchOption.TopDirectoryOnly)
     {
-        return System.IO.Directory.EnumerateFiles(Path.Combine(Directory.FullName, path), pattern, options).Select(path => Path.AltDirectorySeparatorChar + path.Replace(Directory.FullName, string.Empty));
+        return System.IO.Directory.EnumerateFiles(Path.Combine(Directory.FullName, path), pattern, options).Select(path => Path.AltDirectorySeparatorChar + path.Replace(Directory.FullName, string.Empty).Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
     }
 
     public override Stream Open(string path, FileMode mode = FileMode.OpenOrCreate, FileAccess access = FileAccess.ReadWrite)
