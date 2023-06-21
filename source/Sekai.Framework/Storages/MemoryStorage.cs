@@ -22,7 +22,7 @@ public sealed class MemoryStorage : Storage
 
     public override bool CreateDirectory(string path)
     {
-        string uri = createPath(path);
+        string uri = createPath(baseUri, path);
 
         if (storages.ContainsKey(uri))
         {
@@ -36,7 +36,7 @@ public sealed class MemoryStorage : Storage
 
     public override bool Delete(string path)
     {
-        string uri = createPath(path);
+        string uri = createPath(baseUri, path);
 
         if (files.Remove(uri, out var stream))
         {
@@ -49,7 +49,7 @@ public sealed class MemoryStorage : Storage
 
     public override bool DeleteDirectory(string path)
     {
-        string uri = createPath(path);
+        string uri = createPath(baseUri, path);
 
         if (storages.Remove(uri, out var storage))
         {
@@ -92,17 +92,17 @@ public sealed class MemoryStorage : Storage
 
     public override bool Exists(string path)
     {
-        return files.ContainsKey(createPath(path));
+        return files.ContainsKey(createPath(baseUri, path));
     }
 
     public override bool ExistsDirectory(string path)
     {
-        return storages.ContainsKey(createPath(path));
+        return storages.ContainsKey(createPath(baseUri, path));
     }
 
     public override Stream Open(string path, FileMode mode = FileMode.OpenOrCreate, FileAccess access = FileAccess.ReadWrite)
     {
-        string uri = createPath(path);
+        string uri = createPath(baseUri, path);
 
         if (!files.TryGetValue(uri, out var value))
         {
@@ -115,16 +115,24 @@ public sealed class MemoryStorage : Storage
         return stream;
     }
 
-    private string createPath(string path)
+    private static string createPath(Uri baseUri, string path)
     {
         if (!Uri.TryCreate(path, UriKind.RelativeOrAbsolute, out var relative))
         {
             throw new ArgumentException("Path has invalid characters.", nameof(path));
         }
 
-        return new Uri(baseUri, relative).AbsolutePath.Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        string absolutePath = new Uri(baseUri, relative).AbsolutePath;
+
+        if (separator != Path.DirectorySeparatorChar)
+        {
+            absolutePath = absolutePath.Replace(Path.DirectorySeparatorChar, separator);
+        }
+
+        return absolutePath;
     }
 
+    private const char separator = '/';
 
     ~MemoryStorage()
     {
