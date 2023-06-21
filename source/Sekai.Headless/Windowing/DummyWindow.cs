@@ -22,44 +22,20 @@ internal sealed class DummyWindow : IWindow, IHasSuspend, IHasRestart
 
     public Size Size
     {
-        get => size;
-        set
-        {
-            if (size.Equals(value))
-            {
-                return;
-            }
-
-            Resized?.Invoke(size = value);
-        }
+        get => Size.Zero;
+        set => Resized?.Invoke(value);
     }
 
     public WindowState State
     {
-        get => state;
-        set
-        {
-            if (state == value)
-            {
-                return;
-            }
-
-            StateChanged?.Invoke(state = value);
-        }
+        get => WindowState.Normal;
+        set => StateChanged?.Invoke(value);
     }
 
     public Point Position
     {
-        get => position;
-        set
-        {
-            if (position.Equals(value))
-            {
-                return;
-            }
-
-            Moved?.Invoke(position = value);
-        }
+        get => Point.Zero;
+        set => Moved?.Invoke(value);
     }
 
     public event Action? Closed;
@@ -72,10 +48,6 @@ internal sealed class DummyWindow : IWindow, IHasSuspend, IHasRestart
     public event Action? Resumed;
     public event Action? Suspend;
     public event Action? Restart;
-
-    private Size size;
-    private Point position;
-    private WindowState state;
 
     public void Close()
     {

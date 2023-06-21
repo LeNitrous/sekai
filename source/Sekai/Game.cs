@@ -52,7 +52,7 @@ public class Game
     /// <summary>
     /// The storage provided for this game.
     /// </summary>
-    public MountableStorage Storage => Host.Storage;
+    public Storage Storage => Host.Storage;
 
     private Host? host;
 

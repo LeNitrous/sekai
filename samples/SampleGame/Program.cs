@@ -50,7 +50,7 @@ internal sealed class SampleHost : DesktopHost
         return new GLGraphicsDevice(source.Context);
     }
 
-    protected override Storage CreateStorage(MountTarget point)
+    protected override Storage CreateStorage()
     {
         return new MemoryStorage();
     }

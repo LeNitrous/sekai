@@ -9,7 +9,7 @@ namespace Sekai.Framework.Input;
 /// <summary>
 /// The input source hosting all available devices.
 /// </summary>
-public interface IInputContext : IDisposable
+public interface IInputContext
 {
     /// <summary>
     /// An enumeration of all available devices.

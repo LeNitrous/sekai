@@ -9,7 +9,7 @@ namespace Sekai.Framework.Input;
 /// <summary>
 /// An input context that merges other input contexts.
 /// </summary>
-public sealed class MergedInputContext : IInputContext
+public sealed class MergedInputContext : IInputContext, IDisposable
 {
     public event Action<IInputDevice, bool>? ConnectionChanged;
 

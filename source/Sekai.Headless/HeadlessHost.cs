@@ -15,11 +15,14 @@ using Sekai.Headless.Windowing;
 
 namespace Sekai.Headless;
 
+/// <summary>
+/// A host that works with stub instances.
+/// </summary>
 public class HeadlessHost : Host
 {
     public override IEnumerable<IMonitor> Monitors => Enumerable.Empty<IMonitor>();
     protected override IInputContext CreateInput(IWindow window) => new DummyInputContext();
-    protected override Storage CreateStorage(MountTarget target) => new MemoryStorage();
+    protected override Storage CreateStorage() => new MemoryStorage();
     protected override IWindow CreateWindow() => new DummyWindow();
     protected override AudioDevice CreateAudio() => new DummyAudioDevice();
     protected override GraphicsDevice CreateGraphics(IWindow window) => new DummyGraphicsDevice();

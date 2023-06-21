@@ -160,7 +160,6 @@ public sealed class InputState : IDisposable
         }
 
         Context.ConnectionChanged -= handleDeviceConnect;
-        Context.Dispose();
 
         isDisposed = true;
 

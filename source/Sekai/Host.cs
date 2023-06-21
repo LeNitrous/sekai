@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Threading;
@@ -85,7 +84,7 @@ public abstract class Host
     internal InputState Input => input ?? throw new InvalidOperationException("The host has not yet loaded.");
     internal AudioDevice Audio => audio ?? throw new InvalidOperationException("The host has not yet loaded.");
     internal GraphicsDevice Graphics => graphics ?? throw new InvalidOperationException("The host has not yet loaded.");
-    internal MountableStorage Storage => storage ?? throw new InvalidOperationException("The host has not yet loaded.");
+    internal Storage Storage => storage ?? throw new InvalidOperationException("The host has not yet loaded.");
 
     private Game? game;
     private Logger? logger;
@@ -93,8 +92,7 @@ public abstract class Host
     private InputState? input;
     private AudioDevice? audio;
     private GraphicsDevice? graphics;
-    private MountableStorage? storage;
-    private LogWriterStream? fileOut;
+    private Storage? storage;
     private LogWriterConsole? termOut;
     private HostState state;
     private Waitable waitable;
@@ -213,17 +211,12 @@ public abstract class Host
     /// </summary>
     protected virtual void Initialize()
     {
-        storage = new();
-        storage.Mount("/game/", CreateStorage(MountTarget.Game));
-        storage.Mount("/data/", CreateStorage(MountTarget.Data));
-        storage.Mount("/temp/", CreateStorage(MountTarget.Temp));
-
-        termOut = new LogWriterConsole();
-        fileOut = new LogWriterText(storage.Open("/game/runtime.log", FileMode.OpenOrCreate, FileAccess.Write)) { MinimumLevel = RuntimeInfo.IsDebug ? LogLevel.Debug : LogLevel.Verbose };
-
         logger = new();
-        logger.AddOutput(termOut);
-        logger.AddOutput(fileOut);
+
+        if (RuntimeInfo.IsDebug)
+        {
+            logger.AddOutput(termOut = new LogWriterConsole());
+        }
 
         var asm = Assembly.GetEntryAssembly()?.GetName();
 
@@ -232,6 +225,8 @@ public abstract class Host
         logger.Log("  Running {0} {1} on .NET {2}", asm?.Name, asm?.Version, Environment.Version);
         logger.Log("  Environment: {0}, ({1}) {2} cores", RuntimeInfo.OS, Environment.OSVersion, Environment.ProcessorCount);
         logger.Log("--------------------------------------------------------");
+
+        storage = CreateStorage();
 
         window = CreateWindow();
         window.Title = $"Sekai{(asm?.Name is not null ? $" (running {asm.Name})" : string.Empty)}";
@@ -259,12 +254,18 @@ public abstract class Host
     }
 
     /// <summary>
+    /// Called every frame on the game thread regardless of state.
+    /// </summary>
+    protected virtual void Perform()
+    {
+    }
+
+    /// <summary>
     /// Called before closing the game to perform shutdown.
     /// </summary>
     protected virtual void Shutdown()
     {
         Window.Dispose();
-        fileOut?.Dispose();
         termOut?.Dispose();
     }
 
@@ -286,8 +287,7 @@ public abstract class Host
     /// <summary>
     /// Creates storage for this host.
     /// </summary>
-    /// <param name="point">The mounting point.</param>
-    protected abstract Storage CreateStorage(MountTarget point);
+    protected abstract Storage CreateStorage();
 
     /// <summary>
     /// Creates the graphics device for this host.
@@ -308,10 +308,7 @@ public abstract class Host
                 Window.Focus();
             }
 
-            do
-            {
-            }
-            while (runTick());
+            while (runTick()) ;
         }
         catch (Exception e)
         {
@@ -330,6 +327,8 @@ public abstract class Host
         }
 
         graphics?.MakeCurrent();
+
+        // Perform();
 
         switch (State)
         {

@@ -28,6 +28,7 @@ public abstract class DesktopHost : Host, IInputContext
 
 #pragma warning restore IDE0052
 
+    private MergedInputContext? input;
     private readonly Lazy<Silk.NET.GLFW.Glfw> glfw = new(Silk.NET.GLFW.Glfw.GetApi);
     private readonly Dictionary<int, IGLFWController> devices = new();
     private readonly Dictionary<string, IMonitor> monitors = new();
@@ -78,6 +79,7 @@ public abstract class DesktopHost : Host, IInputContext
     protected override void Shutdown()
     {
         base.Shutdown();
+        input?.Dispose();
         glfw.Value.SetMonitorCallback(null);
         glfw.Value.SetJoystickCallback(null);
         glfw.Value.Terminate();
@@ -90,7 +92,7 @@ public abstract class DesktopHost : Host, IInputContext
 
     protected override IInputContext CreateInput(IWindow window)
     {
-        return new MergedInputContext(this, (IInputContext)window);
+        return input = new MergedInputContext(this, (IInputContext)window);
     }
 
     private void handleControllersChanged(int id, Silk.NET.GLFW.ConnectedState state)
@@ -151,10 +153,5 @@ public abstract class DesktopHost : Host, IInputContext
         string name = glfw.Value.GetMonitorName(monitor);
 
         return new(index, name, monitor, new(x, y), new(new(mc->Width, mc->Height), mc->RefreshRate), ms);
-    }
-
-    public void Dispose()
-    {
-        throw new NotImplementedException();
     }
 }

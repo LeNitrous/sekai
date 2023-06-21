@@ -12,13 +12,9 @@ internal sealed class DummyInputContext : IInputContext
 {
     public IEnumerable<IInputDevice> Devices => Enumerable.Empty<IInputDevice>();
 
-#pragma warning disable IDE0067
+#pragma warning disable CS0067
 
     public event Action<IInputDevice, bool>? ConnectionChanged;
 
-#pragma warning restore IDE0067
-
-    public void Dispose()
-    {
-    }
+#pragma warning restore CS0067
 }
