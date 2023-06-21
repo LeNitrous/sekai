@@ -6,7 +6,6 @@ on:
       - 'source/**/*.cs'
       - 'samples/**/*.cs'
       - '.github/workflows/test.yml'
-      - '.github/workflows/report.yml'
 
 jobs:
   test:
@@ -35,3 +34,27 @@ jobs:
         with:
           name: results-${{ matrix.os }}
           path: tests/results/
+
+  report:
+    name: Report
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      pull-requests: write
+    steps:
+      - name: Download Results
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+
+      - name: Publish Report
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          files: artifacts/**/*.trx
+
+      - name: Publish Coverage
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: artifacts/results-ubuntu-latest/coverage.info
