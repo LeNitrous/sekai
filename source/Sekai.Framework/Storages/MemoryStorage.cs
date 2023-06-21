@@ -22,23 +22,23 @@ public sealed class MemoryStorage : Storage
 
     public override bool CreateDirectory(string path)
     {
-        var uri = createUri(path);
+        string uri = createPath(path);
 
-        if (storages.ContainsKey(uri.AbsolutePath))
+        if (storages.ContainsKey(uri))
         {
             return false;
         }
 
-        storages.Add(uri.AbsolutePath, new MemoryStorage());
+        storages.Add(uri, new MemoryStorage());
 
         return true;
     }
 
     public override bool Delete(string path)
     {
-        var uri = createUri(path);
+        string uri = createPath(path);
 
-        if (files.Remove(uri.AbsolutePath, out var stream))
+        if (files.Remove(uri, out var stream))
         {
             stream.Dispose();
             return true;
@@ -49,9 +49,9 @@ public sealed class MemoryStorage : Storage
 
     public override bool DeleteDirectory(string path)
     {
-        var uri = createUri(path);
+        string uri = createPath(path);
 
-        if (storages.Remove(uri.AbsolutePath, out var storage))
+        if (storages.Remove(uri, out var storage))
         {
             storage.Dispose();
             return true;
@@ -92,22 +92,22 @@ public sealed class MemoryStorage : Storage
 
     public override bool Exists(string path)
     {
-        return files.ContainsKey(createUri(path).AbsolutePath);
+        return files.ContainsKey(createPath(path));
     }
 
     public override bool ExistsDirectory(string path)
     {
-        return storages.ContainsKey(createUri(path).AbsolutePath);
+        return storages.ContainsKey(createPath(path));
     }
 
     public override Stream Open(string path, FileMode mode = FileMode.OpenOrCreate, FileAccess access = FileAccess.ReadWrite)
     {
-        var uri = createUri(path);
+        string uri = createPath(path);
 
-        if (!files.TryGetValue(uri.AbsolutePath, out var value))
+        if (!files.TryGetValue(uri, out var value))
         {
             value = new MemoryStream();
-            files.Add(uri.AbsolutePath, value);
+            files.Add(uri, value);
         }
 
         var stream = new WrappedStream(value);
@@ -115,14 +115,14 @@ public sealed class MemoryStorage : Storage
         return stream;
     }
 
-    private Uri createUri(string path)
+    private string createPath(string path)
     {
         if (!Uri.TryCreate(path, UriKind.RelativeOrAbsolute, out var relative))
         {
             throw new ArgumentException("Path has invalid characters.", nameof(path));
         }
 
-        return new Uri(baseUri, relative);
+        return new Uri(baseUri, relative).AbsolutePath.Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
     }
 
 
