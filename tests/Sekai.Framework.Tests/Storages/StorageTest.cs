@@ -32,24 +32,16 @@ public abstract class StorageTest<T>
 
         if ((Access & FileAccess.Write) != 0)
         {
-            if (HasFiles)
-            {
-                Storage.Open(test_file, FileMode.CreateNew, FileAccess.Write).Dispose();
-            }
-
             if (HasDirectories)
             {
                 Storage.CreateDirectory(test_path);
+                Storage.CreateDirectory(test_path_in_path);
             }
 
             if (HasFiles)
             {
+                Storage.Open(test_file, FileMode.CreateNew, FileAccess.Write).Dispose();
                 Storage.Open(test_file_in_path, FileMode.CreateNew, FileAccess.Write).Dispose();
-            }
-
-            if (HasDirectories)
-            {
-                Storage.CreateDirectory(test_path_in_path);
             }
         }
     }
