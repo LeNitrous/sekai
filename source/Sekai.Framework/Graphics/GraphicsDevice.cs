@@ -201,11 +201,16 @@ public abstract class GraphicsDevice : IDisposable
     public abstract void SetScissor(Rectangle scissor);
 
     /// <summary>
+    /// Sets the vertex layout to be used.
+    /// </summary>
+    /// <param name="layout">The input layout that this vertex buffer will use.</param>
+    public abstract void SetVertexLayout(VertexLayout layout);
+
+    /// <summary>
     /// Sets the vertex buffer to be used on the next draw call.
     /// </summary>
     /// <param name="buffer">The buffer to use.</param>
-    /// <param name="layout">The input layout that this vertex buffer will use.</param>
-    public abstract void SetVertexBuffer(GraphicsBuffer buffer, VertexLayout layout);
+    public abstract void SetVertexBuffer(GraphicsBuffer buffer);
 
     /// <summary>
     /// Sets the index buffer to be used on the next draw call.

@@ -372,10 +372,8 @@ public sealed unsafe class GLGraphicsDevice : GraphicsDevice
         ((GLBuffer)buffer).Bind(slot);
     }
 
-    public override void SetVertexBuffer(GraphicsBuffer buffer, VertexLayout layout)
+    public override void SetVertexLayout(VertexLayout layout)
     {
-        ((GLBuffer)buffer).Bind();
-
         if (currentLayout.Equals(layout))
         {
             return;
@@ -401,6 +399,11 @@ public sealed unsafe class GLGraphicsDevice : GraphicsDevice
             var member = currentLayout.Members[(int)i];
             GL.VertexAttribPointer(i, member.Count, member.Format.AsAttribType(), member.Normalized, currentLayout.Stride, (void*)member.Offset);
         }
+    }
+
+    public override void SetVertexBuffer(GraphicsBuffer buffer)
+    {
+        ((GLBuffer)buffer).Bind();
     }
 
     public override void SetViewport(Rectangle viewport)

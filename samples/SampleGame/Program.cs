@@ -60,6 +60,7 @@ internal sealed class Sample : Game
 {
     private Shader? shd;
     private GraphicsBuffer? vbo;
+    private readonly VertexLayout layout = new(new VertexMember(3, false, VertexMemberFormat.Float));
 
     public override void Load()
     {
@@ -82,7 +83,8 @@ internal sealed class Sample : Game
     public override void Draw()
     {
         Graphics!.SetShader(shd!);
-        Graphics.SetVertexBuffer(vbo!, new VertexLayout(new VertexMember(3, false, VertexMemberFormat.Float)));
+        Graphics.SetVertexLayout(layout);
+        Graphics.SetVertexBuffer(vbo!);
         Graphics.Draw(PrimitiveType.TriangleList, 3);
     }
 
