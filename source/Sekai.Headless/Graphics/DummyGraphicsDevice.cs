@@ -139,7 +139,11 @@ internal sealed class DummyGraphicsDevice : GraphicsDevice
     {
     }
 
-    public override void SetVertexBuffer(GraphicsBuffer buffer, VertexLayout layout)
+    public override void SetVertexLayout(VertexLayout layout)
+    {
+    }
+
+    public override void SetVertexBuffer(GraphicsBuffer buffer)
     {
     }
 
