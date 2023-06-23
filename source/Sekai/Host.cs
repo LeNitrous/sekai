@@ -13,6 +13,7 @@ using Sekai.Framework.Audio;
 using Sekai.Framework.Graphics;
 using Sekai.Framework.Input;
 using Sekai.Framework.Logging;
+using Sekai.Framework.Mathematics;
 using Sekai.Framework.Storages;
 using Sekai.Framework.Windowing;
 
@@ -415,8 +416,8 @@ public abstract class Host
                         game.Update(elapsedTime);
                     }
 
-                    Graphics.SetScissor(Window.Size);
-                    Graphics.SetViewport(Window.Size);
+                    Graphics.SetScissor(new Rectangle(Point.Zero, Window.Size));
+                    Graphics.SetViewport(new Rectangle(Point.Zero, Window.Size));
 
                     game.Draw();
 
