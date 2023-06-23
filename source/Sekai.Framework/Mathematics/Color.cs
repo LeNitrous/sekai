@@ -40,7 +40,7 @@ namespace Sekai.Framework.Mathematics;
 /// Represents a 32-bit color (4 bytes) in the form of RGBA (in byte order: R, G, B, A).
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Size = 4)]
-public partial struct Color : IColor<Color>
+public partial struct Color : IColor<Color>, IColorOperators<Color>
 {
     private const string to_string_format = "R:{1} G:{2} B:{3} A:{0}";
 

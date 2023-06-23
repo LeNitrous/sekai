@@ -40,7 +40,7 @@ namespace Sekai.Framework.Mathematics;
 /// Represents a color in the form of rgb.
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct Color3 : IEquatable<Color3>, IFormattable
+public struct Color3 : IColor<Color3>, IColorOperators<Color3>
 {
     private const string to_string_format = "R:{0} G:{1} B:{2}";
 

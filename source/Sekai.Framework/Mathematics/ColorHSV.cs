@@ -31,7 +31,7 @@ namespace Sekai.Framework.Mathematics;
 /// Represents a color in the form of Hue, Saturation, Value, Alpha.
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct ColorHSV : IEquatable<ColorHSV>, IFormattable
+public struct ColorHSV : IColor<ColorHSV>
 {
     private const string to_string_format = "Hue:{0} Saturation:{1} Value:{2} Alpha:{3}";
 
@@ -200,6 +200,17 @@ public struct ColorHSV : IEquatable<ColorHSV>, IFormattable
                              S.ToString(format, formatProvider),
                              V.ToString(format, formatProvider),
                              A.ToString(format, formatProvider));
+    }
+
+    /// <summary>
+    /// Performs an explicit conversion to <see cref="Color4"/>.
+    /// </summary>
+    /// <remarks>Converts HSVA components to RGBA components.</remarks>
+    /// <param name="color">The color to convert.</param>
+    /// <returns>A color structure in red, green, blue, alpha components</returns>.
+    public static explicit operator Color4(ColorHSV color)
+    {
+        return color.ToColor();
     }
 
     public static bool operator ==(ColorHSV left, ColorHSV right)

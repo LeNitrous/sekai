@@ -32,7 +32,7 @@ namespace Sekai.Framework.Mathematics;
 /// Represents a 32-bit color (4 bytes) in the form of BGRA (in byte order: B, G, R, A).
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Size = 4)]
-public partial struct ColorBGRA : IColor<ColorBGRA>
+public partial struct ColorBGRA : IColor<ColorBGRA>, IColorOperators<ColorBGRA>
 {
     private const string to_string_format = "R:{1} G:{2} B:{3} A:{0}";
 
@@ -1087,7 +1087,7 @@ public partial struct ColorBGRA : IColor<ColorBGRA>
     /// <returns>
     /// <c>true</c> if the specified <see cref="object"/> is equal to this instance; otherwise, <c>false</c>.
     /// </returns>
-    public override bool Equals(object? value)
+    public override readonly bool Equals(object? value)
     {
         if (value == null)
             return false;
