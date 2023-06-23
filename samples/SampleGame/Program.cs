@@ -9,6 +9,7 @@ using Sekai.Framework;
 using Sekai.Framework.Audio;
 using Sekai.Framework.Contexts;
 using Sekai.Framework.Graphics;
+using Sekai.Framework.Mathematics;
 using Sekai.Framework.Storages;
 using Sekai.Framework.Windowing;
 using Sekai.OpenAL;
@@ -60,7 +61,7 @@ internal sealed class Sample : Game
 {
     private Shader? shd;
     private GraphicsBuffer? vbo;
-    private readonly VertexLayout layout = new(new VertexMember(3, false, VertexMemberFormat.Float));
+    private readonly VertexLayout layout = new(new VertexMember(2, false, VertexMemberFormat.Float));
 
     public override void Load()
     {
@@ -70,11 +71,11 @@ internal sealed class Sample : Game
             ShaderCode.From(shader_f_code, ShaderStage.Fragment)
         );
 
-        ReadOnlySpan<Vector3> vertices = stackalloc Vector3[]
+        ReadOnlySpan<Vector2> vertices = stackalloc Vector2[]
         {
-            new(-0.5f, -0.5f, 0.0f),
-            new(0.5f, -0.5f, 0.0f),
-            new(0.0f, 0.5f, 0.0f)
+            new(-0.5f, -0.5f),
+            new(0.5f, -0.5f),
+            new(0.0f, 0.5f),
         };
 
         vbo = Graphics.CreateBuffer(BufferType.Vertex, vertices);
@@ -82,7 +83,8 @@ internal sealed class Sample : Game
 
     public override void Draw()
     {
-        Graphics!.SetShader(shd!);
+        Graphics!.Clear(Color.CornflowerBlue);
+        Graphics.SetShader(shd!);
         Graphics.SetVertexLayout(layout);
         Graphics.SetVertexBuffer(vbo!);
         Graphics.Draw(PrimitiveType.TriangleList, 3);
@@ -98,11 +100,11 @@ internal sealed class Sample : Game
 @"
 #version 450
 
-layout (location = 0) in vec3 a_position;
+layout (location = 0) in vec2 a_position;
 
 void main()
 {
-    gl_Position = vec4(a_position.x, a_position.y, a_position.z, 1.0);
+    gl_Position = vec4(a_position.x, a_position.y, 0.0, 1.0);
 }
 ";
 
