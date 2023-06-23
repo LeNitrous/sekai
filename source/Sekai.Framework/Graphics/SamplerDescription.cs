@@ -69,7 +69,7 @@ public struct SamplerDescription : IEquatable<SamplerDescription>
         LODBias = lodBias;
     }
 
-    public bool Equals(SamplerDescription other)
+    public readonly bool Equals(SamplerDescription other)
     {
         return Filter == other.Filter &&
                AddressU == other.AddressU &&
@@ -81,12 +81,12 @@ public struct SamplerDescription : IEquatable<SamplerDescription>
                MaximumLOD == other.MaximumLOD;
     }
 
-    public override bool Equals(object? obj)
+    public override readonly bool Equals(object? obj)
     {
         return obj is SamplerDescription other && Equals(other);
     }
 
-    public override int GetHashCode()
+    public override readonly int GetHashCode()
     {
         return HashCode.Combine(Filter, AddressU, AddressV, AddressW, MaxAnisotropy, BorderColor, MinimumLOD, MaximumLOD);
     }

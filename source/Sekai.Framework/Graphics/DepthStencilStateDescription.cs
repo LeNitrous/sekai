@@ -86,7 +86,7 @@ public struct DepthStencilStateDescription : IEquatable<DepthStencilStateDescrip
         Front = stencilFront;
     }
 
-    public bool Equals(DepthStencilStateDescription other)
+    public readonly bool Equals(DepthStencilStateDescription other)
     {
         return DepthTest == other.DepthTest &&
                DepthMask == other.DepthMask &&
@@ -98,12 +98,12 @@ public struct DepthStencilStateDescription : IEquatable<DepthStencilStateDescrip
                Back.Equals(other.Back);
     }
 
-    public override bool Equals(object? obj)
+    public override readonly bool Equals(object? obj)
     {
         return obj is DepthStencilStateDescription other && Equals(other);
     }
 
-    public override int GetHashCode()
+    public override readonly int GetHashCode()
     {
         return HashCode.Combine(DepthTest, DepthMask, DepthComparison, StencilTest, StencilReadMask, StencilWriteMask, Front, Back);
     }

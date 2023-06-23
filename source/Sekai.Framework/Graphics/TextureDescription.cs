@@ -83,7 +83,7 @@ public struct TextureDescription : IEquatable<TextureDescription>
     {
     }
 
-    public bool Equals(TextureDescription other)
+    public readonly bool Equals(TextureDescription other)
     {
         return Type == other.Type &&
                Width == other.Width &&
@@ -96,12 +96,12 @@ public struct TextureDescription : IEquatable<TextureDescription>
                Count == other.Count;
     }
 
-    public override bool Equals(object? obj)
+    public override readonly bool Equals(object? obj)
     {
         return obj is TextureDescription other && Equals(other);
     }
 
-    public override int GetHashCode()
+    public override readonly int GetHashCode()
     {
         var hashCode = new HashCode();
         hashCode.Add(Type);

@@ -38,7 +38,7 @@ public struct VertexMember : IEquatable<VertexMember>
         Offset = offset;
     }
 
-    public bool Equals(VertexMember other)
+    public readonly bool Equals(VertexMember other)
     {
         return Count == other.Count &&
                Normalized == other.Normalized &&
@@ -46,13 +46,13 @@ public struct VertexMember : IEquatable<VertexMember>
                Offset == other.Offset;
     }
 
-    public override bool Equals(object? obj)
+    public override readonly bool Equals(object? obj)
     {
         return obj is VertexMember other && Equals(other);
 
     }
 
-    public override int GetHashCode()
+    public override readonly int GetHashCode()
     {
         return HashCode.Combine(Count, Normalized, Format, Offset);
     }

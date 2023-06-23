@@ -33,17 +33,17 @@ public struct FramebufferAttachment : IEquatable<FramebufferAttachment>
         Texture = texture;
     }
 
-    public bool Equals(FramebufferAttachment other)
+    public readonly bool Equals(FramebufferAttachment other)
     {
         return EqualityComparer<Texture>.Default.Equals(Texture, other.Texture) && Layer.Equals(other.Layer) && Level.Equals(other.Level);
     }
 
-    public override bool Equals(object? obj)
+    public override readonly bool Equals(object? obj)
     {
         return obj is FramebufferAttachment other && Equals(other);
     }
 
-    public override int GetHashCode()
+    public override readonly int GetHashCode()
     {
         return HashCode.Combine(Texture, Layer, Level);
     }

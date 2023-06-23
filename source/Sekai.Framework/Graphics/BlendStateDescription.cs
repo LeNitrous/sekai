@@ -72,7 +72,7 @@ public struct BlendStateDescription : IEquatable<BlendStateDescription>
     {
     }
 
-    public bool Equals(BlendStateDescription other)
+    public readonly bool Equals(BlendStateDescription other)
     {
         return Enabled == other.Enabled &&
                SourceColor == other.SourceColor &&
@@ -84,12 +84,12 @@ public struct BlendStateDescription : IEquatable<BlendStateDescription>
                WriteMask == other.WriteMask;
     }
 
-    public override bool Equals(object? obj)
+    public override readonly bool Equals(object? obj)
     {
         return obj is BlendStateDescription other && Equals(other);
     }
 
-    public override int GetHashCode()
+    public override readonly int GetHashCode()
     {
         return HashCode.Combine(Enabled, SourceColor, DestinationColor, ColorOperation, SourceAlpha, DestinationAlpha, AlphaOperation, WriteMask);
     }

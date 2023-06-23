@@ -38,7 +38,7 @@ public struct StencilBehaviorDescription : IEquatable<StencilBehaviorDescription
         Comparison = comparison;
     }
 
-    public bool Equals(StencilBehaviorDescription other)
+    public readonly bool Equals(StencilBehaviorDescription other)
     {
         return StencilFail == other.StencilFail &&
                DepthFail == other.DepthFail &&
@@ -46,12 +46,12 @@ public struct StencilBehaviorDescription : IEquatable<StencilBehaviorDescription
                Comparison == other.Comparison;
     }
 
-    public override bool Equals(object? obj)
+    public override readonly bool Equals(object? obj)
     {
         return obj is StencilBehaviorDescription other && Equals(other);
     }
 
-    public override int GetHashCode()
+    public override readonly int GetHashCode()
     {
         return HashCode.Combine(StencilFail, DepthFail, StencilPass, Comparison);
     }

@@ -38,7 +38,7 @@ public struct RasterizerStateDescription : IEquatable<RasterizerStateDescription
         ScissorTest = scissorTest;
     }
 
-    public bool Equals(RasterizerStateDescription other)
+    public readonly bool Equals(RasterizerStateDescription other)
     {
         return Culling == other.Culling &&
                Winding == other.Winding &&
@@ -46,12 +46,12 @@ public struct RasterizerStateDescription : IEquatable<RasterizerStateDescription
                ScissorTest == other.ScissorTest;
     }
 
-    public override bool Equals(object? obj)
+    public override readonly bool Equals(object? obj)
     {
         return obj is RasterizerStateDescription other && Equals(other);
     }
 
-    public override int GetHashCode()
+    public override readonly int GetHashCode()
     {
         return HashCode.Combine(Culling, Winding, Mode, ScissorTest);
     }
