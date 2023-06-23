@@ -424,6 +424,17 @@ public struct RectangleF : IEquatable<RectangleF>
         return new Rectangle((int)value.X, (int)value.Y, (int)value.Width, (int)value.Height);
     }
 
+    /// <summary>
+    /// Performs an explicit conversion to <see cref="System.Drawing.RectangleF"/> structure.
+    /// </summary>
+    /// <remarks>Performs direct float to int conversion, any fractional data is truncated.</remarks>
+    /// <param name="value">The source <see cref="RectangleF"/> value.</param>
+    /// <returns>A converted <see cref="System.Drawing.RectangleF"/> structure.</returns>
+    public static implicit operator System.Drawing.RectangleF(RectangleF value)
+    {
+        return new System.Drawing.RectangleF(value.X, value.Y, value.Width, value.Height);
+    }
+
     /// <inheritdoc/>
     public override readonly string ToString()
     {

@@ -111,7 +111,7 @@ public struct Point : IEquatable<Point>
     }
 
     /// <inheritdoc/>
-    public override string ToString()
+    public override readonly string ToString()
     {
         return string.Format("({0},{1})", X, Y);
     }
@@ -119,6 +119,7 @@ public struct Point : IEquatable<Point>
     /// <summary>
     /// Performs an implicit conversion from <see cref="Vector2"/> to <see cref="Point"/>.
     /// </summary>
+    /// <remarks>Performs direct converstion from float to int.</remarks>
     /// <param name="value">The value.</param>
     /// <returns>The result of the conversion.</returns>
     public static explicit operator Point(Vector2 value)
@@ -129,10 +130,21 @@ public struct Point : IEquatable<Point>
     /// <summary>
     /// Performs an explicit conversion from <see cref="Point"/> to <see cref="Vector2"/>.
     /// </summary>
+    /// <remarks>Performs direct converstion from int to float.</remarks>
     /// <param name="value">The value.</param>
     /// <returns>The result of the conversion.</returns>
     public static implicit operator Vector2(Point value)
     {
         return new Vector2(value.X, value.Y);
+    }
+
+    /// <summary>
+    /// Performs an implicit converison to <see cref="System.Drawing.Point"/>.
+    /// </summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The result of the conversion.</returns>
+    public static implicit operator System.Drawing.Point(Point value)
+    {
+        return new System.Drawing.Point(value.X, value.Y);
     }
 }

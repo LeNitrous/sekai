@@ -23,7 +23,6 @@
 // THE SOFTWARE.
 
 using System;
-using System.Numerics;
 using System.Runtime.InteropServices;
 
 namespace Sekai.Framework.Mathematics;
@@ -115,19 +114,14 @@ public struct Size : IEquatable<Size>
         return !left.Equals(right);
     }
 
+    /// <summary>
+    /// Performs an explicit conversion to <see cref="SizeF"/> structure.
+    /// </summary>
+    /// <param name="value">The source <see cref="Size"/> value.</param>
+    /// <returns>A converted <see cref="SizeF"/> structure.</returns>
     public static implicit operator SizeF(Size size)
     {
         return new SizeF(size.Width, size.Height);
-    }
-
-    public static implicit operator Rectangle(Size size)
-    {
-        return new Rectangle(Point.Zero, size);
-    }
-
-    public static implicit operator RectangleF(Size size)
-    {
-        return new RectangleF(Vector2.Zero, size);
     }
 
     /// <inheritdoc/>

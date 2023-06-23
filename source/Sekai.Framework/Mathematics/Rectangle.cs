@@ -424,9 +424,14 @@ public struct Rectangle : IEquatable<Rectangle>
         return new RectangleF(value.X, value.Y, value.Width, value.Height);
     }
 
-    public static implicit operator System.Drawing.Size(Rectangle value)
+    /// <summary>
+    /// Performs an explicit conversion to <see cref="System.Drawing.Rectangle"/> structure.
+    /// </summary>
+    /// <param name="value">The source <see cref="Rectangle"/> value.</param>
+    /// <returns>A converted <see cref="System.Drawing.Rectangle"/> structure.</returns>
+    public static implicit operator System.Drawing.Rectangle(Rectangle value)
     {
-        return new System.Drawing.Size(value.Width, value.Height);
+        return new System.Drawing.Rectangle(value.X, value.Y, value.Width, value.Height);
     }
 
     /// <inheritdoc/>
