@@ -4,8 +4,6 @@ Sekai is structured where abstractions and concrete implementations as separate 
 
 - **`Sekai`**
     - The main project.
-- **`Sekai.Framework`**
-    - The framework components of Sekai.
 - **`Sekai.Desktop`**
     - The desktop platform implementation.
 - **`Sekai.Headless`**
