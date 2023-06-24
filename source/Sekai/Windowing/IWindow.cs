@@ -112,7 +112,7 @@ public interface IWindow : IDisposable
     /// <remarks>
     /// This is used on some windowing systems to save preferences such as window size, state, and position.
     /// </remarks>
-    string Class { get; init; }
+    string Class { get; }
 
     /// <summary>
     /// Translates screen-space coordinates to local coordinates.

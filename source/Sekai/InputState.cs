@@ -15,7 +15,7 @@ public sealed class InputState : IDisposable
     /// <summary>
     /// The underlying input context.
     /// </summary>
-    public IInputContext Context { get; }
+    public IInputSource Context { get; }
 
     /// <summary>
     /// The mouse position.
@@ -33,7 +33,7 @@ public sealed class InputState : IDisposable
     private IMouse? primaryMouse;
     private IKeyboard? primaryKeyboard;
 
-    internal InputState(IInputContext context)
+    internal InputState(IInputSource context)
     {
         Context = context;
 

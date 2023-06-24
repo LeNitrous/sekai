@@ -35,18 +35,18 @@ public sealed class Host
     /// Gets or sets the ticking mode.
     /// </summary>
     /// <remarks>
-    /// When set to <see cref="TickMode.Fixed"/>, the target time between frames is provided by <see cref="UpdatePerSecond"/>.
+    /// When set to <see cref="TickMode.Fixed"/>, the target time between frames is provided by <see cref="UpdateRate"/>.
     /// Otherwise, it is the duration of each elapsed frame.
     /// </remarks>
     public TickMode TickMode { get; set; } = TickMode.Fixed;
 
     /// <summary>
-    /// Gets or sets the update rate of the game when <see cref="TickMode"/> is <see cref="TickMode.Fixed"/>.
+    /// Gets or sets the update rate (in seconds) of the game when <see cref="TickMode"/> is <see cref="TickMode.Fixed"/>.
     /// </summary>
     /// <remarks>
     /// The returned value may be an approximation of the originally set value.
     /// </remarks>
-    public double UpdatePerSecond
+    public double UpdateRate
     {
         get => 1000 / msPerUpdate.Milliseconds;
         set
@@ -85,6 +85,7 @@ public sealed class Host
     public IEnumerable<IMonitor> Monitors => platform?.Monitors ?? throw hostNotLoadedException;
 
     internal Logger Logger { get; private set; } = new();
+    internal HostOptions Options { get; private set; }
     internal IWindow Window => window ?? throw hostNotLoadedException;
     internal InputState Input => input ?? throw hostNotLoadedException;
     internal AudioDevice Audio => audio ?? throw hostNotLoadedException;
@@ -106,23 +107,26 @@ public sealed class Host
     private TimeSpan previousTime;
     private readonly object sync = new();
     private readonly Stopwatch stopwatch = new();
-    private readonly MergedInputContext inputContext = new();
+    private readonly MergedInputSource inputContext = new();
     private static readonly TimeSpan wait_threshold = TimeSpan.FromMilliseconds(2);
 
-    private Host()
+    private Host(HostOptions? options = null)
     {
+        Options = options ?? new();
+        TickMode = Options.TickMode;
+        UpdateRate = Options.UpdateRate;
     }
 
     /// <summary>
     /// Runs the game.
     /// </summary>
     /// <typeparam name="T">The game to run.</typeparam>
-    public static void Run<T>()
+    public static void Run<T>(HostOptions? options = null)
         where T : Game, new()
     {
         try
         {
-            RunAsync<T>().Wait();
+            RunAsync<T>(options).Wait();
         }
         catch (AggregateException e)
         {
@@ -136,11 +140,11 @@ public sealed class Host
     /// <typeparam name="T">The game to run.</typeparam>
     /// <param name="token">The cancellation token when canceled closes the game.</param>
     /// <returns>A task that represents the game's main execution loop.</returns>
-    public static async Task RunAsync<T>(CancellationToken token = default)
+    public static async Task RunAsync<T>(HostOptions? options = null, CancellationToken token = default)
         where T : Game, new()
     {
         var game = new T();
-        var host = new Host();
+        var host = new Host(options);
         await host.run(game, token);
     }
 
@@ -181,8 +185,10 @@ public sealed class Host
         Logger.Log("--------------------------------------------------------");
 
         window = platform.CreateWindow();
-        window.Title = $"Sekai{(asm?.Name is not null ? $" (running {asm.Name})" : string.Empty)}";
+        window.Size = Options.WindowSize;
+        window.Title = Options.Title;
         window.State = WindowState.Minimized;
+        window.Border = Options.WindowBorder;
         window.Closed += Exit;
 
         if (window is IHasSuspend suspendable)
@@ -291,12 +297,12 @@ public sealed class Host
         {
             case HostState.Loading:
                 {
-                    if (window is IInputContext windowInput)
+                    if (window is IInputSource windowInput)
                     {
                         inputContext.Add(windowInput);
                     }
 
-                    if (platform is IInputContext platformInput)
+                    if (platform is IInputSource platformInput)
                     {
                         inputContext.Add(platformInput);
                     }
@@ -515,7 +521,7 @@ public sealed class Host
         throw new InvalidOperationException("Failed to load provider.");
     }
 
-    private static bool tryLoad<T, U>(string assemblyName, [NotNullWhen(true)] out U? provider)
+    private static bool tryLoad<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] T, U>(string assemblyName, [NotNullWhen(true)] out U? provider)
         where T : Attribute, IProviderAttribute
         where U : class
     {
@@ -536,7 +542,7 @@ public sealed class Host
                 return false;
             }
 
-            provider = (U)Activator.CreateInstance(att.Type, true)!;
+            provider = (U)Activator.CreateInstance(att.Type)!;
 
             return true;
         }

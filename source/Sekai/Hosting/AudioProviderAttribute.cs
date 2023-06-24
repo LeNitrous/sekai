@@ -3,6 +3,7 @@
 
 using System;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Sekai.Hosting;
 
@@ -13,9 +14,10 @@ namespace Sekai.Hosting;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public sealed class AudioProviderAttribute : Attribute, IProviderAttribute
 {
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
     public Type Type { get; }
 
-    public AudioProviderAttribute(Type type)
+    public AudioProviderAttribute([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type type)
     {
         Type = type;
     }

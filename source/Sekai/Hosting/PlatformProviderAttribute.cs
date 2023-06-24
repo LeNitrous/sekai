@@ -3,6 +3,7 @@
 
 using System;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Sekai.Hosting;
 
@@ -10,9 +11,10 @@ namespace Sekai.Hosting;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public sealed class PlatformProviderAttribute : Attribute, IProviderAttribute
 {
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
     public Type Type { get; }
 
-    public PlatformProviderAttribute(Type type)
+    public PlatformProviderAttribute([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type type)
     {
         Type = type;
     }

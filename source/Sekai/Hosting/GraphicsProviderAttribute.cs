@@ -3,6 +3,7 @@
 
 using System;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Sekai.Hosting;
 
@@ -10,9 +11,10 @@ namespace Sekai.Hosting;
 [EditorBrowsable(EditorBrowsableState.Never)]
 public sealed class GraphicsProviderAttribute : Attribute, IProviderAttribute
 {
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
     public Type Type { get; }
 
-    public GraphicsProviderAttribute(Type type)
+    public GraphicsProviderAttribute([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type type)
     {
         Type = type;
     }

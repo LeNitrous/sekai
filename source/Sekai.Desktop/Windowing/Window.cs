@@ -19,7 +19,7 @@ namespace Sekai.Desktop.Windowing;
 [SupportedOSPlatform("windows")]
 [SupportedOSPlatform("linux")]
 [SupportedOSPlatform("osx")]
-internal sealed unsafe partial class Window : IWindow, IHasIcon, IHasDragDrop, IGLContextSource, IInputContext
+internal sealed unsafe partial class Window : IWindow, IHasIcon, IHasDragDrop, IGLContextSource, IInputSource
 {
     public bool Exists { get; private set; }
 
@@ -294,7 +294,7 @@ internal sealed unsafe partial class Window : IWindow, IHasIcon, IHasDragDrop, I
         glfw.SwapInterval
     );
 
-    public string Class { get; init; } = "Sekai";
+    public string Class { get; } = "Sekai";
 
     public IEnumerable<IInputDevice> Devices => devices;
 

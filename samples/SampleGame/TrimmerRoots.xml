@@ -1,0 +1,5 @@
+<linker>
+  <assembly fullname="Sekai.OpenGL" preserve="all"/>
+  <assembly fullname="Sekai.OpenAL" preserve="all"/>
+  <assembly fullname="Sekai.Desktop" preserve="all"/>
+</linker>

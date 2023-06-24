@@ -48,6 +48,11 @@ public abstract class Game
     /// </summary>
     public Logger Logger => Host.Logger;
 
+    /// <summary>
+    /// The options passed during initialization.
+    /// </summary>
+    public HostOptions Options => Host.Options;
+
     private Host? host;
 
     /// <summary>

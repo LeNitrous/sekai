@@ -15,7 +15,7 @@ namespace Sekai.Desktop;
 [SupportedOSPlatform("windows")]
 [SupportedOSPlatform("linux")]
 [SupportedOSPlatform("osx")]
-internal sealed unsafe class DesktopPlatform : Platform, IInputContext
+internal sealed unsafe class DesktopPlatform : Platform, IInputSource
 {
     public override IMonitor PrimaryMonitor => monitors.Values.FirstOrDefault(m => m.Handle == glfw.GetPrimaryMonitor());
     public override IEnumerable<IMonitor> Monitors => monitors.Values.Cast<IMonitor>();
@@ -136,9 +136,9 @@ internal sealed unsafe class DesktopPlatform : Platform, IInputContext
         return new(index, name, monitor, new(x, y), new(new(mc->Width, mc->Height), mc->RefreshRate), ms);
     }
 
-    IEnumerable<IInputDevice> IInputContext.Devices => devices.Values;
+    IEnumerable<IInputDevice> IInputSource.Devices => devices.Values;
 
-    event Action<IInputDevice, bool>? IInputContext.ConnectionChanged
+    event Action<IInputDevice, bool>? IInputSource.ConnectionChanged
     {
         add => connectionChanged += value;
         remove => connectionChanged -= value;
