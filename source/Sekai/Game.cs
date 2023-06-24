@@ -12,7 +12,7 @@ namespace Sekai;
 /// <summary>
 /// The entry point for Sekai.
 /// </summary>
-public class Game
+public abstract class Game
 {
     /// <summary>
     /// The host running this game.

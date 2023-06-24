@@ -7,7 +7,7 @@ using Sekai.Audio;
 
 namespace Sekai.Headless.Audio;
 
-public sealed class DummyAudioDevice : AudioDevice
+internal sealed class DummyAudioDevice : AudioDevice
 {
     public override AudioAPI API => AudioAPI.Dummy;
     public override Version Version { get; } = new();

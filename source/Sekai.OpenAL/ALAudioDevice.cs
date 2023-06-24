@@ -12,7 +12,7 @@ using Silk.NET.OpenAL.Extensions.Soft;
 
 namespace Sekai.OpenAL;
 
-public sealed unsafe class ALAudioDevice : AudioDevice
+internal sealed unsafe class ALAudioDevice : AudioDevice
 {
     public override AudioAPI API => AudioAPI.OpenAL;
     public override Version Version { get; }

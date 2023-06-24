@@ -4,14 +4,8 @@
 using System;
 using System.Numerics;
 using Sekai;
-using Sekai.Audio;
-using Sekai.Contexts;
-using Sekai.Desktop;
 using Sekai.Graphics;
 using Sekai.Mathematics;
-using Sekai.OpenAL;
-using Sekai.OpenGL;
-using Sekai.Windowing;
 
 namespace SampleGame;
 
@@ -19,37 +13,7 @@ internal static class Program
 {
     private static void Main()
     {
-        var host = new SampleHost();
-        var game = new Sample();
-        host.Run(game);
-    }
-}
-
-internal sealed class SampleHost : Host
-{
-    protected override Platform CreatePlatform()
-    {
-        if (RuntimeInfo.IsDesktop)
-        {
-            return new DesktopPlatform();
-        }
-
-        throw new PlatformNotSupportedException();
-    }
-
-    protected override AudioDevice CreateAudio()
-    {
-        return new ALAudioDevice();
-    }
-
-    protected override GraphicsDevice CreateGraphics(IWindow window)
-    {
-        if (window is not IGLContextSource source)
-        {
-            throw new ArgumentException("Window does not provide a GL context.", nameof(window));
-        }
-
-        return new GLGraphicsDevice(source.Context);
+        Host.Run<Sample>();
     }
 }
 

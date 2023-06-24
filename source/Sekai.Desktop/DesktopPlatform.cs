@@ -15,7 +15,7 @@ namespace Sekai.Desktop;
 [SupportedOSPlatform("windows")]
 [SupportedOSPlatform("linux")]
 [SupportedOSPlatform("osx")]
-public sealed unsafe class DesktopPlatform : Platform, IInputContext
+internal sealed unsafe class DesktopPlatform : Platform, IInputContext
 {
     public override IMonitor PrimaryMonitor => monitors.Values.FirstOrDefault(m => m.Handle == glfw.GetPrimaryMonitor());
     public override IEnumerable<IMonitor> Monitors => monitors.Values.Cast<IMonitor>();

@@ -7,7 +7,7 @@ using Sekai.Windowing;
 
 namespace Sekai.Headless;
 
-public class DummyPlatform : Platform
+internal sealed class DummyPlatform : Platform
 {
     public override IMonitor PrimaryMonitor => DummyMonitor.Instance;
 

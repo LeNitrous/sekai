@@ -4,16 +4,17 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Sekai.Audio;
 using Sekai.Graphics;
+using Sekai.Hosting;
 using Sekai.Input;
 using Sekai.Logging;
 using Sekai.Mathematics;
-using Sekai.Storages;
 using Sekai.Windowing;
 
 namespace Sekai;
@@ -21,7 +22,7 @@ namespace Sekai;
 /// <summary>
 /// Hosts and manages a <see cref="Game"/>'s lifetime and resources.
 /// </summary>
-public abstract class Host
+public sealed class Host
 {
     /// <summary>
     /// Gets the current host.
@@ -108,15 +109,20 @@ public abstract class Host
     private readonly MergedInputContext inputContext = new();
     private static readonly TimeSpan wait_threshold = TimeSpan.FromMilliseconds(2);
 
+    private Host()
+    {
+    }
+
     /// <summary>
     /// Runs the game.
     /// </summary>
-    /// <param name="game">The game to run.</param>
-    public void Run(Game game)
+    /// <typeparam name="T">The game to run.</typeparam>
+    public static void Run<T>()
+        where T : Game, new()
     {
         try
         {
-            RunAsync(game).Wait();
+            RunAsync<T>().Wait();
         }
         catch (AggregateException e)
         {
@@ -127,11 +133,18 @@ public abstract class Host
     /// <summary>
     /// Runs the game asynchronously.
     /// </summary>
-    /// <param name="game">The game to run.</param>
+    /// <typeparam name="T">The game to run.</typeparam>
     /// <param name="token">The cancellation token when canceled closes the game.</param>
     /// <returns>A task that represents the game's main execution loop.</returns>
-    /// <exception cref="InvalidOperationException">Thrown when there is already a game being ran.</exception>
-    public async Task RunAsync(Game game, CancellationToken token = default)
+    public static async Task RunAsync<T>(CancellationToken token = default)
+        where T : Game, new()
+    {
+        var game = new T();
+        var host = new Host();
+        await host.run(game, token);
+    }
+
+    private async Task run(Game game, CancellationToken token = default)
     {
         if (this.game is not null)
         {
@@ -152,7 +165,7 @@ public abstract class Host
 
         this.game = game;
 
-        platform = CreatePlatform();
+        platform = platformProvider.CreatePlatform();
 
         if (RuntimeInfo.IsDebug)
         {
@@ -195,7 +208,7 @@ public abstract class Host
                 break;
             }
 
-            Update();
+            Window.DoEvents();
         }
 
         await gameLoop;
@@ -239,31 +252,6 @@ public abstract class Host
     {
         setHostState(HostState.Reloading);
     }
-
-    /// <summary>
-    /// Called every frame on the main thread.
-    /// </summary>
-    protected virtual void Update()
-    {
-        Window.DoEvents();
-    }
-
-    /// <summary>
-    /// Creates a <see cref="Platform"/> for this host.
-    /// </summary>
-    /// <returns></returns>
-    protected abstract Platform CreatePlatform();
-
-    /// <summary>
-    /// Creates an <see cref="AudioDevice"/> for this host.
-    /// </summary>
-    protected abstract AudioDevice CreateAudio();
-
-    /// <summary>
-    /// Creates the <see cref="GraphicsDevice"/> for this host.
-    /// </summary>
-    /// <param name="window">The window backing the graphics device.</param>
-    protected abstract GraphicsDevice CreateGraphics(IWindow window);
 
     private ExceptionDispatchInfo? info;
 
@@ -313,13 +301,13 @@ public abstract class Host
                     }
 
                     input = new(inputContext);
-                    audio = CreateAudio();
+                    audio = audioProvider.CreateAudio();
 
                     Logger.Log("{0} Initialized", audio.API);
                     Logger.Log("     Device: {0}", audio.Device);
                     Logger.Log("    Version: {0}", audio.Version);
 
-                    graphics = CreateGraphics(Window);
+                    graphics = graphicsProvider.CreateGraphics(Window);
 
                     Logger.Log("{0} Initialized", graphics.API);
                     Logger.Log("     Device: {0}", graphics.Device);
@@ -499,5 +487,79 @@ public abstract class Host
         }
     }
 
-    private static Exception hostNotLoadedException => new InvalidOperationException("The host has not yet loaded");
+    private static readonly Exception hostNotLoadedException = new InvalidOperationException("The host has not yet loaded");
+    private static readonly IAudioProvider audioProvider;
+    private static readonly IPlatformProvider platformProvider;
+    private static readonly IGraphicsProvider graphicsProvider;
+
+    static Host()
+    {
+        audioProvider = getProvider<AudioProviderAttribute, IAudioProvider>(provider_names_audio);
+        platformProvider = getProvider<PlatformProviderAttribute, IPlatformProvider>(provider_names_platform);
+        graphicsProvider = getProvider<GraphicsProviderAttribute, IGraphicsProvider>(provider_names_graphics);
+    }
+
+    private static U getProvider<T, U>(string[] assemblyNames)
+        where T : Attribute, IProviderAttribute
+        where U : class
+    {
+        foreach (string assemblyName in assemblyNames)
+        {
+            if (tryLoad<T, U>(assemblyName, out var provider))
+            {
+                return provider;
+            }
+        }
+
+        throw new InvalidOperationException("Failed to load provider.");
+    }
+
+    private static bool tryLoad<T, U>(string assemblyName, [NotNullWhen(true)] out U? provider)
+        where T : Attribute, IProviderAttribute
+        where U : class
+    {
+        provider = null;
+
+        try
+        {
+            var asm = Assembly.Load(assemblyName);
+            var att = asm.GetCustomAttribute<T>();
+
+            if (att is null)
+            {
+                return false;
+            }
+
+            if (!typeof(U).IsAssignableFrom(att.Type))
+            {
+                return false;
+            }
+
+            provider = (U)Activator.CreateInstance(att.Type, true)!;
+
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private static readonly string[] provider_names_platform = new string[]
+    {
+        "Sekai.Desktop",
+        "Sekai.Headless",
+    };
+
+    private static readonly string[] provider_names_graphics = new string[]
+    {
+        "Sekai.OpenGL",
+        "Sekai.Headless",
+    };
+
+    private static readonly string[] provider_names_audio = new string[]
+    {
+        "Sekai.OpenAL",
+        "Sekai.Headless",
+    };
 }

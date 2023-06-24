@@ -9,7 +9,7 @@ using Silk.NET.OpenGL;
 
 namespace Sekai.OpenGL;
 
-public sealed unsafe class GLGraphicsDevice : GraphicsDevice
+internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
 {
     public override GraphicsAPI API => GraphicsAPI.OpenGL;
     public override string Device { get; }
