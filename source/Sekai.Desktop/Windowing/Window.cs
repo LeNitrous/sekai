@@ -3,11 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
-using Sekai.Desktop.Input;
 using Sekai.Contexts;
+using Sekai.Desktop.Input;
 using Sekai.Input;
 using Sekai.Mathematics;
 using Sekai.Windowing;
@@ -118,7 +119,7 @@ internal sealed unsafe partial class Window : IWindow, IHasIcon, IHasDragDrop, I
         }
     }
 
-    public IMonitor? Monitor
+    public IMonitor Monitor
     {
         get
         {
@@ -133,7 +134,7 @@ internal sealed unsafe partial class Window : IWindow, IHasIcon, IHasDragDrop, I
 
             IMonitor? bestMonitor = null;
 
-            foreach (var monitor in host.Monitors)
+            foreach (var monitor in plat.Monitors)
             {
                 int mx = monitor.Position.X;
                 int my = monitor.Position.Y;
@@ -148,6 +149,8 @@ internal sealed unsafe partial class Window : IWindow, IHasIcon, IHasDragDrop, I
                     bestOverlap = overlap;
                 }
             }
+
+            Debug.Assert(bestMonitor != null);
 
             return bestMonitor;
         }
@@ -333,16 +336,16 @@ internal sealed unsafe partial class Window : IWindow, IHasIcon, IHasDragDrop, I
     private string title = string.Empty;
     private bool isDisposed;
     private GLContext? source;
-    private readonly Host host;
     private readonly Glfw glfw;
+    private readonly Platform plat;
     private readonly WindowHandle* window;
     private readonly IInputDevice[] devices = new IInputDevice[2];
     private readonly Dictionary<int, IController> controllers = new();
 
-    public Window(Host host, Glfw glfw)
+    public Window(Platform plat, Glfw glfw)
     {
         this.glfw = glfw;
-        this.host = host;
+        this.plat = plat;
 
         glfw.WindowHint(WindowHintInt.ContextVersionMajor, 3);
         glfw.WindowHint(WindowHintInt.ContextVersionMinor, 3);

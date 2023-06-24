@@ -11,7 +11,7 @@ internal sealed class DummyWindow : IWindow, IHasSuspend, IHasRestart
 {
     public bool Exists { get; private set; } = true;
     public NativeWindowInfo Surface { get; } = new NativeWindowInfo();
-    public IMonitor? Monitor => null;
+    public IMonitor Monitor => DummyMonitor.Instance;
     public WindowBorder Border { get; set; }
     public Size MinimumSize { get; set; }
     public Size MaximumSize { get; set; }

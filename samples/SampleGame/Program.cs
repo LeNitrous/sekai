@@ -4,15 +4,14 @@
 using System;
 using System.Numerics;
 using Sekai;
-using Sekai.Desktop;
 using Sekai.Audio;
 using Sekai.Contexts;
+using Sekai.Desktop;
 using Sekai.Graphics;
 using Sekai.Mathematics;
-using Sekai.Storages;
-using Sekai.Windowing;
 using Sekai.OpenAL;
 using Sekai.OpenGL;
+using Sekai.Windowing;
 
 namespace SampleGame;
 
@@ -20,21 +19,24 @@ internal static class Program
 {
     private static void Main()
     {
-        if (RuntimeInfo.IsDesktop)
-        {
-            var host = new SampleHost();
-            var game = new Sample();
-            host.Run(game);
-        }
-        else
-        {
-            throw new PlatformNotSupportedException();
-        }
+        var host = new SampleHost();
+        var game = new Sample();
+        host.Run(game);
     }
 }
 
-internal sealed class SampleHost : DesktopHost
+internal sealed class SampleHost : Host
 {
+    protected override Platform CreatePlatform()
+    {
+        if (RuntimeInfo.IsDesktop)
+        {
+            return new DesktopPlatform();
+        }
+
+        throw new PlatformNotSupportedException();
+    }
+
     protected override AudioDevice CreateAudio()
     {
         return new ALAudioDevice();
@@ -48,11 +50,6 @@ internal sealed class SampleHost : DesktopHost
         }
 
         return new GLGraphicsDevice(source.Context);
-    }
-
-    protected override Storage CreateStorage()
-    {
-        return new MemoryStorage();
     }
 }
 

@@ -74,25 +74,28 @@ public abstract class Host
     }
 
     /// <summary>
-    /// An enumeration of connected monitors.
+    /// Gets the primary monitor.
     /// </summary>
-    public abstract IEnumerable<IMonitor> Monitors { get; }
+    public IMonitor PrimaryMonitor => platform?.PrimaryMonitor ?? throw hostNotLoadedException;
 
-    internal Logger Logger => logger ?? throw new InvalidOperationException("The host has not yet loaded.");
-    internal IWindow Window => window ?? throw new InvalidOperationException("The host has not yet loaded.");
-    internal InputState Input => input ?? throw new InvalidOperationException("The host has not yet loaded.");
-    internal AudioDevice Audio => audio ?? throw new InvalidOperationException("The host has not yet loaded.");
-    internal GraphicsDevice Graphics => graphics ?? throw new InvalidOperationException("The host has not yet loaded.");
-    internal Storage Storage => storage ?? throw new InvalidOperationException("The host has not yet loaded.");
+    /// <summary>
+    /// Gets all available monitors.
+    /// </summary>
+    public IEnumerable<IMonitor> Monitors => platform?.Monitors ?? throw hostNotLoadedException;
+
+    internal Logger Logger { get; private set; } = new();
+    internal IWindow Window => window ?? throw hostNotLoadedException;
+    internal InputState Input => input ?? throw hostNotLoadedException;
+    internal AudioDevice Audio => audio ?? throw hostNotLoadedException;
+    internal GraphicsDevice Graphics => graphics ?? throw hostNotLoadedException;
 
     private Game? game;
-    private Logger? logger;
     private IWindow? window;
+    private Platform? platform;
     private InputState? input;
     private AudioDevice? audio;
     private GraphicsDevice? graphics;
-    private Storage? storage;
-    private LogWriterConsole? termOut;
+    private LogWriterConsole? console;
     private HostState state;
     private Waitable waitable;
     private TimeSpan msPerUpdate = TimeSpan.FromSeconds(1 / 120.0);
@@ -102,6 +105,7 @@ public abstract class Host
     private TimeSpan previousTime;
     private readonly object sync = new();
     private readonly Stopwatch stopwatch = new();
+    private readonly MergedInputContext inputContext = new();
     private static readonly TimeSpan wait_threshold = TimeSpan.FromMilliseconds(2);
 
     /// <summary>
@@ -148,7 +152,36 @@ public abstract class Host
 
         this.game = game;
 
-        Initialize();
+        platform = CreatePlatform();
+
+        if (RuntimeInfo.IsDebug)
+        {
+            Logger.AddOutput(console = new LogWriterConsole());
+        }
+
+        var asm = Assembly.GetEntryAssembly()?.GetName();
+
+        Logger.Log("--------------------------------------------------------");
+        Logger.Log("  Logging for {0}", Environment.UserName);
+        Logger.Log("  Running {0} {1} on .NET {2}", asm?.Name, asm?.Version, Environment.Version);
+        Logger.Log("  Environment: {0}, ({1}) {2} cores", RuntimeInfo.OS, Environment.OSVersion, Environment.ProcessorCount);
+        Logger.Log("--------------------------------------------------------");
+
+        window = platform.CreateWindow();
+        window.Title = $"Sekai{(asm?.Name is not null ? $" (running {asm.Name})" : string.Empty)}";
+        window.State = WindowState.Minimized;
+        window.Closed += Exit;
+
+        if (window is IHasSuspend suspendable)
+        {
+            suspendable.Resumed += resumed;
+            suspendable.Suspend += suspend;
+        }
+
+        if (window is IHasRestart restartable)
+        {
+            restartable.Restart += restart;
+        }
 
         setHostState(HostState.Loading);
 
@@ -167,7 +200,9 @@ public abstract class Host
 
         await gameLoop;
 
-        Shutdown();
+        Window.Dispose();
+        console?.Dispose();
+        platform?.Dispose();
 
         current = null;
     }
@@ -206,45 +241,6 @@ public abstract class Host
     }
 
     /// <summary>
-    /// Called before running the game to perform initialization.
-    /// </summary>
-    protected virtual void Initialize()
-    {
-        logger = new();
-
-        if (RuntimeInfo.IsDebug)
-        {
-            logger.AddOutput(termOut = new LogWriterConsole());
-        }
-
-        var asm = Assembly.GetEntryAssembly()?.GetName();
-
-        logger.Log("--------------------------------------------------------");
-        logger.Log("  Logging for {0}", Environment.UserName);
-        logger.Log("  Running {0} {1} on .NET {2}", asm?.Name, asm?.Version, Environment.Version);
-        logger.Log("  Environment: {0}, ({1}) {2} cores", RuntimeInfo.OS, Environment.OSVersion, Environment.ProcessorCount);
-        logger.Log("--------------------------------------------------------");
-
-        storage = CreateStorage();
-
-        window = CreateWindow();
-        window.Title = $"Sekai{(asm?.Name is not null ? $" (running {asm.Name})" : string.Empty)}";
-        window.State = WindowState.Minimized;
-        window.Closed += Exit;
-
-        if (window is IHasSuspend suspendable)
-        {
-            suspendable.Resumed += resumed;
-            suspendable.Suspend += suspend;
-        }
-
-        if (window is IHasRestart restartable)
-        {
-            restartable.Restart += restart;
-        }
-    }
-
-    /// <summary>
     /// Called every frame on the main thread.
     /// </summary>
     protected virtual void Update()
@@ -253,43 +249,18 @@ public abstract class Host
     }
 
     /// <summary>
-    /// Called every frame on the game thread regardless of state.
+    /// Creates a <see cref="Platform"/> for this host.
     /// </summary>
-    protected virtual void Perform()
-    {
-    }
+    /// <returns></returns>
+    protected abstract Platform CreatePlatform();
 
     /// <summary>
-    /// Called before closing the game to perform shutdown.
-    /// </summary>
-    protected virtual void Shutdown()
-    {
-        Window.Dispose();
-        termOut?.Dispose();
-    }
-
-    /// <summary>
-    /// Creates a window for this host.
-    /// </summary>
-    protected abstract IWindow CreateWindow();
-
-    /// <summary>
-    /// Creates an input context for this host.
-    /// </summary>
-    protected abstract IInputContext CreateInput(IWindow window);
-
-    /// <summary>
-    /// Creates the audio device for this host.
+    /// Creates an <see cref="AudioDevice"/> for this host.
     /// </summary>
     protected abstract AudioDevice CreateAudio();
 
     /// <summary>
-    /// Creates storage for this host.
-    /// </summary>
-    protected abstract Storage CreateStorage();
-
-    /// <summary>
-    /// Creates the graphics device for this host.
+    /// Creates the <see cref="GraphicsDevice"/> for this host.
     /// </summary>
     /// <param name="window">The window backing the graphics device.</param>
     protected abstract GraphicsDevice CreateGraphics(IWindow window);
@@ -327,13 +298,21 @@ public abstract class Host
 
         graphics?.MakeCurrent();
 
-        // Perform();
-
         switch (State)
         {
             case HostState.Loading:
                 {
-                    input = new(CreateInput(Window));
+                    if (window is IInputContext windowInput)
+                    {
+                        inputContext.Add(windowInput);
+                    }
+
+                    if (platform is IInputContext platformInput)
+                    {
+                        inputContext.Add(platformInput);
+                    }
+
+                    input = new(inputContext);
                     audio = CreateAudio();
 
                     Logger.Log("{0} Initialized", audio.API);
@@ -458,6 +437,8 @@ public abstract class Host
                     graphics?.Dispose();
                     graphics = null;
 
+                    inputContext.Clear();
+
                     if (state == HostState.Reloading)
                     {
                         setHostState(HostState.Loading);
@@ -517,4 +498,6 @@ public abstract class Host
                 return false;
         }
     }
+
+    private static Exception hostNotLoadedException => new InvalidOperationException("The host has not yet loaded");
 }

@@ -5,7 +5,6 @@ using System;
 using Sekai.Audio;
 using Sekai.Graphics;
 using Sekai.Logging;
-using Sekai.Storages;
 using Sekai.Windowing;
 
 namespace Sekai;
@@ -48,11 +47,6 @@ public class Game
     /// The logger used for logging.
     /// </summary>
     public Logger Logger => Host.Logger;
-
-    /// <summary>
-    /// The storage provided for this game.
-    /// </summary>
-    public Storage Storage => Host.Storage;
 
     private Host? host;
 

@@ -2,42 +2,66 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Sekai.Input;
 
 /// <summary>
 /// An input context that merges other input contexts.
 /// </summary>
-public sealed class MergedInputContext : IInputContext, IDisposable
+public sealed class MergedInputContext : IInputContext, ICollection<IInputContext>
 {
     public event Action<IInputDevice, bool>? ConnectionChanged;
+    public IEnumerable<IInputDevice> Devices => contexts.SelectMany(c => c.Devices);
 
-    public IEnumerable<IInputDevice> Devices
+    int ICollection<IInputContext>.Count => throw new NotImplementedException();
+
+    bool ICollection<IInputContext>.IsReadOnly => throw new NotImplementedException();
+
+    private readonly HashSet<IInputContext> contexts = new();
+
+    public void Add(IInputContext context)
     {
-        get
+        if (!contexts.Add(context))
         {
-            for (int i = 0; i < contexts.Length; i++)
-            {
-                foreach (var device in contexts[i].Devices)
-                {
-                    yield return device;
-                }
-            }
+            return;
         }
+
+        context.ConnectionChanged += handleConnectionChanged;
     }
 
-    private bool isDisposed;
-    private readonly IInputContext[] contexts;
-
-    public MergedInputContext(params IInputContext[] contexts)
+    public bool Remove(IInputContext context)
     {
-        for (int i = 0; i < contexts.Length; i++)
+        if (!contexts.Remove(context))
         {
-            contexts[i].ConnectionChanged += handleConnectionChanged;
+            return false;
         }
 
-        this.contexts = contexts;
+        context.ConnectionChanged -= handleConnectionChanged;
+
+        return true;
+    }
+
+    public void Clear()
+    {
+        foreach (var context in contexts)
+        {
+            context.ConnectionChanged -= handleConnectionChanged;
+        }
+
+        contexts.Clear();
+    }
+
+    public bool Contains(IInputContext item)
+    {
+        return contexts.Contains(item);
+    }
+
+    public IEnumerator<IInputContext> GetEnumerator()
+    {
+        return contexts.GetEnumerator();
     }
 
     private void handleConnectionChanged(IInputDevice device, bool connected)
@@ -45,20 +69,13 @@ public sealed class MergedInputContext : IInputContext, IDisposable
         ConnectionChanged?.Invoke(device, connected);
     }
 
-    public void Dispose()
+    void ICollection<IInputContext>.CopyTo(IInputContext[] array, int arrayIndex)
     {
-        if (isDisposed)
-        {
-            return;
-        }
+        contexts.CopyTo(array, arrayIndex);
+    }
 
-        for (int i = 0; i < contexts.Length; i++)
-        {
-            contexts[i].ConnectionChanged -= handleConnectionChanged;
-        }
-
-        isDisposed = true;
-
-        GC.SuppressFinalize(this);
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
     }
 }

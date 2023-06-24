@@ -7,7 +7,7 @@ using Sekai.Mathematics;
 
 namespace Sekai.Headless.Graphics;
 
-internal sealed class DummyGraphicsDevice : GraphicsDevice
+public sealed class DummyGraphicsDevice : GraphicsDevice
 {
     public override GraphicsAPI API => GraphicsAPI.Dummy;
     public override string Device { get; } = "Dummy";

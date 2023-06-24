@@ -59,7 +59,7 @@ public interface IWindow : IDisposable
     /// <summary>
     /// The monitor where this window is currently at.
     /// </summary>
-    IMonitor? Monitor { get; }
+    IMonitor Monitor { get; }
 
     /// <summary>
     /// The window border state.
