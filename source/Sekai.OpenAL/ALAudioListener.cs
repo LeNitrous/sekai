@@ -3,7 +3,7 @@
 
 using System.Numerics;
 using System.Runtime.CompilerServices;
-using Sekai.Framework.Audio;
+using Sekai.Audio;
 using Silk.NET.OpenAL;
 
 namespace Sekai.OpenAL;

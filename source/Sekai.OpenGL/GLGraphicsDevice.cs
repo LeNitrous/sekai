@@ -2,9 +2,9 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using Sekai.Framework.Contexts;
-using Sekai.Framework.Graphics;
-using Sekai.Framework.Mathematics;
+using Sekai.Contexts;
+using Sekai.Graphics;
+using Sekai.Mathematics;
 using Silk.NET.OpenGL;
 
 namespace Sekai.OpenGL;
@@ -102,7 +102,7 @@ public sealed unsafe class GLGraphicsDevice : GraphicsDevice
         return new GLDepthStencilState(description);
     }
 
-    public override Framework.Graphics.Framebuffer CreateFramebuffer(Framework.Graphics.FramebufferAttachment? depth, params Framework.Graphics.FramebufferAttachment[] colors)
+    public override Graphics.Framebuffer CreateFramebuffer(Graphics.FramebufferAttachment? depth, params Graphics.FramebufferAttachment[] colors)
     {
         return new GLFramebuffer(GL, depth, colors);
     }
@@ -112,17 +112,17 @@ public sealed unsafe class GLGraphicsDevice : GraphicsDevice
         return new GLRasterizerState(description);
     }
 
-    public override Framework.Graphics.Sampler CreateSampler(SamplerDescription description)
+    public override Graphics.Sampler CreateSampler(SamplerDescription description)
     {
         return new GLSampler(GL, description);
     }
 
-    public override Framework.Graphics.Shader CreateShader(params ShaderCode[] attachments)
+    public override Graphics.Shader CreateShader(params ShaderCode[] attachments)
     {
         return new GLShader(GL, attachments);
     }
 
-    public override Framework.Graphics.Texture CreateTexture(TextureDescription description)
+    public override Graphics.Texture CreateTexture(TextureDescription description)
     {
         return new GLTexture(GL, description);
     }
@@ -156,7 +156,7 @@ public sealed unsafe class GLGraphicsDevice : GraphicsDevice
         GC.SuppressFinalize(this);
     }
 
-    public override void Draw(Framework.Graphics.PrimitiveType type, uint vertexCount, uint vertexStart, uint instanceCount, uint instanceStart)
+    public override void Draw(Graphics.PrimitiveType type, uint vertexCount, uint vertexStart, uint instanceCount, uint instanceStart)
     {
         if (instanceCount == 1 && instanceStart == 0)
         {
@@ -175,7 +175,7 @@ public sealed unsafe class GLGraphicsDevice : GraphicsDevice
         }
     }
 
-    public override void DrawIndexed(Framework.Graphics.PrimitiveType type, uint indexCount, uint indexStart, uint vertexStart, uint instanceCount, uint instanceStart)
+    public override void DrawIndexed(Graphics.PrimitiveType type, uint indexCount, uint indexStart, uint vertexStart, uint instanceCount, uint instanceStart)
     {
         uint indexSize = drawElementsType == DrawElementsType.UnsignedShort ? 2u : 4u;
         void* offset = (void*)(indexStart * indexSize);
@@ -212,7 +212,7 @@ public sealed unsafe class GLGraphicsDevice : GraphicsDevice
         }
     }
 
-    public override void DrawIndirect(GraphicsBuffer buffer, Framework.Graphics.PrimitiveType type, uint offset, uint drawCount, uint stride)
+    public override void DrawIndirect(GraphicsBuffer buffer, Graphics.PrimitiveType type, uint offset, uint drawCount, uint stride)
     {
         ((GLBuffer)buffer).Bind();
 
@@ -226,7 +226,7 @@ public sealed unsafe class GLGraphicsDevice : GraphicsDevice
         }
     }
 
-    public override void DrawIndexedIndirect(GraphicsBuffer buffer, Framework.Graphics.PrimitiveType type, uint offset, uint drawCount, uint stride)
+    public override void DrawIndexedIndirect(GraphicsBuffer buffer, Graphics.PrimitiveType type, uint offset, uint drawCount, uint stride)
     {
         ((GLBuffer)buffer).Bind();
 
@@ -297,7 +297,7 @@ public sealed unsafe class GLGraphicsDevice : GraphicsDevice
         }
     }
 
-    public override void SetFramebuffer(Framework.Graphics.Framebuffer? framebuffer)
+    public override void SetFramebuffer(Graphics.Framebuffer? framebuffer)
     {
         if (framebuffer is null)
         {
@@ -341,17 +341,17 @@ public sealed unsafe class GLGraphicsDevice : GraphicsDevice
         GL.Scissor(scissor.X, Viewport.Height - scissor.Bottom, (uint)scissor.Width, (uint)scissor.Height);
     }
 
-    public override void SetShader(Framework.Graphics.Shader shader)
+    public override void SetShader(Graphics.Shader shader)
     {
         ((GLShader)shader).Bind();
     }
 
-    public override void SetTexture(Framework.Graphics.Texture texture, uint slot)
+    public override void SetTexture(Graphics.Texture texture, uint slot)
     {
         ((GLTexture)texture).Bind(slot);
     }
 
-    public override void SetSampler(Framework.Graphics.Sampler sampler, uint slot)
+    public override void SetSampler(Graphics.Sampler sampler, uint slot)
     {
         ((GLSampler)sampler).Bind(slot);
     }

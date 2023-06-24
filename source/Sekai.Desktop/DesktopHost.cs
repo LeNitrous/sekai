@@ -6,8 +6,8 @@ using System.Collections.Generic;
 using System.Runtime.Versioning;
 using Sekai.Desktop.Input;
 using Sekai.Desktop.Windowing;
-using Sekai.Framework.Input;
-using Sekai.Framework.Windowing;
+using Sekai.Input;
+using Sekai.Windowing;
 
 namespace Sekai.Desktop;
 

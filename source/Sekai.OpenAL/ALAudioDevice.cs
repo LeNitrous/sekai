@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Sekai.Framework.Audio;
+using Sekai.Audio;
 using Silk.NET.OpenAL;
 using Silk.NET.OpenAL.Extensions.Creative;
 using Silk.NET.OpenAL.Extensions.Enumeration;

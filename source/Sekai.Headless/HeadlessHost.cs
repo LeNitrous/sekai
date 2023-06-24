@@ -3,11 +3,11 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Sekai.Framework.Audio;
-using Sekai.Framework.Graphics;
-using Sekai.Framework.Input;
-using Sekai.Framework.Storages;
-using Sekai.Framework.Windowing;
+using Sekai.Audio;
+using Sekai.Graphics;
+using Sekai.Input;
+using Sekai.Storages;
+using Sekai.Windowing;
 using Sekai.Headless.Audio;
 using Sekai.Headless.Graphics;
 using Sekai.Headless.Input;

@@ -2,11 +2,11 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using Sekai.Framework.Audio;
-using Sekai.Framework.Graphics;
-using Sekai.Framework.Logging;
-using Sekai.Framework.Storages;
-using Sekai.Framework.Windowing;
+using Sekai.Audio;
+using Sekai.Graphics;
+using Sekai.Logging;
+using Sekai.Storages;
+using Sekai.Windowing;
 
 namespace Sekai;
 

@@ -3,7 +3,7 @@
 
 using System;
 using System.Runtime.CompilerServices;
-using Sekai.Framework.Graphics;
+using Sekai.Graphics;
 using Silk.NET.OpenGL;
 
 namespace Sekai.OpenGL;
@@ -90,17 +90,17 @@ internal static class GLExtensions
     };
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Silk.NET.OpenGL.PrimitiveType AsPrimitiveType(this Framework.Graphics.PrimitiveType type) => type switch
+    public static Silk.NET.OpenGL.PrimitiveType AsPrimitiveType(this Graphics.PrimitiveType type) => type switch
     {
-        Framework.Graphics.PrimitiveType.TriangleList => Silk.NET.OpenGL.PrimitiveType.Triangles,
-        Framework.Graphics.PrimitiveType.TriangleStrip => Silk.NET.OpenGL.PrimitiveType.TriangleStrip,
-        Framework.Graphics.PrimitiveType.LineList => Silk.NET.OpenGL.PrimitiveType.Lines,
-        Framework.Graphics.PrimitiveType.LineStrip => Silk.NET.OpenGL.PrimitiveType.LineStrip,
-        Framework.Graphics.PrimitiveType.PointList => Silk.NET.OpenGL.PrimitiveType.Points,
-        Framework.Graphics.PrimitiveType.TriangleListAdjacency => Silk.NET.OpenGL.PrimitiveType.TrianglesAdjacency,
-        Framework.Graphics.PrimitiveType.TriangleStripAdjacency => Silk.NET.OpenGL.PrimitiveType.TriangleStripAdjacency,
-        Framework.Graphics.PrimitiveType.LineListAdjacency => Silk.NET.OpenGL.PrimitiveType.LinesAdjacency,
-        Framework.Graphics.PrimitiveType.LineStripAdjacency => Silk.NET.OpenGL.PrimitiveType.LineStripAdjacency,
+        Graphics.PrimitiveType.TriangleList => Silk.NET.OpenGL.PrimitiveType.Triangles,
+        Graphics.PrimitiveType.TriangleStrip => Silk.NET.OpenGL.PrimitiveType.TriangleStrip,
+        Graphics.PrimitiveType.LineList => Silk.NET.OpenGL.PrimitiveType.Lines,
+        Graphics.PrimitiveType.LineStrip => Silk.NET.OpenGL.PrimitiveType.LineStrip,
+        Graphics.PrimitiveType.PointList => Silk.NET.OpenGL.PrimitiveType.Points,
+        Graphics.PrimitiveType.TriangleListAdjacency => Silk.NET.OpenGL.PrimitiveType.TrianglesAdjacency,
+        Graphics.PrimitiveType.TriangleStripAdjacency => Silk.NET.OpenGL.PrimitiveType.TriangleStripAdjacency,
+        Graphics.PrimitiveType.LineListAdjacency => Silk.NET.OpenGL.PrimitiveType.LinesAdjacency,
+        Graphics.PrimitiveType.LineStripAdjacency => Silk.NET.OpenGL.PrimitiveType.LineStripAdjacency,
         _ => throw new ArgumentOutOfRangeException(nameof(type), type, null),
     };
 
@@ -214,88 +214,88 @@ internal static class GLExtensions
     };
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static PixelType AsPixelType(this Framework.Graphics.PixelFormat format)
+    public static PixelType AsPixelType(this Graphics.PixelFormat format)
     {
         switch (format)
         {
-            case Framework.Graphics.PixelFormat.R8_UNorm:
-            case Framework.Graphics.PixelFormat.R8_UInt:
-            case Framework.Graphics.PixelFormat.R8G8_UNorm:
-            case Framework.Graphics.PixelFormat.R8G8_UInt:
-            case Framework.Graphics.PixelFormat.R8G8B8A8_UNorm:
-            case Framework.Graphics.PixelFormat.R8G8B8A8_UNorm_SRgb:
-            case Framework.Graphics.PixelFormat.R8G8B8A8_UInt:
-            case Framework.Graphics.PixelFormat.B8G8R8A8_UNorm:
-            case Framework.Graphics.PixelFormat.B8G8R8A8_UNorm_SRgb:
+            case Graphics.PixelFormat.R8_UNorm:
+            case Graphics.PixelFormat.R8_UInt:
+            case Graphics.PixelFormat.R8G8_UNorm:
+            case Graphics.PixelFormat.R8G8_UInt:
+            case Graphics.PixelFormat.R8G8B8A8_UNorm:
+            case Graphics.PixelFormat.R8G8B8A8_UNorm_SRgb:
+            case Graphics.PixelFormat.R8G8B8A8_UInt:
+            case Graphics.PixelFormat.B8G8R8A8_UNorm:
+            case Graphics.PixelFormat.B8G8R8A8_UNorm_SRgb:
                 return PixelType.UnsignedByte;
-            case Framework.Graphics.PixelFormat.R8_SNorm:
-            case Framework.Graphics.PixelFormat.R8_SInt:
-            case Framework.Graphics.PixelFormat.R8G8_SNorm:
-            case Framework.Graphics.PixelFormat.R8G8_SInt:
-            case Framework.Graphics.PixelFormat.R8G8B8A8_SNorm:
-            case Framework.Graphics.PixelFormat.R8G8B8A8_SInt:
-            case Framework.Graphics.PixelFormat.BC4_SNorm:
-            case Framework.Graphics.PixelFormat.BC5_SNorm:
+            case Graphics.PixelFormat.R8_SNorm:
+            case Graphics.PixelFormat.R8_SInt:
+            case Graphics.PixelFormat.R8G8_SNorm:
+            case Graphics.PixelFormat.R8G8_SInt:
+            case Graphics.PixelFormat.R8G8B8A8_SNorm:
+            case Graphics.PixelFormat.R8G8B8A8_SInt:
+            case Graphics.PixelFormat.BC4_SNorm:
+            case Graphics.PixelFormat.BC5_SNorm:
                 return PixelType.Byte;
-            case Framework.Graphics.PixelFormat.R16_UNorm:
-            case Framework.Graphics.PixelFormat.R16_UInt:
-            case Framework.Graphics.PixelFormat.R16G16_UNorm:
-            case Framework.Graphics.PixelFormat.R16G16_UInt:
-            case Framework.Graphics.PixelFormat.R16G16B16A16_UNorm:
-            case Framework.Graphics.PixelFormat.R16G16B16A16_UInt:
+            case Graphics.PixelFormat.R16_UNorm:
+            case Graphics.PixelFormat.R16_UInt:
+            case Graphics.PixelFormat.R16G16_UNorm:
+            case Graphics.PixelFormat.R16G16_UInt:
+            case Graphics.PixelFormat.R16G16B16A16_UNorm:
+            case Graphics.PixelFormat.R16G16B16A16_UInt:
                 return PixelType.UnsignedShort;
-            case Framework.Graphics.PixelFormat.R16_SNorm:
-            case Framework.Graphics.PixelFormat.R16_SInt:
-            case Framework.Graphics.PixelFormat.R16G16_SNorm:
-            case Framework.Graphics.PixelFormat.R16G16_SInt:
-            case Framework.Graphics.PixelFormat.R16G16B16A16_SNorm:
-            case Framework.Graphics.PixelFormat.R16G16B16A16_SInt:
+            case Graphics.PixelFormat.R16_SNorm:
+            case Graphics.PixelFormat.R16_SInt:
+            case Graphics.PixelFormat.R16G16_SNorm:
+            case Graphics.PixelFormat.R16G16_SInt:
+            case Graphics.PixelFormat.R16G16B16A16_SNorm:
+            case Graphics.PixelFormat.R16G16B16A16_SInt:
                 return PixelType.Short;
-            case Framework.Graphics.PixelFormat.R32_UInt:
-            case Framework.Graphics.PixelFormat.R32G32_UInt:
-            case Framework.Graphics.PixelFormat.R32G32B32A32_UInt:
+            case Graphics.PixelFormat.R32_UInt:
+            case Graphics.PixelFormat.R32G32_UInt:
+            case Graphics.PixelFormat.R32G32B32A32_UInt:
                 return PixelType.UnsignedInt;
-            case Framework.Graphics.PixelFormat.R32_SInt:
-            case Framework.Graphics.PixelFormat.R32G32_SInt:
-            case Framework.Graphics.PixelFormat.R32G32B32A32_SInt:
+            case Graphics.PixelFormat.R32_SInt:
+            case Graphics.PixelFormat.R32G32_SInt:
+            case Graphics.PixelFormat.R32G32B32A32_SInt:
                 return PixelType.Int;
-            case Framework.Graphics.PixelFormat.R16_Float:
-            case Framework.Graphics.PixelFormat.R16G16_Float:
-            case Framework.Graphics.PixelFormat.R16G16B16A16_Float:
+            case Graphics.PixelFormat.R16_Float:
+            case Graphics.PixelFormat.R16G16_Float:
+            case Graphics.PixelFormat.R16G16B16A16_Float:
                 return (PixelType)5131;
-            case Framework.Graphics.PixelFormat.R32_Float:
-            case Framework.Graphics.PixelFormat.R32G32_Float:
-            case Framework.Graphics.PixelFormat.R32G32B32A32_Float:
+            case Graphics.PixelFormat.R32_Float:
+            case Graphics.PixelFormat.R32G32_Float:
+            case Graphics.PixelFormat.R32G32B32A32_Float:
                 return PixelType.Float;
 
-            case Framework.Graphics.PixelFormat.BC1_RGB_UNorm:
-            case Framework.Graphics.PixelFormat.BC1_RGB_UNorm_SRgb:
-            case Framework.Graphics.PixelFormat.BC1_RGBA_UNorm:
-            case Framework.Graphics.PixelFormat.BC1_RGBA_UNorm_SRgb:
-            case Framework.Graphics.PixelFormat.BC2_UNorm:
-            case Framework.Graphics.PixelFormat.BC2_UNorm_SRgb:
-            case Framework.Graphics.PixelFormat.BC3_UNorm:
-            case Framework.Graphics.PixelFormat.BC3_UNorm_SRgb:
-            case Framework.Graphics.PixelFormat.BC4_UNorm:
-            case Framework.Graphics.PixelFormat.BC5_UNorm:
-            case Framework.Graphics.PixelFormat.BC7_UNorm:
-            case Framework.Graphics.PixelFormat.BC7_UNorm_SRgb:
-            case Framework.Graphics.PixelFormat.ETC2_R8G8B8_UNorm:
-            case Framework.Graphics.PixelFormat.ETC2_R8G8B8A1_UNorm:
-            case Framework.Graphics.PixelFormat.ETC2_R8G8B8A8_UNorm:
+            case Graphics.PixelFormat.BC1_RGB_UNorm:
+            case Graphics.PixelFormat.BC1_RGB_UNorm_SRgb:
+            case Graphics.PixelFormat.BC1_RGBA_UNorm:
+            case Graphics.PixelFormat.BC1_RGBA_UNorm_SRgb:
+            case Graphics.PixelFormat.BC2_UNorm:
+            case Graphics.PixelFormat.BC2_UNorm_SRgb:
+            case Graphics.PixelFormat.BC3_UNorm:
+            case Graphics.PixelFormat.BC3_UNorm_SRgb:
+            case Graphics.PixelFormat.BC4_UNorm:
+            case Graphics.PixelFormat.BC5_UNorm:
+            case Graphics.PixelFormat.BC7_UNorm:
+            case Graphics.PixelFormat.BC7_UNorm_SRgb:
+            case Graphics.PixelFormat.ETC2_R8G8B8_UNorm:
+            case Graphics.PixelFormat.ETC2_R8G8B8A1_UNorm:
+            case Graphics.PixelFormat.ETC2_R8G8B8A8_UNorm:
                 return PixelType.UnsignedByte;
 
-            case Framework.Graphics.PixelFormat.D32_Float_S8_UInt:
+            case Graphics.PixelFormat.D32_Float_S8_UInt:
                 return (PixelType)36269;
 
-            case Framework.Graphics.PixelFormat.D24_UNorm_S8_UInt:
+            case Graphics.PixelFormat.D24_UNorm_S8_UInt:
                 return (PixelType)34042;
 
-            case Framework.Graphics.PixelFormat.R10G10B10A2_UNorm:
-            case Framework.Graphics.PixelFormat.R10G10B10A2_UInt:
+            case Graphics.PixelFormat.R10G10B10A2_UNorm:
+            case Graphics.PixelFormat.R10G10B10A2_UInt:
                 return PixelType.UnsignedInt1010102;
 
-            case Framework.Graphics.PixelFormat.R11G11B10_Float:
+            case Graphics.PixelFormat.R11G11B10_Float:
                 return (PixelType)35889;
 
             default:
@@ -304,92 +304,92 @@ internal static class GLExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Silk.NET.OpenGL.PixelFormat AsPixelFormat(this Framework.Graphics.PixelFormat format)
+    public static Silk.NET.OpenGL.PixelFormat AsPixelFormat(this Graphics.PixelFormat format)
     {
         switch (format)
         {
-            case Framework.Graphics.PixelFormat.R8_UNorm:
-            case Framework.Graphics.PixelFormat.R16_UNorm:
-            case Framework.Graphics.PixelFormat.R16_Float:
-            case Framework.Graphics.PixelFormat.R32_Float:
-            case Framework.Graphics.PixelFormat.BC4_UNorm:
+            case Graphics.PixelFormat.R8_UNorm:
+            case Graphics.PixelFormat.R16_UNorm:
+            case Graphics.PixelFormat.R16_Float:
+            case Graphics.PixelFormat.R32_Float:
+            case Graphics.PixelFormat.BC4_UNorm:
                 return Silk.NET.OpenGL.PixelFormat.Red;
 
-            case Framework.Graphics.PixelFormat.R8_SNorm:
-            case Framework.Graphics.PixelFormat.R8_UInt:
-            case Framework.Graphics.PixelFormat.R8_SInt:
-            case Framework.Graphics.PixelFormat.R16_SNorm:
-            case Framework.Graphics.PixelFormat.R16_UInt:
-            case Framework.Graphics.PixelFormat.R16_SInt:
-            case Framework.Graphics.PixelFormat.R32_UInt:
-            case Framework.Graphics.PixelFormat.R32_SInt:
-            case Framework.Graphics.PixelFormat.BC4_SNorm:
+            case Graphics.PixelFormat.R8_SNorm:
+            case Graphics.PixelFormat.R8_UInt:
+            case Graphics.PixelFormat.R8_SInt:
+            case Graphics.PixelFormat.R16_SNorm:
+            case Graphics.PixelFormat.R16_UInt:
+            case Graphics.PixelFormat.R16_SInt:
+            case Graphics.PixelFormat.R32_UInt:
+            case Graphics.PixelFormat.R32_SInt:
+            case Graphics.PixelFormat.BC4_SNorm:
                 return Silk.NET.OpenGL.PixelFormat.RedInteger;
 
-            case Framework.Graphics.PixelFormat.R8G8_UNorm:
-            case Framework.Graphics.PixelFormat.R16G16_UNorm:
-            case Framework.Graphics.PixelFormat.R16G16_Float:
-            case Framework.Graphics.PixelFormat.R32G32_Float:
-            case Framework.Graphics.PixelFormat.BC5_UNorm:
+            case Graphics.PixelFormat.R8G8_UNorm:
+            case Graphics.PixelFormat.R16G16_UNorm:
+            case Graphics.PixelFormat.R16G16_Float:
+            case Graphics.PixelFormat.R32G32_Float:
+            case Graphics.PixelFormat.BC5_UNorm:
                 return Silk.NET.OpenGL.PixelFormat.RG;
 
-            case Framework.Graphics.PixelFormat.R8G8_SNorm:
-            case Framework.Graphics.PixelFormat.R8G8_UInt:
-            case Framework.Graphics.PixelFormat.R8G8_SInt:
-            case Framework.Graphics.PixelFormat.R16G16_SNorm:
-            case Framework.Graphics.PixelFormat.R16G16_UInt:
-            case Framework.Graphics.PixelFormat.R16G16_SInt:
-            case Framework.Graphics.PixelFormat.R32G32_UInt:
-            case Framework.Graphics.PixelFormat.R32G32_SInt:
-            case Framework.Graphics.PixelFormat.BC5_SNorm:
+            case Graphics.PixelFormat.R8G8_SNorm:
+            case Graphics.PixelFormat.R8G8_UInt:
+            case Graphics.PixelFormat.R8G8_SInt:
+            case Graphics.PixelFormat.R16G16_SNorm:
+            case Graphics.PixelFormat.R16G16_UInt:
+            case Graphics.PixelFormat.R16G16_SInt:
+            case Graphics.PixelFormat.R32G32_UInt:
+            case Graphics.PixelFormat.R32G32_SInt:
+            case Graphics.PixelFormat.BC5_SNorm:
                 return Silk.NET.OpenGL.PixelFormat.RGInteger;
 
-            case Framework.Graphics.PixelFormat.R8G8B8A8_UNorm:
-            case Framework.Graphics.PixelFormat.R8G8B8A8_UNorm_SRgb:
-            case Framework.Graphics.PixelFormat.R16G16B16A16_UNorm:
-            case Framework.Graphics.PixelFormat.R16G16B16A16_Float:
-            case Framework.Graphics.PixelFormat.R32G32B32A32_Float:
+            case Graphics.PixelFormat.R8G8B8A8_UNorm:
+            case Graphics.PixelFormat.R8G8B8A8_UNorm_SRgb:
+            case Graphics.PixelFormat.R16G16B16A16_UNorm:
+            case Graphics.PixelFormat.R16G16B16A16_Float:
+            case Graphics.PixelFormat.R32G32B32A32_Float:
                 return Silk.NET.OpenGL.PixelFormat.Rgba;
 
-            case Framework.Graphics.PixelFormat.B8G8R8A8_UNorm:
-            case Framework.Graphics.PixelFormat.B8G8R8A8_UNorm_SRgb:
+            case Graphics.PixelFormat.B8G8R8A8_UNorm:
+            case Graphics.PixelFormat.B8G8R8A8_UNorm_SRgb:
                 return Silk.NET.OpenGL.PixelFormat.Bgra;
 
-            case Framework.Graphics.PixelFormat.R8G8B8A8_SNorm:
-            case Framework.Graphics.PixelFormat.R8G8B8A8_UInt:
-            case Framework.Graphics.PixelFormat.R8G8B8A8_SInt:
-            case Framework.Graphics.PixelFormat.R16G16B16A16_SNorm:
-            case Framework.Graphics.PixelFormat.R16G16B16A16_UInt:
-            case Framework.Graphics.PixelFormat.R16G16B16A16_SInt:
-            case Framework.Graphics.PixelFormat.R32G32B32A32_UInt:
-            case Framework.Graphics.PixelFormat.R32G32B32A32_SInt:
+            case Graphics.PixelFormat.R8G8B8A8_SNorm:
+            case Graphics.PixelFormat.R8G8B8A8_UInt:
+            case Graphics.PixelFormat.R8G8B8A8_SInt:
+            case Graphics.PixelFormat.R16G16B16A16_SNorm:
+            case Graphics.PixelFormat.R16G16B16A16_UInt:
+            case Graphics.PixelFormat.R16G16B16A16_SInt:
+            case Graphics.PixelFormat.R32G32B32A32_UInt:
+            case Graphics.PixelFormat.R32G32B32A32_SInt:
                 return Silk.NET.OpenGL.PixelFormat.RgbaInteger;
 
-            case Framework.Graphics.PixelFormat.BC1_RGB_UNorm:
-            case Framework.Graphics.PixelFormat.BC1_RGB_UNorm_SRgb:
-            case Framework.Graphics.PixelFormat.ETC2_R8G8B8_UNorm:
+            case Graphics.PixelFormat.BC1_RGB_UNorm:
+            case Graphics.PixelFormat.BC1_RGB_UNorm_SRgb:
+            case Graphics.PixelFormat.ETC2_R8G8B8_UNorm:
                 return Silk.NET.OpenGL.PixelFormat.Rgb;
-            case Framework.Graphics.PixelFormat.BC1_RGBA_UNorm:
-            case Framework.Graphics.PixelFormat.BC1_RGBA_UNorm_SRgb:
-            case Framework.Graphics.PixelFormat.BC2_UNorm:
-            case Framework.Graphics.PixelFormat.BC2_UNorm_SRgb:
-            case Framework.Graphics.PixelFormat.BC3_UNorm:
-            case Framework.Graphics.PixelFormat.BC3_UNorm_SRgb:
-            case Framework.Graphics.PixelFormat.BC7_UNorm:
-            case Framework.Graphics.PixelFormat.BC7_UNorm_SRgb:
-            case Framework.Graphics.PixelFormat.ETC2_R8G8B8A1_UNorm:
-            case Framework.Graphics.PixelFormat.ETC2_R8G8B8A8_UNorm:
+            case Graphics.PixelFormat.BC1_RGBA_UNorm:
+            case Graphics.PixelFormat.BC1_RGBA_UNorm_SRgb:
+            case Graphics.PixelFormat.BC2_UNorm:
+            case Graphics.PixelFormat.BC2_UNorm_SRgb:
+            case Graphics.PixelFormat.BC3_UNorm:
+            case Graphics.PixelFormat.BC3_UNorm_SRgb:
+            case Graphics.PixelFormat.BC7_UNorm:
+            case Graphics.PixelFormat.BC7_UNorm_SRgb:
+            case Graphics.PixelFormat.ETC2_R8G8B8A1_UNorm:
+            case Graphics.PixelFormat.ETC2_R8G8B8A8_UNorm:
                 return Silk.NET.OpenGL.PixelFormat.Rgba;
 
-            case Framework.Graphics.PixelFormat.D24_UNorm_S8_UInt:
-            case Framework.Graphics.PixelFormat.D32_Float_S8_UInt:
+            case Graphics.PixelFormat.D24_UNorm_S8_UInt:
+            case Graphics.PixelFormat.D32_Float_S8_UInt:
                 return Silk.NET.OpenGL.PixelFormat.DepthStencil;
 
-            case Framework.Graphics.PixelFormat.R10G10B10A2_UNorm:
+            case Graphics.PixelFormat.R10G10B10A2_UNorm:
                 return Silk.NET.OpenGL.PixelFormat.Rgba;
-            case Framework.Graphics.PixelFormat.R10G10B10A2_UInt:
+            case Graphics.PixelFormat.R10G10B10A2_UInt:
                 return Silk.NET.OpenGL.PixelFormat.RgbaInteger;
-            case Framework.Graphics.PixelFormat.R11G11B10_Float:
+            case Graphics.PixelFormat.R11G11B10_Float:
                 return Silk.NET.OpenGL.PixelFormat.Rgb;
 
             default:
@@ -398,143 +398,143 @@ internal static class GLExtensions
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static InternalFormat AsInternalFormat(this Framework.Graphics.PixelFormat format)
+    public static InternalFormat AsInternalFormat(this Graphics.PixelFormat format)
     {
         switch (format)
         {
-            case Framework.Graphics.PixelFormat.R8_UNorm:
+            case Graphics.PixelFormat.R8_UNorm:
                 return InternalFormat.R8;
-            case Framework.Graphics.PixelFormat.R8_SNorm:
+            case Graphics.PixelFormat.R8_SNorm:
                 return InternalFormat.R8SNorm;
-            case Framework.Graphics.PixelFormat.R8_UInt:
+            case Graphics.PixelFormat.R8_UInt:
                 return InternalFormat.R8ui;
-            case Framework.Graphics.PixelFormat.R8_SInt:
+            case Graphics.PixelFormat.R8_SInt:
                 return InternalFormat.R8i;
 
-            case Framework.Graphics.PixelFormat.R16_UNorm:
+            case Graphics.PixelFormat.R16_UNorm:
                 return InternalFormat.R16;
-            case Framework.Graphics.PixelFormat.R16_SNorm:
+            case Graphics.PixelFormat.R16_SNorm:
                 return InternalFormat.R16SNorm;
-            case Framework.Graphics.PixelFormat.R16_UInt:
+            case Graphics.PixelFormat.R16_UInt:
                 return InternalFormat.R16ui;
-            case Framework.Graphics.PixelFormat.R16_SInt:
+            case Graphics.PixelFormat.R16_SInt:
                 return InternalFormat.R16i;
-            case Framework.Graphics.PixelFormat.R16_Float:
+            case Graphics.PixelFormat.R16_Float:
                 return InternalFormat.R16f;
-            case Framework.Graphics.PixelFormat.R32_UInt:
+            case Graphics.PixelFormat.R32_UInt:
                 return InternalFormat.R32ui;
-            case Framework.Graphics.PixelFormat.R32_SInt:
+            case Graphics.PixelFormat.R32_SInt:
                 return InternalFormat.R32i;
-            case Framework.Graphics.PixelFormat.R32_Float:
+            case Graphics.PixelFormat.R32_Float:
                 return InternalFormat.R32f;
 
-            case Framework.Graphics.PixelFormat.R8G8_UNorm:
+            case Graphics.PixelFormat.R8G8_UNorm:
                 return InternalFormat.RG8;
-            case Framework.Graphics.PixelFormat.R8G8_SNorm:
+            case Graphics.PixelFormat.R8G8_SNorm:
                 return InternalFormat.RG8SNorm;
-            case Framework.Graphics.PixelFormat.R8G8_UInt:
+            case Graphics.PixelFormat.R8G8_UInt:
                 return InternalFormat.RG8ui;
-            case Framework.Graphics.PixelFormat.R8G8_SInt:
+            case Graphics.PixelFormat.R8G8_SInt:
                 return InternalFormat.RG8i;
 
-            case Framework.Graphics.PixelFormat.R16G16_UNorm:
+            case Graphics.PixelFormat.R16G16_UNorm:
                 return InternalFormat.RG16;
-            case Framework.Graphics.PixelFormat.R16G16_SNorm:
+            case Graphics.PixelFormat.R16G16_SNorm:
                 return InternalFormat.RG16SNorm;
-            case Framework.Graphics.PixelFormat.R16G16_UInt:
+            case Graphics.PixelFormat.R16G16_UInt:
                 return InternalFormat.RG16ui;
-            case Framework.Graphics.PixelFormat.R16G16_SInt:
+            case Graphics.PixelFormat.R16G16_SInt:
                 return InternalFormat.RG16i;
-            case Framework.Graphics.PixelFormat.R16G16_Float:
+            case Graphics.PixelFormat.R16G16_Float:
                 return InternalFormat.RG16f;
 
-            case Framework.Graphics.PixelFormat.R32G32_UInt:
+            case Graphics.PixelFormat.R32G32_UInt:
                 return InternalFormat.RG32ui;
-            case Framework.Graphics.PixelFormat.R32G32_SInt:
+            case Graphics.PixelFormat.R32G32_SInt:
                 return InternalFormat.RG32i;
-            case Framework.Graphics.PixelFormat.R32G32_Float:
+            case Graphics.PixelFormat.R32G32_Float:
                 return InternalFormat.RG32f;
 
-            case Framework.Graphics.PixelFormat.R8G8B8A8_UNorm:
+            case Graphics.PixelFormat.R8G8B8A8_UNorm:
                 return InternalFormat.Rgba8;
-            case Framework.Graphics.PixelFormat.R8G8B8A8_UNorm_SRgb:
+            case Graphics.PixelFormat.R8G8B8A8_UNorm_SRgb:
                 return InternalFormat.Srgb8Alpha8;
-            case Framework.Graphics.PixelFormat.R8G8B8A8_SNorm:
+            case Graphics.PixelFormat.R8G8B8A8_SNorm:
                 return InternalFormat.Rgba8SNorm;
-            case Framework.Graphics.PixelFormat.R8G8B8A8_UInt:
+            case Graphics.PixelFormat.R8G8B8A8_UInt:
                 return InternalFormat.Rgba8ui;
-            case Framework.Graphics.PixelFormat.R8G8B8A8_SInt:
+            case Graphics.PixelFormat.R8G8B8A8_SInt:
                 return InternalFormat.Rgba8i;
 
-            case Framework.Graphics.PixelFormat.R16G16B16A16_UNorm:
+            case Graphics.PixelFormat.R16G16B16A16_UNorm:
                 return InternalFormat.Rgba16;
-            case Framework.Graphics.PixelFormat.R16G16B16A16_SNorm:
+            case Graphics.PixelFormat.R16G16B16A16_SNorm:
                 return InternalFormat.Rgba16SNorm;
-            case Framework.Graphics.PixelFormat.R16G16B16A16_UInt:
+            case Graphics.PixelFormat.R16G16B16A16_UInt:
                 return InternalFormat.Rgba16ui;
-            case Framework.Graphics.PixelFormat.R16G16B16A16_SInt:
+            case Graphics.PixelFormat.R16G16B16A16_SInt:
                 return InternalFormat.Rgba16i;
-            case Framework.Graphics.PixelFormat.R16G16B16A16_Float:
+            case Graphics.PixelFormat.R16G16B16A16_Float:
                 return InternalFormat.Rgba16f;
 
-            case Framework.Graphics.PixelFormat.R32G32B32A32_Float:
+            case Graphics.PixelFormat.R32G32B32A32_Float:
                 return InternalFormat.Rgba32f;
-            case Framework.Graphics.PixelFormat.R32G32B32A32_UInt:
+            case Graphics.PixelFormat.R32G32B32A32_UInt:
                 return InternalFormat.Rgba32ui;
-            case Framework.Graphics.PixelFormat.R32G32B32A32_SInt:
+            case Graphics.PixelFormat.R32G32B32A32_SInt:
                 return InternalFormat.Rgba32i;
 
-            case Framework.Graphics.PixelFormat.B8G8R8A8_UNorm:
+            case Graphics.PixelFormat.B8G8R8A8_UNorm:
                 return InternalFormat.Rgba;
-            case Framework.Graphics.PixelFormat.B8G8R8A8_UNorm_SRgb:
+            case Graphics.PixelFormat.B8G8R8A8_UNorm_SRgb:
                 return InternalFormat.Srgb8Alpha8;
 
-            case Framework.Graphics.PixelFormat.BC1_RGB_UNorm:
+            case Graphics.PixelFormat.BC1_RGB_UNorm:
                 return InternalFormat.CompressedRgbS3TCDxt1Ext;
-            case Framework.Graphics.PixelFormat.BC1_RGB_UNorm_SRgb:
+            case Graphics.PixelFormat.BC1_RGB_UNorm_SRgb:
                 return InternalFormat.CompressedSrgbS3TCDxt1Ext;
-            case Framework.Graphics.PixelFormat.BC1_RGBA_UNorm:
+            case Graphics.PixelFormat.BC1_RGBA_UNorm:
                 return InternalFormat.CompressedRgbaS3TCDxt1Ext;
-            case Framework.Graphics.PixelFormat.BC1_RGBA_UNorm_SRgb:
+            case Graphics.PixelFormat.BC1_RGBA_UNorm_SRgb:
                 return InternalFormat.CompressedSrgbAlphaS3TCDxt1Ext;
-            case Framework.Graphics.PixelFormat.BC2_UNorm:
+            case Graphics.PixelFormat.BC2_UNorm:
                 return InternalFormat.CompressedRgbaS3TCDxt3Ext;
-            case Framework.Graphics.PixelFormat.BC2_UNorm_SRgb:
+            case Graphics.PixelFormat.BC2_UNorm_SRgb:
                 return InternalFormat.CompressedSrgbAlphaS3TCDxt3Ext;
-            case Framework.Graphics.PixelFormat.BC3_UNorm:
+            case Graphics.PixelFormat.BC3_UNorm:
                 return InternalFormat.CompressedRgbaS3TCDxt5Ext;
-            case Framework.Graphics.PixelFormat.BC3_UNorm_SRgb:
+            case Graphics.PixelFormat.BC3_UNorm_SRgb:
                 return InternalFormat.CompressedSrgbAlphaS3TCDxt5Ext;
-            case Framework.Graphics.PixelFormat.BC4_UNorm:
+            case Graphics.PixelFormat.BC4_UNorm:
                 return InternalFormat.CompressedRedRgtc1;
-            case Framework.Graphics.PixelFormat.BC4_SNorm:
+            case Graphics.PixelFormat.BC4_SNorm:
                 return InternalFormat.CompressedSignedRedRgtc1;
-            case Framework.Graphics.PixelFormat.BC5_UNorm:
+            case Graphics.PixelFormat.BC5_UNorm:
                 return InternalFormat.CompressedRGRgtc2;
-            case Framework.Graphics.PixelFormat.BC5_SNorm:
+            case Graphics.PixelFormat.BC5_SNorm:
                 return InternalFormat.CompressedSignedRGRgtc2;
-            case Framework.Graphics.PixelFormat.BC7_UNorm:
+            case Graphics.PixelFormat.BC7_UNorm:
                 return InternalFormat.CompressedRgbaBptcUnorm;
-            case Framework.Graphics.PixelFormat.BC7_UNorm_SRgb:
+            case Graphics.PixelFormat.BC7_UNorm_SRgb:
                 return InternalFormat.CompressedSrgbAlphaBptcUnorm;
 
-            case Framework.Graphics.PixelFormat.ETC2_R8G8B8_UNorm:
+            case Graphics.PixelFormat.ETC2_R8G8B8_UNorm:
                 return InternalFormat.CompressedRgb8Etc2;
-            case Framework.Graphics.PixelFormat.ETC2_R8G8B8A1_UNorm:
+            case Graphics.PixelFormat.ETC2_R8G8B8A1_UNorm:
                 return InternalFormat.CompressedRgb8PunchthroughAlpha1Etc2;
-            case Framework.Graphics.PixelFormat.ETC2_R8G8B8A8_UNorm:
+            case Graphics.PixelFormat.ETC2_R8G8B8A8_UNorm:
                 return InternalFormat.CompressedRgba8Etc2Eac;
 
-            case Framework.Graphics.PixelFormat.D32_Float_S8_UInt:
+            case Graphics.PixelFormat.D32_Float_S8_UInt:
                 return InternalFormat.Depth32fStencil8;
-            case Framework.Graphics.PixelFormat.D24_UNorm_S8_UInt:
+            case Graphics.PixelFormat.D24_UNorm_S8_UInt:
                 return InternalFormat.Depth24Stencil8;
 
-            case Framework.Graphics.PixelFormat.R10G10B10A2_UNorm:
+            case Graphics.PixelFormat.R10G10B10A2_UNorm:
                 return InternalFormat.Rgb10A2;
-            case Framework.Graphics.PixelFormat.R10G10B10A2_UInt:
+            case Graphics.PixelFormat.R10G10B10A2_UInt:
                 return InternalFormat.Rgb10A2ui;
-            case Framework.Graphics.PixelFormat.R11G11B10_Float:
+            case Graphics.PixelFormat.R11G11B10_Float:
                 return InternalFormat.R11fG11fB10f;
 
             default:

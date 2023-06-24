@@ -8,14 +8,14 @@ using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Sekai.Framework;
-using Sekai.Framework.Audio;
-using Sekai.Framework.Graphics;
-using Sekai.Framework.Input;
-using Sekai.Framework.Logging;
-using Sekai.Framework.Mathematics;
-using Sekai.Framework.Storages;
-using Sekai.Framework.Windowing;
+using Sekai;
+using Sekai.Audio;
+using Sekai.Graphics;
+using Sekai.Input;
+using Sekai.Logging;
+using Sekai.Mathematics;
+using Sekai.Storages;
+using Sekai.Windowing;
 
 namespace Sekai;
 

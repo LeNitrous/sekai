@@ -2,8 +2,8 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using Sekai.Framework.Graphics;
-using Sekai.Framework.Mathematics;
+using Sekai.Graphics;
+using Sekai.Mathematics;
 
 namespace Sekai.Headless.Graphics;
 

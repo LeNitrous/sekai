@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../Sekai.Framework/Sekai.Framework.csproj" />
+    <ProjectReference Include="../Sekai/Sekai.csproj" />
   </ItemGroup>
 
   <ItemGroup>

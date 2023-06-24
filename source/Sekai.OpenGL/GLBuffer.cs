@@ -2,7 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using Sekai.Framework.Graphics;
+using Sekai.Graphics;
 using Silk.NET.OpenGL;
 
 namespace Sekai.OpenGL;

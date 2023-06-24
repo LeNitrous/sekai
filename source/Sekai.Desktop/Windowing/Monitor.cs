@@ -2,8 +2,8 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System.Collections.Generic;
-using Sekai.Framework.Mathematics;
-using Sekai.Framework.Windowing;
+using Sekai.Mathematics;
+using Sekai.Windowing;
 
 namespace Sekai.Desktop.Windowing;
 

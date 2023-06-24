@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Sekai.Framework.Input;
+using Sekai.Input;
 
 namespace Sekai.Headless.Input;
 

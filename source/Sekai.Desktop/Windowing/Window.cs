@@ -7,10 +7,10 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using Sekai.Desktop.Input;
-using Sekai.Framework.Contexts;
-using Sekai.Framework.Input;
-using Sekai.Framework.Mathematics;
-using Sekai.Framework.Windowing;
+using Sekai.Contexts;
+using Sekai.Input;
+using Sekai.Mathematics;
+using Sekai.Windowing;
 using Silk.NET.GLFW;
 
 namespace Sekai.Desktop.Windowing;

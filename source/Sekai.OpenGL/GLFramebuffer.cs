@@ -6,7 +6,7 @@ using Silk.NET.OpenGL;
 
 namespace Sekai.OpenGL;
 
-internal sealed unsafe class GLFramebuffer : Framework.Graphics.Framebuffer
+internal sealed unsafe class GLFramebuffer : Graphics.Framebuffer
 {
     private bool isDisposed;
     private readonly uint handle;
@@ -17,7 +17,7 @@ internal sealed unsafe class GLFramebuffer : Framework.Graphics.Framebuffer
 
 #pragma warning restore IDE1006
 
-    public GLFramebuffer(GL gl, Framework.Graphics.FramebufferAttachment? depth, Framework.Graphics.FramebufferAttachment[] colors)
+    public GLFramebuffer(GL gl, Graphics.FramebufferAttachment? depth, Graphics.FramebufferAttachment[] colors)
     {
         GL = gl;
         handle = GL.GenFramebuffer();

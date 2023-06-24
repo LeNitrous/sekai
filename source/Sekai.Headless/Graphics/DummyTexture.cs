@@ -3,7 +3,7 @@
 
 using System;
 using System.Buffers;
-using Sekai.Framework.Graphics;
+using Sekai.Graphics;
 
 namespace Sekai.Headless.Graphics;
 

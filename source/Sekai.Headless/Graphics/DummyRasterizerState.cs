@@ -1,7 +1,7 @@
 // Copyright (c) Cosyne
 // Licensed under MIT. See LICENSE for details.
 
-using Sekai.Framework.Graphics;
+using Sekai.Graphics;
 
 namespace Sekai.Headless.Graphics;
 

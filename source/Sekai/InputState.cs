@@ -3,7 +3,7 @@
 
 using System;
 using System.Numerics;
-using Sekai.Framework.Input;
+using Sekai.Input;
 
 namespace Sekai;
 

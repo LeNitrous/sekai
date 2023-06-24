@@ -3,7 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using Sekai.Framework.Audio;
+using Sekai.Audio;
 
 namespace Sekai.Headless.Audio;
 

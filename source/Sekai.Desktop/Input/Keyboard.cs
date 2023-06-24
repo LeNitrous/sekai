@@ -3,7 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using Sekai.Framework.Input;
+using Sekai.Input;
 
 namespace Sekai.Desktop.Input;
 

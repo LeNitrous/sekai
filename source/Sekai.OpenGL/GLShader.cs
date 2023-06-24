@@ -2,12 +2,12 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using Sekai.Framework.Graphics;
+using Sekai.Graphics;
 using Silk.NET.OpenGL;
 
 namespace Sekai.OpenGL;
 
-internal sealed unsafe class GLShader : Framework.Graphics.Shader
+internal sealed unsafe class GLShader : Graphics.Shader
 {
     public override ShaderStage Stages { get; }
 

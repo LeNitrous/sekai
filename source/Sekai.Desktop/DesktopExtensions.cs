@@ -2,7 +2,7 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using Sekai.Framework.Input;
+using Sekai.Input;
 
 namespace Sekai.Desktop;
 

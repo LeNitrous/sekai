@@ -1,7 +1,7 @@
 // Copyright (c) Cosyne
 // Licensed under MIT. See LICENSE for details.
 
-using Sekai.Framework.Audio;
+using Sekai.Audio;
 
 namespace Sekai.Headless.Audio;
 

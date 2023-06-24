@@ -2,13 +2,13 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
-using Sekai.Framework.Graphics;
-using Sekai.Framework.Mathematics;
+using Sekai.Graphics;
+using Sekai.Mathematics;
 using Silk.NET.OpenGL;
 
 namespace Sekai.OpenGL;
 
-internal sealed unsafe class GLSampler : Framework.Graphics.Sampler
+internal sealed unsafe class GLSampler : Graphics.Sampler
 {
     public override TextureFilter Filter { get; }
     public override TextureAddress AddressU { get; }

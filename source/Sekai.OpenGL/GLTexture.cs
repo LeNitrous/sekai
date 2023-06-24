@@ -3,18 +3,18 @@
 
 using System;
 using System.Runtime.CompilerServices;
-using Sekai.Framework.Graphics;
+using Sekai.Graphics;
 using Silk.NET.OpenGL;
 
 namespace Sekai.OpenGL;
 
-internal sealed unsafe class GLTexture : Framework.Graphics.Texture
+internal sealed unsafe class GLTexture : Graphics.Texture
 {
     public override TextureType Type { get; }
     public override int Width { get; }
     public override int Height { get; }
     public override int Depth { get; }
-    public override Framework.Graphics.PixelFormat Format { get; }
+    public override Graphics.PixelFormat Format { get; }
     public override int Levels { get; }
     public override int Layers { get; }
     public override TextureUsage Usage { get; }

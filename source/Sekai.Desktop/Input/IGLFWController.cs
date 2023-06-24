@@ -1,7 +1,7 @@
 // Copyright (c) Cosyne
 // Licensed under MIT. See LICENSE for details.
 
-using Sekai.Framework.Input;
+using Sekai.Input;
 using Silk.NET.GLFW;
 
 namespace Sekai.Desktop.Input;
