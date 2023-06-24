@@ -8,7 +8,6 @@ using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Sekai;
 using Sekai.Audio;
 using Sekai.Graphics;
 using Sekai.Input;
