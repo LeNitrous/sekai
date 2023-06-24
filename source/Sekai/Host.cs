@@ -209,6 +209,7 @@ public sealed class Host
             }
 
             Window.DoEvents();
+            platform.DoEvents();
         }
 
         await gameLoop;

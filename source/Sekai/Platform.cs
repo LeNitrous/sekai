@@ -23,6 +23,13 @@ public abstract class Platform : IDisposable
     public abstract IEnumerable<IMonitor> Monitors { get; }
 
     /// <summary>
+    /// Performs platform events.
+    /// </summary>
+    public virtual void DoEvents()
+    {
+    }
+
+    /// <summary>
     /// Creates a window.
     /// </summary>
     public abstract IWindow CreateWindow();

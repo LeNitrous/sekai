@@ -49,6 +49,14 @@ internal sealed unsafe class DesktopPlatform : Platform, IInputContext
         }
     }
 
+    public override void DoEvents()
+    {
+        foreach (var device in devices.Values)
+        {
+            device.Update(glfw);
+        }
+    }
+
     public override unsafe void Dispose()
     {
         if (isDisposed)
