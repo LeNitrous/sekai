@@ -5,7 +5,6 @@ using System;
 using System.Numerics;
 using Sekai;
 using Sekai.Desktop;
-using Sekai;
 using Sekai.Audio;
 using Sekai.Contexts;
 using Sekai.Graphics;
