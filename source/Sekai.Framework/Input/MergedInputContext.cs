@@ -45,11 +45,6 @@ public sealed class MergedInputContext : IInputContext, IDisposable
         ConnectionChanged?.Invoke(device, connected);
     }
 
-    ~MergedInputContext()
-    {
-        Dispose();
-    }
-
     public void Dispose()
     {
         if (isDisposed)

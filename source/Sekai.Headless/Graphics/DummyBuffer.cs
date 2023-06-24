@@ -38,11 +38,6 @@ internal sealed class DummyBuffer : GraphicsBuffer
         handle?.Dispose();
     }
 
-    ~DummyBuffer()
-    {
-        Dispose();
-    }
-
     public override void Dispose()
     {
         if (isDisposed)

@@ -64,11 +64,6 @@ public sealed unsafe class ALAudioDevice : AudioDevice
         return new ALAudioSource(AL);
     }
 
-    ~ALAudioDevice()
-    {
-        Dispose();
-    }
-
     public override void Dispose()
     {
         if (isDisposed)

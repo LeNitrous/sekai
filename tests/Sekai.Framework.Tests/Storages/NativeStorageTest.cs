@@ -25,11 +25,6 @@ public class NativeStorageTest : StorageTest<NativeStorage>
             Directory.Create();
         }
 
-        ~TemporaryNativeStorage()
-        {
-            Dispose();
-        }
-
         public override void Dispose()
         {
             base.Dispose();

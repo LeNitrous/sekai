@@ -77,11 +77,6 @@ public sealed class MergedStorage : Storage
         return storage.Open(path, mode, access);
     }
 
-    ~MergedStorage()
-    {
-        Dispose();
-    }
-
     public override void Dispose()
     {
         if (isDisposed)

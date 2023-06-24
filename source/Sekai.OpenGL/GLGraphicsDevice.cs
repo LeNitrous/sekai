@@ -138,11 +138,6 @@ public sealed unsafe class GLGraphicsDevice : GraphicsDevice
         GL.DispatchComputeIndirect((nint)offset);
     }
 
-    ~GLGraphicsDevice()
-    {
-        Dispose();
-    }
-
     public override void Dispose()
     {
         if (isDisposed)

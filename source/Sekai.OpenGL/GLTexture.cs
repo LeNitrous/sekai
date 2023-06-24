@@ -324,11 +324,6 @@ internal sealed unsafe class GLTexture : Framework.Graphics.Texture
         }
     }
 
-    ~GLTexture()
-    {
-        Dispose();
-    }
-
     public override void Dispose()
     {
         if (isDisposed)

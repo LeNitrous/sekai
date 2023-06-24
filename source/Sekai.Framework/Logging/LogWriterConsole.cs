@@ -58,11 +58,6 @@ public sealed partial class LogWriterConsole : LogWriter, IDisposable
         writer.Write(message);
     }
 
-    ~LogWriterConsole()
-    {
-        Dispose();
-    }
-
     public void Dispose()
     {
         if (isDisposed)

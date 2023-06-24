@@ -26,11 +26,6 @@ public abstract class LogWriterStream : LogWriter, IDisposable
         this.leaveOpen = leaveOpen;
     }
 
-    ~LogWriterStream()
-    {
-        Dispose();
-    }
-
     public void Dispose()
     {
         if (isDisposed)

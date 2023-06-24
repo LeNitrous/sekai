@@ -134,11 +134,6 @@ public sealed class MemoryStorage : Storage
 
     private const char separator = '/';
 
-    ~MemoryStorage()
-    {
-        Dispose();
-    }
-
     public override void Dispose()
     {
         if (isDisposed)

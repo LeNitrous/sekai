@@ -85,11 +85,6 @@ internal sealed unsafe class GLSampler : Framework.Graphics.Sampler
         GL.BindSampler(slot, handle);
     }
 
-    ~GLSampler()
-    {
-        Dispose();
-    }
-
     public override void Dispose()
     {
         if (isDisposed)

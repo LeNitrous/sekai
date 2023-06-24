@@ -63,11 +63,6 @@ internal sealed class DummyTexture : Texture
         return owner.Memory.Span[offset..(offset + region)];
     }
 
-    ~DummyTexture()
-    {
-        Dispose();
-    }
-
     public override void Dispose()
     {
         if (isDisposed)

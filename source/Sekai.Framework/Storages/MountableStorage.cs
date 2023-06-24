@@ -167,11 +167,6 @@ public sealed class MountableStorage : Storage
         return false;
     }
 
-    ~MountableStorage()
-    {
-        Dispose();
-    }
-
     public override void Dispose()
     {
         if (isDisposed)

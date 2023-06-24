@@ -217,11 +217,6 @@ internal sealed class ALAudioSource : AudioSource
         AL.SourceStop(handle);
     }
 
-    ~ALAudioSource()
-    {
-        Dispose();
-    }
-
     public override void Dispose()
     {
         if (isDisposed)

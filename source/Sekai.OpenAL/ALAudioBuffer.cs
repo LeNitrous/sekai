@@ -69,11 +69,6 @@ internal sealed class ALAudioBuffer : AudioBuffer
         AL.BufferData(handle, fmt, (void*)data, (int)size, sampleRate);
     }
 
-    ~ALAudioBuffer()
-    {
-        Dispose();
-    }
-
     public override void Dispose()
     {
         if (isDisposed)

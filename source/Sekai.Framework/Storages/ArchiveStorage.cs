@@ -127,11 +127,6 @@ public sealed class ArchiveStorage : Storage
         return new WrappedStream(stream, mode == FileMode.Append);
     }
 
-    ~ArchiveStorage()
-    {
-        Dispose();
-    }
-
     public override void Dispose()
     {
         if (isDisposed)

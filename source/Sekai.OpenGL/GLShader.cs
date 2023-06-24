@@ -81,11 +81,6 @@ internal sealed unsafe class GLShader : Framework.Graphics.Shader
         bound_handle = handle;
     }
 
-    ~GLShader()
-    {
-        Dispose();
-    }
-
     public override void Dispose()
     {
         if (isDisposed)

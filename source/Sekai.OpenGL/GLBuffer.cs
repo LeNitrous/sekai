@@ -114,11 +114,6 @@ internal sealed unsafe class GLBuffer : GraphicsBuffer
         GL.BindBufferBase(target, slot, handle);
     }
 
-    ~GLBuffer()
-    {
-        Dispose();
-    }
-
     public override void Dispose()
     {
         if (isDisposed)

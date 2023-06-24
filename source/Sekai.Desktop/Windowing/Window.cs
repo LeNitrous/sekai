@@ -505,11 +505,6 @@ internal sealed unsafe partial class Window : IWindow, IHasIcon, IHasDragDrop, I
         Dropped?.Invoke(paths);
     }
 
-    ~Window()
-    {
-        Dispose();
-    }
-
     public void Dispose()
     {
         if (isDisposed)

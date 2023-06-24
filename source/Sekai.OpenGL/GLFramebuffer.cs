@@ -52,11 +52,6 @@ internal sealed unsafe class GLFramebuffer : Framework.Graphics.Framebuffer
         GL.BindFramebuffer(FramebufferTarget.Framebuffer, handle);
     }
 
-    ~GLFramebuffer()
-    {
-        Dispose();
-    }
-
     public override void Dispose()
     {
         if (isDisposed)

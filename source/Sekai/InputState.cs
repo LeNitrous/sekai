@@ -147,11 +147,6 @@ public sealed class InputState : IDisposable
         }
     }
 
-    ~InputState()
-    {
-        Dispose();
-    }
-
     public void Dispose()
     {
         if (isDisposed)
