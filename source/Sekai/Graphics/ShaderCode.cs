@@ -147,21 +147,22 @@ public readonly struct ShaderCode : IEquatable<ShaderCode>
     /// Creates a new <see cref="ShaderCode"/> from a <see cref="Stream"/>.
     /// </summary>
     /// <param name="stream">The stream that contains shader code.</param>
+    /// <param name="entry">The entry point function name.</param>
     /// <param name="language">The language the shader code is written in.</param>
     /// <param name="encoding">The encoding of the stream.</param>
     /// <returns>A new shader code.</returns>
-    public static ShaderCode From(Stream stream, ShaderStage stage, ShaderLanguage language = ShaderLanguage.GLSL, Encoding? encoding = null, params ShaderConstant[] constants)
+    public static ShaderCode From(Stream stream, ShaderStage stage, string? entry = null, ShaderLanguage language = ShaderLanguage.GLSL, Encoding? encoding = null, params ShaderConstant[] constants)
     {
         if (language == ShaderLanguage.SPIR)
         {
             Span<byte> buffer = stackalloc byte[(int)stream.Length];
             stream.Read(buffer);
-            return From(buffer, stage, language, constants);
+            return From(buffer, stage, entry, language, constants);
         }
         else
         {
             using var reader = new StreamReader(stream, encoding ??= Encoding.UTF8);
-            return From(reader.ReadToEnd(), stage, language, encoding, constants);
+            return From(reader.ReadToEnd(), stage, entry, language, encoding, constants);
         }
     }
 
@@ -170,12 +171,13 @@ public readonly struct ShaderCode : IEquatable<ShaderCode>
     /// </summary>
     /// <param name="text">The shader code as text.</param>
     /// <param name="stage">The shader code's stage.</param>
+    /// <param name="entry">The entry point function name.</param>
     /// <param name="language">The language the shader code is written in.</param>
     /// <param name="encoding">The encoding of the text.</param>
     /// <returns>A new shader code.</returns>
-    public static ShaderCode From(string text, ShaderStage stage, ShaderLanguage language = ShaderLanguage.GLSL, Encoding? encoding = null, params ShaderConstant[] constants)
+    public static ShaderCode From(string text, ShaderStage stage, string? entry = null, ShaderLanguage language = ShaderLanguage.GLSL, Encoding? encoding = null, params ShaderConstant[] constants)
     {
-        return From(text.AsSpan(), stage, language, encoding, constants);
+        return From(text.AsSpan(), stage, entry, language, encoding, constants);
     }
 
     /// <summary>
@@ -183,10 +185,11 @@ public readonly struct ShaderCode : IEquatable<ShaderCode>
     /// </summary>
     /// <param name="text">The shader code as text.</param>
     /// <param name="stage">The shader code's stage.</param>
+    /// <param name="entry">The entry point function name.</param>
     /// <param name="language">The language the shader code is written in.</param>
     /// <param name="encoding">The encoding of the text.</param>
     /// <returns>A new shader code.</returns>
-    public static ShaderCode From(ReadOnlySpan<char> text, ShaderStage stage, ShaderLanguage language = ShaderLanguage.GLSL, Encoding? encoding = null, params ShaderConstant[] constants)
+    public static ShaderCode From(ReadOnlySpan<char> text, ShaderStage stage, string? entry = null, ShaderLanguage language = ShaderLanguage.GLSL, Encoding? encoding = null, params ShaderConstant[] constants)
     {
         if (language == ShaderLanguage.SPIR)
         {
@@ -200,7 +203,7 @@ public readonly struct ShaderCode : IEquatable<ShaderCode>
             throw new ShaderCompilationException("Failed to encode shader code.");
         }
 
-        return From(buffer, stage, language, constants);
+        return From(buffer, stage, entry, language, constants);
     }
 
     /// <summary>
@@ -208,11 +211,12 @@ public readonly struct ShaderCode : IEquatable<ShaderCode>
     /// </summary>
     /// <param name="bytes">The shader code as a byte array.</param>
     /// <param name="stage">The shader code's stage.</param>
+    /// <param name="entry">The entry point function name.</param>
     /// <param name="language">The language the shader code is written in.</param>
     /// <returns>A new shader code.</returns>
-    public static ShaderCode From(byte[] bytes, ShaderStage stage, ShaderLanguage language = ShaderLanguage.GLSL, params ShaderConstant[] constants)
+    public static ShaderCode From(byte[] bytes, ShaderStage stage, string? entry = null, ShaderLanguage language = ShaderLanguage.GLSL, params ShaderConstant[] constants)
     {
-        return From(bytes.AsSpan(), stage, language, constants);
+        return From(bytes.AsSpan(), stage, entry, language, constants);
     }
 
     /// <summary>
@@ -222,7 +226,7 @@ public readonly struct ShaderCode : IEquatable<ShaderCode>
     /// <param name="stage">The shader code's stage.</param>
     /// <param name="language">The language the shader code is written in.</param>
     /// <returns>A new shader code.</returns>
-    public static unsafe ShaderCode From(ReadOnlySpan<byte> bytes, ShaderStage stage, ShaderLanguage language = ShaderLanguage.GLSL, params ShaderConstant[] constants)
+    public static unsafe ShaderCode From(ReadOnlySpan<byte> bytes, ShaderStage stage, string? entry = null, ShaderLanguage language = ShaderLanguage.GLSL, params ShaderConstant[] constants)
     {
         if (language == ShaderLanguage.SPIR)
         {
@@ -254,11 +258,33 @@ public readonly struct ShaderCode : IEquatable<ShaderCode>
 
         shaderc_compilation_result* result;
 
-        fixed (byte* source = bytes)
-        fixed (byte* file = ShaderCode.file)
-        fixed (byte* main = ShaderCode.main)
+        if (string.IsNullOrEmpty(entry))
         {
-            result = shaderc_compile_into_spv(comp, (sbyte*)source, (nuint)bytes.Length, kind, (sbyte*)file, (sbyte*)main, opts);
+            fixed (byte* source = bytes)
+            fixed (byte* file = ShaderCode.file)
+            fixed (byte* main = ShaderCode.main)
+            {
+                result = shaderc_compile_into_spv(comp, (sbyte*)source, (nuint)bytes.Length, kind, (sbyte*)file, (sbyte*)main, opts);
+            }
+        }
+        else
+        {
+            int length = Encoding.UTF8.GetByteCount(entry);
+            byte* main = stackalloc byte[length];
+
+            fixed (char* chars = entry)
+            {
+                if (Encoding.UTF8.GetBytes(chars, entry.Length, main, length) != length)
+                {
+                    throw new InvalidOperationException("Failed to copy bytes.");
+                }
+            }
+
+            fixed (byte* source = bytes)
+            fixed (byte* file = ShaderCode.file)
+            {
+                result = shaderc_compile_into_spv(comp, (sbyte*)source, (nuint)bytes.Length, kind, (sbyte*)file, (sbyte*)main, opts);
+            }
         }
 
         if (shaderc_result_get_compilation_status(result) != shaderc_compilation_status.shaderc_compilation_status_success)
