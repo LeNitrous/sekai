@@ -125,16 +125,16 @@ internal static class GLExtensions
     };
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static VertexAttribPointerType AsAttribType(this VertexMemberFormat format) => format switch
+    public static VertexAttribPointerType AsAttribType(this InputLayoutFormat format) => format switch
     {
-        VertexMemberFormat.Byte => VertexAttribPointerType.Byte,
-        VertexMemberFormat.UnsignedByte => VertexAttribPointerType.UnsignedByte,
-        VertexMemberFormat.Short => VertexAttribPointerType.Short,
-        VertexMemberFormat.UnsignedShort => VertexAttribPointerType.UnsignedShort,
-        VertexMemberFormat.Int => VertexAttribPointerType.Int,
-        VertexMemberFormat.UnsignedInt => VertexAttribPointerType.UnsignedInt,
-        VertexMemberFormat.Half => VertexAttribPointerType.HalfFloat,
-        VertexMemberFormat.Float => VertexAttribPointerType.Float,
+        InputLayoutFormat.Byte => VertexAttribPointerType.Byte,
+        InputLayoutFormat.UnsignedByte => VertexAttribPointerType.UnsignedByte,
+        InputLayoutFormat.Short => VertexAttribPointerType.Short,
+        InputLayoutFormat.UnsignedShort => VertexAttribPointerType.UnsignedShort,
+        InputLayoutFormat.Int => VertexAttribPointerType.Int,
+        InputLayoutFormat.UnsignedInt => VertexAttribPointerType.UnsignedInt,
+        InputLayoutFormat.Half => VertexAttribPointerType.HalfFloat,
+        InputLayoutFormat.Float => VertexAttribPointerType.Float,
         _ => throw new ArgumentOutOfRangeException(nameof(format), format, null),
     };
 

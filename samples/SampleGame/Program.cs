@@ -20,12 +20,12 @@ internal static class Program
 internal sealed class Sample : Game
 {
     private Shader? shd;
+    private InputLayout? layout;
     private GraphicsBuffer? vbo;
-    private readonly VertexLayout layout = new(new VertexMember(2, false, VertexMemberFormat.Float));
 
     public override void Load()
     {
-        shd = Graphics!.CreateShader
+        shd = Graphics.CreateShader
         (
             ShaderCode.From(shader_v_code, ShaderStage.Vertex),
             ShaderCode.From(shader_f_code, ShaderStage.Fragment)
@@ -39,14 +39,21 @@ internal sealed class Sample : Game
         };
 
         vbo = Graphics.CreateBuffer(BufferType.Vertex, vertices);
+
+        layout = Graphics.CreateInputLayout
+        (
+            new InputLayoutDescription
+            (
+                new InputLayoutMember(2, false, InputLayoutFormat.Float)
+            )
+        );
     }
 
     public override void Draw()
     {
-        Graphics!.Clear(Color.CornflowerBlue);
+        Graphics.Clear(Color.CornflowerBlue);
         Graphics.SetShader(shd!);
-        Graphics.SetVertexLayout(layout);
-        Graphics.SetVertexBuffer(vbo!);
+        Graphics.SetVertexBuffer(vbo!, layout!);
         Graphics.Draw(PrimitiveType.TriangleList, 3);
     }
 

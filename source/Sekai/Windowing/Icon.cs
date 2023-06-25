@@ -63,7 +63,10 @@ public readonly struct Icon : IEquatable<Icon>
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(Size, Pixels);
+        var hash = new HashCode();
+        hash.Add(Size);
+        hash.AddBytes(Pixels.Span);
+        return hash.ToHashCode();
     }
 
     public static bool operator ==(Icon left, Icon right)

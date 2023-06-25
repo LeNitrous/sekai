@@ -28,6 +28,11 @@ internal sealed class DummyGraphicsDevice : GraphicsDevice
         return new DummyBlendState();
     }
 
+    public override InputLayout CreateInputLayout(params InputLayoutDescription[] descriptions)
+    {
+        return new DummyInputLayout();
+    }
+
     public override GraphicsBuffer CreateBuffer(BufferType type, uint size, bool dynamic = false)
     {
         return new DummyBuffer((int)size, type, dynamic);
@@ -139,11 +144,7 @@ internal sealed class DummyGraphicsDevice : GraphicsDevice
     {
     }
 
-    public override void SetVertexLayout(VertexLayout layout)
-    {
-    }
-
-    public override void SetVertexBuffer(GraphicsBuffer buffer)
+    public override void SetVertexBuffer(GraphicsBuffer buffer, InputLayout layout)
     {
     }
 

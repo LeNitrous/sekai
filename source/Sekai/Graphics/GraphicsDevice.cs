@@ -116,6 +116,13 @@ public abstract class GraphicsDevice : IDisposable
     public abstract Shader CreateShader(params ShaderCode[] attachments);
 
     /// <summary>
+    /// Creates an input layout.
+    /// </summary>
+    /// <param name="descriptions">The layouts to include.</param>
+    /// <returns>A new input layout.</returns>
+    public abstract InputLayout CreateInputLayout(params InputLayoutDescription[] descriptions);
+
+    /// <summary>
     /// Creates a new rasterizer state.
     /// </summary>
     /// <param name="description">The rasterizer state descriptor.</param>
@@ -201,16 +208,11 @@ public abstract class GraphicsDevice : IDisposable
     public abstract void SetScissor(Rectangle scissor);
 
     /// <summary>
-    /// Sets the vertex layout to be used.
-    /// </summary>
-    /// <param name="layout">The input layout that this vertex buffer will use.</param>
-    public abstract void SetVertexLayout(VertexLayout layout);
-
-    /// <summary>
-    /// Sets the vertex buffer to be used on the next draw call.
+    /// Sets the vertex buffer and layout to be used on the next draw call.
     /// </summary>
     /// <param name="buffer">The buffer to use.</param>
-    public abstract void SetVertexBuffer(GraphicsBuffer buffer);
+    /// <param name="layout">The layout to use.</param>
+    public abstract void SetVertexBuffer(GraphicsBuffer buffer, InputLayout layout);
 
     /// <summary>
     /// Sets the index buffer to be used on the next draw call.

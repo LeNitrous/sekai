@@ -6,9 +6,9 @@ using System;
 namespace Sekai.Graphics;
 
 /// <summary>
-/// An enumeration of input layout member formats.
+/// An enumeration of layout formats.
 /// </summary>
-public enum VertexMemberFormat
+public enum InputLayoutFormat
 {
     /// <summary>
     /// Byte.
@@ -56,27 +56,27 @@ public enum VertexMemberFormat
     Double,
 }
 
-public static class VertexMemberFormatExtensions
+public static class InputLayoutFormatExtensions
 {
     /// <summary>
     /// Gets the size in bytes of a given vertex member format.
     /// </summary>
-    public static int SizeOfFormat(this VertexMemberFormat format)
+    public static int SizeOfFormat(this InputLayoutFormat format)
     {
         switch (format)
         {
-            case VertexMemberFormat.Byte:
-            case VertexMemberFormat.UnsignedByte:
+            case InputLayoutFormat.Byte:
+            case InputLayoutFormat.UnsignedByte:
                 return 1;
-            case VertexMemberFormat.Short:
-            case VertexMemberFormat.Half:
-            case VertexMemberFormat.UnsignedShort:
+            case InputLayoutFormat.Short:
+            case InputLayoutFormat.Half:
+            case InputLayoutFormat.UnsignedShort:
                 return 2;
-            case VertexMemberFormat.Int:
-            case VertexMemberFormat.Float:
-            case VertexMemberFormat.UnsignedInt:
+            case InputLayoutFormat.Int:
+            case InputLayoutFormat.Float:
+            case InputLayoutFormat.UnsignedInt:
                 return 4;
-            case VertexMemberFormat.Double:
+            case InputLayoutFormat.Double:
                 return 8;
             default:
                 throw new ArgumentOutOfRangeException(nameof(format), format, null);

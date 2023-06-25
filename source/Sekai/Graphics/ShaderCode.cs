@@ -326,7 +326,10 @@ public readonly struct ShaderCode : IEquatable<ShaderCode>
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(Stage, Bytes);
+        var hash = new HashCode();
+        hash.Add(Stage);
+        hash.AddBytes(Bytes.Span);
+        return hash.ToHashCode();
     }
 
     public static bool operator ==(ShaderCode left, ShaderCode right)

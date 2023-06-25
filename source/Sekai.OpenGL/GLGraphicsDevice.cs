@@ -28,8 +28,7 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
     private readonly GLContext source;
     private bool syncMode;
     private bool isDisposed;
-    private uint enabledAttributeCount;
-    private VertexLayout currentLayout;
+    private int enabledAttributeCount;
     private DrawElementsType drawElementsType;
 
 #pragma warning disable IDE1006
@@ -85,6 +84,11 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
         }
 
         GL.Clear(mask);
+    }
+
+    public override InputLayout CreateInputLayout(params InputLayoutDescription[] descriptions)
+    {
+        return new GLInputLayout(descriptions);
     }
 
     public override BlendState CreateBlendState(BlendStateDescription description)
@@ -367,38 +371,43 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
         ((GLBuffer)buffer).Bind(slot);
     }
 
-    public override void SetVertexLayout(VertexLayout layout)
-    {
-        if (currentLayout.Equals(layout))
-        {
-            return;
-        }
-
-        currentLayout = layout;
-
-        if (currentLayout.Members.Count > enabledAttributeCount)
-        {
-            for (uint i = enabledAttributeCount; i < currentLayout.Members.Count; i++)
-                GL.EnableVertexAttribArray(i);
-        }
-        else
-        {
-            for (uint i = enabledAttributeCount - 1; i >= currentLayout.Members.Count; i++)
-                GL.DisableVertexAttribArray(i);
-        }
-
-        enabledAttributeCount = (uint)currentLayout.Members.Count;
-
-        for (uint i = 0; i < currentLayout.Members.Count; i++)
-        {
-            var member = currentLayout.Members[(int)i];
-            GL.VertexAttribPointer(i, member.Count, member.Format.AsAttribType(), member.Normalized, currentLayout.Stride, (void*)member.Offset);
-        }
-    }
-
-    public override void SetVertexBuffer(GraphicsBuffer buffer)
+    public override void SetVertexBuffer(GraphicsBuffer buffer, InputLayout layout)
     {
         ((GLBuffer)buffer).Bind();
+
+        var input = (GLInputLayout)layout;
+
+        int currentAttrib = 0;
+        int currentOffset = 0;
+
+        for (int slot = 0; slot < input.Descriptions.Count; slot++)
+        {
+            var description = input.Descriptions[slot];
+
+            for (int i = 0; i < description.Members.Count; i++)
+            {
+                var member = description.Members[i];
+                int actual = slot + i;
+
+                if (actual >= enabledAttributeCount)
+                {
+                    GL.EnableVertexAttribArray((uint)actual);
+                }
+
+                GL.VertexAttribPointer((uint)actual, member.Count, member.Format.AsAttribType(), member.Normalized, (uint)input.Strides[slot], (void*)currentOffset);
+
+                currentOffset += member.Format.SizeOfFormat() * member.Count;
+            }
+
+            currentAttrib += description.Members.Count;
+        }
+
+        for (int i = currentAttrib; i < enabledAttributeCount; i++)
+        {
+            GL.DisableVertexAttribArray((uint)i);
+        }
+
+        enabledAttributeCount = currentAttrib;
     }
 
     public override void SetViewport(Rectangle viewport)
