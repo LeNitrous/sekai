@@ -30,13 +30,10 @@ public readonly struct ShaderCode : IEquatable<ShaderCode>
     /// </summary>
     public ReadOnlyMemory<byte> Bytes { get; }
 
-    private readonly ShaderConstant[] constants;
-
-    private ShaderCode(ShaderStage stage, Memory<byte> bytes, ShaderConstant[] constants)
+    private ShaderCode(ShaderStage stage, Memory<byte> bytes)
     {
-        this.Stage = stage;
-        this.Bytes = bytes;
-        this.constants = constants;
+        Stage = stage;
+        Bytes = bytes;
     }
 
     /// <summary>
@@ -155,8 +152,17 @@ public readonly struct ShaderCode : IEquatable<ShaderCode>
     /// <returns>A new shader code.</returns>
     public static ShaderCode From(Stream stream, ShaderStage stage, ShaderLanguage language = ShaderLanguage.GLSL, Encoding? encoding = null, params ShaderConstant[] constants)
     {
-        using var reader = new StreamReader(stream, encoding ??= Encoding.UTF8);
-        return From(reader.ReadToEnd(), stage, language, encoding, constants);
+        if (language == ShaderLanguage.SPIR)
+        {
+            Span<byte> buffer = stackalloc byte[(int)stream.Length];
+            stream.Read(buffer);
+            return From(buffer, stage, language, constants);
+        }
+        else
+        {
+            using var reader = new StreamReader(stream, encoding ??= Encoding.UTF8);
+            return From(reader.ReadToEnd(), stage, language, encoding, constants);
+        }
     }
 
     /// <summary>
@@ -182,6 +188,11 @@ public readonly struct ShaderCode : IEquatable<ShaderCode>
     /// <returns>A new shader code.</returns>
     public static ShaderCode From(ReadOnlySpan<char> text, ShaderStage stage, ShaderLanguage language = ShaderLanguage.GLSL, Encoding? encoding = null, params ShaderConstant[] constants)
     {
+        if (language == ShaderLanguage.SPIR)
+        {
+            throw new ArgumentException("Cannot create shader code from text using SPIR.", nameof(language));
+        }
+
         Span<byte> buffer = stackalloc byte[(encoding ??= Encoding.UTF8).GetByteCount(text)];
 
         if (encoding.GetBytes(text, buffer) <= 0)
@@ -213,6 +224,11 @@ public readonly struct ShaderCode : IEquatable<ShaderCode>
     /// <returns>A new shader code.</returns>
     public static unsafe ShaderCode From(ReadOnlySpan<byte> bytes, ShaderStage stage, ShaderLanguage language = ShaderLanguage.GLSL, params ShaderConstant[] constants)
     {
+        if (language == ShaderLanguage.SPIR)
+        {
+            return new ShaderCode(stage, bytes.ToArray());
+        }
+
         var comp = shaderc_compiler_initialize();
         var opts = shaderc_compile_options_initialize();
         var lang = language switch
@@ -266,7 +282,7 @@ public readonly struct ShaderCode : IEquatable<ShaderCode>
         shaderc_compiler_release(comp);
         shaderc_compile_options_release(opts);
 
-        return new(stage, buffer, constants);
+        return new(stage, buffer);
     }
 
     private static readonly byte[] main = "main"u8.ToArray();

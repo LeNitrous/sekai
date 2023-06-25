@@ -17,4 +17,9 @@ public enum ShaderLanguage
     /// High-Level Shading Language.
     /// </summary>
     HLSL,
+
+    /// <summary>
+    /// Standard Portable Immediate Representation.
+    /// </summary>
+    SPIR,
 }
