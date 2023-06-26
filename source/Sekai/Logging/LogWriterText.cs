@@ -58,11 +58,11 @@ public class LogWriterText : LogWriterStream
 
     private static readonly Dictionary<LogLevel, string> designators = new()
     {
-        { LogLevel.Trace,       "TRC" },
-        { LogLevel.Debug,       "DBG" },
-        { LogLevel.Verbose,     "INF" },
-        { LogLevel.Warning,     "WRN" },
-        { LogLevel.Error,       "ERR" },
-        { LogLevel.Critical,    "CRT" },
+        { LogLevel.Trace, "TRC" },
+        { LogLevel.Debug, "DBG" },
+        { LogLevel.Verbose, "INF" },
+        { LogLevel.Warning, "WRN" },
+        { LogLevel.Error, "ERR" },
+        { LogLevel.Critical, "CRT" },
     };
 }
