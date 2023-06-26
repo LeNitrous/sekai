@@ -1093,7 +1093,7 @@ public partial struct Color : IColor<Color>, IColorOperators<Color>
 
     public static implicit operator System.Drawing.Color(Color value)
     {
-        return System.Drawing.Color.FromArgb(value.ToARGB());
+        return System.Drawing.Color.FromArgb(value.A, value.R, value.G, value.B);
     }
 
     /// <summary>
