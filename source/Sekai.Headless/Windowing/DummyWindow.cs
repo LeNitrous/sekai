@@ -17,8 +17,7 @@ internal sealed class DummyWindow : IWindow, IHasSuspend, IHasRestart
     public Size MaximumSize { get; set; }
     public bool HasFocus { get; private set; }
     public bool Visible { get; set; }
-    public string Title { get; set; } = string.Empty;
-    public string Class { get; } = string.Empty;
+    public string Title { get; set; } = "Dummy";
 
     public Size Size
     {

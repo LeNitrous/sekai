@@ -8,11 +8,11 @@ namespace Sekai.Desktop;
 
 internal sealed class DesktopProvider : IPlatformProvider
 {
-    public Platform CreatePlatform()
+    public Platform CreatePlatform(HostOptions options)
     {
         if (RuntimeInfo.IsDesktop)
         {
-            return new DesktopPlatform();
+            return new DesktopPlatform(options);
         }
 
         throw new PlatformNotSupportedException();

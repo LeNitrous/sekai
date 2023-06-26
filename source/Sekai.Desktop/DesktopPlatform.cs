@@ -3,11 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.Versioning;
 using Sekai.Desktop.Input;
 using Sekai.Desktop.Windowing;
 using Sekai.Input;
+using Sekai.Storages;
 using Sekai.Windowing;
 
 namespace Sekai.Desktop;
@@ -28,7 +30,8 @@ internal sealed unsafe class DesktopPlatform : Platform, IInputSource
     private readonly Silk.NET.GLFW.GlfwCallbacks.MonitorCallback? monitorCallback;
     private readonly Silk.NET.GLFW.GlfwCallbacks.JoystickCallback? joystickCallback;
 
-    public DesktopPlatform()
+    public DesktopPlatform(HostOptions options)
+        : base(options)
     {
         glfw.InitHint(Silk.NET.GLFW.InitHint.JoystickHatButtons, false);
 
@@ -73,7 +76,18 @@ internal sealed unsafe class DesktopPlatform : Platform, IInputSource
 
     public override IWindow CreateWindow()
     {
-        return new Window(this, glfw);
+        return new Window(this, glfw, Options.Name);
+    }
+
+    public override Storage CreateStorage()
+    {
+        var storage = new MountableStorage();
+
+        storage.Mount(Storage.Game, new NativeStorage(AppDomain.CurrentDomain.BaseDirectory), false);
+        storage.Mount(Storage.User, new NativeStorage(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), Options.Name)));
+        storage.Mount(Storage.Temp, new NativeStorage(Path.GetTempPath()));
+
+        return storage;
     }
 
     private void handleControllersChanged(int id, Silk.NET.GLFW.ConnectedState state)

@@ -294,8 +294,6 @@ internal sealed unsafe partial class Window : IWindow, IHasIcon, IHasDragDrop, I
         glfw.SwapInterval
     );
 
-    public string Class { get; } = "Sekai";
-
     public IEnumerable<IInputDevice> Devices => devices;
 
     public event Action? Closed;
@@ -342,7 +340,7 @@ internal sealed unsafe partial class Window : IWindow, IHasIcon, IHasDragDrop, I
     private readonly IInputDevice[] devices = new IInputDevice[2];
     private readonly Dictionary<int, IController> controllers = new();
 
-    public Window(Platform plat, Glfw glfw)
+    public Window(Platform plat, Glfw glfw, string className)
     {
         this.glfw = glfw;
         this.plat = plat;
@@ -350,8 +348,8 @@ internal sealed unsafe partial class Window : IWindow, IHasIcon, IHasDragDrop, I
         glfw.WindowHint(WindowHintInt.ContextVersionMajor, 3);
         glfw.WindowHint(WindowHintInt.ContextVersionMinor, 3);
         glfw.WindowHint(WindowHintBool.Visible, false);
-        glfw.WindowHintString((int)WindowHintString.X11ClassName, Class);
-        glfw.WindowHintString((int)WindowHintString.X11InstanceName, Class);
+        glfw.WindowHintString((int)WindowHintString.X11ClassName, className);
+        glfw.WindowHintString((int)WindowHintString.X11InstanceName, className);
 
         window = glfw.CreateWindow(default_height, default_height, title, null, null);
 

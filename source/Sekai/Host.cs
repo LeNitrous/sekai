@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Threading;
@@ -15,6 +16,7 @@ using Sekai.Hosting;
 using Sekai.Input;
 using Sekai.Logging;
 using Sekai.Mathematics;
+using Sekai.Storages;
 using Sekai.Windowing;
 
 namespace Sekai;
@@ -92,17 +94,20 @@ public sealed class Host
     internal Logger Logger { get; private set; } = new();
     internal HostOptions Options { get; private set; }
     internal IWindow Window => window ?? throw hostNotLoadedException;
+    internal Storage Storage => storages ?? throw hostNotLoadedException;
     internal InputState Input => input ?? throw hostNotLoadedException;
     internal AudioDevice Audio => audio ?? throw hostNotLoadedException;
     internal GraphicsDevice Graphics => graphics ?? throw hostNotLoadedException;
 
     private Game? game;
     private IWindow? window;
+    private Storage? storages;
     private Platform? platform;
     private InputState? input;
     private AudioDevice? audio;
     private GraphicsDevice? graphics;
-    private LogWriterConsole? console;
+    private LogWriterText? fileOut;
+    private LogWriterConsole? termOut;
     private HostState state;
     private Waitable waitable;
     private TimeSpan msPerUpdate = TimeSpan.FromSeconds(1 / 120.0);
@@ -177,11 +182,17 @@ public sealed class Host
 
         this.game = game;
 
-        platform = platformProvider.CreatePlatform();
+        platform = platformProvider.CreatePlatform(Options);
+        storages = platform.CreateStorage();
+
+        if (storages is MountableStorage mount && mount.IsMounted(Storage.User))
+        {
+            Logger.AddOutput(fileOut = new LogWriterText(storages.Open("/user/runtime.log", FileMode.Create, FileAccess.Write)));
+        }
 
         if (RuntimeInfo.IsDebug)
         {
-            Logger.AddOutput(console = new LogWriterConsole());
+            Logger.AddOutput(termOut = new LogWriterConsole());
         }
 
         var asm = Assembly.GetEntryAssembly()?.GetName();
@@ -194,7 +205,7 @@ public sealed class Host
 
         window = platform.CreateWindow();
         window.Size = Options.WindowSize;
-        window.Title = Options.Title;
+        window.Title = Options.Name;
         window.State = WindowState.Minimized;
         window.Border = Options.WindowBorder;
         window.Closed += Exit;
@@ -249,8 +260,10 @@ public sealed class Host
             await gameLoop;
         }
 
+        termOut?.Dispose();
+        fileOut?.Dispose();
+
         Window.Dispose();
-        console?.Dispose();
         platform?.Dispose();
 
         current = null;

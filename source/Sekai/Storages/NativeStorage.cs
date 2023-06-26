@@ -23,6 +23,7 @@ public class NativeStorage : Storage
     public NativeStorage(DirectoryInfo directory)
     {
         Directory = directory;
+        Directory.Create();
     }
 
     public NativeStorage(string path)
@@ -47,7 +48,7 @@ public class NativeStorage : Storage
     {
         try
         {
-            File.Delete(Path.Combine(Directory.FullName, path));
+            File.Delete(Path.Join(Directory.FullName, path));
             return true;
         }
         catch
@@ -60,7 +61,7 @@ public class NativeStorage : Storage
     {
         try
         {
-            System.IO.Directory.Delete(Path.Combine(Directory.FullName, path), true);
+            System.IO.Directory.Delete(Path.Join(Directory.FullName, path), true);
             return true;
         }
         catch
@@ -71,27 +72,27 @@ public class NativeStorage : Storage
 
     public override bool Exists(string path)
     {
-        return File.Exists(Path.Combine(Directory.FullName, path));
+        return File.Exists(Path.Join(Directory.FullName, path));
     }
 
     public override bool ExistsDirectory(string path)
     {
-        return System.IO.Directory.Exists(Path.Combine(Directory.FullName, path));
+        return System.IO.Directory.Exists(Path.Join(Directory.FullName, path));
     }
 
     public override IEnumerable<string> EnumerateDirectories(string path, string pattern = "*", SearchOption options = SearchOption.TopDirectoryOnly)
     {
-        return System.IO.Directory.EnumerateDirectories(Path.Combine(Directory.FullName, path), pattern, options).Select(path => Path.AltDirectorySeparatorChar + path.Replace(Directory.FullName, string.Empty).Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.AltDirectorySeparatorChar);
+        return System.IO.Directory.EnumerateDirectories(Path.Join(Directory.FullName, path), pattern, options).Select(path => Path.AltDirectorySeparatorChar + path.Replace(Directory.FullName, string.Empty).Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.AltDirectorySeparatorChar);
     }
 
     public override IEnumerable<string> EnumerateFiles(string path, string pattern = "*", SearchOption options = SearchOption.TopDirectoryOnly)
     {
-        return System.IO.Directory.EnumerateFiles(Path.Combine(Directory.FullName, path), pattern, options).Select(path => Path.AltDirectorySeparatorChar + path.Replace(Directory.FullName, string.Empty).Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+        return System.IO.Directory.EnumerateFiles(Path.Join(Directory.FullName, path), pattern, options).Select(path => Path.AltDirectorySeparatorChar + path.Replace(Directory.FullName, string.Empty).Replace(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
     }
 
     public override Stream Open(string path, FileMode mode = FileMode.OpenOrCreate, FileAccess access = FileAccess.ReadWrite)
     {
-        return File.Open(Path.Combine(Directory.FullName, path), mode, access);
+        return File.Open(Path.Join(Directory.FullName, path), mode, access);
     }
 
     public override void Dispose()

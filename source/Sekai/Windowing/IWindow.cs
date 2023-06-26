@@ -107,14 +107,6 @@ public interface IWindow : IDisposable
     string Title { get; set; }
 
     /// <summary>
-    /// The window's class.
-    /// </summary>
-    /// <remarks>
-    /// This is used on some windowing systems to save preferences such as window size, state, and position.
-    /// </remarks>
-    string Class { get; }
-
-    /// <summary>
     /// Translates screen-space coordinates to local coordinates.
     /// </summary>
     /// <param name="point">The local-space coordinates.</param>

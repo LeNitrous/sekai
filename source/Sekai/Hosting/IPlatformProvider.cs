@@ -14,5 +14,6 @@ public interface IPlatformProvider
     /// <summary>
     /// Creates a <see cref="Platform"/>.
     /// </summary>
-    Platform CreatePlatform();
+    /// <param name="options">The options passed during initialization.</param>
+    Platform CreatePlatform(HostOptions options);
 }

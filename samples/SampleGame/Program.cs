@@ -13,7 +13,7 @@ internal static class Program
 {
     private static void Main()
     {
-        Host.Run<Sample>(new HostOptions { Title = "Sample" });
+        Host.Run<Sample>(new HostOptions { Name = "Sample" });
     }
 }
 

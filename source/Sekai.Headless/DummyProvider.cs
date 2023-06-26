@@ -22,8 +22,8 @@ internal class DummyProvider : IAudioProvider, IGraphicsProvider, IPlatformProvi
         return new DummyGraphicsDevice();
     }
 
-    public Platform CreatePlatform()
+    public Platform CreatePlatform(HostOptions options)
     {
-        return new DummyPlatform();
+        return new DummyPlatform(options);
     }
 }

@@ -16,9 +16,9 @@ namespace Sekai;
 public sealed class HostOptions
 {
     /// <summary>
-    /// The window's title.
+    /// The game's name.
     /// </summary>
-    public string Title { get; init; } = Assembly.GetEntryAssembly()?.GetName()?.Name ?? "Sekai";
+    public string Name { get; init; } = Assembly.GetEntryAssembly()?.GetName()?.Name ?? "Sekai";
 
     /// <summary>
     /// The host's tick mode.

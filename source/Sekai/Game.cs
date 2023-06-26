@@ -5,6 +5,7 @@ using System;
 using Sekai.Audio;
 using Sekai.Graphics;
 using Sekai.Logging;
+using Sekai.Storages;
 using Sekai.Windowing;
 
 namespace Sekai;
@@ -27,6 +28,11 @@ public abstract class Game
     /// The window backing this game.
     /// </summary>
     public IWindow Window => Host.Window;
+
+    /// <summary>
+    /// The storage backing this game.
+    /// </summary>
+    public Storage Storage => Host.Storage;
 
     /// <summary>
     /// The input state of the host.

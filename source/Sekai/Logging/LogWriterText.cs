@@ -60,7 +60,7 @@ public class LogWriterText : LogWriterStream
     {
         { LogLevel.Trace,       "TRC" },
         { LogLevel.Debug,       "DBG" },
-        { LogLevel.Verbose, "INF" },
+        { LogLevel.Verbose,     "INF" },
         { LogLevel.Warning,     "WRN" },
         { LogLevel.Error,       "ERR" },
         { LogLevel.Critical,    "CRT" },
