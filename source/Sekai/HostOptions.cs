@@ -26,6 +26,11 @@ public sealed class HostOptions
     public TickMode TickMode { get; init; } = TickMode.Variable;
 
     /// <summary>
+    /// The host's execution mode.
+    /// </summary>
+    public ExecutionMode ExecutionMode { get; init; } = ExecutionMode.MultiThread;
+
+    /// <summary>
     /// The host's update rate.
     /// </summary>
     public double UpdateRate { get; init; } = 120.0;

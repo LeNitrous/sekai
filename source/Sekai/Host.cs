@@ -32,6 +32,11 @@ public sealed class Host
     private static Host? current;
 
     /// <summary>
+    /// Gets the execution mode.
+    /// </summary>
+    public ExecutionMode ExecutionMode { get; }
+
+    /// <summary>
     /// Gets or sets the ticking mode.
     /// </summary>
     /// <remarks>
@@ -105,6 +110,8 @@ public sealed class Host
     private TimeSpan currentTime;
     private TimeSpan elapsedTime;
     private TimeSpan previousTime;
+    private bool hasShownWindow;
+    private ExceptionDispatchInfo? info;
     private readonly object sync = new();
     private readonly Stopwatch stopwatch = new();
     private readonly MergedInputSource inputContext = new();
@@ -115,6 +122,7 @@ public sealed class Host
         Options = options ?? new();
         TickMode = Options.TickMode;
         UpdateRate = Options.UpdateRate;
+        ExecutionMode = Options.ExecutionMode;
     }
 
     /// <summary>
@@ -204,7 +212,12 @@ public sealed class Host
 
         setHostState(HostState.Loading);
 
-        var gameLoop = Task.Factory.StartNew(runGameLoop, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+        Task? gameLoop = null;
+
+        if (ExecutionMode == ExecutionMode.MultiThread)
+        {
+            gameLoop = Task.Factory.StartNew(runGameLoop, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+        }
 
         while (Window.Exists)
         {
@@ -214,11 +227,27 @@ public sealed class Host
                 break;
             }
 
-            Window.DoEvents();
             platform.DoEvents();
+            Window.DoEvents();
+
+            if (ExecutionMode == ExecutionMode.SingleThread && !runTick())
+            {
+                break;
+            }
+
+            if (!hasShownWindow && State == HostState.Running)
+            {
+                Window.State = WindowState.Normal;
+                Window.Visible = true;
+                Window.Focus();
+                hasShownWindow = true;
+            }
         }
 
-        await gameLoop;
+        if (gameLoop is not null)
+        {
+            await gameLoop;
+        }
 
         Window.Dispose();
         console?.Dispose();
@@ -260,19 +289,10 @@ public sealed class Host
         setHostState(HostState.Reloading);
     }
 
-    private ExceptionDispatchInfo? info;
-
     private Task runGameLoop()
     {
         try
         {
-            if (runTick())
-            {
-                Window.State = WindowState.Normal;
-                Window.Visible = true;
-                Window.Focus();
-            }
-
             while (runTick()) ;
         }
         catch (Exception e)
