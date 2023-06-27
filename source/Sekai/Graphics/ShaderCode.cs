@@ -37,113 +37,6 @@ public readonly struct ShaderCode : IEquatable<ShaderCode>
     }
 
     /// <summary>
-    /// Gets reflection metadata on this <see cref="ShaderCode"/>.
-    /// </summary>
-    /// <returns>Shader reflection metadata.</returns>
-    public ShaderReflection Reflect()
-    {
-        return JsonSerializer.Deserialize(transpile(Bytes, spvc_backend.SPVC_BACKEND_JSON)!, ShaderReflectionJsonContext.Default.ShaderReflection)!;
-    }
-
-    /// <summary>
-    /// Gets the shader code as text.
-    /// </summary>
-    /// <param name="language">The shader language to transpile as.</param>
-    /// <returns>Shader code as text.</returns>
-    /// <remarks>
-    /// As <see cref="ShaderCode"/> contains intermediary representation of shader code, it will not be able to translate back the source text it originated from.
-    /// </remarks>
-    public string? GetText(ShaderLanguage language)
-    {
-        var backend = language switch
-        {
-            ShaderLanguage.GLSL => spvc_backend.SPVC_BACKEND_GLSL,
-            ShaderLanguage.HLSL => spvc_backend.SPVC_BACKEND_HLSL,
-            _ => throw new ArgumentOutOfRangeException(nameof(language), language, null),
-        };
-
-        return transpile(Bytes, backend);
-    }
-
-    private static unsafe string? transpile(ReadOnlyMemory<byte> source, spvc_backend backend)
-    {
-        spvc_context* context;
-        spvc_context_create(&context);
-
-        spvc_parsed_ir* ir;
-        spvc_result result;
-
-        fixed (byte* bytes = source.Span)
-        {
-            result = spvc_context_parse_spirv(context, (SpvId*)bytes, (nuint)(source.Length / Unsafe.SizeOf<SpvId>()), &ir);
-        }
-
-        if (result != spvc_result.SPVC_SUCCESS)
-        {
-            string? error = Marshal.PtrToStringAnsi((nint)spvc_context_get_last_error_string(context));
-            spvc_context_destroy(context);
-
-            throw new ShaderCompilationException(error);
-        }
-
-        spvc_compiler* comp;
-        spvc_context_create_compiler(context, backend, ir, spvc_capture_mode.SPVC_CAPTURE_MODE_COPY, &comp);
-
-        spvc_compiler_options* opts;
-        spvc_compiler_create_compiler_options(comp, &opts);
-
-        switch (backend)
-        {
-            case spvc_backend.SPVC_BACKEND_GLSL:
-                spvc_compiler_options_set_uint(opts, spvc_compiler_option.SPVC_COMPILER_OPTION_GLSL_VERSION, 430);
-                spvc_compiler_options_set_bool(opts, spvc_compiler_option.SPVC_COMPILER_OPTION_GLSL_ES, SPVC_FALSE);
-                break;
-
-            case spvc_backend.SPVC_BACKEND_HLSL:
-                spvc_compiler_options_set_uint(opts, spvc_compiler_option.SPVC_COMPILER_OPTION_HLSL_SHADER_MODEL, 50);
-                spvc_compiler_options_set_bool(opts, spvc_compiler_option.SPVC_COMPILER_OPTION_HLSL_FLATTEN_MATRIX_VERTEX_INPUT_SEMANTICS, SPVC_TRUE);
-                break;
-
-            case spvc_backend.SPVC_BACKEND_JSON:
-                break;
-
-            default:
-                throw new ArgumentOutOfRangeException(nameof(backend), backend, null);
-        }
-
-        spvc_compiler_install_compiler_options(comp, opts);
-
-        spvc_variable_id id;
-        spvc_compiler_build_dummy_sampler_for_combined_images(comp, &id);
-        spvc_compiler_build_combined_image_samplers(comp);
-
-        nuint samplerCount;
-        spvc_combined_image_sampler* samplers;
-        spvc_compiler_get_combined_image_samplers(comp, &samplers, &samplerCount);
-
-        for (int i = 0; i < (int)samplerCount; i++)
-        {
-            uint decoration = spvc_compiler_get_decoration(comp, samplers[i].image_id.Value, SpvDecoration.SpvDecorationBinding);
-            spvc_compiler_set_decoration(comp, samplers[i].combined_id.Value, SpvDecoration.SpvDecorationBinding, decoration);
-        }
-
-        sbyte* compiled;
-        result = spvc_compiler_compile(comp, &compiled);
-
-        if (result != spvc_result.SPVC_SUCCESS)
-        {
-            string? error = Marshal.PtrToStringAnsi((nint)spvc_context_get_last_error_string(context));
-            spvc_context_destroy(context);
-            throw new ShaderCompilationException(error);
-        }
-
-        string? sCompiled = Marshal.PtrToStringAnsi((nint)compiled);
-        spvc_context_destroy(context);
-
-        return sCompiled;
-    }
-
-    /// <summary>
     /// Creates a new <see cref="ShaderCode"/> from a <see cref="Stream"/>.
     /// </summary>
     /// <param name="stream">The stream that contains shader code.</param>
@@ -360,5 +253,117 @@ public class ShaderCompilationException : Exception
     public ShaderCompilationException(string? message, Exception? innerException)
         : base(message, innerException)
     {
+    }
+}
+
+public static class ShaderCodeExtensions
+{
+    /// <summary>
+    /// Gets reflection metadata on this <see cref="ShaderCode"/>.
+    /// </summary>
+    public static ShaderReflection Reflect(this ShaderCode code)
+    {
+        return JsonSerializer.Deserialize(transpile(code, spvc_backend.SPVC_BACKEND_JSON)!, ShaderReflectionJsonContext.Default.ShaderReflection)!;
+    }
+
+    /// <summary>
+    /// Gets the shader code as text.
+    /// </summary>
+    /// <param name="language">The shader language to transpile as.</param>
+    /// <returns>Shader code as text.</returns>
+    /// <remarks>
+    /// As <see cref="ShaderCode"/> contains intermediary representation of shader code, it will not be able to translate back the source text it originated from.
+    /// </remarks>
+    public static string? GetText(this ShaderCode code, ShaderLanguage language)
+    {
+        var backend = language switch
+        {
+            ShaderLanguage.GLSL => spvc_backend.SPVC_BACKEND_GLSL,
+            ShaderLanguage.HLSL => spvc_backend.SPVC_BACKEND_HLSL,
+            _ => throw new ArgumentOutOfRangeException(nameof(language), language, null),
+        };
+
+        return transpile(code, backend);
+    }
+
+    /// <summary>
+    /// Transpiles the shader to a given backend.
+    /// </summary>
+    private static unsafe string? transpile(ShaderCode code, spvc_backend backend)
+    {
+        spvc_context* context;
+        spvc_context_create(&context);
+
+        spvc_parsed_ir* ir;
+        spvc_result result;
+
+        fixed (byte* bytes = code.Bytes.Span)
+        {
+            result = spvc_context_parse_spirv(context, (SpvId*)bytes, (nuint)(code.Bytes.Length / Unsafe.SizeOf<SpvId>()), &ir);
+        }
+
+        if (result != spvc_result.SPVC_SUCCESS)
+        {
+            string? error = Marshal.PtrToStringAnsi((nint)spvc_context_get_last_error_string(context));
+            spvc_context_destroy(context);
+
+            throw new ShaderCompilationException(error);
+        }
+
+        spvc_compiler* comp;
+        spvc_context_create_compiler(context, backend, ir, spvc_capture_mode.SPVC_CAPTURE_MODE_COPY, &comp);
+
+        spvc_compiler_options* opts;
+        spvc_compiler_create_compiler_options(comp, &opts);
+
+        switch (backend)
+        {
+            case spvc_backend.SPVC_BACKEND_GLSL:
+                spvc_compiler_options_set_uint(opts, spvc_compiler_option.SPVC_COMPILER_OPTION_GLSL_VERSION, 430);
+                spvc_compiler_options_set_bool(opts, spvc_compiler_option.SPVC_COMPILER_OPTION_GLSL_ES, SPVC_FALSE);
+                break;
+
+            case spvc_backend.SPVC_BACKEND_HLSL:
+                spvc_compiler_options_set_uint(opts, spvc_compiler_option.SPVC_COMPILER_OPTION_HLSL_SHADER_MODEL, 50);
+                spvc_compiler_options_set_bool(opts, spvc_compiler_option.SPVC_COMPILER_OPTION_HLSL_FLATTEN_MATRIX_VERTEX_INPUT_SEMANTICS, SPVC_TRUE);
+                break;
+
+            case spvc_backend.SPVC_BACKEND_JSON:
+                break;
+
+            default:
+                throw new ArgumentOutOfRangeException(nameof(backend), backend, null);
+        }
+
+        spvc_compiler_install_compiler_options(comp, opts);
+
+        spvc_variable_id id;
+        spvc_compiler_build_dummy_sampler_for_combined_images(comp, &id);
+        spvc_compiler_build_combined_image_samplers(comp);
+
+        nuint samplerCount;
+        spvc_combined_image_sampler* samplers;
+        spvc_compiler_get_combined_image_samplers(comp, &samplers, &samplerCount);
+
+        for (int i = 0; i < (int)samplerCount; i++)
+        {
+            uint decoration = spvc_compiler_get_decoration(comp, samplers[i].image_id.Value, SpvDecoration.SpvDecorationBinding);
+            spvc_compiler_set_decoration(comp, samplers[i].combined_id.Value, SpvDecoration.SpvDecorationBinding, decoration);
+        }
+
+        sbyte* compiled;
+        result = spvc_compiler_compile(comp, &compiled);
+
+        if (result != spvc_result.SPVC_SUCCESS)
+        {
+            string? error = Marshal.PtrToStringAnsi((nint)spvc_context_get_last_error_string(context));
+            spvc_context_destroy(context);
+            throw new ShaderCompilationException(error);
+        }
+
+        string? sCompiled = Marshal.PtrToStringAnsi((nint)compiled);
+        spvc_context_destroy(context);
+
+        return sCompiled;
     }
 }
