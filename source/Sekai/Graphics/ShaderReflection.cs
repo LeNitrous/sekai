@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 namespace Sekai.Graphics;
@@ -11,34 +10,35 @@ namespace Sekai.Graphics;
 public sealed class ShaderReflection
 {
     [JsonPropertyName("entryPoints")]
-    public IReadOnlyList<Entry> EntryPoints { get; } = Array.Empty<Entry>();
+    public Entry[] EntryPoints { get; } = Array.Empty<Entry>();
 
     [JsonPropertyName("types")]
-    public IDictionary<string, Type> Types { get; } = ImmutableDictionary<string, Type>.Empty;
+    public Dictionary<string, Type> Types { get; } = new();
 
     [JsonPropertyName("inputs")]
-    public IReadOnlyList<Attribute> Inputs { get; } = Array.Empty<Attribute>();
+    public Attribute[] Inputs { get; } = Array.Empty<Attribute>();
 
     [JsonPropertyName("outputs")]
-    public IReadOnlyList<Attribute> Outputs { get; } = Array.Empty<Attribute>();
+    public Attribute[] Outputs { get; } = Array.Empty<Attribute>();
 
     [JsonPropertyName("ubos")]
-    public IReadOnlyList<Resource> Buffers { get; } = Array.Empty<Resource>();
+    public Resource[] Buffers { get; } = Array.Empty<Resource>();
 
     [JsonPropertyName("images")]
-    public IReadOnlyList<Resource> Images { get; } = Array.Empty<Resource>();
+    public Resource[] Images { get; } = Array.Empty<Resource>();
 
     [JsonPropertyName("separate_images")]
-    public IReadOnlyList<Resource> Textures { get; } = Array.Empty<Resource>();
+    public Resource[] Textures { get; } = Array.Empty<Resource>();
 
     [JsonPropertyName("separate_samplers")]
-    public IReadOnlyList<Resource> Samplers { get; } = Array.Empty<Resource>();
+    public Resource[] Samplers { get; } = Array.Empty<Resource>();
 
     [JsonConstructor]
-    public ShaderReflection(Entry[] entryPoints, Dictionary<string, Type> types, Attribute[] inputs, Attribute[] outputs, Resource[] buffers, Resource[] textures, Resource[] samplers)
+    public ShaderReflection(Entry[] entryPoints, Dictionary<string, Type> types, Attribute[] inputs, Attribute[] outputs, Resource[] buffers, Resource[] images, Resource[] textures, Resource[] samplers)
     {
         Types = types;
         Inputs = inputs;
+        Images = images;
         Outputs = outputs;
         Buffers = buffers;
         Textures = textures;
@@ -52,7 +52,7 @@ public sealed class ShaderReflection
         public string Name { get; }
 
         [JsonPropertyName("members")]
-        public IReadOnlyList<Member> Members { get; } = Array.Empty<Member>();
+        public Member[] Members { get; } = Array.Empty<Member>();
 
         [JsonConstructor]
         public Type(string name, Member[] members)
