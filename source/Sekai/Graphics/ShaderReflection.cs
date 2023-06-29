@@ -10,40 +10,40 @@ namespace Sekai.Graphics;
 public sealed class ShaderReflection
 {
     [JsonPropertyName("entryPoints")]
-    public Entry[] EntryPoints { get; } = Array.Empty<Entry>();
+    public Entry[] EntryPoints { get; }
 
     [JsonPropertyName("types")]
-    public Dictionary<string, Type> Types { get; } = new();
+    public Dictionary<string, Type> Types { get; }
 
     [JsonPropertyName("inputs")]
-    public Attribute[] Inputs { get; } = Array.Empty<Attribute>();
+    public Attribute[] Inputs { get; }
 
     [JsonPropertyName("outputs")]
-    public Attribute[] Outputs { get; } = Array.Empty<Attribute>();
+    public Attribute[] Outputs { get; }
 
     [JsonPropertyName("ubos")]
-    public Resource[] Buffers { get; } = Array.Empty<Resource>();
+    public Resource[] Uniforms { get; }
+
+    [JsonPropertyName("ssbos")]
+    public Resource[] Storages { get; }
 
     [JsonPropertyName("images")]
-    public Resource[] Images { get; } = Array.Empty<Resource>();
+    public Resource[] Images { get; }
 
-    [JsonPropertyName("separate_images")]
-    public Resource[] Textures { get; } = Array.Empty<Resource>();
-
-    [JsonPropertyName("separate_samplers")]
-    public Resource[] Samplers { get; } = Array.Empty<Resource>();
+    [JsonPropertyName("textures")]
+    public Resource[] Textures { get; }
 
     [JsonConstructor]
-    public ShaderReflection(Entry[] entryPoints, Dictionary<string, Type> types, Attribute[] inputs, Attribute[] outputs, Resource[] buffers, Resource[] images, Resource[] textures, Resource[] samplers)
+    public ShaderReflection(Entry[]? entryPoints, Dictionary<string, Type>? types, Attribute[]? inputs, Attribute[]? outputs, Resource[]? uniforms, Resource[]? storages, Resource[]? images, Resource[]? textures)
     {
-        Types = types;
-        Inputs = inputs;
-        Images = images;
-        Outputs = outputs;
-        Buffers = buffers;
-        Textures = textures;
-        Samplers = samplers;
-        EntryPoints = entryPoints;
+        Types = types ?? new();
+        Inputs = inputs ?? Array.Empty<Attribute>();
+        Images = images ?? Array.Empty<Resource>();
+        Outputs = outputs ?? Array.Empty<Attribute>();
+        Uniforms = uniforms ?? Array.Empty<Resource>();
+        Storages = storages ?? Array.Empty<Resource>();
+        Textures = textures ?? Array.Empty<Resource>();
+        EntryPoints = entryPoints ?? Array.Empty<Entry>();
     }
 
     public sealed class Type
@@ -135,14 +135,18 @@ public sealed class ShaderReflection
         [JsonPropertyName("block_size")]
         public int Size { get; }
 
+        [JsonPropertyName("readonly")]
+        public bool ReadOnly { get; }
+
         [JsonConstructor]
-        public Resource(string name, string type, int set, int binding, int size)
+        public Resource(string name, string type, int set, int binding, int size, bool readOnly)
         {
             Set = set;
             Size = size;
             Name = name;
             Type = type;
             Binding = binding;
+            ReadOnly = readOnly;
         }
     }
 }
