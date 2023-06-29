@@ -350,13 +350,9 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
         ((GLShader)shader).Bind();
     }
 
-    public override void SetTexture(Graphics.Texture texture, uint slot)
+    public override void SetTexture(Graphics.Texture texture, Graphics.Sampler sampler, uint slot)
     {
         ((GLTexture)texture).Bind(slot);
-    }
-
-    public override void SetSampler(Graphics.Sampler sampler, uint slot)
-    {
         ((GLSampler)sampler).Bind(slot);
     }
 

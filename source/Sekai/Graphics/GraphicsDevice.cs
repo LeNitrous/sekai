@@ -165,18 +165,12 @@ public abstract class GraphicsDevice : IDisposable
     public abstract void SetShader(Shader shader);
 
     /// <summary>
-    /// Sets the texture to be used on the next draw call.
+    /// Sets the texture and sampler to be used on the next draw call.
     /// </summary>
     /// <param name="texture">The texture to use.</param>
-    /// <param name="slot">The binding slot that this texture will be used in.</param>
-    public abstract void SetTexture(Texture texture, uint slot);
-
-    /// <summary>
-    /// Sets the sampler to be used on the next draw call.
-    /// </summary>
     /// <param name="sampler">The sampler to use.</param>
     /// <param name="slot">The binding slot that this texture will be used in.</param>
-    public abstract void SetSampler(Sampler sampler, uint slot);
+    public abstract void SetTexture(Texture texture, Sampler sampler, uint slot);
 
     /// <summary>
     /// Sets the rasterizer state to be used on the next draw call.

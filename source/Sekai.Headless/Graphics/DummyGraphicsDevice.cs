@@ -132,11 +132,7 @@ internal sealed class DummyGraphicsDevice : GraphicsDevice
     {
     }
 
-    public override void SetTexture(Texture texture, uint slot)
-    {
-    }
-
-    public override void SetSampler(Sampler sampler, uint slot)
+    public override void SetTexture(Texture texture, Sampler sampler, uint slot)
     {
     }
 
