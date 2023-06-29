@@ -45,12 +45,12 @@ internal sealed unsafe class GLTexture : Graphics.Texture
         Layers = description.Layers;
         Format = description.Format;
         Count = description.Count;
+        Usage = description.Usage;
         pFormat = description.Format.AsPixelFormat();
         iFormat = description.Format.AsInternalFormat();
         type = description.Format.AsPixelType();
         isCompressed = description.Format.IsCompressed();
-        isRenderbuffer = (description.Usage & TextureUsage.RenderTarget) == TextureUsage.RenderTarget &&
-                         (description.Usage & TextureUsage.Resource) != TextureUsage.Resource;
+        isRenderbuffer = (description.Usage & TextureUsage.RenderTarget) == TextureUsage.RenderTarget && (description.Usage & TextureUsage.Resource) != TextureUsage.Resource;
 
         if (isRenderbuffer)
         {
