@@ -134,8 +134,12 @@ internal sealed unsafe partial class Window : IWindow, IHasIcon, IHasDragDrop, I
 
             IMonitor? bestMonitor = null;
 
-            foreach (var monitor in plat.Monitors)
+            var monitorHandles = glfw.GetMonitors(out int monitorCount);
+
+            for (int i = 0; i < monitorCount; i++)
             {
+                var monitor = Windowing.Monitor.From(i, glfw, monitorHandles[i]);
+
                 int mx = monitor.Position.X;
                 int my = monitor.Position.Y;
                 int mw = monitor.Mode.Resolution.Width;
@@ -334,16 +338,34 @@ internal sealed unsafe partial class Window : IWindow, IHasIcon, IHasDragDrop, I
     private string title = string.Empty;
     private bool isDisposed;
     private GLContext? source;
+    private readonly bool owns;
     private readonly Glfw glfw;
-    private readonly Platform plat;
     private readonly WindowHandle* window;
     private readonly IInputDevice[] devices = new IInputDevice[2];
     private readonly Dictionary<int, IController> controllers = new();
 
-    public Window(Platform plat, Glfw glfw, string className)
+    public Window(string className)
+        : this(Glfw.GetApi(), className, true)
+    {
+    }
+
+    public Window(Glfw glfw, string className)
+        : this(glfw, className, false)
+    {
+    }
+
+    private Window(Glfw glfw, string className, bool owns)
     {
         this.glfw = glfw;
-        this.plat = plat;
+        this.owns = owns;
+
+        if (owns)
+        {
+            if (!glfw.Init())
+            {
+                throw new InvalidOperationException("Failed to initialize GLFW.");
+            }
+        }
 
         glfw.WindowHint(WindowHintInt.ContextVersionMajor, 3);
         glfw.WindowHint(WindowHintInt.ContextVersionMinor, 3);
@@ -530,6 +552,11 @@ internal sealed unsafe partial class Window : IWindow, IHasIcon, IHasDragDrop, I
         glfw.SetWindowMaximizeCallback(window, null);
 
         glfw.DestroyWindow(window);
+
+        if (owns)
+        {
+            glfw.Terminate();
+        }
 
         GC.SuppressFinalize(this);
     }

@@ -25,6 +25,22 @@ jobs:
         with:
           dotnet-version: "7.0.x"
 
+      - name: Install Dependencies
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libgl1-mesa-dev \
+            llvm-dev \
+            xvfb \
+            xauth
+          mkdir .staging
+          wget -O Xvfb.service https://gist.githubusercontent.com/ypandit/f4fe751bcbf3ee6a32ca/raw/f2f3a955e430e1f574c985cec0947d55496066d3/Xvfb.service
+          sudo mv Xvfb.service /etc/systemd/system/Xvfb.service
+          sudo systemctl daemon-reload
+          sudo systemctl start Xvfb
+          sudo systemctl status Xvfb
+
       - name: Test
         run: dotnet test /p:ContinuousIntegrationBuild=true /p:IncludeTestAssembly=true /p:CollectCoverage=true /p:CoverletOutputFormat=lcov /p:CoverletOutput="../results/coverage.info" /p:MergeWith="../results/coverage.info" --logger trx --results-directory "./tests/results/"
 

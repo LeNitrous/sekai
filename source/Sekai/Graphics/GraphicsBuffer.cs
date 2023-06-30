@@ -3,7 +3,6 @@
 
 using System;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace Sekai.Graphics;
 
@@ -31,13 +30,21 @@ public abstract class GraphicsBuffer : IDisposable
     /// Maps the buffer making its contents visible in the CPU-accessible address space.
     /// </summary>
     /// <param name="mode">The mode of mapping.</param>
-    /// <returns>The pointer to the contents of the buffer.</returns>
-    public abstract nint Map(MapMode mode);
+    /// <returns>The contents of the buffer.</returns>
+    protected abstract nint Map(MapMode mode);
 
     /// <summary>
     /// Unmaps the buffer and submits it to the GPU.
     /// </summary>
-    public abstract void Unmap();
+    protected abstract void Unmap();
+
+    /// <inheritdoc cref="Map(MapMode)"/>
+    /// <typeparam name="T">The type to represent the data as.</typeparam>
+    public GraphicsBufferView<T> Map<T>(MapMode mode)
+        where T : unmanaged
+    {
+        return new GraphicsBufferView<T>((uint)Capacity, Map(mode), Unmap);
+    }
 
     /// <summary>
     /// Sets the data to the buffer.
@@ -49,10 +56,20 @@ public abstract class GraphicsBuffer : IDisposable
 
     /// <inheritdoc cref="SetData(nint, uint, uint)"/>
     /// <typeparam name="T">The type of data to set the buffer to.</typeparam>
-    public void SetData<T>(T data, uint offset = 0)
+    public unsafe void SetData<T>(T data, uint offset = 0)
         where T : unmanaged
     {
-        SetData(MemoryMarshal.CreateReadOnlySpan(ref data, 1), offset);
+        SetData((nint)Unsafe.AsPointer(ref data), (uint)Unsafe.SizeOf<T>(), offset);
+    }
+
+    /// <inheritdoc cref="SetData{T}(T, uint)"/>
+    public unsafe void SetData<T>(in T data, uint offset = 0)
+        where T : unmanaged
+    {
+        fixed (void* handle = &data)
+        {
+            SetData((nint)handle, (uint)Unsafe.SizeOf<T>(), offset);
+        }
     }
 
     /// <inheritdoc cref="SetData{T}(T, uint)"/>
@@ -80,20 +97,29 @@ public abstract class GraphicsBuffer : IDisposable
 
     /// <inheritdoc cref="GetData(nint, uint, uint)"/>
     /// <typeparam name="T">The type of data to get the buffer from.</typeparam>
-    public void GetData<T>(ref T data, uint offset = 0)
+    public T GetData<T>(uint offset = 0)
         where T : unmanaged
     {
-        GetData(MemoryMarshal.CreateSpan(ref data, 1), offset);
+        T data = default;
+        GetData(ref data, offset);
+        return data;
     }
 
-    /// <inheritdoc cref="GetData{T}(ref T, uint)"/>
+    /// <inheritdoc cref="GetData{T}(uint)"/>
+    public unsafe void GetData<T>(ref T data, uint offset = 0)
+        where T : unmanaged
+    {
+        GetData((nint)Unsafe.AsPointer(ref data), (uint)Unsafe.SizeOf<T>(), offset);
+    }
+
+    /// <inheritdoc cref="GetData{T}(uint)"/>
     public void GetData<T>(T[] data, uint offset = 0)
         where T : unmanaged
     {
         GetData(data.AsSpan(), offset);
     }
 
-    /// <inheritdoc cref="GetData{T}(ref T, uint)"/>
+    /// <inheritdoc cref="GetData{T}(uint)"/>
     public unsafe void GetData<T>(Span<T> data, uint offset = 0)
         where T : unmanaged
     {

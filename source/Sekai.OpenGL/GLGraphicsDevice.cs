@@ -53,6 +53,14 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
 
         GL.GenVertexArrays(1, out vao);
         GL.BindVertexArray(vao);
+
+        GL.Enable(EnableCap.DebugOutput);
+        GL.DebugMessageCallback(debugProc, null);
+    }
+
+    private static void debugProc(GLEnum source, GLEnum type, int id, GLEnum severity, int length, nint message, nint userParam)
+    {
+        Console.WriteLine($"{source} {type} {severity} {System.Text.Encoding.UTF8.GetString((byte*)message, length)}");
     }
 
     public override void MakeCurrent()
@@ -267,7 +275,7 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
         }
 
         GL.Enable(EnableCap.Blend);
-        GL.BlendFuncSeparate(s.SourceColor, s.DestinationColor, s.SourceAlpha, s.DestinationAlpha);
+        GL.BlendFuncSeparate(s.SrcColor, s.DstColor, s.SrcAlpha, s.DstAlpha);
         GL.BlendEquationSeparate(s.ColorEquation, s.AlphaEquation);
     }
 
@@ -317,7 +325,7 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
     {
         var s = (GLRasterizerState)state;
 
-        if (!s.Culling)
+        if (!s.CullingEnabled)
         {
             GL.Disable(EnableCap.CullFace);
         }

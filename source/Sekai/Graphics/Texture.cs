@@ -3,7 +3,6 @@
 
 using System;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace Sekai.Graphics;
 
@@ -51,22 +50,14 @@ public abstract class Texture : IDisposable
     /// <param name="depth">The depth of region to update.</param>
     public abstract void SetData(nint data, uint size, int level, int layer, int x, int y, int z, int width, int height, int depth);
 
-    /// <inheritdoc cref="SetData(nint, int, int, int, int, int, int, int, int)"/>
-    /// <typeparam name="T">The type of data to update the texture with.</typeparam>
-    public void SetData<T>(T data, int level, int layer, int x, int y, int z, int width, int height, int depth)
-        where T : unmanaged
-    {
-        SetData(MemoryMarshal.CreateReadOnlySpan(ref data, 1), level, layer, x, y, z, width, height, depth);
-    }
-
-    /// <inheritdoc cref="SetData{T}(T, int, int, int, int, int, int, int, int)"/>
+    /// <inheritdoc cref="SetData(nint, uint, int, int, int, int, int, int, int, int)"/>
     public void SetData<T>(T[] data, int level, int layer, int x, int y, int z, int width, int height, int depth)
         where T : unmanaged
     {
         SetData((ReadOnlySpan<T>)data.AsSpan(), level, layer, x, y, z, width, height, depth);
     }
 
-    /// <inheritdoc cref="SetData{T}(T, int, int, int, int, int, int, int, int)"/>
+    /// <inheritdoc cref="SetData(nint, uint, int, int, int, int, int, int, int, int)"/>
     public unsafe void SetData<T>(ReadOnlySpan<T> data, int level, int layer, int x, int y, int z, int width, int height, int depth)
         where T : unmanaged
     {
@@ -89,22 +80,14 @@ public abstract class Texture : IDisposable
     /// <param name="depth">The depth of region to get the data.</param>
     public abstract void GetData(nint data, uint size, int level, int layer, int x, int y, int z, int width, int height, int depth);
 
-    /// <inheritdoc cref="GetData(nint, int, int, int, int, int, int, int, int)"/>
-    /// <typeparam name="T">The type of data to get the texture from.</typeparam>
-    public void GetData<T>(ref T data, int level, int layer, int x, int y, int z, int width, int height, int depth)
-        where T : unmanaged
-    {
-        GetData(MemoryMarshal.CreateSpan(ref data, 1), level, layer, x, y, z, width, height, depth);
-    }
-
-    /// <inheritdoc cref="GetData{T}(ref T, int, int, int, int, int, int, int, int)"/>
+    /// <inheritdoc cref="GetData(nint, uint, int, int, int, int, int, int, int, int)"/>
     public void GetData<T>(T[] data, int level, int layer, int x, int y, int z, int width, int height, int depth)
         where T : unmanaged
     {
         GetData(data.AsSpan(), level, layer, x, y, z, width, height, depth);
     }
 
-    /// <inheritdoc cref="GetData{T}(ref T, int, int, int, int, int, int, int, int)"/>
+    /// <inheritdoc cref="GetData(nint, uint, int, int, int, int, int, int, int, int)"/>
     public unsafe void GetData<T>(Span<T> data, int level, int layer, int x, int y, int z, int width, int height, int depth)
         where T : unmanaged
     {

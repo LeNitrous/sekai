@@ -3,7 +3,6 @@
 
 using System;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using Sekai.Mathematics;
 
 namespace Sekai.Graphics;
@@ -59,46 +58,12 @@ public abstract class GraphicsDevice : IDisposable
     public abstract GraphicsBuffer CreateBuffer(BufferType type, uint size, bool dynamic = false);
 
     /// <inheritdoc cref="CreateBuffer(BufferType, uint, bool)"/>
-    /// <param name="data">The data to initially set on the buffer.</param>
-    public GraphicsBuffer CreateBuffer(BufferType type, nint data, uint size, bool dynamic = false)
-    {
-        var buffer = CreateBuffer(type, size, dynamic);
-        buffer.SetData(data, size);
-        return buffer;
-    }
-
-    /// <inheritdoc cref="CreateBuffer(BufferType, uint, bool)"/>
     /// <param name="count">The number of elements the buffer will contain.</param>
     /// <typeparam name="T">The type of content the buffer will contain.</typeparam>
     public GraphicsBuffer CreateBuffer<T>(BufferType type, uint count, bool dynamic = false)
         where T : unmanaged
     {
         return CreateBuffer(type, (uint)(Unsafe.SizeOf<T>() * count), dynamic);
-    }
-
-    /// <inheritdoc cref="CreateBuffer(BufferType, uint, bool)"/>
-    /// <param name="data">The data to initially set on the buffer.</param>
-    /// <typeparam name="T">The type of content the buffer will contain.</typeparam>
-    public GraphicsBuffer CreateBuffer<T>(BufferType type, ReadOnlySpan<T> data, bool dynamic = false)
-        where T : unmanaged
-    {
-        var buffer = CreateBuffer<T>(type, (uint)data.Length, dynamic);
-        buffer.SetData(data);
-        return buffer;
-    }
-
-    /// <inheritdoc cref="CreateBuffer{T}(BufferType, ReadOnlySpan{T}, bool)"/>
-    public GraphicsBuffer CreateBuffer<T>(BufferType type, T[] data, bool dynamic = false)
-        where T : unmanaged
-    {
-        return CreateBuffer(type, data, dynamic);
-    }
-
-    /// <inheritdoc cref="CreateBuffer{T}(BufferType, ReadOnlySpan{T}, bool)"/>
-    public GraphicsBuffer CreateBuffer<T>(BufferType type, ref T data, bool dynamic = false)
-        where T : unmanaged
-    {
-        return CreateBuffer(type, MemoryMarshal.CreateReadOnlySpan(ref data, 1), dynamic);
     }
 
     /// <summary>

@@ -23,6 +23,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{AA2A0BAF
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Tests", "tests\Sekai.Tests\Sekai.Tests.csproj", "{16938759-E0A6-48CF-8148-A696175B4186}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.Graphics.Tests", "tests\Sekai.Graphics.Tests\Sekai.Graphics.Tests.csproj", "{FBB0C86C-78AA-420F-A6B7-D4AB7A6D8201}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sekai.OpenGL.Tests", "tests\Sekai.OpenGL.Tests\Sekai.OpenGL.Tests.csproj", "{E7DBB11D-0308-4AF9-B83A-2E5822B28158}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -73,6 +77,14 @@ Global
 		{16938759-E0A6-48CF-8148-A696175B4186}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{16938759-E0A6-48CF-8148-A696175B4186}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{16938759-E0A6-48CF-8148-A696175B4186}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FBB0C86C-78AA-420F-A6B7-D4AB7A6D8201}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBB0C86C-78AA-420F-A6B7-D4AB7A6D8201}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBB0C86C-78AA-420F-A6B7-D4AB7A6D8201}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBB0C86C-78AA-420F-A6B7-D4AB7A6D8201}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7DBB11D-0308-4AF9-B83A-2E5822B28158}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7DBB11D-0308-4AF9-B83A-2E5822B28158}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7DBB11D-0308-4AF9-B83A-2E5822B28158}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7DBB11D-0308-4AF9-B83A-2E5822B28158}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -85,6 +97,8 @@ Global
 		{1C2DC723-C5DD-4AD8-BED8-AB0DE2360C75} = {11EBA343-73D5-4FC5-ADB9-2921D759C406}
 		{F47079E6-4606-4991-81B7-D91FB0FDDD51} = {11EBA343-73D5-4FC5-ADB9-2921D759C406}
 		{16938759-E0A6-48CF-8148-A696175B4186} = {AA2A0BAF-1A4D-4D5F-99E6-950849C75EAB}
+		{FBB0C86C-78AA-420F-A6B7-D4AB7A6D8201} = {AA2A0BAF-1A4D-4D5F-99E6-950849C75EAB}
+		{E7DBB11D-0308-4AF9-B83A-2E5822B28158} = {AA2A0BAF-1A4D-4D5F-99E6-950849C75EAB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B6237647-4791-4690-81D9-284B3F1F63D2}

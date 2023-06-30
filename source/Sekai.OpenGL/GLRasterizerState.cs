@@ -8,17 +8,22 @@ namespace Sekai.OpenGL;
 
 internal sealed class GLRasterizerState : RasterizerState
 {
-    public readonly bool Scissor;
-    public readonly bool Culling;
-    public readonly TriangleFace CullingMode;
-    public readonly FrontFaceDirection FrontFace;
-    public readonly PolygonMode PolygonMode;
+    public override FillMode Mode { get; }
+    public override bool Scissor { get; }
+    public override FaceWinding Winding { get; }
+    public override FaceCulling Culling { get; }
+    public TriangleFace CullingMode { get; }
+    public FrontFaceDirection FrontFace { get; }
+    public PolygonMode PolygonMode { get; }
+    public bool CullingEnabled => Culling != FaceCulling.None;
 
     public GLRasterizerState(RasterizerStateDescription description)
     {
-        Scissor = description.ScissorTest;
-        Culling = description.Culling != FaceCulling.None;
-        CullingMode = Culling ? description.Culling.AsTriangleFace() : TriangleFace.Front;
+        Mode = description.Mode;
+        Scissor = description.Scissor;
+        Winding = description.Winding;
+        Culling = description.Culling;
+        CullingMode = CullingEnabled ? description.Culling.AsTriangleFace() : TriangleFace.Front;
         FrontFace = description.Winding.AsDirection();
         PolygonMode = description.Mode.AsPolygonMode();
     }

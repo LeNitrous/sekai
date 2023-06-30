@@ -17,7 +17,7 @@ internal readonly unsafe struct Monitor : IMonitor
 
     private readonly IEnumerable<VideoMode> modes;
 
-    public Monitor(int index, string name, Silk.NET.GLFW.Monitor* handle, Point position, VideoMode mode, IEnumerable<VideoMode> modes)
+    private Monitor(int index, string name, Silk.NET.GLFW.Monitor* handle, Point position, VideoMode mode, IEnumerable<VideoMode> modes)
     {
         Mode = mode;
         Name = name;
@@ -25,6 +25,24 @@ internal readonly unsafe struct Monitor : IMonitor
         Handle = handle;
         Position = position;
         this.modes = modes;
+    }
+
+    public static Monitor From(int index, Silk.NET.GLFW.Glfw glfw, Silk.NET.GLFW.Monitor* handle)
+    {
+        glfw.GetMonitorPos(handle, out int x, out int y);
+
+        var modes = glfw.GetVideoModes(handle, out int modeCount);
+        var ms = new VideoMode[modeCount];
+        var mc = glfw.GetVideoMode(handle);
+
+        for (int i = 0; i < modeCount; i++)
+        {
+            ms[i] = new(new(modes[i].Width, modes[i].Height), modes[i].RefreshRate);
+        }
+
+        string name = glfw.GetMonitorName(handle);
+
+        return new(index, name, handle, new(x, y), new(new(mc->Width, mc->Height), mc->RefreshRate), ms);
     }
 
     public IEnumerable<VideoMode> GetSupportedVideoModes() => modes;

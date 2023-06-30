@@ -28,14 +28,14 @@ public struct RasterizerStateDescription : IEquatable<RasterizerStateDescription
     /// <summary>
     /// Whether to enable or disable scissor testing.
     /// </summary>
-    public bool ScissorTest;
+    public bool Scissor;
 
     public RasterizerStateDescription(FaceCulling culling, FaceWinding winding, FillMode mode, bool scissorTest)
     {
         Culling = culling;
         Winding = winding;
         Mode = mode;
-        ScissorTest = scissorTest;
+        Scissor = scissorTest;
     }
 
     public readonly bool Equals(RasterizerStateDescription other)
@@ -43,7 +43,7 @@ public struct RasterizerStateDescription : IEquatable<RasterizerStateDescription
         return Culling == other.Culling &&
                Winding == other.Winding &&
                Mode == other.Mode &&
-               ScissorTest == other.ScissorTest;
+               Scissor == other.Scissor;
     }
 
     public override readonly bool Equals(object? obj)
@@ -53,7 +53,7 @@ public struct RasterizerStateDescription : IEquatable<RasterizerStateDescription
 
     public override readonly int GetHashCode()
     {
-        return HashCode.Combine(Culling, Winding, Mode, ScissorTest);
+        return HashCode.Combine(Culling, Winding, Mode, Scissor);
     }
 
     public static bool operator ==(RasterizerStateDescription left, RasterizerStateDescription right)

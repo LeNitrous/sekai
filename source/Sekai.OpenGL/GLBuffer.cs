@@ -36,12 +36,9 @@ internal sealed unsafe class GLBuffer : GraphicsBuffer
         GL.BufferData(target, size, null, dynamic ? BufferUsageARB.DynamicDraw : BufferUsageARB.StaticDraw);
     }
 
-    public override nint Map(MapMode mode)
+    protected override nint Map(MapMode mode)
     {
-        if (isDisposed)
-        {
-            throw new ObjectDisposedException(nameof(GLBuffer));
-        }
+        ObjectDisposedException.ThrowIf(isDisposed, this);
 
         if (isMapped)
         {
@@ -55,12 +52,9 @@ internal sealed unsafe class GLBuffer : GraphicsBuffer
         return (nint)GL.MapBuffer(target, mode.AsAccess());
     }
 
-    public override void Unmap()
+    protected override void Unmap()
     {
-        if (isDisposed)
-        {
-            throw new ObjectDisposedException(nameof(GLBuffer));
-        }
+        ObjectDisposedException.ThrowIf(isDisposed, this);
 
         if (!isMapped)
         {
@@ -74,33 +68,21 @@ internal sealed unsafe class GLBuffer : GraphicsBuffer
 
     public override void SetData(nint data, uint size, uint offset)
     {
-        if (isDisposed)
-        {
-            throw new ObjectDisposedException(nameof(GLBuffer));
-        }
-
+        ObjectDisposedException.ThrowIf(isDisposed, this);
         GL.BindBuffer(target, handle);
         GL.BufferSubData(target, (nint)offset, size, (void*)data);
     }
 
     public override void GetData(nint data, uint size, uint offset = 0)
     {
-        if (isDisposed)
-        {
-            throw new ObjectDisposedException(nameof(GLBuffer));
-        }
-
+        ObjectDisposedException.ThrowIf(isDisposed, this);
         GL.BindBuffer(target, handle);
         GL.GetBufferSubData(target, (nint)offset, size, (void*)data);
     }
 
     public void Bind()
     {
-        if (isDisposed)
-        {
-            throw new ObjectDisposedException(nameof(GLBuffer));
-        }
-
+        ObjectDisposedException.ThrowIf(isDisposed, this);
         GL.BindBuffer(target, handle);
     }
 

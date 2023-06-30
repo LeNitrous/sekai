@@ -47,7 +47,7 @@ internal sealed unsafe class DesktopPlatform : Platform, IInputSource
 
         for (int i = 0; i < count; i++)
         {
-            var m = createMonitorFromHandle(i, ms[i]);
+            var m = Monitor.From(i, glfw, ms[i]);
             monitors.Add(m.Name, m);
         }
     }
@@ -76,7 +76,7 @@ internal sealed unsafe class DesktopPlatform : Platform, IInputSource
 
     public override IWindow CreateWindow()
     {
-        return new Window(this, glfw, Options.Name);
+        return new Window(glfw, Options.Name);
     }
 
     public override Storage CreateStorage()
@@ -123,31 +123,13 @@ internal sealed unsafe class DesktopPlatform : Platform, IInputSource
 
         if (state is Silk.NET.GLFW.ConnectedState.Connected)
         {
-            monitor = createMonitorFromHandle(monitors.Count, m);
+            monitor = Monitor.From(monitors.Count, glfw, m);
             monitors.Add(monitor.Name, monitor);
         }
         else
         {
             monitors.Remove(glfw.GetMonitorName(m));
         }
-    }
-
-    private Monitor createMonitorFromHandle(int index, Silk.NET.GLFW.Monitor* monitor)
-    {
-        glfw.GetMonitorPos(monitor, out int x, out int y);
-
-        var modes = glfw.GetVideoModes(monitor, out int modeCount);
-        var ms = new VideoMode[modeCount];
-        var mc = glfw.GetVideoMode(monitor);
-
-        for (int i = 0; i < modeCount; i++)
-        {
-            ms[i] = new(new(modes[i].Width, modes[i].Height), modes[i].RefreshRate);
-        }
-
-        string name = glfw.GetMonitorName(monitor);
-
-        return new(index, name, monitor, new(x, y), new(new(mc->Width, mc->Height), mc->RefreshRate), ms);
     }
 
     IEnumerable<IInputDevice> IInputSource.Devices => devices.Values;

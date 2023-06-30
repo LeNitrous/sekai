@@ -38,6 +38,7 @@ internal sealed unsafe class GLTexture : Graphics.Texture
     public GLTexture(GL gl, TextureDescription description)
     {
         GL = gl;
+        Type = description.Type;
         Width = description.Width;
         Height = description.Height;
         Depth = description.Depth;
@@ -209,10 +210,7 @@ internal sealed unsafe class GLTexture : Graphics.Texture
 
     public override void SetData(nint data, uint size, int level, int layer, int x, int y, int z, int width, int height, int depth)
     {
-        if (isDisposed)
-        {
-            throw new ObjectDisposedException(nameof(GLTexture));
-        }
+        ObjectDisposedException.ThrowIf(isDisposed, this);
 
         int blockLength = isCompressed ? 4 : 1;
         int blockAlignedWidth = Math.Max(width, blockLength);
@@ -237,39 +235,39 @@ internal sealed unsafe class GLTexture : Graphics.Texture
         switch (target)
         {
             case TextureTarget.Texture1D when isCompressed:
-                GL.CompressedTexSubImage1D(target, level, x, (uint)width, iFormat, (uint)rowPitch, data);
+                GL.CompressedTexSubImage1D(target, level, x, (uint)width, iFormat, (uint)rowPitch, (void*)data);
                 break;
 
             case TextureTarget.Texture1D:
-                GL.TexSubImage1D(target, level, x, (uint)width, pFormat, type, data);
+                GL.TexSubImage1D(target, level, x, (uint)width, pFormat, type, (void*)data);
                 break;
 
             case TextureTarget.Texture1DArray when isCompressed:
-                GL.CompressedTexSubImage2D(target, level, x, layer, (uint)width, 1, iFormat, (uint)rowPitch, data);
+                GL.CompressedTexSubImage2D(target, level, x, layer, (uint)width, 1, iFormat, (uint)rowPitch, (void*)data);
                 break;
 
             case TextureTarget.Texture1DArray:
-                GL.TexSubImage2D(target, level, x, layer, (uint)width, 1, pFormat, type, data);
+                GL.TexSubImage2D(target, level, x, layer, (uint)width, 1, pFormat, type, (void*)data);
                 break;
 
             case TextureTarget.Texture2D when isCompressed:
-                GL.CompressedTexSubImage2D(target, level, x, y, (uint)width, (uint)height, iFormat, (uint)rowPitch, data);
+                GL.CompressedTexSubImage2D(target, level, x, y, (uint)width, (uint)height, iFormat, (uint)rowPitch, (void*)data);
                 break;
 
             case TextureTarget.Texture2D:
-                GL.TexSubImage2D(target, level, x, y, (uint)width, (uint)height, pFormat, type, data);
+                GL.TexSubImage2D(target, level, x, y, (uint)width, (uint)height, pFormat, type, (void*)data);
                 break;
 
             case TextureTarget.Texture2DArray when isCompressed:
-                GL.CompressedTexSubImage3D(target, level, x, y, layer, (uint)width, (uint)height, 1, iFormat, (uint)depthPitch, data);
+                GL.CompressedTexSubImage3D(target, level, x, y, layer, (uint)width, (uint)height, 1, iFormat, (uint)depthPitch, (void*)data);
                 break;
 
             case TextureTarget.Texture2DArray:
-                GL.TexSubImage3D(target, level, x, y, layer, (uint)width, (uint)height, 1, pFormat, type, data);
+                GL.TexSubImage3D(target, level, x, y, layer, (uint)width, (uint)height, 1, pFormat, type, (void*)data);
                 break;
 
             case TextureTarget.Texture3D:
-                GL.TexSubImage3D(target, level, x, y, z, (uint)width, (uint)height, (uint)depth, pFormat, type, data);
+                GL.TexSubImage3D(target, level, x, y, z, (uint)width, (uint)height, (uint)depth, pFormat, type, (void*)data);
                 break;
 
             case TextureTarget.TextureCubeMap when isCompressed:
@@ -277,15 +275,15 @@ internal sealed unsafe class GLTexture : Graphics.Texture
                 break;
 
             case TextureTarget.TextureCubeMap:
-                GL.TexSubImage2D(TextureTarget.TextureCubeMapPositiveX + layer, level, x, y, (uint)width, (uint)height, pFormat, type, data);
+                GL.TexSubImage2D(TextureTarget.TextureCubeMapPositiveX + layer, level, x, y, (uint)width, (uint)height, pFormat, type, (void*)data);
                 break;
 
             case TextureTarget.TextureCubeMapArray when isCompressed:
-                GL.CompressedTexSubImage3D(target, level, x, y, layer, (uint)width, (uint)height, 1, iFormat, (uint)depthPitch, data);
+                GL.CompressedTexSubImage3D(target, level, x, y, layer, (uint)width, (uint)height, 1, iFormat, (uint)depthPitch, (void*)data);
                 break;
 
             case TextureTarget.TextureCubeMapArray:
-                GL.TexSubImage3D(target, level, x, y, layer, (uint)width, (uint)height, 1, pFormat, type, data);
+                GL.TexSubImage3D(target, level, x, y, layer, (uint)width, (uint)height, 1, pFormat, type, (void*)data);
                 break;
         }
 
@@ -297,6 +295,7 @@ internal sealed unsafe class GLTexture : Graphics.Texture
 
     public override void GetData(nint data, uint size, int level, int layer, int x, int y, int z, int width, int height, int depth)
     {
+        ObjectDisposedException.ThrowIf(isDisposed, this);
         GL.GetTextureSubImage(handle, level, x, y, z, (uint)width, (uint)height, (uint)depth, pFormat, type, size, (void*)data);
     }
 
