@@ -61,7 +61,7 @@ jobs:
           DISPLAY: ":99"
 
       - name: Test
-        run: dotnet test /p:ContinuousIntegrationBuild=true /p:IncludeTestAssembly=true /p:CollectCoverage=true /p:CoverletOutputFormat=lcov /p:CoverletOutput="../results/coverage.info" /p:MergeWith="../results/coverage.info" --logger trx --results-directory "./tests/results/"
+        run: dotnet test /p:ContinuousIntegrationBuild=true /p:IncludeTestAssembly=true /p:CollectCoverage=true /p:CoverletOutput="../results/coverage.json" /p:MergeWith="../results/coverage.json" --logger trx --results-directory "./tests/results/"
         env:
           DISPLAY: ":99"
 
@@ -94,4 +94,4 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: artifacts/results-ubuntu-latest/coverage.info
+          files: artifacts/results-ubuntu-latest/coverage.json
