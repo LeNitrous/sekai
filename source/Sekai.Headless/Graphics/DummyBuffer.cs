@@ -27,13 +27,13 @@ internal sealed class DummyBuffer : GraphicsBuffer
         owner = MemoryPool<byte>.Shared.Rent(capacity);
     }
 
-    public override unsafe nint Map(MapMode mode)
+    protected override unsafe nint Map(MapMode mode)
     {
         handle = owner.Memory.Pin();
         return (nint)handle.Value.Pointer;
     }
 
-    public override void Unmap()
+    protected override void Unmap()
     {
         handle?.Dispose();
     }
