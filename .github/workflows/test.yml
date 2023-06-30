@@ -57,9 +57,13 @@ jobs:
             echo "glxinfo failed, no display available";
             exit 1;
           fi
+        env:
+          DISPLAY: ":99"
 
       - name: Test
         run: dotnet test /p:ContinuousIntegrationBuild=true /p:IncludeTestAssembly=true /p:CollectCoverage=true /p:CoverletOutputFormat=lcov /p:CoverletOutput="../results/coverage.info" /p:MergeWith="../results/coverage.info" --logger trx --results-directory "./tests/results/"
+        env:
+          DISPLAY: ":99"
 
       - name: Upload Results
         uses: actions/upload-artifact@v2
