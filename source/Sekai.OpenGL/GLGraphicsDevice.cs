@@ -53,14 +53,6 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
 
         GL.GenVertexArrays(1, out vao);
         GL.BindVertexArray(vao);
-
-        GL.Enable(EnableCap.DebugOutput);
-        GL.DebugMessageCallback(debugProc, null);
-    }
-
-    private static void debugProc(GLEnum source, GLEnum type, int id, GLEnum severity, int length, nint message, nint userParam)
-    {
-        Console.WriteLine($"{source} {type} {severity} {System.Text.Encoding.UTF8.GetString((byte*)message, length)}");
     }
 
     public override void MakeCurrent()
