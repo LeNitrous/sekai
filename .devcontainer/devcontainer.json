@@ -6,13 +6,14 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "ms-dotnettools.csharp",
-        "ms-dotnettools.vscode-dotnet-runtime",
-        "formulahendry.dotnet-test-explorer",
-        "ryanluker.vscode-coverage-gutters",
-        "editorconfig.editorconfig",
-        "patcx.vscode-nuget-gallery"
-      ]
+		"ms-dotnettools.csharp",
+		"ms-dotnettools.vscode-dotnet-runtime",
+		"formulahendry.dotnet-test-explorer",
+		"ryanluker.vscode-coverage-gutters",
+		"editorconfig.editorconfig",
+		"patcx.vscode-nuget-gallery",
+		"github.vscode-github-actions"
+	]
     }
   },
   "mounts": [

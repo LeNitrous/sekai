@@ -3,8 +3,7 @@ FROM mcr.microsoft.com/vscode/devcontainers/base:debian
 USER vscode
 
 # Install dependencies
-RUN \
-    sudo apt-get update && export DEBIAN_FRONTEND=noninteractive        \
+RUN sudo apt-get update && export DEBIAN_FRONTEND=noninteractive        \
     && sudo apt-get -y install --no-install-recommends xauth mesa-utils \
     && sudo apt-get autoremove -y                                       \
     && sudo apt-get clean -y                                            \

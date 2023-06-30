@@ -30,6 +30,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
+            --no-install-recommends \
+            mesa-utils \
             libgl1-mesa-dev \
             llvm-dev \
             xvfb \
@@ -40,6 +42,21 @@ jobs:
           sudo systemctl daemon-reload
           sudo systemctl start Xvfb
           sudo systemctl status Xvfb
+
+      - name: Verify a dummy display exists
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: |
+          # check if display has been exported
+          if [ -z "$DISPLAY" ]; then
+            echo "DISPLAY is not set";
+            exit 1;
+          fi
+
+          glxinfo -B;
+          if [ $? -ne 0 ]; then
+            echo "glxinfo failed, no display available";
+            exit 1;
+          fi
 
       - name: Test
         run: dotnet test /p:ContinuousIntegrationBuild=true /p:IncludeTestAssembly=true /p:CollectCoverage=true /p:CoverletOutputFormat=lcov /p:CoverletOutput="../results/coverage.info" /p:MergeWith="../results/coverage.info" --logger trx --results-directory "./tests/results/"
