@@ -38,7 +38,8 @@ internal sealed class Sample : Game
             new(0.0f, 0.5f),
         };
 
-        vbo = Graphics.CreateBuffer(BufferType.Vertex, vertices);
+        vbo = Graphics.CreateBuffer<Vector2>(BufferType.Vertex, (uint)vertices.Length);
+        vbo.SetData(vertices);
 
         layout = Graphics.CreateInputLayout
         (
