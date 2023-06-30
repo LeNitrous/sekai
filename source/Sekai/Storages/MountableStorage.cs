@@ -211,7 +211,7 @@ public sealed class MountableStorage : Storage
 
     private static string makeRelativePath(string path)
     {
-        if (!path.EndsWith(Path.DirectorySeparatorChar) || !path.EndsWith(Path.AltDirectorySeparatorChar))
+        if (!(path.EndsWith(Path.DirectorySeparatorChar) || path.EndsWith(Path.AltDirectorySeparatorChar)))
         {
             path += Path.AltDirectorySeparatorChar;
         }
