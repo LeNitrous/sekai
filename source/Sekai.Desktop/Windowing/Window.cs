@@ -369,6 +369,8 @@ internal sealed unsafe partial class Window : IWindow, IHasIcon, IHasDragDrop, I
 
         glfw.WindowHint(WindowHintInt.ContextVersionMajor, 3);
         glfw.WindowHint(WindowHintInt.ContextVersionMinor, 3);
+        glfw.WindowHint(WindowHintOpenGlProfile.OpenGlProfile, OpenGlProfile.Core);
+        glfw.WindowHint(WindowHintClientApi.ClientApi, ClientApi.OpenGL);
         glfw.WindowHint(WindowHintBool.Visible, false);
         glfw.WindowHintString((int)WindowHintString.X11ClassName, className);
         glfw.WindowHintString((int)WindowHintString.X11InstanceName, className);
