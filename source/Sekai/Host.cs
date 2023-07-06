@@ -253,6 +253,11 @@ public sealed class Host
                 Window.Focus();
                 hasShownWindow = true;
             }
+
+            if (State == HostState.Exited)
+            {
+                break;
+            }
         }
 
         if (gameLoop is not null)
