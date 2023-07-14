@@ -2,6 +2,9 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
+using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.Versioning;
 
 namespace Sekai;
@@ -14,13 +17,7 @@ public static class RuntimeInfo
     /// <summary>
     /// Whether execution is currently in debug mode.
     /// </summary>
-    public static readonly bool IsDebug =
-#if DEBUG
-    true
-#else
-    false
-#endif
-    ;
+    public static readonly bool IsDebug;
 
     /// <summary>
     /// Gets the operating system currently in execution.
@@ -110,6 +107,8 @@ public static class RuntimeInfo
 
         if (OperatingSystem.IsIOS())
             OS = Platform.iOS;
+
+        IsDebug = Assembly.GetEntryAssembly()!.GetCustomAttributes<DebuggableAttribute>().Any(a => a.IsJITTrackingEnabled);
     }
 
     /// <summary>
