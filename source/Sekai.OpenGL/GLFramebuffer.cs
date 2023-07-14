@@ -27,16 +27,19 @@ internal sealed unsafe class GLFramebuffer : Graphics.Framebuffer
             ((GLTexture)depth.Value.Texture).Attach(0, depth.Value.Level, depth.Value.Layer);
         }
 
-        Span<GLEnum> colorAttachments = stackalloc GLEnum[colors.Length];
-
-        for (int i = 0; i < colors.Length; i++)
+        if (colors is not null && colors.Length > 0)
         {
-            var color = colors[i];
-            ((GLTexture)color.Texture).Attach(i, color.Level, color.Layer);
-            colorAttachments[i] = GLEnum.ColorAttachment0 + i;
-        }
+            Span<GLEnum> colorAttachments = stackalloc GLEnum[colors.Length];
 
-        GL.DrawBuffers(colorAttachments);
+            for (int i = 0; i < colors.Length; i++)
+            {
+                var color = colors[i];
+                ((GLTexture)color.Texture).Attach(i, color.Level, color.Layer);
+                colorAttachments[i] = GLEnum.ColorAttachment0 + i;
+            }
+
+            GL.DrawBuffers(colorAttachments);
+        }
 
         if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != GLEnum.FramebufferComplete)
             throw new ArgumentException($"Failed to create framebuffer: {GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer)}");
