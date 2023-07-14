@@ -208,7 +208,7 @@ public sealed class Host
         window.Title = Options.Name;
         window.State = WindowState.Minimized;
         window.Border = Options.WindowBorder;
-        window.Closed += Exit;
+        window.Closed += () => exit(true);
 
         if (window is IHasSuspend suspendable)
         {
@@ -274,7 +274,19 @@ public sealed class Host
     /// </summary>
     public void Exit()
     {
-        setHostState(HostState.Exiting);
+        exit(false);
+    }
+
+    private void exit(bool userTriggered)
+    {
+        if (userTriggered)
+        {
+            setHostState(HostState.Exiting);
+        }
+        else
+        {
+            Window.Close();
+        }
     }
 
     private void suspend()
