@@ -548,50 +548,44 @@ public sealed class Host
 
     static Host()
     {
-        audioProvider = getProvider<AudioProviderAttribute, IAudioProvider>(provider_names_audio);
-        platformProvider = getProvider<PlatformProviderAttribute, IPlatformProvider>(provider_names_platform);
-        graphicsProvider = getProvider<GraphicsProviderAttribute, IGraphicsProvider>(provider_names_graphics);
+        audioProvider = getComponent<IAudioProvider>(provider_names_audio);
+        platformProvider = getComponent<IPlatformProvider>(provider_names_platform);
+        graphicsProvider = getComponent<IGraphicsProvider>(provider_names_graphics);
     }
 
-    private static U getProvider<T, U>(string[] assemblyNames)
-        where T : Attribute, IProviderAttribute
-        where U : class
+    private static T getComponent<T>(string[] assemblyNames)
+        where T : class
     {
         foreach (string assemblyName in assemblyNames)
         {
-            if (tryLoad<T, U>(assemblyName, out var provider))
+            if (tryLoad<T>(assemblyName, out var provider))
             {
                 return provider;
             }
         }
 
-        throw new InvalidOperationException("Failed to load provider.");
+        throw new InvalidOperationException($"Failed to load an {typeof(T)}.");
     }
 
-    private static bool tryLoad<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] T, U>(string assemblyName, [NotNullWhen(true)] out U? provider)
-        where T : Attribute, IProviderAttribute
-        where U : class
+    private static bool tryLoad<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] T>(string assemblyName, [NotNullWhen(true)] out T? provider)
+        where T : class
     {
         provider = null;
 
         try
         {
             var asm = Assembly.Load(assemblyName);
-            var att = asm.GetCustomAttribute<T>();
 
-            if (att is null)
+            foreach (var att in asm.GetCustomAttributes<HostComponentAttribute>())
             {
-                return false;
+                if (typeof(T).IsAssignableFrom(att.Type))
+                {
+                    provider = (T)Activator.CreateInstance(att.Type)!;
+                    return true;
+                }
             }
 
-            if (!typeof(U).IsAssignableFrom(att.Type))
-            {
-                return false;
-            }
-
-            provider = (U)Activator.CreateInstance(att.Type)!;
-
-            return true;
+            return false;
         }
         catch
         {

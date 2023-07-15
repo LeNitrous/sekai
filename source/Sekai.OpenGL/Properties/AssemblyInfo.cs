@@ -5,5 +5,5 @@ using System.Runtime.CompilerServices;
 using Sekai.Hosting;
 using Sekai.OpenGL;
 
-[assembly: GraphicsProvider(typeof(GLGraphicsProvider))]
+[assembly: HostComponent(typeof(GLGraphicsProvider))]
 [assembly: InternalsVisibleTo("Sekai.OpenGL.Tests")]

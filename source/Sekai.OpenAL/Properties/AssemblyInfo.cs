@@ -4,4 +4,4 @@
 using Sekai.Hosting;
 using Sekai.OpenAL;
 
-[assembly: AudioProvider(typeof(ALAudioProvider))]
+[assembly: HostComponent(typeof(ALAudioProvider))]

@@ -7,17 +7,14 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Sekai.Hosting;
 
-/// <summary>
-/// An attribute used to denote a given type provides audio.
-/// </summary>
 [AttributeUsage(AttributeTargets.Assembly)]
 [EditorBrowsable(EditorBrowsableState.Never)]
-public sealed class AudioProviderAttribute : Attribute, IProviderAttribute
+public sealed class HostComponentAttribute : Attribute
 {
     [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)]
     public Type Type { get; }
 
-    public AudioProviderAttribute([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type type)
+    public HostComponentAttribute([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicParameterlessConstructor)] Type type)
     {
         Type = type;
     }
