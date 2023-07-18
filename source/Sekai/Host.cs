@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Sekai.Graphics;
 using Sekai.Hosting;
 using Sekai.Input;
 using Sekai.Logging;
@@ -100,6 +101,8 @@ public sealed class Host
     internal readonly HostOptions Options;
 
     private Game? game;
+    private IWindow? window;
+    private Storage? storage;
     private Platform? platform;
     private LogWriterText? fileOut;
     private LogWriterConsole? termOut;
@@ -112,13 +115,15 @@ public sealed class Host
     private TimeSpan previousTime;
     private bool hasShownWindow;
     private ExceptionDispatchInfo? info;
+    private readonly Func<Game> factory;
     private readonly object sync = new();
     private readonly Stopwatch stopwatch = new();
     private readonly MergedInputSource inputContext = new();
     private static readonly TimeSpan wait_threshold = TimeSpan.FromMilliseconds(2);
 
-    private Host(HostOptions? options = null)
+    private Host(Func<Game> factory, HostOptions? options = null)
     {
+        this.factory = factory;
         Options = options ?? new();
         TickMode = Options.TickMode;
         UpdateRate = Options.UpdateRate;
@@ -151,18 +156,12 @@ public sealed class Host
     public static async Task RunAsync<T>(HostOptions? options = null, CancellationToken token = default)
         where T : Game, new()
     {
-        var game = new T();
-        var host = new Host(options);
-        await host.run(game, token);
+        var host = new Host(static () => new T(), options);
+        await host.run(token);
     }
 
-    private async Task run(Game game, CancellationToken token = default)
+    private async Task run(CancellationToken token = default)
     {
-        if (this.game is not null)
-        {
-            throw new InvalidOperationException("This host is currently running a game.");
-        }
-
         if (current is not null)
         {
             throw new InvalidOperationException("Cannot run a game with an active host.");
@@ -175,15 +174,10 @@ public sealed class Host
             token.Register(Exit);
         }
 
-        this.game = game;
-
         platform = platformProvider.CreatePlatform(Options);
+        storage = platform.CreateStorage();
 
-        game.Host = this;
-        game.Options = Options;
-        game.Storage = platform.CreateStorage();
-
-        if (game.Storage is MountableStorage mount && mount.IsMounted(Storage.User))
+        if (storage is MountableStorage mount && mount.IsMounted(Storage.User))
         {
             Logger.AddOutput(fileOut = new LogWriterText(mount.Open("/user/runtime.log", FileMode.Create, FileAccess.Write)));
         }
@@ -201,22 +195,32 @@ public sealed class Host
         Logger.Log("  Environment: {0}, ({1}) {2} cores", RuntimeInfo.OS, Environment.OSVersion, Environment.ProcessorCount);
         Logger.Log("--------------------------------------------------------");
 
-        game.Window = platform.CreateWindow();
-        game.Window.Size = Options.WindowSize;
-        game.Window.Title = Options.Name;
-        game.Window.State = WindowState.Minimized;
-        game.Window.Border = Options.WindowBorder;
-        game.Window.Closed += () => exit(true);
+        window = platform.CreateWindow();
+        window.Size = Options.WindowSize;
+        window.Title = Options.Name;
+        window.State = WindowState.Minimized;
+        window.Border = Options.WindowBorder;
+        window.Closed += () => exit(true);
 
-        if (game.Window is IHasSuspend suspendable)
+        if (window is IHasSuspend suspendable)
         {
             suspendable.Resumed += resumed;
             suspendable.Suspend += suspend;
         }
 
-        if (game.Window is IHasRestart restartable)
+        if (window is IHasRestart restartable)
         {
-            restartable.Restart += restart;
+            restartable.Restart += Restart;
+        }
+
+        if (window is IInputSource windowInput)
+        {
+            inputContext.Add(windowInput);
+        }
+
+        if (platform is IInputSource platformInput)
+        {
+            inputContext.Add(platformInput);
         }
 
         setHostState(HostState.Loading);
@@ -228,7 +232,7 @@ public sealed class Host
             gameLoop = Task.Factory.StartNew(runGameLoop, token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
 
-        while (game.Window.Exists)
+        while (window.Exists)
         {
             if (info is not null)
             {
@@ -237,7 +241,7 @@ public sealed class Host
             }
 
             platform.DoEvents();
-            game.Window.DoEvents();
+            window.DoEvents();
 
             if (ExecutionMode == ExecutionMode.SingleThread && !runTick())
             {
@@ -246,9 +250,9 @@ public sealed class Host
 
             if (!hasShownWindow && State == HostState.Running)
             {
-                game.Window.State = WindowState.Normal;
-                game.Window.Visible = true;
-                game.Window.Focus();
+                window.State = WindowState.Normal;
+                window.Visible = true;
+                window.Focus();
                 hasShownWindow = true;
             }
         }
@@ -261,7 +265,7 @@ public sealed class Host
         termOut?.Dispose();
         fileOut?.Dispose();
 
-        game.Window.Dispose();
+        window.Dispose();
         platform?.Dispose();
 
         current = null;
@@ -273,6 +277,14 @@ public sealed class Host
     public void Exit()
     {
         exit(false);
+    }
+
+    /// <summary>
+    /// Restarts the game.
+    /// </summary>
+    public void Restart()
+    {
+        setHostState(HostState.Reloading);
     }
 
     private void exit(bool userTriggered)
@@ -288,7 +300,7 @@ public sealed class Host
         }
         else
         {
-            game!.Window.Close();
+            window?.Close();
         }
     }
 
@@ -312,11 +324,6 @@ public sealed class Host
         setHostState(HostState.Resuming);
     }
 
-    private void restart()
-    {
-        setHostState(HostState.Reloading);
-    }
-
     private Task runGameLoop()
     {
         try
@@ -334,35 +341,24 @@ public sealed class Host
 
     private bool runTick()
     {
-        if (game is null)
-        {
-            return false;
-        }
-
-        game.Graphics?.MakeCurrent();
-
         switch (State)
         {
-            case HostState.Loading:
+            case HostState.Loading when game is null:
                 {
-                    if (game.Window is IInputSource windowInput)
-                    {
-                        inputContext.Add(windowInput);
-                    }
+                    game = factory();
 
-                    if (platform is IInputSource platformInput)
-                    {
-                        inputContext.Add(platformInput);
-                    }
-
+                    game.Graphics = graphicsProvider.CreateGraphics(game.Window);
+                    game.Storage = storage!;
+                    game.Options = Options;
+                    game.Window = window!;
+                    game.Logger = Logger;
                     game.Input = new(inputContext);
                     game.Audio = audioProvider.CreateAudio();
+                    game.Host = this;
 
                     Logger.Log("{0} Initialized", game.Audio.API);
                     Logger.Log("     Device: {0}", game.Audio.Device);
                     Logger.Log("    Version: {0}", game.Audio.Version);
-
-                    game.Graphics = graphicsProvider.CreateGraphics(game.Window);
 
                     Logger.Log("{0} Initialized", game.Graphics.API);
                     Logger.Log("     Device: {0}", game.Graphics.Device);
@@ -383,7 +379,7 @@ public sealed class Host
                     return true;
                 }
 
-            case HostState.Running:
+            case HostState.Running when game is not null:
                 {
                     bool retry = false;
 
@@ -437,17 +433,18 @@ public sealed class Host
                         game.Update(elapsedTime);
                     }
 
-                    game.Graphics!.SetScissor(new Rectangle(Point.Zero, game.Window.Size));
-                    game.Graphics!.SetViewport(new Rectangle(Point.Zero, game.Window.Size));
+                    game.Graphics.MakeCurrent();
+                    game.Graphics.SetScissor(new Rectangle(Point.Zero, game.Window.Size));
+                    game.Graphics.SetViewport(new Rectangle(Point.Zero, game.Window.Size));
 
                     game.Draw();
 
-                    game.Graphics!.Present();
+                    game.Graphics.Present();
 
                     return true;
                 }
 
-            case HostState.Resuming:
+            case HostState.Resuming when game is not null:
                 {
                     game.Audio.Process();
                     stopwatch.Start();
@@ -456,7 +453,7 @@ public sealed class Host
                     return true;
                 }
 
-            case HostState.Pausing:
+            case HostState.Pausing when game is not null:
                 {
                     game.Audio.Suspend();
                     stopwatch.Stop();
@@ -465,21 +462,25 @@ public sealed class Host
                     return true;
                 }
 
-            case HostState.Exiting:
-            case HostState.Reloading:
+            case HostState.Exiting when game is not null:
+            case HostState.Reloading when game is not null:
                 {
                     game.Unload();
 
-                    game.Input?.Dispose();
-                    game.Input = null!;
+                    if (state == HostState.Reloading)
+                    {
+                        game.Graphics.MakeCurrent();
+                        game.Graphics.SetScissor(new Rectangle(Point.Zero, game.Window.Size));
+                        game.Graphics.SetViewport(new Rectangle(Point.Zero, game.Window.Size));
+                        game.Graphics.Clear(new ClearInfo(Color.Black));
+                        game.Graphics.Present();
+                    }
 
-                    game.Audio?.Dispose();
-                    game.Audio = null!;
+                    game.Input.Dispose();
+                    game.Audio.Dispose();
+                    game.Graphics.Dispose();
 
-                    game.Graphics?.Dispose();
-                    game.Graphics = null!;
-
-                    inputContext.Clear();
+                    game = null;
 
                     if (state == HostState.Reloading)
                     {
