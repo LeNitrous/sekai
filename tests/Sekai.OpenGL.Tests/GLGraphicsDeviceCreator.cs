@@ -3,7 +3,7 @@
 
 using System;
 using Sekai.Contexts;
-using Sekai.Desktop.Windowing;
+using Sekai.GLFW;
 using Sekai.Graphics;
 using Sekai.Graphics.Tests;
 using Sekai.Windowing;
@@ -29,6 +29,6 @@ public sealed class GLGraphicsDeviceCreator : GraphicsDeviceCreator
             throw new PlatformNotSupportedException();
         }
 
-        return new Window("Sekai-UnitTest") { Visible = false };
+        return new GLFWWindow() { Visible = false };
     }
 }

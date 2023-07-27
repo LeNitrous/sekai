@@ -12,7 +12,7 @@ namespace Sekai.Input;
 public interface IInputSource
 {
     /// <summary>
-    /// An enumeration of all available devices.
+    /// Gets all connected devices from this source.
     /// </summary>
     IEnumerable<IInputDevice> Devices { get; }
 

@@ -14,21 +14,6 @@ namespace Sekai.Storages;
 public abstract class Storage : IDisposable
 {
     /// <summary>
-    /// The game path.
-    /// </summary>
-    public static readonly string Game = "/game/";
-
-    /// <summary>
-    /// The user path.
-    /// </summary>
-    public static readonly string User = "/user/";
-
-    /// <summary>
-    /// The temp path.
-    /// </summary>
-    public static readonly string Temp = "/temp/";
-
-    /// <summary>
     /// Opens a file as a <see cref="Stream"/>.
     /// </summary>
     /// <param name="path">The path to the stream.</param>

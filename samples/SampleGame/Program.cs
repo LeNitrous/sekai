@@ -1,11 +1,13 @@
 // Copyright (c) Cosyne
 // Licensed under MIT. See LICENSE for details.
 
-using System;
 using System.Numerics;
 using Sekai;
+using Sekai.GLFW;
 using Sekai.Graphics;
 using Sekai.Mathematics;
+using Sekai.OpenAL;
+using Sekai.OpenGL;
 
 namespace SampleGame;
 
@@ -13,7 +15,19 @@ internal static class Program
 {
     private static void Main()
     {
-        Host.Run<Sample>(new HostOptions { Name = "Sample" });
+        var options = new GameOptions();
+        options.UseOpenAL();
+        options.UseOpenGL();
+        options.Logger.AddConsole();
+
+        if (RuntimeInfo.IsDesktop)
+        {
+            options.UseGLFW();
+            options.Window.Title = "Sample";
+        }
+
+        var game = new Sample(options);
+        game.Run();
     }
 }
 
@@ -23,20 +37,18 @@ internal sealed class Sample : Game
     private InputLayout? layout;
     private GraphicsBuffer? vbo;
 
-    public override void Load()
+    public Sample(GameOptions options)
+        : base(options)
+    {
+    }
+
+    protected override void Load()
     {
         shd = Graphics.CreateShader
         (
             ShaderCode.From(shader_v_code, ShaderStage.Vertex),
             ShaderCode.From(shader_f_code, ShaderStage.Fragment)
         );
-
-        ReadOnlySpan<Vector2> vertices = stackalloc Vector2[]
-        {
-            new(-0.5f, -0.5f),
-            new(0.5f, -0.5f),
-            new(0.0f, 0.5f),
-        };
 
         vbo = Graphics.CreateBuffer<Vector2>(BufferType.Vertex, (uint)vertices.Length);
         vbo.SetData(vertices);
@@ -50,7 +62,7 @@ internal sealed class Sample : Game
         );
     }
 
-    public override void Draw()
+    protected override void Draw()
     {
         Graphics.Clear(Color.CornflowerBlue);
         Graphics.SetShader(shd!);
@@ -58,11 +70,18 @@ internal sealed class Sample : Game
         Graphics.Draw(PrimitiveType.TriangleList, 3);
     }
 
-    public override void Unload()
+    protected override void Unload()
     {
         shd?.Dispose();
         vbo?.Dispose();
     }
+
+    private static readonly Vector2[] vertices = new Vector2[]
+    {
+        new(-0.5f, -0.5f),
+        new(0.5f, -0.5f),
+        new(0.0f, 0.5f),
+    };
 
     private const string shader_v_code =
 @"

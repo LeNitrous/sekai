@@ -9,7 +9,7 @@ namespace Sekai.Logging;
 /// <summary>
 /// A <see cref="LogWriter"/> that uses a <see cref="Stream"/>.
 /// </summary>
-public abstract class LogWriterStream : LogWriter, IDisposable
+public abstract class LogWriterStream : LogWriter
 {
     private bool isDisposed;
     private readonly bool leaveOpen;
@@ -26,7 +26,7 @@ public abstract class LogWriterStream : LogWriter, IDisposable
         this.leaveOpen = leaveOpen;
     }
 
-    public void Dispose()
+    public override void Dispose()
     {
         if (isDisposed)
         {

@@ -6,11 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <TrimmerRootDescriptor Include="TrimmerRoots.xml" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="../../source/Sekai.Desktop/Sekai.Desktop.csproj" />
+    <ProjectReference Include="../../source/Sekai.GLFW/Sekai.GLFW.csproj" />
     <ProjectReference Include="../../source/Sekai.OpenAL/Sekai.OpenAL.csproj" />
     <ProjectReference Include="../../source/Sekai.OpenGL/Sekai.OpenGL.csproj" />
   </ItemGroup>

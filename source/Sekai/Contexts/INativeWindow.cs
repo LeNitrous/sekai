@@ -4,12 +4,12 @@
 namespace Sekai.Contexts;
 
 /// <summary>
-/// A context providing a <see cref="GLContext"/>.
+/// A context providing a native window.
 /// </summary>
-public interface IGLContextSource
+public interface INativeWindow
 {
     /// <summary>
-    /// The GL context.
+    /// The native window info.
     /// </summary>
-    GLContext Context { get; }
+    NativeWindowInfo Native { get; }
 }

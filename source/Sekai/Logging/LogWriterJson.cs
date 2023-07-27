@@ -9,6 +9,12 @@ namespace Sekai.Logging;
 
 public sealed class LogWriterJson : LogWriterStream
 {
+    private const string prop_time = "time";
+    private const string prop_level = "severity";
+    private const string prop_content = "message";
+    private const string prop_exception = "exception";
+    private const string prop_exception_type = "type";
+    private const string prop_exception_trace = "trace";
     private readonly Utf8JsonWriter writer;
     private readonly List<LogMessage> messages = new();
 
@@ -22,13 +28,6 @@ public sealed class LogWriterJson : LogWriterStream
     {
         messages.Add(message);
     }
-
-    private const string prop_time = "time";
-    private const string prop_level = "severity";
-    private const string prop_content = "message";
-    private const string prop_exception = "exception";
-    private const string prop_exception_type = "type";
-    private const string prop_exception_stack = "stacktrace";
 
     public override void Flush()
     {
@@ -48,7 +47,7 @@ public sealed class LogWriterJson : LogWriterStream
                 writer.WritePropertyName(prop_exception);
                 writer.WriteStartObject();
                 writer.WriteString(prop_exception_type, message.Exception.GetType().Name);
-                writer.WriteString(prop_exception_stack, message.Exception.StackTrace);
+                writer.WriteString(prop_exception_trace, message.Exception.StackTrace);
                 writer.WriteEndObject();
             }
 

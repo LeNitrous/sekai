@@ -14,11 +14,6 @@ namespace Sekai.Logging;
 public readonly struct LogMessage : IEquatable<LogMessage>
 {
     /// <summary>
-    /// The category of this message.
-    /// </summary>
-    public string Category { get; }
-
-    /// <summary>
     /// The logged message.
     /// </summary>
     public object? Content { get; }
@@ -41,16 +36,14 @@ public readonly struct LogMessage : IEquatable<LogMessage>
     /// <summary>
     /// Creates a new <see cref="LogMessage"/>
     /// </summary>
-    /// <param name="category">The log entry's category.</param>
     /// <param name="message">The log entry's message.</param>
     /// <param name="level">The log entry's level.</param>
     /// <param name="timestamp">The log entry's timestamp.</param>
     /// <param name="exception">The exception associated with this entry.</param>
-    public LogMessage(string category, object? message = null, LogLevel level = LogLevel.Trace, DateTime? timestamp = null, Exception? exception = null)
+    public LogMessage(object? message = null, LogLevel level = LogLevel.Trace, DateTime? timestamp = null, Exception? exception = null)
     {
         Level = level;
         Content = message;
-        Category = category;
         Timestamp = timestamp ?? DateTime.Now;
         Exception = exception;
     }

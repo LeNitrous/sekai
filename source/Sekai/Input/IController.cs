@@ -12,6 +12,11 @@ namespace Sekai.Input;
 public interface IController : IInputDevice
 {
     /// <summary>
+    /// Gets the controller index.
+    /// </summary>
+    int Index { get; }
+
+    /// <summary>
     /// The controller's deadzone method.
     /// </summary>
     Deadzone Deadzone { get; set; }

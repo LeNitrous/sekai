@@ -24,4 +24,8 @@ internal sealed class LogWriterDebug : LogWriter
             Debug.WriteLine(message);
         }
     }
+
+    public override void Dispose()
+    {
+    }
 }

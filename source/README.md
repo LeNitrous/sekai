@@ -4,10 +4,8 @@ Sekai is structured where abstractions and concrete implementations as separate 
 
 - **`Sekai`**
     - The main project.
-- **`Sekai.Desktop`**
-    - The desktop platform implementation.
-- **`Sekai.Headless`**
-    - The headless platform implementation.
+- **`Sekai.GLFW`**
+    - The GLFW backed windowing subsystem.
 - **`Sekai.OpenAL`**
     - The OpenAL backed audio subsystem.
 - **`Sekai.OpenGL`**

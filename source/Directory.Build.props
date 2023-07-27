@@ -10,13 +10,13 @@
     <Title>Sekai</Title>
     <Description>The rendering framework that powers Vignette.</Description>
     <Authors>Cosyne</Authors>
-    <RepositoryUrl>https://github.com/vignetteapp/sekai.git</RepositoryUrl>
+    <RepositoryUrl>https://github.com/cosyneco/sekai.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <RepositoryBranch>main</RepositoryBranch>
     <Copyright>Copyright (c) 2023 Cosyne</Copyright>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageProjectUrl>https://github.com/vignetteapp/sekai</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/cosyneco/sekai</PackageProjectUrl>
   </PropertyGroup>
   <ItemGroup>
     <None Include="$(SolutionDir)LICENSE" Pack="True" PackagePath=""/>

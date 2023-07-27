@@ -10,7 +10,7 @@ using Sekai.Mathematics;
 
 namespace Sekai.Logging;
 
-public sealed partial class LogWriterConsole : LogWriter, IDisposable
+internal sealed partial class LogWriterConsole : LogWriter
 {
     private bool isDisposed;
     private readonly LogWriterConsoleStream streamOut;
@@ -58,7 +58,7 @@ public sealed partial class LogWriterConsole : LogWriter, IDisposable
         writer.Write(message);
     }
 
-    public void Dispose()
+    public override void Dispose()
     {
         if (isDisposed)
         {

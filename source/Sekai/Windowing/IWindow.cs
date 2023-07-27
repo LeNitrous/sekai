@@ -2,79 +2,50 @@
 // Licensed under MIT. See LICENSE for details.
 
 using System;
+using System.Collections.Generic;
 using Sekai.Mathematics;
 
 namespace Sekai.Windowing;
 
 /// <summary>
-/// An interface for window objects.
+/// A window.
 /// </summary>
-public interface IWindow : IDisposable
+public interface IWindow : IView, IWindowHost
 {
     /// <summary>
-    /// Called when the window has been closed.
+    /// Gets whether the window has input focus or not.
     /// </summary>
-    event Action? Closed;
+    bool HasFocus { get; }
 
     /// <summary>
-    /// Called when the window is about to close.
+    /// The window's visibility state.
     /// </summary>
-    event Action? Closing;
+    bool Visible { get; set; }
 
     /// <summary>
-    /// Called when the window is requesting to be closed. Return <see langword="true"/> to continue closing.
+    /// The window's title.
     /// </summary>
-    event Func<bool>? CloseRequested;
-
-    /// <summary>
-    /// Called when the window has been resized.
-    /// </summary>
-    event Action<Size>? Resized;
-
-    /// <summary>
-    /// Called when the window has been moved.
-    /// </summary>
-    event Action<Point>? Moved;
-
-    /// <summary>
-    /// Called when the window focus has changed.
-    /// </summary>
-    event Action<bool>? FocusChanged;
-
-    /// <summary>
-    /// Called when the window state has changed.
-    /// </summary>
-    event Action<WindowState>? StateChanged;
-
-    /// <summary>
-    /// Gets whether the window exists or not.
-    /// </summary>
-    bool Exists { get; }
-
-    /// <summary>
-    /// The window's surface info.
-    /// </summary>
-    NativeWindowInfo Surface { get; }
-
-    /// <summary>
-    /// The monitor where this window is currently at.
-    /// </summary>
-    IMonitor Monitor { get; }
-
-    /// <summary>
-    /// The window border state.
-    /// </summary>
-    WindowBorder Border { get; set; }
-
-    /// <summary>
-    /// The window state.
-    /// </summary>
-    WindowState State { get; set; }
+    string Title { get; set; }
 
     /// <summary>
     /// The window's size.
     /// </summary>
-    Size Size { get; set; }
+    new Size Size { get; set; }
+
+    /// <summary>
+    /// The monitor this window is present on.
+    /// </summary>
+    Monitor Monitor { get; }
+
+    /// <summary>
+    /// Gets all the monitors currently available.
+    /// </summary>
+    IEnumerable<Monitor> Monitors { get; }
+
+    /// <summary>
+    /// The host owning this window.
+    /// </summary>
+    IWindowHost Owner { get; }
 
     /// <summary>
     /// The window's minimum size.
@@ -92,38 +63,34 @@ public interface IWindow : IDisposable
     Point Position { get; set; }
 
     /// <summary>
-    /// The window's focus state.
+    /// The window state.
     /// </summary>
-    bool HasFocus { get; }
+    WindowState State { get; set; }
 
     /// <summary>
-    /// The window's visibility state.
+    /// The window border state.
     /// </summary>
-    bool Visible { get; set; }
+    WindowBorder Border { get; set; }
 
     /// <summary>
-    /// The window's title.
+    /// Called when the window has been moved.
     /// </summary>
-    string Title { get; set; }
+    event Action<Point>? Moved;
 
     /// <summary>
-    /// Translates screen-space coordinates to local coordinates.
+    /// Called when the window focus has changed.
     /// </summary>
-    /// <param name="point">The local-space coordinates.</param>
-    /// <returns>The screen-space coordinates.</returns>
-    Point PointToClient(Point point);
+    event Action<bool>? FocusChanged;
 
     /// <summary>
-    /// Translates local-space coordinates to screen coordinates.
+    /// Called when the window state has changed.
     /// </summary>
-    /// <param name="point">The local-space coordinates.</param>
-    /// <returns>The screen-space coordinates.</returns>
-    Point PointToScreen(Point point);
+    event Action<WindowState>? StateChanged;
 
     /// <summary>
-    /// Closes the window.
+    /// Called when content has been dropped on the window.
     /// </summary>
-    void Close();
+    event Action<string[]>? Dropped;
 
     /// <summary>
     /// Makes the window focused.
@@ -131,7 +98,13 @@ public interface IWindow : IDisposable
     void Focus();
 
     /// <summary>
-    /// Performs window events.
+    /// Runs the window loop on the calling thread.
     /// </summary>
-    void DoEvents();
+    void Run();
+
+    /// <summary>
+    /// Sets the window's icons.
+    /// </summary>
+    /// <param name="icons">The icons to use.</param>
+    void SetWindowIcon(ReadOnlySpan<Icon> icons);
 }
