@@ -41,7 +41,7 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
     {
         GL = GL.GetApi((this.source = source).GetProcAddress);
 
-        MakeCurrent();
+        source.MakeCurrent();
 
         GL.GetInteger(GetPName.MajorVersion, out int major);
         GL.GetInteger(GetPName.MinorVersion, out int minor);
@@ -53,6 +53,8 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
 
         GL.GenVertexArrays(1, out vao);
         GL.BindVertexArray(vao);
+
+        source.Clear();
     }
 
     public override void MakeCurrent()
@@ -148,8 +150,6 @@ internal sealed unsafe class GLGraphicsDevice : GraphicsDevice
         {
             return;
         }
-
-        MakeCurrent();
 
         GL.BindVertexArray(0);
         GL.DeleteVertexArray(vao);
